@@ -20,6 +20,10 @@ html, body, div {
   height:100%;
 }
 
+.slick-viewport {
+  background-color:#eeeeee;
+}
+
 .slick-header-column.ui-state-default {
   background-color:#505050 ;
   color:#eeeeee;  
@@ -54,6 +58,15 @@ html, body, div {
   background-color:#5e99ff;
 } 
 
+.clicktrap {
+  position:absolute;
+  top:0px;
+  left:0px;
+  z-index:99999;
+  width:100%;
+  height:100%;
+  background-color:rgba(0, 0, 0, 0.8);
+}
 
 // TODO clean up
 

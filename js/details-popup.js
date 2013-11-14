@@ -1,22 +1,20 @@
-/** Ensure namespaces **/
+/** Namespaces **/
 var pelagios = (window.pelagios) ? window.pelagios : { };
-
-pelagios.tools = (pelagios.tools) ? pelagios.tools : { };
+pelagios.georesolution = (pelagios.georesolution) ? pelagios.georesolution : { };
 
 /**
  * @param {Object} place the place
  * @constructor
  */
-pelagios.tools.FixGeoResolutionWidget = function(parentEl, place) {
-  /** @private **/
-  this._el = parentEl;
+pelagios.georesolution.DetailsPopup = function(place) {
+  var clicktrap = document.createElement('div');
+  clicktrap.className = 'clicktrap';
+  document.body.appendChild(clicktrap);
   
-  /** @private **/
-  this._place = place;
-
-  this._initInfo(parentEl, this._initMap(parentEl), place);  
+  // this._initInfo(parentEl, this._initMap(parentEl), place);  
 }
 
+/*
 pelagios.tools.FixGeoResolutionWidget.prototype._initInfo = function(parentEl, map, place) {
   var h1 = document.createElement('h1');
   h1.innerHTML = place.toponym;
@@ -61,4 +59,4 @@ pelagios.tools.FixGeoResolutionWidget.prototype._initMap = function(parentEl) {
 
   return map;
 }
-
+*/

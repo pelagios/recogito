@@ -1,17 +1,24 @@
-/** Ensure namespaces **/
+/** Namespaces **/
 var pelagios = (window.pelagios) ? window.pelagios : { };
 pelagios.georesolution = (pelagios.georesolution) ? pelagios.georesolution : { };
-pelagios.georesolution.widgets = (pelagios.georesolution.widgets) ? pelagios.georesolution.widgets : { };
 
+/**
+ * The main application constructor
+ * @param {Element} tableDiv the DIV to hold the SlickGrid table
+ * @param {Element] mapDiv the DIV to hold the Leaflet map
+ * @constructor
+ */
 pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv) {
-  
-  // TODO for testing only
+  // TODO for testing only!
   var dataURL = 'test/mock-data.json';
+  
+  /** @private **/
+  this._grid = this._initTable(tableDiv);
+  
+  /** @private **/
+  this._map = this._initMap(mapDiv);
 
-  var grid = this._initTable(tableDiv);
-
-  var map = this._initMap(mapDiv);
-
+  var self = this;
   $.getJSON(dataURL, function(data) {
     // Flatten & repackage response
     var places = [];
@@ -23,18 +30,42 @@ pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv) {
       });
     });
     
-    grid.setData(places, true);
-    grid.render();
+    // Set data on table
+    self._grid.setData(places, true);
+    self._grid.render();
+    
+    // Set data on map
+    $.each(places, function(idx, place) {
+      if (place.coordinate)
+        self.addPlaceMarker(place)
+    })
+  });
+}
+
+pelagios.georesolution.CorrectionTool.prototype.addPlaceMarker = function(place) {
+  var STYLE_AUTOMATCH = { color: '#0000ff', radius: 4, fillOpacity: 0.8 };
+  var STYLE_CORRECTION = { };
+
+  var marker = L.circleMarker(place.coordinate, STYLE_AUTOMATCH);
+  marker.addTo(this._map); 
+  marker.on('click', function(e) {
+    marker.bindPopup(place.toponym + ' (<a href="' + place.source + '">Source</a>)').openPopup(); 
+    // var rowsToSelect = findRowsWithGID(grid, place.gazetteer_uri);
+    // if (rowsToSelect.length > 0) {
+    //   grid.setSelectedRows(rowsToSelect);
+    //  grid.scrollRowIntoView(rowsToSelect[0], true);
+    // }
   });
 }
 
 /**
  * Initializes the SlickGrid table.
+ * @param {Element} tableDiv the DIV to hold the SlickGrid table
  * @private
  */
 pelagios.georesolution.CorrectionTool.prototype._initTable = function(tableDiv) {
-  // Custom formatter for Pleiades URIs
-  var formatter = function (row, cell, value, columnDef, dataContext) {
+  // A custom formatter for Pleiades URIs
+  var pleiadesFormatter = function (row, cell, value, columnDef, dataContext) {
     if (value) {
       if (value.indexOf('http://pleiades.stoa.org') == 0) {
         var id =  value.substring(32);
@@ -49,25 +80,28 @@ pelagios.georesolution.CorrectionTool.prototype._initTable = function(tableDiv) 
   }
 
   var columns = [{ name: "Toponym", field: "toponym", id: "toponym" },
-                 { name: "Place ID", field: "gazetteer_uri", id: "gazetteer_uri" , formatter: formatter },
-                 { name: "Corrected", field: "gazetteer_uri_fixed", id: "gazetteer_uri_fixed", formatter: formatter }];
+                 { name: "Place ID", field: "gazetteer_uri", id: "gazetteer_uri" , formatter: pleiadesFormatter },
+                 { name: "Corrected", field: "gazetteer_uri_fixed", id: "gazetteer_uri_fixed", formatter: pleiadesFormatter }];
 
   var options = { enableCellNavigation: true, enableColumnReorder: false, forceFitColumns: true, autoEdit: false };
     
   var grid = new Slick.Grid('#table', {}, columns, options);
   grid.setSelectionModel(new Slick.RowSelectionModel());
   grid.onDblClick.subscribe(function(e, args) {
-    // TODO implement
+    var popup = new pelagios.georesolution.DetailsPopup(grid.getDataItem(args.row));
   });
 
   // Redraw grid in case of window resize
-  $(window).resize(function() {
-    grid.resizeCanvas();
-  })
+  $(window).resize(function() { grid.resizeCanvas(); })
   
   return grid;
 }
 
+/**
+ * Initializes the Leaflet map.
+ * @param {Element} mapDiv the DIV to hold the map
+ * @private
+ */
 pelagios.georesolution.CorrectionTool.prototype._initMap = function(mapDiv) {
   var baseLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
     attribution: 'Tiles: <a href="http://pelagios.org/maps/greco-roman/about.html">Pelagios</a>, 2012; Data: NASA, OSM, Pleiades, DARMC'
@@ -85,7 +119,6 @@ pelagios.georesolution.CorrectionTool.prototype._initMap = function(mapDiv) {
 }
 
 /*
-      $(function() {
         var findRowsWithGID = function(grid, gazetteerID) {
           // TODO we could optimize this using an index, but individual EGDs should be small enough
           var size = grid.getDataLength();
@@ -149,15 +182,6 @@ pelagios.georesolution.CorrectionTool.prototype._initMap = function(mapDiv) {
         
           $.each(places, function(idx, place) {
             if (place.coordinate) {
-              place.marker = L.circleMarker(place.coordinate, markerStyle);
-              place.marker.addTo(map); 
-              place.marker.on('click', function(e) {
-                place.marker.bindPopup(place.toponym + ' (<a href="' + place.source + '">Source</a>)').openPopup(); 
-                var rowsToSelect = findRowsWithGID(grid, place.gazetteer_uri);
-                if (rowsToSelect.length > 0) {
-                  grid.setSelectedRows(rowsToSelect);
-                  grid.scrollRowIntoView(rowsToSelect[0], true);
-                }
               });
             }
             
