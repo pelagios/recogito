@@ -11,15 +11,19 @@ pelagios.georesolution.DetailsPopup = function(place) {
   clicktrap.className = 'clicktrap';
   document.body.appendChild(clicktrap);
   
-  // this._initInfo(parentEl, this._initMap(parentEl), place);  
+  this._initView(place);  
 }
 
-/*
-pelagios.tools.FixGeoResolutionWidget.prototype._initInfo = function(parentEl, map, place) {
+pelagios.georesolution.DetailsPopup.prototype._initView = function(place) {
+  var popup = document.createElement('div');
+  popup.className = 'details-popup';
+  document.body.appendChild(popup);
+  
   var h1 = document.createElement('h1');
   h1.innerHTML = place.toponym;
-  parentEl.appendChild(h1);
+  popup.appendChild(h1);
   
+  /*
   if (place.coordinate)
     L.circleMarker(place.coordinate).addTo(map); 
   
@@ -38,8 +42,10 @@ pelagios.tools.FixGeoResolutionWidget.prototype._initInfo = function(parentEl, m
     
     p.innerHTML = p.innerHTML + '<br/>' + searchResults;
   });
+  */
 }
 
+/*
 pelagios.tools.FixGeoResolutionWidget.prototype._initMap = function(parentEl) {
   var mapDiv = document.createElement('div');
   mapDiv.className = 'detail-map';
