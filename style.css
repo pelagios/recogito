@@ -1,0 +1,81 @@
+html, body, div {
+  padding:0;
+  margin:0;
+}
+
+#table {
+  position:absolute;
+  top:0px:
+  left:0px;
+  width:40%;
+  height:100%;	
+  background-color:#505050 ;
+}
+
+#map {
+  position:absolute;
+  top:0px;
+  right:0px;
+  width:60%;
+  height:100%;
+}
+
+.slick-header-column.ui-state-default {
+  background-color:#505050 ;
+  color:#eeeeee;  
+  border:none;  
+  padding:0 5px;
+  font-family:Arial, Verdana, Helvetica, sans-serif;
+  font-size:13px;
+  height:35px;
+  line-height:35px;   
+  width:100%;s 
+}
+
+.slick-row.ui-widget-content, .slick-cell {
+  background-color:#eeeeee;
+  color:#666666;
+  font-size:13px;
+  font-family:Arial, Verdana, Helvetica, sans-serif;
+  padding:0 5px;
+  height:30px;
+  line-height:20px;
+}
+
+.slick-cell a {
+  color:#222;
+}
+
+.slick-cell a:hover {
+  color:#777;
+}
+
+.slick-cell.selected {
+  background-color:#5e99ff;
+} 
+
+
+// TODO clean up
+
+.fix-georesolution {
+  position:absolute;
+  width:90%;
+  height:90%;
+  top:5%;
+  left:5%;
+  background-color:#fff;
+  z-index:99999;
+  -moz-box-shadow:0px 0px 5px 6px #ccc;
+  -webkit-box-shadow:0px 0px 5px 6px #ccc;
+  box-shadow:0px 0px 5px 6px #ccc;
+}
+
+.detail-map {
+  width:500px;
+  height:500px;
+  float:right;
+}
+
+
+
+
