@@ -22,11 +22,14 @@ pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv) {
   $.getJSON(dataURL, function(data) {
     // Flatten & repackage response
     var places = [];
+    var runningIdx = 0;
     $.each(data.parts, function(idx, part) {
-      var sourceURI = part.source;
       $.each(part.places, function(idx, place) {
-        place.source = sourceURI;
+        place.idx = runningIdx;
+        place.source = part.source;
+        place.worksheet = part.title;
         places.push(place);
+        runningIdx++;
       });
     });
     
@@ -79,9 +82,12 @@ pelagios.georesolution.CorrectionTool.prototype._initTable = function(tableDiv) 
     }
   }
 
-  var columns = [{ name: "Toponym", field: "toponym", id: "toponym" },
-                 { name: "Place ID", field: "gazetteer_uri", id: "gazetteer_uri" , formatter: pleiadesFormatter },
-                 { name: "Corrected", field: "gazetteer_uri_fixed", id: "gazetteer_uri_fixed", formatter: pleiadesFormatter }];
+  var columns = [{ name: '#', field: 'idx', id: 'idx' },
+                 { name: 'Toponym', field: 'toponym', id: 'toponym' },
+                 { name: 'Worksheet', field: 'worksheet', id: 'worksheet' },
+                 { name: 'Place ID', field: 'gazetteer_uri', id: 'gazetteer_uri' , formatter: pleiadesFormatter },
+                 { name: 'Corrected', field: 'gazetteer_uri_fixed', id: 'gazetteer_uri_fixed', formatter: pleiadesFormatter },
+                 { name: 'Comment', field: 'comment', id: 'comment' }];
 
   var options = { enableCellNavigation: true, enableColumnReorder: false, forceFitColumns: true, autoEdit: false };
     
