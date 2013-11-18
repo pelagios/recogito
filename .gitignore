@@ -1,0 +1,8 @@
+/target
+/.classpath
+/.project
+/app.properties
+/.cache
+/index
+/lib
+/pid.txt
