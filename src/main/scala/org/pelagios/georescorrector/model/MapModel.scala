@@ -22,14 +22,20 @@ class MapModel(csv: Seq[CSVModel]) {
                                     else 
                                       None
                                       
-        val place = gazetteerURI.map(uri => index.getPlace(uri)).flatten.map(place => place.getCentroid).flatten
-        val placeCorrected = gazetteerURICorrected.map(uri => index.getPlace(uri)).flatten.map(place => place.getCentroid).flatten
+        val place = gazetteerURI.map(uri => index.getPlace(uri)).flatten
+        val coordinate = place.map(_.getCentroid).flatten
+        val placeCorrected = gazetteerURICorrected.map(uri => index.getPlace(uri)).flatten
+        val coordinateCorrected = placeCorrected.map(_.getCentroid).flatten
       
         val jsonObj = Seq(
             toponym.map(t => "\"toponym\":\"" + t + "\""), 
             gazetteerURI.map(g => "\"gazetteer_uri\":\"" + g + "\""),
-            place.map(coord => "\"coordinate\":[" + coord.y + "," + coord.x + "]"),
-            placeCorrected.map(coord => "\"fixedCoordinate\":[" + coord.y + "," + coord.x + "]"))
+            place.map(place => "\"gazetteer_title\":\"" + place.title + "\""),
+            place.map(place => "\"gazetteer_names\":\"" + place.names.map(_.labels).flatten.map(_.label).mkString(", ") + "\""),
+            coordinate.map(coord => "\"coordinate\":[" + coord.y + "," + coord.x + "]"),
+            placeCorrected.map(place => "\"gazetteer_uri_fixed\":\"" + place.uri + "\""),
+            placeCorrected.map(place => "\"gazetteer_title_fixed\":\"" + place.title + "\""),
+            coordinateCorrected.map(coord => "\"coordinate_fixed\":[" + coord.y + "," + coord.x + "]"))
         .filter(_.isDefined).map(_.get)
       
         "      { " + jsonObj.mkString(", ") + " }"

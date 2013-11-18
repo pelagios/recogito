@@ -60,7 +60,12 @@ class AppServer extends Plan {
       val results = Global.index.query(query).map(place => {
         var names = place.names.map(_.labels).flatten.map(_.label).mkString(", ")
         var coords = place.getCentroid.map(coords => ", \"coords\": [" + coords.y + "," + coords.x + "]")
-        "    { \"title\": " + "\"" + place.title + "\", \"names\":\"" + names + "\"" + coords.getOrElse("") + " }"
+        
+        "    { " +
+        "\"title\": " + "\"" + place.title + "\", " +
+        "\"uri\": " + "\"" + place.uri + "\", " +
+        "\"names\":\"" + names + "\"" + coords.getOrElse("") + " " + 
+        "}"
       }).mkString(",\n")
       
       val jsonResponse =
