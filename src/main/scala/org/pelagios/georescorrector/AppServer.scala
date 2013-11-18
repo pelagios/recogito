@@ -5,12 +5,15 @@ import scala.io.Source
 import unfiltered.jetty.Http
 import unfiltered.filter.Plan
 import unfiltered.request.{ GET, Path, Seg }
-import unfiltered.response.{ HtmlContent, JsonContent, NotFound, Ok, Redirect, ResponseString }
+import unfiltered.response.{ CssContent, HtmlContent, JsonContent, NotFound, Ok, Redirect, ResponseString, ResponseBytes }
 import org.pelagios.georescorrector.connector.SpreadsheetConnector
 import org.pelagios.georescorrector.model._
 import org.pelagios.georescorrector.index.PlaceIndex
 import org.slf4j.LoggerFactory
 import java.io.FileInputStream
+import unfiltered.response.JsContent
+import java.io.BufferedInputStream
+import scala.collection.immutable.Stream
 
 /** Embedded app server.
   *  
@@ -35,12 +38,22 @@ class AppServer extends Plan {
     }
     
     case GET(Path(Seg("gdoc-viewer" :: "static" :: asset))) => {
-      logger.info("Returning " + asset.mkString("/"))
-      val is = new FileInputStream("assets/" + asset.mkString("/"))
-      if (is != null)
+      val path = asset.mkString("/")
+      logger.info("Returning " + path)
+      val is = new FileInputStream("assets/" + path)
+      if (is != null && path.endsWith("html")) {
         HtmlContent ~> ResponseString(Source.fromInputStream(is).getLines.mkString("\n"))
-      else
+      } else if (is != null && path.endsWith("css")) {
+        CssContent ~> ResponseString(Source.fromInputStream(is).getLines.mkString("\n"))
+      } else if (is != null && path.endsWith("png")) {
+        val bis = new BufferedInputStream(is)
+        val bArray = Stream.continually(bis.read).takeWhile(-1 !=).map(_.toByte).toArray
+        Ok ~> ResponseBytes(bArray)
+      } else if (is != null && (path.endsWith("js") || path.endsWith("json"))) {
+        JsContent ~> ResponseString(Source.fromInputStream(is).getLines.mkString("\n"))
+      } else {
         NotFound
+      }
     }
     
     case GET(Path(Seg("gdoc-viewer" :: "search" :: query :: Nil))) => {  
