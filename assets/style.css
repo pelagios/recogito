@@ -78,6 +78,18 @@ html, body, div {
   -moz-box-shadow:0px 0px 5px 6px #222;
   -webkit-box-shadow:0px 0px 5px 6px #222;
   box-shadow:0px 0px 5px 6px #222;
+  font-size:13px;
+}
+
+.details-popup td {
+  font-size:13px;
+  padding-right:5px;
+}
+
+.details-popup h3 {
+  padding-bottom:0px;
+  margin-bottom:5px;
+  margin-top:20px;
 }
 
 .details-popup-header {

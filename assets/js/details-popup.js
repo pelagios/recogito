@@ -45,31 +45,31 @@ pelagios.georesolution.DetailsPopup.prototype._initView = function(place) {
   
   var details = document.createElement('p');
   details.innerHTML = 
-    'Matched to Place: <br/>' +
-    'Labels:';
+    'Matched to Place: <a href="' + place.gazetteer_uri + '">' + place.gazetteer_title + '</a> ' +
+    '(' + place.gazetteer_names + ')';
   popupContent.appendChild(details);
   
   // Map
   if (place.coordinate)
     L.marker(place.coordinate).addTo(map); 
 
-  /*  
-  var p = document.createElement('p');
-  p.innerHTML = '<a href="' + place.gazetteer_uri + '">' + place.gazetteer_uri + '</a>';
-  parentEl.appendChild(p);
-  
+  // Other candidates (via fuzzy index search)  
+  var otherCandidates = document.createElement('p');
+  popupContent.appendChild(otherCandidates);
   $.getJSON('../search/' + place.toponym.toLowerCase(), function(data) {
-    var searchResults = data.results.length + ' results: <br/>';
-    $.each(data.results, function(idx, place) {
-      if (place.coords)
-        L.circleMarker(place.coords).addTo(map); 
+    var searchResults = '<h3>Possible Alternatives:</h3>' +
+                        '<table>';
+    $.each(data.results, function(idx, result) {
+      if (result.uri != place.gazetteer_uri) {
+        if (result.coords)
+          L.marker(result.coords).addTo(map); 
       
-      searchResults += place.title + ' (' + place.names + ')<br/>';
+        searchResults += '<tr><td><a href="' + result.uri + '">' + result.title + '</a></td><td>' + result.names + '</td></tr>';
+      }
     });
     
-    p.innerHTML = p.innerHTML + '<br/>' + searchResults;
+    otherCandidates.innerHTML = searchResults + '</table>';
   });
-  */
   
   return clicktrap;
 }
