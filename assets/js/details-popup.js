@@ -26,10 +26,13 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback) {
     
   var correctWithResult = function(result) {
     if (confirm('Are you sure you want to correct the mapping to ' + result.title + '?')) {
-      place.gazetteer_title_fixed = result.title;
-      place.gazetteer_names_fixed = result.names
-      place.gazetteer_uri_fixed = result.uri;    
-      place.coordinate_fixed = result.coords;
+      if (!place.place_fixed)
+        place.place_fixed = { };
+        
+      place.place_fixed.title = result.title;
+      place.place_fixed.names = result.names;
+      place.place_fixed.uri = result.uri;    
+      place.place_fixed.coordinate = result.coords;
             
       // TODO API call - write to GDocs
       self.destroy();

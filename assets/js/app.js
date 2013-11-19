@@ -8,20 +8,22 @@ pelagios.georesolution = (pelagios.georesolution) ? pelagios.georesolution : { }
  * @param {Element] mapDiv the DIV to hold the Leaflet map
  * @constructor
  */
-pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv) {
-  // TODO for testing only!
-  var dataURL = 'test/mock-data.json';
-  
-  /** @private **/
-  var table = new pelagios.georesolution.TableView(tableDiv);
+pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv, dataURL) {  
+  var self = this;
   
   /** @private **/
   var map = new pelagios.georesolution.MapView(mapDiv);
   
   /** @private **/
+  var table = new pelagios.georesolution.TableView(tableDiv, function() {
+    map.clear();
+    if (self.places)
+      $.each(self.places, function(idx, place) { map.addPlaceMarker(place) })
+  });
+  
+  /** @private **/
   this._places = [];
   
-  var self = this;
   map.onSelect = function(place) { table.selectByPlaceURI(place.gazetteer_uri); };
   table.onSelectionChanged = function(args, place) { 
     var prev2 = self.getPrevN(args.rows[0], 2);
@@ -48,10 +50,7 @@ pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv) {
     table.render();
     
     // Set data on map
-    $.each(places, function(idx, place) {
-      if (place.coordinate)
-        place.marker = map.addPlaceMarker(place)
-    })
+    $.each(places, function(idx, place) { map.addPlaceMarker(place) })
     
     self.places = places;
   });
@@ -63,8 +62,11 @@ pelagios.georesolution.CorrectionTool.prototype._getNeighbours = function(idx, n
             
   var neighbours = [];
   var ctr = 1;
-  while (neighbours.length < n) {
-    if (this.places.length <= idx + ctr)
+  while (neighbours.length < n) {   
+    if (idx + ctr * step >= this.places.length)
+      break;
+      
+    if (idx + ctr * step < 0)
       break;
               
     if (this.places[idx + ctr * step].marker)

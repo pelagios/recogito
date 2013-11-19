@@ -3,7 +3,7 @@
  * @param {Element} tableDiv the DIV to hold the SlickGrid table
  * @constructor
  */
-pelagios.georesolution.TableView = function(tableDiv) {  
+pelagios.georesolution.TableView = function(tableDiv, opt_edit_callback) {  
   var self = this;
     
   // A custom formatter for Pleiades URIs
@@ -20,15 +20,31 @@ pelagios.georesolution.TableView = function(tableDiv) {
       }
     }
   }
+  
+  // A custom extractor that handles nested data structures
+  var extractor = function(item, columnDef) {
+    var names = columnDef.field.split('.'),
+        val   = item[names[0]];
+
+    for (var i = 1; i < names.length; i++) {
+      if (val && typeof val == 'object' && names[i] in val) {
+        val = val[names[i]];
+      } else {
+        val = '';
+      }
+    }
+
+    return val;
+  }
 
   var columns = [{ name: '#', field: 'idx', id: 'idx' },
                  { name: 'Toponym', field: 'toponym', id: 'toponym' },
                  { name: 'Worksheet', field: 'worksheet', id: 'worksheet' },
-                 { name: 'Place ID', field: 'gazetteer_uri', id: 'gazetteer_uri' , formatter: pleiadesFormatter },
-                 { name: 'Corrected', field: 'gazetteer_uri_fixed', id: 'gazetteer_uri_fixed', formatter: pleiadesFormatter },
+                 { name: 'Place ID', field: 'place.uri', id: 'place.uri' , formatter: pleiadesFormatter },
+                 { name: 'Corrected', field: 'place_fixed.uri', id: 'place_fixed.uri', formatter: pleiadesFormatter },
                  { name: 'Comment', field: 'comment', id: 'comment' }];
 
-  var options = { enableCellNavigation: true, enableColumnReorder: false, forceFitColumns: true, autoEdit: false };
+  var options = { enableCellNavigation: true, enableColumnReorder: false, forceFitColumns: true, autoEdit: false, dataItemColumnValueExtractor: extractor };
     
   this._grid = new Slick.Grid('#table', {}, columns, options);
   this._grid.setSelectionModel(new Slick.RowSelectionModel());
@@ -37,6 +53,8 @@ pelagios.georesolution.TableView = function(tableDiv) {
   this._grid.onDblClick.subscribe(function(e, args) {
     var popup = new pelagios.georesolution.DetailsPopup(self._grid.getDataItem(args.row), function() {
       self._grid.invalidate();
+      if (opt_edit_callback)
+        opt_edit_callback();
     });
   });
 

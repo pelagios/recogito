@@ -26,28 +26,46 @@ pelagios.georesolution.MapView = function(mapDiv) {
  */
 pelagios.georesolution.MapView.prototype.addPlaceMarker = function(place) {
   var self = this,
-      STYLE_AUTOMATCH_NO_FIX = { color: '#0000ff', radius: 4, fillOpacity: 0.8 },
-      STYLE_AUTOMATCH_FIXED = { color: '#0000ff', radius: 4, fillOpacity: 0.3 },
-      STYLE_CORRECTED = { color: '#ff0000', radius: 4, fillOpacity: 0.8 };
+      STYLE_AUTOMATCH_NO_FIX = { color: '#0000ff', radius: 5, fillOpacity: 0.8 },
+      STYLE_AUTOMATCH_FIXED = { color: '#0000ff', radius: 5, fillOpacity: 0.3 },
+      STYLE_CORRECTED = { color: '#ff0000', radius: 5, fillOpacity: 0.8 };
 
-  if (place.coordinate_fixed) { 
-    var markerFixed = L.circleMarker(place.coordinate_fixed, STYLE_CORRECTED);
+  if (place.place_fixed && place.place_fixed.coordinate) { 
+    var markerFixed = L.circleMarker(place.place_fixed.coordinate, STYLE_CORRECTED);
+    
+    if (place.place && place.place.coordinate) {
+      var connectingLine;
+      
+      var showConnection = function() {
+        connectingLine = L.polyline([place.place_fixed.coordinate, place.place.coordinate], STYLE_CORRECTED);
+        connectingLine.addTo(self._map);
+      }; 
+      
+      var hideConnection = function() {
+        self._map.removeLayer(connectingLine);
+      };
+      
+      markerFixed.on('mouseover', function(e) { showConnection(); });
+      markerFixed.on('mouseout', function(e) { hideConnection(); });
+      
+      var markerAutomatch = L.circleMarker(place.place.coordinate, STYLE_AUTOMATCH_FIXED);
+      markerAutomatch.on('mouseover', function(e) { showConnection(); });
+      markerAutomatch.on('mouseout', function(e) { hideConnection(); });
+      markerAutomatch.addTo(this._map);
+    }    
+    
     markerFixed.addTo(this._map);
-    
-    var markerAutomatch = L.circleMarker(place.coordinate, STYLE_AUTOMATCH_FIXED);
-    markerAutomatch.addTo(this._map);
-    
-    return markerFixed;
-  } else {
-    var marker = L.circleMarker(place.coordinate, STYLE_AUTOMATCH_NO_FIX);
+    place.marker = markerFixed;
+  } else if (place.place && place.place.coordinate) {
+    var marker = L.circleMarker(place.place.coordinate, STYLE_AUTOMATCH_NO_FIX);
     marker.addTo(this._map); 
     marker.on('click', function(e) {
       marker.bindPopup(place.toponym + ' (<a href="' + place.source + '">Source</a>)').openPopup(); 
       if (self.onSelect) 
         self.onSelect(place);
     });
-    
-    return marker;
+
+    place.marker = marker    
   }
 }
 
@@ -65,8 +83,8 @@ pelagios.georesolution.MapView.prototype.highlightPlace = function(place, prevN,
     line.addTo(self._map);
   }
   
-  if (place.coordinate) {
-    this._map.panTo(place.coordinate);
+  if (place.marker) {
+    this._map.panTo(place.marker.getLatLng());
     place.marker.bindPopup(place.toponym + ' (<a href="' + place.source + '">Source</a>)').openPopup();
                 
     // Clear sequence polylines
@@ -76,45 +94,26 @@ pelagios.georesolution.MapView.prototype.highlightPlace = function(place, prevN,
     this._currentSequence = [];
     
     if (prevN && prevN.length > 0) {
-      var coords = [place.coordinate];
+      var coords = [place.marker.getLatLng()];
       for (idx in prevN)
-        coords.push(prevN[idx].coordinate);
+        coords.push(prevN[idx].marker.getLatLng());
         
       drawSequenceLine(coords, { color: '#ff0000', opacity: 1 });      
     }
 
     if (nextN && nextN.length > 0) {
-      coords = [place.coordinate];
+      coords = [place.marker.getLatLng()];
       for (idx in nextN)
-        coords.push(nextN[idx].coordinate);
+        coords.push(nextN[idx].marker.getLatLng());
         
       drawSequenceLine(coords, { color: '#00ff00', opacity: 1 });
     }
   }
 }
 
-
-/*              
-  /** Connecting line between a place and a manual fix **
-  var lastFixConnection = undefined;
-        
-  // TODO eliminate code duplication
-  if (place.fixedCoordinate) {
-    place.marker = L.circleMarker(place.fixedCoordinate, markerStyleCorrected);
-    place.marker.addTo(map); 
-    place.marker.on('click', function(e) {
-      place.marker.bindPopup(place.toponym + ' (<a href="' + place.source + '">Source</a>)').openPopup(); 
-
-      if (lastFixConnection) {
-        map.removeLayer(lastFixConnection);
-        lastFixConnection = undefined;
-      }
-
-      if (place.coordinate) {
-        var connection = [ place.coordinate, place.fixedCoordinate ];
-        lastFixConnection = L.polyline(connection, { color: 'yellow', opacity: 1 });
-        lastFixConnection.addTo(map);
-      }
-    });
-  }
-*/
+/**
+ * Clears the map.
+ */
+pelagios.georesolution.MapView.prototype.clear = function() {
+  
+}
