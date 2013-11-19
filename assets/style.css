@@ -137,4 +137,10 @@ html, body, div {
   background-color:#FFA52C;
 }
 
+.details-popup-content-preview {
+  font-style:italic;
+  font-family:"Times New Roman", Times, serif;
+  font-size:15px;
+}
+
 

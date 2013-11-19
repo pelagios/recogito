@@ -14,6 +14,9 @@ import java.io.FileInputStream
 import unfiltered.response.JsContent
 import java.io.BufferedInputStream
 import scala.collection.immutable.Stream
+import org.pelagios.georescorrector.connector.PreviewSourceConnector
+import unfiltered.request._
+import play.api.libs.json._
 
 /** Embedded app server.
   *  
@@ -74,6 +77,18 @@ class AppServer extends Plan {
         "}"
       
       JsonContent ~> ResponseString(jsonResponse)      
+    }
+    
+    case req @ GET(Path(Seg("gdoc-viewer" :: "preview" :: Nil))) & Params(params) => {
+      if (params.get("url").isEmpty) {
+        NotFound
+      } else if (params.get("term").isEmpty) {
+        NotFound
+      } else {
+        val connector = new PreviewSourceConnector(params.get("url").get.mkString(" "))
+        val json = connector.getSnippets(params.get("term").get.mkString(" ")).map(snippet => "\"" + snippet.replace("\"", "\\\"") + "\"").mkString(",")
+        JsonContent ~> ResponseString("[ " + json + " ]")
+      }
     }
     
     case GET(Path(Seg("gdoc-viewer" :: "api" :: id :: Nil))) => {

@@ -15,14 +15,15 @@ libraryDependencies ++= Seq(
   "net.databinder" % "unfiltered-jetty_2.10" % "0.6.7",
   "org.apache.lucene" % "lucene-analyzers-common" % "4.4.0",
   "org.apache.lucene" % "lucene-queryparser" % "4.4.0",
-  "org.slf4j" % "slf4j-simple" % "1.7.5"          
+  "org.slf4j" % "slf4j-simple" % "1.7.5",
+  "org.jsoup" % "jsoup" % "1.7.2",
+  "play" %% "play-json" % "2.2-SNAPSHOT"          
 )
 
 /** Test dependencies **/
 libraryDependencies ++= Seq(
   "junit" % "junit" % "4.11" % "test",
-  "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test",
-  "play" %% "play-json" % "2.2-SNAPSHOT"
+  "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test"
 )
 
 /** Transient dependencies required by Scalagios

@@ -20,6 +20,9 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback) {
     '      <h3>Possible Alternatives:</h3>' +
     '      <table class="details-popup-content-candidates">' +
     '      </table>' +    
+    '      <h3>Source Preview</h3>' + 
+    '      <div class="details-popup-content-preview">' +
+    '      </div>' +
     '    </div>' +
     '  </div>' +
     '</div>';
@@ -96,6 +99,11 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback) {
     
     $('.details-popup-content-candidates').append(html);
     map.fitBounds(new L.featureGroup(markers).getBounds());
+  });
+  
+  // Preview snippets
+  $.getJSON('../preview?url=' + encodeURIComponent(place.source) + '&term=' + place.toponym, function(snippets) {
+    $('.details-popup-content-preview').html(snippets);
   });
 }
 
