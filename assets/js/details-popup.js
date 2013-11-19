@@ -6,7 +6,7 @@ pelagios.georesolution = (pelagios.georesolution) ? pelagios.georesolution : { }
  * @param {Object} place the place
  * @constructor
  */
-pelagios.georesolution.DetailsPopup = function(place) {  
+pelagios.georesolution.DetailsPopup = function(place, opt_callback) {  
   var self = this,
       template = 
     '<div class="clicktrap">' +
@@ -28,34 +28,63 @@ pelagios.georesolution.DetailsPopup = function(place) {
   $(this.element).appendTo(document.body);
   $('.details-popup-header-exit').click(function() { self.destroy(); });
   $('.details-popup-content-toponym').html(place.toponym);
-    
-  var map = this._initMap($('.details-popup-content'));
-  if (place.coordinate)
-    L.marker(place.coordinate).addTo(map);  
-    
+  
   if (place.gazetteer_uri) {
     $('.details-popup-content-matched-to').html('<a href="' + place.gazetteer_uri + '">' + place.gazetteer_title + '</a>');
   } else {
     $('.details-popup-content-matched-to').html('-');
   }
   
+  var map = this._initMap($('.details-popup-content'));
+  if (place.coordinate) {
+    var marker = L.marker(place.coordinate).addTo(map);  
+    $('.details-popup-content-toponym').mouseover(function() {
+      marker.bindPopup(place.gazetteer_title).openPopup();
+    });
+  }
+  
   // Other candidates  
   $.getJSON('../search/' + place.toponym.toLowerCase(), function(data) {
     var html = [];
+    var markers = [];
     $.each(data.results, function(idx, result) {
       if (result.uri != place.gazetteer_uri) {
-        if (result.coords)
-          L.marker(result.coords).addTo(map); 
+        var marker = undefined;
+        if (result.coords) {
+          marker = L.marker(result.coords, { opacity: 0.5 }).addTo(map); 
+          marker.on('click', function(e) {
+            marker.bindPopup(result.title).openPopup();
+          });
+          markers.push(marker);
+        }
       
         var row = $('<tr><td><a href="javascript:void(0);" class="details-popup-content-candidate-link">' + result.title + '</a></td><td>' + result.names + '</td></tr>');
+        if (marker) {
+          $(row).mouseover(function() {
+            marker.bindPopup(result.title).openPopup();
+          });
+        }
+        
         $(row).find('.details-popup-content-candidate-link').click(function(e) { 
-          // TODO implement
+          if (confirm('Are you sure you want to correct the mapping to ' + result.title + '?')) {
+            place.gazetteer_title_fixed = result.title;
+            place.gazetteer_names_fixed = result.names
+            place.gazetteer_uri_fixed = result.uri;    
+            place.coordinate_fixed = result.coords;
+            
+            // TODO API call - write to GDocs
+            self.destroy();
+            
+            if (opt_callback)
+              opt_callback(place);
+          }
         });
         html.push(row);
       }
     });
     
     $('.details-popup-content-candidates').append(html);
+    map.fitBounds(new L.featureGroup(markers).getBounds());
   });
 }
 

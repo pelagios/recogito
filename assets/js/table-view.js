@@ -35,7 +35,9 @@ pelagios.georesolution.TableView = function(tableDiv) {
   
   // Double-click brings up modal correction dialog
   this._grid.onDblClick.subscribe(function(e, args) {
-    var popup = new pelagios.georesolution.DetailsPopup(self._grid.getDataItem(args.row));
+    var popup = new pelagios.georesolution.DetailsPopup(self._grid.getDataItem(args.row), function() {
+      self._grid.invalidate();
+    });
   });
 
   // Selection in the table selects on the map, too
