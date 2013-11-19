@@ -65,7 +65,7 @@ pelagios.georesolution.MapView.prototype.addPlaceMarker = function(place) {
     var marker = L.circleMarker(place.place.coordinate, STYLE_AUTOMATCH_NO_FIX);
     marker.addTo(this._map); 
     marker.on('click', function(e) {
-      marker.bindPopup(place.toponym + ' (<a href="' + place.source + '">Source</a>)').openPopup(); 
+      marker.bindPopup(place.toponym + ' (<a href="' + place.source + '" target="_blank">Source</a>)').openPopup(); 
       if (self.onSelect) 
         self.onSelect(place);
     });
@@ -91,7 +91,7 @@ pelagios.georesolution.MapView.prototype.highlightPlace = function(place, prevN,
   
   if (place.marker) {
     this._map.panTo(place.marker.getLatLng());
-    place.marker.bindPopup(place.toponym + ' (<a href="' + place.source + '">Source</a>)').openPopup();
+    place.marker.bindPopup(place.toponym + ' (<a href="' + place.source + '" target="_blank">Source</a>)').openPopup();
                 
     // Clear sequence polylines
     for (idx in this._currentSequence) {
