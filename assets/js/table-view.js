@@ -9,19 +9,19 @@ pelagios.georesolution.TableView = function(tableDiv, opt_edit_callback) {
   // A custom formatter for Pleiades URIs
   var pleiadesFormatter = function (row, cell, value, columnDef, dataContext) {
     if (value) {
-      if (value.indexOf('http://pleiades.stoa.org') == 0) {
-        var id =  value.substring(32);
+      if (value.uri.indexOf('http://pleiades.stoa.org') == 0) {
+        var id =  value.uri.substring(32);
         if (id.indexOf('#') > -1)
           id = id.substring(0, id.indexOf('#'));
           
-        return '<a href="' + value + '" target="_blank">pleiades:' + id + '</a>';
+        return '<a href="' + value.uri + '" target="_blank" title="' + value.title + '">pleiades:' + id + '</a>';
       } else {
         return value;
       }
     }
   }
   
-  // A custom extractor that handles nested data structures
+  /* A custom extractor that handles nested data structures
   var extractor = function(item, columnDef) {
     var names = columnDef.field.split('.'),
         val   = item[names[0]];
@@ -35,16 +35,16 @@ pelagios.georesolution.TableView = function(tableDiv, opt_edit_callback) {
     }
 
     return val;
-  }
+  }*/
 
   var columns = [{ name: '#', field: 'idx', id: 'idx' },
                  { name: 'Toponym', field: 'toponym', id: 'toponym' },
                  { name: 'Worksheet', field: 'worksheet', id: 'worksheet' },
-                 { name: 'Place ID', field: 'place.uri', id: 'place.uri' , formatter: pleiadesFormatter },
-                 { name: 'Corrected', field: 'place_fixed.uri', id: 'place_fixed.uri', formatter: pleiadesFormatter },
+                 { name: 'Place ID', field: 'place', id: 'place' , formatter: pleiadesFormatter },
+                 { name: 'Corrected', field: 'place_fixed', id: 'place_fixed', formatter: pleiadesFormatter },
                  { name: 'Comment', field: 'comment', id: 'comment' }];
 
-  var options = { enableCellNavigation: true, enableColumnReorder: false, forceFitColumns: true, autoEdit: false, dataItemColumnValueExtractor: extractor };
+  var options = { enableCellNavigation: true, enableColumnReorder: false, forceFitColumns: true, autoEdit: false /*, dataItemColumnValueExtractor: extractor */};
     
   this._grid = new Slick.Grid('#table', {}, columns, options);
   this._grid.setSelectionModel(new Slick.RowSelectionModel());

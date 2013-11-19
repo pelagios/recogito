@@ -17,6 +17,8 @@ pelagios.georesolution.MapView = function(mapDiv) {
   });
   
   this._currentSequence = [];
+  
+  this._allMarkers = [];
 }
 
 /**
@@ -52,8 +54,11 @@ pelagios.georesolution.MapView.prototype.addPlaceMarker = function(place) {
       markerAutomatch.on('mouseover', function(e) { showConnection(); });
       markerAutomatch.on('mouseout', function(e) { hideConnection(); });
       markerAutomatch.addTo(this._map);
-    }    
-    
+      
+      self._allMarkers.push(markerAutomatch);
+    } 
+      
+    self._allMarkers.push(markerFixed);
     markerFixed.addTo(this._map);
     place.marker = markerFixed;
   } else if (place.place && place.place.coordinate) {
@@ -64,6 +69,7 @@ pelagios.georesolution.MapView.prototype.addPlaceMarker = function(place) {
       if (self.onSelect) 
         self.onSelect(place);
     });
+    self._allMarkers.push(marker);
 
     place.marker = marker    
   }
@@ -115,5 +121,10 @@ pelagios.georesolution.MapView.prototype.highlightPlace = function(place, prevN,
  * Clears the map.
  */
 pelagios.georesolution.MapView.prototype.clear = function() {
+  var self = this;
+  $.each(this._allMarkers, function(idx, marker) { self._map.removeLayer(marker); });
   
+  for (idx in this._currentSequence) {
+    this._map.removeLayer(this._currentSequence[idx]);
+  }
 }
