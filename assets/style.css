@@ -133,4 +133,8 @@ html, body, div {
   border:1px solid #000;
 }
 
+.details-popup-content-candidates tr.hilighted {
+  background-color:#FFA52C;
+}
+
 

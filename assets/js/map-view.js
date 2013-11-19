@@ -25,19 +25,30 @@ pelagios.georesolution.MapView = function(mapDiv) {
  * @return the marker
  */
 pelagios.georesolution.MapView.prototype.addPlaceMarker = function(place) {
-  var self = this;
-  var STYLE_AUTOMATCH = { color: '#0000ff', radius: 4, fillOpacity: 0.8 };
-  var STYLE_CORRECTION = { };
+  var self = this,
+      STYLE_AUTOMATCH_NO_FIX = { color: '#0000ff', radius: 4, fillOpacity: 0.8 },
+      STYLE_AUTOMATCH_FIXED = { color: '#0000ff', radius: 4, fillOpacity: 0.3 },
+      STYLE_CORRECTED = { color: '#ff0000', radius: 4, fillOpacity: 0.8 };
 
-  var marker = L.circleMarker(place.coordinate, STYLE_AUTOMATCH);
-  marker.addTo(this._map); 
-  marker.on('click', function(e) {
-    marker.bindPopup(place.toponym + ' (<a href="' + place.source + '">Source</a>)').openPopup(); 
-    if (self.onSelect) 
-      self.onSelect(place);
-  });
-
-  return marker;
+  if (place.coordinate_fixed) { 
+    var markerFixed = L.circleMarker(place.coordinate_fixed, STYLE_CORRECTED);
+    markerFixed.addTo(this._map);
+    
+    var markerAutomatch = L.circleMarker(place.coordinate, STYLE_AUTOMATCH_FIXED);
+    markerAutomatch.addTo(this._map);
+    
+    return markerFixed;
+  } else {
+    var marker = L.circleMarker(place.coordinate, STYLE_AUTOMATCH_NO_FIX);
+    marker.addTo(this._map); 
+    marker.on('click', function(e) {
+      marker.bindPopup(place.toponym + ' (<a href="' + place.source + '">Source</a>)').openPopup(); 
+      if (self.onSelect) 
+        self.onSelect(place);
+    });
+    
+    return marker;
+  }
 }
 
 /**
@@ -81,3 +92,29 @@ pelagios.georesolution.MapView.prototype.highlightPlace = function(place, prevN,
     }
   }
 }
+
+
+/*              
+  /** Connecting line between a place and a manual fix **
+  var lastFixConnection = undefined;
+        
+  // TODO eliminate code duplication
+  if (place.fixedCoordinate) {
+    place.marker = L.circleMarker(place.fixedCoordinate, markerStyleCorrected);
+    place.marker.addTo(map); 
+    place.marker.on('click', function(e) {
+      place.marker.bindPopup(place.toponym + ' (<a href="' + place.source + '">Source</a>)').openPopup(); 
+
+      if (lastFixConnection) {
+        map.removeLayer(lastFixConnection);
+        lastFixConnection = undefined;
+      }
+
+      if (place.coordinate) {
+        var connection = [ place.coordinate, place.fixedCoordinate ];
+        lastFixConnection = L.polyline(connection, { color: 'yellow', opacity: 1 });
+        lastFixConnection.addTo(map);
+      }
+    });
+  }
+*/

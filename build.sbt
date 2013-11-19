@@ -6,6 +6,8 @@ scalaVersion := "2.10.0"
 
 resolvers += "Open Source Geospatial Foundation Repository" at "http://download.osgeo.org/webdav/geotools/"
 
+resolvers += "Mandubian repository releases" at "https://github.com/mandubian/mandubian-mvn/raw/master/snapshots/"
+  
 /** Runtime dependencies **/
 libraryDependencies ++= Seq(
   "com.google.gdata" % "core" % "1.47.1",
@@ -19,7 +21,8 @@ libraryDependencies ++= Seq(
 /** Test dependencies **/
 libraryDependencies ++= Seq(
   "junit" % "junit" % "4.11" % "test",
-  "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test"
+  "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test",
+  "play" %% "play-json" % "2.2-SNAPSHOT"
 )
 
 /** Transient dependencies required by Scalagios

@@ -24,6 +24,21 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback) {
     '  </div>' +
     '</div>';
     
+  var correctWithResult = function(result) {
+    if (confirm('Are you sure you want to correct the mapping to ' + result.title + '?')) {
+      place.gazetteer_title_fixed = result.title;
+      place.gazetteer_names_fixed = result.names
+      place.gazetteer_uri_fixed = result.uri;    
+      place.coordinate_fixed = result.coords;
+            
+      // TODO API call - write to GDocs
+      self.destroy();
+            
+      if (opt_callback)
+        opt_callback(place);
+    }
+  }
+    
   this.element = $(template);
   $(this.element).appendTo(document.body);
   $('.details-popup-header-exit').click(function() { self.destroy(); });
@@ -49,16 +64,20 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback) {
     var markers = [];
     $.each(data.results, function(idx, result) {
       if (result.uri != place.gazetteer_uri) {
+        var row = $('<tr><td><a href="javascript:void(0);" class="details-popup-content-candidate-link">' + result.title + '</a></td><td>' + result.names + '</td></tr>');
+        
         var marker = undefined;
         if (result.coords) {
           marker = L.marker(result.coords, { opacity: 0.5 }).addTo(map); 
-          marker.on('click', function(e) {
+          marker.on('click', function(e) { correctWithResult(result); });
+          marker.on('mouseover', function(e) { 
             marker.bindPopup(result.title).openPopup();
+            $(row).addClass('hilighted'); 
           });
+          marker.on('mouseout', function(e) { $(row).removeClass('hilighted'); });
           markers.push(marker);
         }
       
-        var row = $('<tr><td><a href="javascript:void(0);" class="details-popup-content-candidate-link">' + result.title + '</a></td><td>' + result.names + '</td></tr>');
         if (marker) {
           $(row).mouseover(function() {
             marker.bindPopup(result.title).openPopup();
@@ -66,18 +85,7 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback) {
         }
         
         $(row).find('.details-popup-content-candidate-link').click(function(e) { 
-          if (confirm('Are you sure you want to correct the mapping to ' + result.title + '?')) {
-            place.gazetteer_title_fixed = result.title;
-            place.gazetteer_names_fixed = result.names
-            place.gazetteer_uri_fixed = result.uri;    
-            place.coordinate_fixed = result.coords;
-            
-            // TODO API call - write to GDocs
-            self.destroy();
-            
-            if (opt_callback)
-              opt_callback(place);
-          }
+          correctWithResult(result);
         });
         html.push(row);
       }
@@ -87,7 +95,6 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback) {
     map.fitBounds(new L.featureGroup(markers).getBounds());
   });
 }
-
 
 pelagios.georesolution.DetailsPopup.prototype._initMap = function(parentEl) {
   var mapDiv = document.createElement('div');

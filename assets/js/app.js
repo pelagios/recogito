@@ -83,28 +83,3 @@ pelagios.georesolution.CorrectionTool.prototype.getNextN = function(idx, n)  {
 pelagios.georesolution.CorrectionTool.prototype.getPrevN = function(idx, n)  {
   return this._getNeighbours(idx, n, -1);
 }
-
-/*              
-  /** Connecting line between a place and a manual fix **
-  var lastFixConnection = undefined;
-        
-  // TODO eliminate code duplication
-  if (place.fixedCoordinate) {
-    place.marker = L.circleMarker(place.fixedCoordinate, markerStyleCorrected);
-    place.marker.addTo(map); 
-    place.marker.on('click', function(e) {
-      place.marker.bindPopup(place.toponym + ' (<a href="' + place.source + '">Source</a>)').openPopup(); 
-
-      if (lastFixConnection) {
-        map.removeLayer(lastFixConnection);
-        lastFixConnection = undefined;
-      }
-
-      if (place.coordinate) {
-        var connection = [ place.coordinate, place.fixedCoordinate ];
-        lastFixConnection = L.polyline(connection, { color: 'yellow', opacity: 1 });
-        lastFixConnection.addTo(map);
-      }
-    });
-  }
-*/
