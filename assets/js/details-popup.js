@@ -7,78 +7,63 @@ pelagios.georesolution = (pelagios.georesolution) ? pelagios.georesolution : { }
  * @constructor
  */
 pelagios.georesolution.DetailsPopup = function(place) {  
-  this.element = this._initView(place);  
-}
-
-pelagios.georesolution.DetailsPopup.prototype._initView = function(place) {
-  // Popup  
-  var clicktrap = document.createElement('div');
-  clicktrap.className = 'clicktrap';
-  document.body.appendChild(clicktrap);
-  
-  var popup = document.createElement('div');
-  popup.className = 'details-popup';
-  clicktrap.appendChild(popup);
-
-  // Header  
-  var popupHeader = document.createElement('div');
-  popupHeader.className = 'details-popup-header';
-  
-  var btnExit = document.createElement('a');
-  btnExit.className = 'details-popup-header-exit';
-  btnExit.innerHTML = 'EXIT';
-  var self = this;
-  $(btnExit).click(function() { self.destroy(); });
-  popupHeader.appendChild(btnExit);
-  popup.appendChild(popupHeader);
-  
-  // Content
-  var popupContent = document.createElement('div');
-  popupContent.className = 'details-popup-content';
-  popup.appendChild(popupContent);
-  
-  var map = this._initMap(popupContent);
-  
-  var h1 = document.createElement('h1');
-  h1.innerHTML = 'Toponym: <em>&quot;' + place.toponym + '&quot;</em>';
-  popupContent.appendChild(h1);
-  
-  var details = document.createElement('p');
-  details.innerHTML = 
-    'Matched to Place: <a href="' + place.gazetteer_uri + '">' + place.gazetteer_title + '</a> ' +
-    '(' + place.gazetteer_names + ')';
-  popupContent.appendChild(details);
-  
-  // Map
+  var self = this,
+      template = 
+    '<div class="clicktrap">' +
+    '  <div class="details-popup">' +
+    '    <div class="details-popup-header">' +
+    '      <a class="details-popup-header-exit">EXIT</a>' +
+    '    </div>' +
+    '    <div class="details-popup-content">' +
+    '      <h1>Toponym: <span class="details-popup-content-toponym"></span></h1>' +
+    '      <p>Matched to Place: <span class="details-popup-content-matched-to"></span></p>' +
+    '      <h3>Possible Alternatives:</h3>' +
+    '      <table class="details-popup-content-candidates">' +
+    '      </table>' +    
+    '    </div>' +
+    '  </div>' +
+    '</div>';
+    
+  this.element = $(template);
+  $(this.element).appendTo(document.body);
+  $('.details-popup-header-exit').click(function() { self.destroy(); });
+  $('.details-popup-content-toponym').html(place.toponym);
+    
+  var map = this._initMap($('.details-popup-content'));
   if (place.coordinate)
-    L.marker(place.coordinate).addTo(map); 
-
-  // Other candidates (via fuzzy index search)  
-  var otherCandidates = document.createElement('p');
-  popupContent.appendChild(otherCandidates);
+    L.marker(place.coordinate).addTo(map);  
+    
+  if (place.gazetteer_uri) {
+    $('.details-popup-content-matched-to').html('<a href="' + place.gazetteer_uri + '">' + place.gazetteer_title + '</a>');
+  } else {
+    $('.details-popup-content-matched-to').html('-');
+  }
+  
+  // Other candidates  
   $.getJSON('../search/' + place.toponym.toLowerCase(), function(data) {
-    var searchResults = '<h3>Possible Alternatives:</h3>' +
-                        '<table>';
+    var html = [];
     $.each(data.results, function(idx, result) {
       if (result.uri != place.gazetteer_uri) {
         if (result.coords)
           L.marker(result.coords).addTo(map); 
       
-        searchResults += '<tr><td><a href="' + result.uri + '">' + result.title + '</a></td><td>' + result.names + '</td></tr>';
+        var row = $('<tr><td><a href="javascript:void(0);" class="details-popup-content-candidate-link">' + result.title + '</a></td><td>' + result.names + '</td></tr>');
+        $(row).find('.details-popup-content-candidate-link').click(function(e) { 
+          // TODO implement
+        });
+        html.push(row);
       }
     });
     
-    otherCandidates.innerHTML = searchResults + '</table>';
+    $('.details-popup-content-candidates').append(html);
   });
-  
-  return clicktrap;
 }
 
 
 pelagios.georesolution.DetailsPopup.prototype._initMap = function(parentEl) {
   var mapDiv = document.createElement('div');
   mapDiv.className = 'details-popup-map';
-  parentEl.appendChild(mapDiv);
+  $(parentEl).prepend(mapDiv);
   
   var baseLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
     attribution: 'Tiles: <a href="http://pelagios.org/maps/greco-roman/about.html">Pelagios</a>, 2012; Data: NASA, OSM, Pleiades, DARMC'
@@ -96,5 +81,5 @@ pelagios.georesolution.DetailsPopup.prototype._initMap = function(parentEl) {
 }
 
 pelagios.georesolution.DetailsPopup.prototype.destroy = function() {
-  document.body.removeChild(this.element);
+  $(this.element).remove();
 }
