@@ -93,7 +93,7 @@ pelagios.georesolution.TableView.prototype.selectByPlaceURI = function(uri) {
   var rows = [];
   for (var i = 0; i < size; i++) {
     var row = this._grid.getDataItem(i);
-    if (row.gazetteer_uri == uri)
+    if (row.place && row.place.uri == uri)
       rows.push(i);
   }
  

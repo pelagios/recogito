@@ -24,7 +24,7 @@ pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv, dataURL) {
   /** @private **/
   this._places = [];
   
-  map.onSelect = function(place) { table.selectByPlaceURI(place.gazetteer_uri); };
+  map.onSelect = function(place) { table.selectByPlaceURI(place.place.uri); };
   table.onSelectionChanged = function(args, place) { 
     var prev2 = self.getPrevN(args.rows[0], 2);
     var next2 = self.getNextN(args.rows[0], 2);
