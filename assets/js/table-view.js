@@ -49,13 +49,24 @@ pelagios.georesolution.TableView = function(tableDiv, opt_edit_callback) {
   this._grid = new Slick.Grid('#table', {}, columns, options);
   this._grid.setSelectionModel(new Slick.RowSelectionModel());
   
-  // Double-click brings up modal correction dialog
-  this._grid.onDblClick.subscribe(function(e, args) {
-    var popup = new pelagios.georesolution.DetailsPopup(self._grid.getDataItem(args.row), function() {
+  var openCorrectionDialog = function(idx) {
+    new pelagios.georesolution.DetailsPopup(self._grid.getDataItem(idx), function() {
       self._grid.invalidate();
       if (opt_edit_callback)
         opt_edit_callback();
     });
+  };
+  
+  // Double-click brings up modal correction dialog...
+  this._grid.onDblClick.subscribe(function(e, args) {
+    openCorrectionDialog(args.row);
+  });
+  
+  // ...so does enter
+  this._grid.onKeyDown.subscribe(function(e, args) {
+    if (e.which == 13) {
+      openCorrectionDialog(args.row);
+    }
   });
 
   // Selection in the table selects on the map, too

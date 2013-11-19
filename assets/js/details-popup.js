@@ -47,8 +47,8 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback) {
   $('.details-popup-header-exit').click(function() { self.destroy(); });
   $('.details-popup-content-toponym').html(place.toponym);
   
-  if (place.gazetteer_uri) {
-    $('.details-popup-content-matched-to').html('<a href="' + place.gazetteer_uri + '">' + place.gazetteer_title + '</a>');
+  if (place.place) {
+    $('.details-popup-content-matched-to').html('<a href="' + place.place.uri + '">' + place.place.title + '</a>');
   } else {
     $('.details-popup-content-matched-to').html('-');
   }
