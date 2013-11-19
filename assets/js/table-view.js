@@ -14,7 +14,7 @@ pelagios.georesolution.TableView = function(tableDiv, opt_edit_callback) {
         if (id.indexOf('#') > -1)
           id = id.substring(0, id.indexOf('#'));
           
-        return '<a href="' + value.uri + '" target="_blank" title="' + value.title + '">pleiades:' + id + '</a>';
+        return '<a href="http://pelagios.org/api/places/' + encodeURIComponent(value.uri) + '" target="_blank" title="' + value.title + '">pleiades:' + id + '</a>';
       } else {
         return value;
       }
