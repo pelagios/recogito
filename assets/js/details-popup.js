@@ -34,12 +34,12 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
     '        <tr><td><strong>Auto-Match</strong></td><td class="details-popup-content-auto-match"></td></tr>' +
     '        <tr><td><strong>Correction</strong></td><td class="details-popup-content-correction"></td></tr>' +
     '      </table>' +
-    '      <h3>Possible Alternatives</h3>' +
-    '      <table class="details-popup-content-candidates">' +
-    '      </table>' +    
     '      <h3>Source Text Snippets</h3>' + 
     '      <div class="details-popup-content-preview">' +
     '      </div>' +
+    '      <h3>Possible Alternatives</h3>' +
+    '      <table class="details-popup-content-candidates">' +
+    '      </table>' +    
     '    </div>' +
     '  </div>' +
     '</div>';
