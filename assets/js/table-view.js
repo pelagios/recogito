@@ -52,6 +52,8 @@ pelagios.georesolution.TableView = function(tableDiv, opt_edit_callback) {
     
     popup.onFalseDetection = function() {
       self.removeRow(idx);
+      if (opt_edit_callback)
+        opt_edit_callback();
     };
   };
   
