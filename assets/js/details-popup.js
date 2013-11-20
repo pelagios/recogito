@@ -19,9 +19,11 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
     '    <div class="details-popup-content">' +
     '      <div class="details-popup-content-sidebar">' +
     '        <div class="details-popup-content-search">' +
-    '          <input class="details-popup-content-search-input">' +
-    '          <div class="details-popup-content-search-results">' +
-    '          </div>' +
+    '          <div class="details-popup-content-search-container">' +
+    '            <span>Search</span> <input class="details-popup-content-search-input">' +
+    '          </div>'+
+    '          <table class="details-popup-content-search-results">' +
+    '          </table>' +
     '        </div>' +
     '      </div>' +
     '      <h1>' + 
@@ -133,7 +135,8 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
   }
   
   var displaySearchResult = function(result, opt_style) {
-    var row = $('<tr><td><a href="javascript:void(0);" class="details-popup-content-candidate-link">' + result.title + '</a></td><td>' + result.names + '</td></tr>');
+    var warning = (result.coords) ? '' : '<a title="Place has no coordinates"><span class="table-no-coords">!</span> </a>'
+    var row = $('<tr><td>' + warning + '</td><td><a href="javascript:void(0);" class="details-popup-content-candidate-link">' + result.title + '</a></td><td>' + result.names + '</td></tr>');
     var marker = undefined;
     if (result.coords) {
       if (opt_style) {
@@ -143,23 +146,25 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
       }
       marker.on('click', function(e) { correctWithResult(result); });
       marker.on('mouseover', function(e) { 
-      marker.bindPopup(result.title).openPopup();
+        marker.bindPopup(result.title).openPopup();
         $(row).addClass('hilighted'); 
       });
-      marker.on('mouseout', function(e) { $(row).removeClass('hilighted'); });
+      marker.on('mouseout', function(e) { 
+        marker.closePopup();
+        $(row).removeClass('hilighted'); 
+      });
     }
       
     if (marker) {
-      $(row).mouseover(function() {
-        marker.bindPopup(result.title).openPopup();
-      });
+      $(row).mouseover(function() { marker.bindPopup(result.title).openPopup(); });
+      $(row).mouseout(function() { marker.closePopup(); });
     }
         
     $(row).find('.details-popup-content-candidate-link').click(function(e) { 
       correctWithResult(result);
     });
     
-    return row;
+    return { html: row, marker: marker };
   };
   
   // Other candidates  
@@ -167,7 +172,7 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
     var html = [];
     $.each(data.results, function(idx, result) {
       if (result.uri != relevantURI) {
-        html.push(displaySearchResult(result, { color:'#0055ff', radius:5, stroke:false, fillOpacity:0.8 }));
+        html.push(displaySearchResult(result, { color:'#0055ff', radius:5, stroke:false, fillOpacity:0.8 }).html);
       }
     });
 
@@ -180,7 +185,6 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
   
   // Preview snippets
   $.getJSON('../preview?url=' + encodeURIComponent(place.source) + '&term=' + place.toponym, function(snippets) {
-    
     var highlight = function(snippet) {
       var startIdx = snippet.indexOf(place.toponym);
       var endIdx = startIdx + place.toponym.length;
@@ -203,14 +207,22 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
   });
   
   // Search
+  var markers = [];
   $('.details-popup-content-search-input').keypress(function(e) {
     if (e.charCode == 13) {
+      // Clear previous results (if any)
       $('.details-popup-content-search-results').html('');
+      $.each(markers, function(idx, marker) { map.removeLayer(marker); });
+      markers = [];
       
       $.getJSON('../search/' + e.target.value.toLowerCase(), function(response) {
         var html = [];
         $.each(response.results, function(idx, result) {
-          html.push(displaySearchResult(result));
+          var displayedResult = displaySearchResult(result)
+          html.push(displayedResult.html);
+          
+          if (displayedResult.marker)
+            markers.push(displayedResult.marker);
         });
         
         if (html.length == 0) {
@@ -218,6 +230,8 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
         } else {
           $('.details-popup-content-search-results').append(html);
         }
+        
+        map.fitBounds(new L.featureGroup(markers).getBounds());
       });
     }
   });

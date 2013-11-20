@@ -183,9 +183,28 @@ html, body, div {
 }
 
 .details-popup-map {
-  width:400px;
+  width:398px;
   height:300px;
   border:1px solid #000;
+}
+
+.details-popup-content-search-container {
+  background-color:#fcfcfc;
+  margin:10px 0px;
+  padding:10px;
+  -moz-border-radius:3px;
+  -webkit-border-radius:3px;
+  -khtml-border-radius:3px;
+  border-radius:3px;
+  text-align:center;
+}
+
+.details-popup-content-search-container input {
+  border:1px solid #ccc;
+  background-color:#fff;
+  margin:0px 20px;
+  width:260px;
+  padding:2px 3px;
 }
 
 .details-popup-content-candidates tr.hilighted {
