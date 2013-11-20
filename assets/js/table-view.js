@@ -78,6 +78,17 @@ pelagios.georesolution.TableView = function(tableDiv, opt_edit_callback) {
 }
 
 /**
+ * Removes a specific row from the table.
+ * @param {Number} idx the index of the row to remove
+ */
+pelagios.georesolution.TableView.prototype.removeRow = function(idx) {
+  var data = this._grid.getData();
+  data.splice(idx, 1);
+  this._grid.invalidate();
+  this._grid.updateRowCount();
+}
+
+/**
  * Selects table rows for a specific gazetteer URI.
  * @param {string} uri the gazetteer URI
  */
