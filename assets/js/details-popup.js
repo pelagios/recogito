@@ -15,12 +15,18 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback) {
     '      <a class="details-popup-header-exit">EXIT</a>' +
     '    </div>' +
     '    <div class="details-popup-content">' +
-    '      <h1>Toponym: <span class="details-popup-content-toponym"></span></h1>' +
-    '      <p>Matched to Place: <span class="details-popup-content-matched-to"></span></p>' +
-    '      <h3>Possible Alternatives:</h3>' +
+    '      <h1>' + 
+    '        &quot;<span class="details-popup-content-toponym"></span>&quot; ' +
+    '        <span class="details-popup-content-source">in Online Source <span class="details-popup-content-source-label"></span></span>' + 
+    '      </h1>' +
+    '      <table class="details-popup-content-meta">' +
+    '        <tr><td><strong>Auto-Match</strong></td><td class="details-popup-content-auto-match"></td></tr>' +
+    '        <tr><td><strong>Correction</strong></td><td class="details-popup-content-correction"></td></tr>' +
+    '      </table>' +
+    '      <h3>Possible Alternatives</h3>' +
     '      <table class="details-popup-content-candidates">' +
     '      </table>' +    
-    '      <h3>Source Preview</h3>' + 
+    '      <h3>Source Text Snippets</h3>' + 
     '      <div class="details-popup-content-preview">' +
     '      </div>' +
     '    </div>' +
@@ -49,11 +55,34 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback) {
   $(this.element).appendTo(document.body);
   $('.details-popup-header-exit').click(function() { self.destroy(); });
   $('.details-popup-content-toponym').html(place.toponym);
+  $('.details-popup-content-source-label').html('<a href="' + place.source + '" target="_blank">' + place.worksheet + '</a>');
   
   if (place.place) {
-    $('.details-popup-content-matched-to').html('<a href="' + place.place.uri + '">' + place.place.title + '</a>');
+    var meta = '<a href="http://pelagios.org/api/places/' + 
+                encodeURIComponent(pelagios.georesolution.Utils.normalizePleiadesURI(place.place.uri)) +
+               '" target="_blank">' + place.place.title + '</a><br/>' +
+               place.place.names;
+               
+    if (!place.place.coordinate)
+      meta += '<br/>No coordinates for this place! <span class="table-no-coords">!</span></a>';
+               
+    $('.details-popup-content-auto-match').html(meta);
   } else {
-    $('.details-popup-content-matched-to').html('-');
+    $('.details-popup-content-auto-match').html('-');
+  }
+  
+  if (place.place_fixed) {
+    var meta = '<a href="http://pelagios.org/api/places/' + 
+                encodeURIComponent(pelagios.georesolution.Utils.normalizePleiadesURI(place.place_fixed.uri)) +
+               '" target="_blank">' + place.place_fixed.title + '</a><br/>' +
+               place.place_fixed.names;
+               
+    if (!place.place_fixed.coordinate)
+      meta += '<br/>No coordinates for this place! <span class="table-no-coords">!</span></a>';
+               
+    $('.details-popup-content-correction').html(meta);
+  } else {
+    $('.details-popup-content-correction').html('-');
   }
   
   var map = this._initMap($('.details-popup-content'));
@@ -69,7 +98,9 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback) {
     var html = [];
     var markers = [];
     $.each(data.results, function(idx, result) {
-      if (result.uri != place.gazetteer_uri) {
+      var placeURI = (place.place) ? place.place.uri : undefined;
+      var currentURI = (place.place_fixed) ? place.place_fixed.uri : placeURI;
+      if (result.uri != currentURI) {
         var row = $('<tr><td><a href="javascript:void(0);" class="details-popup-content-candidate-link">' + result.title + '</a></td><td>' + result.names + '</td></tr>');
         
         var marker = undefined;
@@ -96,14 +127,39 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback) {
         html.push(row);
       }
     });
+
+    if (html.length == 0) {
+      $('.details-popup-content-candidates').html('<p>No alternatives found.</p>');
+    } else {
+      $('.details-popup-content-candidates').append(html);
+    }
     
-    $('.details-popup-content-candidates').append(html);
-    map.fitBounds(new L.featureGroup(markers).getBounds());
+    if (markers.length > 0)
+      map.fitBounds(new L.featureGroup(markers).getBounds());
   });
   
   // Preview snippets
   $.getJSON('../preview?url=' + encodeURIComponent(place.source) + '&term=' + place.toponym, function(snippets) {
-    $('.details-popup-content-preview').html(snippets);
+    
+    var highlight = function(snippet) {
+      var startIdx = snippet.indexOf(place.toponym);
+      var endIdx = startIdx + place.toponym.length;
+      if (startIdx > -1 && endIdx <= snippet.length) {
+        var pre = snippet.substring(0, startIdx);
+        var post = snippet.substring(endIdx);
+        return pre + '<em>' + place.toponym + '</em>' + post;
+      } else { 
+        return snippet;
+      }
+    }
+    
+    if (snippets.length > 0) {
+      var preview = '';
+      $.each(snippets, function(idx, snippet) {
+        preview += '<p>...' + highlight(snippet) + "...</p>";        
+      });
+      $('.details-popup-content-preview').html(preview);
+    }
   });
 }
 
@@ -113,7 +169,7 @@ pelagios.georesolution.DetailsPopup.prototype._initMap = function(parentEl) {
   $(parentEl).prepend(mapDiv);
   
   var baseLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
-    attribution: 'Tiles: <a href="http://pelagios.org/maps/greco-roman/about.html">Pelagios</a>, 2012; Data: NASA, OSM, Pleiades, DARMC'
+    attribution: 'Tiles: <a href="http://pelagios.org/maps/greco-roman/about.html">Pelagios</a>, 2012'
   });
   
   var map = new L.Map(mapDiv, {
