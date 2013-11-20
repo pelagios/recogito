@@ -41,11 +41,14 @@ pelagios.georesolution.TableView = function(tableDiv, opt_edit_callback) {
   this._grid.setSelectionModel(new Slick.RowSelectionModel());
   
   var openCorrectionDialog = function(idx) {
+    var prev2 = self.getPrevN(idx, 2);
+    var next2 = self.getNextN(idx, 2);
+    
     new pelagios.georesolution.DetailsPopup(self._grid.getDataItem(idx), function() {
       self._grid.invalidate();
       if (opt_edit_callback)
         opt_edit_callback();
-    });
+    }, prev2, next2);
   };
   
   // Double-click brings up modal correction dialog...
@@ -107,4 +110,40 @@ pelagios.georesolution.TableView.prototype.setData = function(data) {
  */
 pelagios.georesolution.TableView.prototype.render = function() {
   this._grid.render();
+}
+
+pelagios.georesolution.TableView.prototype._getNeighbours = function(idx, n, step) {
+  var length = this._grid.getData().length;
+  
+  if (!n)
+    n = 2;
+    
+  if (!step)
+    step = 1;
+            
+  var neighbours = [];
+  var ctr = 1;
+  while (neighbours.length < n) {   
+    if (idx + ctr * step >= length)
+      break;
+      
+    if (idx + ctr * step < 0)
+      break;
+             
+    var dataItem = this._grid.getDataItem(idx + ctr * step);
+    if (dataItem.marker)
+      neighbours.push(dataItem);
+      
+    ctr++;
+  }
+      
+  return neighbours;
+}
+
+pelagios.georesolution.TableView.prototype.getNextN = function(idx, n)  {
+  return this._getNeighbours(idx, n, 1);
+}
+
+pelagios.georesolution.TableView.prototype.getPrevN = function(idx, n)  {
+  return this._getNeighbours(idx, n, -1);
 }
