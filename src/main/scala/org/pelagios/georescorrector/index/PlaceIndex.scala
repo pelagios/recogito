@@ -89,7 +89,7 @@ class PlaceIndex(directory: File) {
     val reader = IndexReader.open(index)
     val searcher = new IndexSearcher(reader)
     
-    val collector = TopScoreDocCollector.create(20, true)
+    val collector = TopScoreDocCollector.create(50, true)
     searcher.search(q, collector)
     
     collector.topDocs.scoreDocs.map(scoreDoc => {

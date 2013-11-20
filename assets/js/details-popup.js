@@ -17,6 +17,13 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
     '      <a class="details-popup-header-exit">EXIT</a>' +
     '    </div>' +
     '    <div class="details-popup-content">' +
+    '      <div class="details-popup-content-sidebar">' +
+    '        <div class="details-popup-content-search">' +
+    '          <input class="details-popup-content-search-input">' +
+    '          <div class="details-popup-content-search-results">' +
+    '          </div>' +
+    '        </div>' +
+    '      </div>' +
     '      <h1>' + 
     '        &quot;<span class="details-popup-content-toponym"></span>&quot; ' +
     '        <span class="details-popup-content-source">in Online Source <span class="details-popup-content-source-label"></span></span>' + 
@@ -87,7 +94,7 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
     $('.details-popup-content-correction').html('-');
   }
   
-  var map = this._initMap($('.details-popup-content'));
+  var map = this._initMap($('.details-popup-content-sidebar'));
   
   // Neighbour sequence
   if (opt_prev_places && opt_next_places) {
@@ -125,33 +132,42 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
     $('.details-popup-content-correction').mouseover(function() { markerFixed.bindPopup(popupFixed).openPopup(); });
   }
   
+  var displaySearchResult = function(result, opt_style) {
+    var row = $('<tr><td><a href="javascript:void(0);" class="details-popup-content-candidate-link">' + result.title + '</a></td><td>' + result.names + '</td></tr>');
+    var marker = undefined;
+    if (result.coords) {
+      if (opt_style) {
+        marker = L.circleMarker(result.coords, opt_style).addTo(map); 
+      } else {
+        marker = L.marker(result.coords).addTo(map);
+      }
+      marker.on('click', function(e) { correctWithResult(result); });
+      marker.on('mouseover', function(e) { 
+      marker.bindPopup(result.title).openPopup();
+        $(row).addClass('hilighted'); 
+      });
+      marker.on('mouseout', function(e) { $(row).removeClass('hilighted'); });
+    }
+      
+    if (marker) {
+      $(row).mouseover(function() {
+        marker.bindPopup(result.title).openPopup();
+      });
+    }
+        
+    $(row).find('.details-popup-content-candidate-link').click(function(e) { 
+      correctWithResult(result);
+    });
+    
+    return row;
+  };
+  
   // Other candidates  
   $.getJSON('../search/' + place.toponym.toLowerCase(), function(data) {
     var html = [];
     $.each(data.results, function(idx, result) {
       if (result.uri != relevantURI) {
-        var row = $('<tr><td><a href="javascript:void(0);" class="details-popup-content-candidate-link">' + result.title + '</a></td><td>' + result.names + '</td></tr>');
-        var marker = undefined;
-        if (result.coords) {
-          marker = L.circleMarker(result.coords, { color:'#0055ff', radius:5, stroke:false, fillOpacity:0.8 }).addTo(map); 
-          marker.on('click', function(e) { correctWithResult(result); });
-          marker.on('mouseover', function(e) { 
-            marker.bindPopup(result.title).openPopup();
-            $(row).addClass('hilighted'); 
-          });
-          marker.on('mouseout', function(e) { $(row).removeClass('hilighted'); });
-        }
-      
-        if (marker) {
-          $(row).mouseover(function() {
-            marker.bindPopup(result.title).openPopup();
-          });
-        }
-        
-        $(row).find('.details-popup-content-candidate-link').click(function(e) { 
-          correctWithResult(result);
-        });
-        html.push(row);
+        html.push(displaySearchResult(result, { color:'#0055ff', radius:5, stroke:false, fillOpacity:0.8 }));
       }
     });
 
@@ -183,6 +199,26 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
         preview += '<p>...' + highlight(snippet) + "...</p>";        
       });
       $('.details-popup-content-preview').html(preview);
+    }
+  });
+  
+  // Search
+  $('.details-popup-content-search-input').keypress(function(e) {
+    if (e.charCode == 13) {
+      $('.details-popup-content-search-results').html('');
+      
+      $.getJSON('../search/' + e.target.value.toLowerCase(), function(response) {
+        var html = [];
+        $.each(response.results, function(idx, result) {
+          html.push(displaySearchResult(result));
+        });
+        
+        if (html.length == 0) {
+          $('.details-popup-content-search-results').html('<p>No results for &quot;' + response.query + '</p>');
+        } else {
+          $('.details-popup-content-search-results').append(html);
+        }
+      });
     }
   });
 }
