@@ -13,29 +13,20 @@ pelagios.georesolution.TableView = function(tableDiv, opt_edit_callback) {
         var id =  value.uri.substring(32);
         if (id.indexOf('#') > -1)
           id = id.substring(0, id.indexOf('#'));
-          
-        return '<a href="http://pelagios.org/api/places/' + encodeURIComponent(value.uri) + '" target="_blank" title="' + value.title + '">pleiades:' + id + '</a>';
+        
+        var normalizedURI = pelagios.georesolution.Utils.normalizePleiadesURI(value.uri);
+        var formatted = '<a href="http://pelagios.org/api/places/' + encodeURIComponent(normalizedURI) + 
+                        '" target="_blank" title="' + value.title + '">pleiades:' + id + '</a>';
+        
+        if (value.coordinate) 
+          return formatted;
+        else
+          return '<a title="Place has no coordinates"><span class="table-no-coords">!</span></a> ' + formatted;
       } else {
         return value;
       }
     }
   }
-  
-  /* A custom extractor that handles nested data structures
-  var extractor = function(item, columnDef) {
-    var names = columnDef.field.split('.'),
-        val   = item[names[0]];
-
-    for (var i = 1; i < names.length; i++) {
-      if (val && typeof val == 'object' && names[i] in val) {
-        val = val[names[i]];
-      } else {
-        val = '';
-      }
-    }
-
-    return val;
-  }*/
 
   var columns = [{ name: '#', field: 'idx', id: 'idx' },
                  { name: 'Toponym', field: 'toponym', id: 'toponym' },
@@ -44,7 +35,7 @@ pelagios.georesolution.TableView = function(tableDiv, opt_edit_callback) {
                  { name: 'Corrected', field: 'place_fixed', id: 'place_fixed', formatter: pleiadesFormatter },
                  { name: 'Comment', field: 'comment', id: 'comment' }];
 
-  var options = { enableCellNavigation: true, enableColumnReorder: false, forceFitColumns: true, autoEdit: false /*, dataItemColumnValueExtractor: extractor */};
+  var options = { enableCellNavigation: true, enableColumnReorder: false, forceFitColumns: true, autoEdit: false };
     
   this._grid = new Slick.Grid('#table', {}, columns, options);
   this._grid.setSelectionModel(new Slick.RowSelectionModel());

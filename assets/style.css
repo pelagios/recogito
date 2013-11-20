@@ -57,6 +57,17 @@ html, body, div {
   background-color:#FFA52C;
 } 
 
+.table-no-coords {
+  background-color:#ff0000;
+  color:#fff;
+  padding:1px 3px;
+  font-weight:bold;
+  -moz-border-radius:3px;
+  -webkit-border-radius:3px;
+  -khtml-border-radius:3px;
+  border-radius:3px;
+}
+
 .clicktrap {
   position:absolute;
   top:0px;

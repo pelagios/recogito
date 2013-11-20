@@ -85,3 +85,15 @@ pelagios.georesolution.CorrectionTool.prototype.getNextN = function(idx, n)  {
 pelagios.georesolution.CorrectionTool.prototype.getPrevN = function(idx, n)  {
   return this._getNeighbours(idx, n, -1);
 }
+
+pelagios.georesolution.Utils = {
+  
+  normalizePleiadesURI: function(uri) {
+    if (uri.indexOf('#this') < 0) {
+      return uri;
+    } else {
+      return uri.substring(0, uri.indexOf('#this'));
+    }
+  }
+  
+}

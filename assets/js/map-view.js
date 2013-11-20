@@ -114,6 +114,8 @@ pelagios.georesolution.MapView.prototype.highlightPlace = function(place, prevN,
         
       drawSequenceLine(coords, { color: '#00ff00', opacity: 1 });
     }
+  } else {
+    this._map.closePopup();
   }
 }
 
