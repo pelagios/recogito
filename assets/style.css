@@ -110,17 +110,14 @@ html, body, div {
   background-color:#505050;
 }
 
-.details-popup-header-exit {
+.details-popup-button {
   display:inline-block;
   padding:5px 15px;
-  border:1px solid #000;
   font-size:14px;
-  margin:5px;
-  color:#fff;
-  position:absolute;
-  top:0px;
-  right:5px;
+  color:#fff !important;
   cursor:pointer;
+  margin-top:5px;
+  margin-bottom:5px;
   -moz-box-shadow:inset 0 1px 1px rgba(255,255,255,0.25),0 1px 1px rgba(255,255,255,0.25);
   -webkit-box-shadow:inset 0 1px 1px rgba(255,255,255,0.25),0 1px 1px rgba(255,255,255,0.25);
   box-shadow:inset 0 1px 1px rgba(255,255,255,0.25),0 1px 1px rgba(255,255,255,0.25);
@@ -133,8 +130,26 @@ html, body, div {
   filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFA52C',endColorstr='#FB7B28');
 }
 
+.details-popup-button-exit {
+  position:absolute;
+  top:0px;
+  right:5px;
+  border:1px solid #333;
+  margin:5px;
+}
+
+.details-popup-button-not-identifiable, .details-popup-button-false-detection {
+  margin-top:10px !important;
+  border:1px solid #ddd;
+}
+
 .details-popup-content {
   padding:10px 20px;
+}
+
+.details-popup-content h1 {
+  padding:0px;
+  margin:5px 0px;
 }
 
 .details-popup-content a {

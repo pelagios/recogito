@@ -44,11 +44,15 @@ pelagios.georesolution.TableView = function(tableDiv, opt_edit_callback) {
     var prev2 = self.getPrevN(idx, 2);
     var next2 = self.getNextN(idx, 2);
     
-    new pelagios.georesolution.DetailsPopup(self._grid.getDataItem(idx), function() {
+    var popup = new pelagios.georesolution.DetailsPopup(self._grid.getDataItem(idx), function() {
       self._grid.invalidate();
       if (opt_edit_callback)
         opt_edit_callback();
     }, prev2, next2);
+    
+    popup.onFalseDetection = function() {
+      self.removeRow(idx);
+    };
   };
   
   // Double-click brings up modal correction dialog...

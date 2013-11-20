@@ -14,7 +14,7 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
     '<div class="clicktrap">' +
     '  <div class="details-popup">' +
     '    <div class="details-popup-header">' +
-    '      <a class="details-popup-header-exit">EXIT</a>' +
+    '      <a class="details-popup-button details-popup-button-exit">EXIT</a>' +
     '    </div>' +
     '    <div class="details-popup-content">' +
     '      <div class="details-popup-content-sidebar">' +
@@ -34,6 +34,7 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
     '        <tr><td><strong>Auto-Match</strong></td><td class="details-popup-content-auto-match"></td></tr>' +
     '        <tr><td><strong>Correction</strong></td><td class="details-popup-content-correction"></td></tr>' +
     '      </table>' +
+    '      <a class="details-popup-button details-popup-button-false-detection">FALSE DETECTION</a> <a class="details-popup-button details-popup-button-not-identifiable">NOT IDENTIFY-ABLE</a>' +
     '      <h3>Source Text Snippets</h3>' + 
     '      <div class="details-popup-content-preview">' +
     '      </div>' +
@@ -64,9 +65,18 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
     
   this.element = $(template);
   $(this.element).appendTo(document.body);
-  $('.details-popup-header-exit').click(function() { self.destroy(); });
+  $('.details-popup-button-exit').click(function() { self.destroy(); });
   $('.details-popup-content-toponym').html(place.toponym);
   $('.details-popup-content-source-label').html('<a href="' + place.source + '" target="_blank">' + place.worksheet + '</a>');
+  $('.details-popup-button-false-detection').click(function() {
+    if (confirm('This will remove the place from the list. Are you sure?')) {
+      // TODO evil hack - needs cleanup & event handling needs to be made consist across the app
+      if (self.onFalseDetection)
+        self.onFalseDetection();
+        
+      self.destroy();
+    }
+  });
   
   if (place.place) {
     var meta = '<a href="http://pelagios.org/api/places/' + 
