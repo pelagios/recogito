@@ -156,8 +156,8 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
     }
       
     if (marker) {
-      $(row).mouseover(function() { marker.bindPopup(result.title).openPopup(); });
-      $(row).mouseout(function() { marker.closePopup(); });
+      $(row).find('.details-popup-content-candidate-link').mouseover(function() { marker.bindPopup(result.title).openPopup(); });
+      $(row).find('.details-popup-content-candidate-link').mouseout(function() { marker.closePopup(); });
     }
         
     $(row).find('.details-popup-content-candidate-link').click(function(e) { 
