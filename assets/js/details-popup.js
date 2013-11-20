@@ -86,11 +86,18 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback) {
   }
   
   var map = this._initMap($('.details-popup-content'));
-  if (place.coordinate) {
-    var marker = L.marker(place.coordinate).addTo(map);  
-    $('.details-popup-content-toponym').mouseover(function() {
-      marker.bindPopup(place.gazetteer_title).openPopup();
-    });
+  if (place.place && place.place.coordinate) {
+    var marker = L.circleMarker(place.place.coordinate, { color:'blue', opacity:1, fillOpacity:0.6 }).addTo(map);    
+    var popup = '<strong>Auto-Match:</strong> ' + place.place.title;
+    marker.on('mouseover', function(e) { marker.bindPopup(popup).openPopup(); });
+    $('.details-popup-content-auto-match').mouseover(function() { marker.bindPopup(popup).openPopup(); });
+  }
+  
+  if (place.place_fixed && place.place_fixed.coordinate) {
+    var markerFixed = L.circleMarker(place.place_fixed.coordinate, { color:'red', opacity:1, fillOpacity:0.6 }).addTo(map);   
+    var popupFixed =   '<strong>Correction:</strong> ' + place.place_fixed.title;
+    markerFixed.on('mouseover', function(e) { markerFixed.bindPopup(popupFixed).openPopup(); });
+    $('.details-popup-content-correction').mouseover(function() { markerFixed.bindPopup(popupFixed).openPopup(); });
   }
   
   // Other candidates  
@@ -105,7 +112,7 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback) {
         
         var marker = undefined;
         if (result.coords) {
-          marker = L.marker(result.coords, { opacity: 0.5 }).addTo(map); 
+          marker = L.circleMarker(result.coords, { color:'#0055ff', radius:5, stroke:false, fillOpacity:0.8 }).addTo(map); 
           marker.on('click', function(e) { correctWithResult(result); });
           marker.on('mouseover', function(e) { 
             marker.bindPopup(result.title).openPopup();

@@ -125,8 +125,5 @@ pelagios.georesolution.MapView.prototype.highlightPlace = function(place, prevN,
 pelagios.georesolution.MapView.prototype.clear = function() {
   var self = this;
   $.each(this._allMarkers, function(idx, marker) { self._map.removeLayer(marker); });
-  
-  for (idx in this._currentSequence) {
-    this._map.removeLayer(this._currentSequence[idx]);
-  }
+  $.each(this._currentSequence, function(idx, marker) { self._map.removeLayer(marker) });
 }
