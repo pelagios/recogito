@@ -1,5 +1,11 @@
 /**
  * The table component of the UI.
+ * 
+ * Emits the following events:
+ * 'selectionChanged' ... when the selection was changed in the table
+ * 'update' ............. when an annotation was updated in the details popup
+ * 'markedAsFalse' ...... when an annotation was marked as false detection in the details popup
+ * 
  * @param {Element} tableDiv the DIV to hold the SlickGrid table
  * @constructor
  */
@@ -56,8 +62,8 @@ pelagios.georesolution.TableView = function(tableDiv) {
     });
     popup.on('markedAsFalse', function() {
       self.removeRow(idx);
-      if (opt_edit_callback)
-        opt_edit_callback();
+      if (self.handlers['markedAsFalse'])
+        self.handlers['markedAsFalse']();
     });
   };
   

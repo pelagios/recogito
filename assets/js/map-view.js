@@ -1,5 +1,9 @@
 /**
  * The map component of the UI.
+ * 
+ * Emits the following events:
+ * 'select' ... when a place was selected on a map
+ * 
  * @param {Element} mapDiv the DIV to hold the Leaflet map
  * @constructor
  */
