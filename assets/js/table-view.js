@@ -6,7 +6,7 @@
 pelagios.georesolution.TableView = function(tableDiv, opt_edit_callback) {  
   var self = this;
     
-  // A custom formatter for Pleiades URIs
+  // A custom table cell formatter for Pleiades URIs
   var pleiadesFormatter = function (row, cell, value, columnDef, dataContext) {
     if (value) {
       if (value.uri.indexOf('http://pleiades.stoa.org') == 0) {

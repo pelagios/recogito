@@ -5,7 +5,8 @@ pelagios.georesolution = (pelagios.georesolution) ? pelagios.georesolution : { }
 /**
  * The main application constructor
  * @param {Element} tableDiv the DIV to hold the SlickGrid table
- * @param {Element] mapDiv the DIV to hold the Leaflet map
+ * @param {Element} mapDiv the DIV to hold the Leaflet map
+ * @param {String} dataURL the URL from where to retrieve the JSON data
  * @constructor
  */
 pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv, dataURL) {  

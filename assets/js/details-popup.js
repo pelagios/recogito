@@ -1,5 +1,9 @@
 /**
- * @param {Object} place the place
+ * A popup showing all details about a single annotation, with extra functionality
+ * to make manual corrections to it.
+ * @param {Object} annotation the annotation
+ * @param {Array.<Object>} prev_annotations previous annotations in the list (if any)
+ * @param {Array.<Object>} next_annotations next annotations in the list (if any)
  * @constructor
  */
 pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, next_annotations) {  
