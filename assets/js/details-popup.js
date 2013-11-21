@@ -1,90 +1,131 @@
-/** Namespaces **/
-var pelagios = (window.pelagios) ? window.pelagios : { };
-pelagios.georesolution = (pelagios.georesolution) ? pelagios.georesolution : { };
-
 /**
  * @param {Object} place the place
  * @constructor
  */
-pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_places, opt_next_places) {  
+pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, next_annotations) {  
   var self = this,
-      automatchURI = (place.place) ? place.place.uri : undefined,
-      relevantURI = (place.place_fixed) ? place.place_fixed.uri : automatchURI,
       template = 
-    '<div class="clicktrap">' +
-    '  <div class="details-popup">' +
-    '    <div class="details-popup-header">' +
-    '      <a class="details-popup-button details-popup-button-exit">EXIT</a>' +
-    '    </div>' +
-    '    <div class="details-popup-content">' +
-    '      <div class="details-popup-content-sidebar">' +
-    '        <div class="details-popup-content-search">' +
-    '          <div class="details-popup-content-search-container">' +
-    '            <span>Search</span> <input class="details-popup-content-search-input">' +
-    '          </div>'+
-    '          <table class="details-popup-content-search-results">' +
-    '          </table>' +
-    '        </div>' +
-    '      </div>' +
-    '      <h1>' + 
-    '        &quot;<span class="details-popup-content-toponym"></span>&quot; ' +
-    '        <span class="details-popup-content-source">in Online Source <span class="details-popup-content-source-label"></span></span>' + 
-    '      </h1>' +
-    '      <table class="details-popup-content-meta">' +
-    '        <tr><td><strong>Auto-Match</strong></td><td class="details-popup-content-auto-match"></td></tr>' +
-    '        <tr><td><strong>Correction</strong></td><td class="details-popup-content-correction"></td></tr>' +
-    '      </table>' +
-    '      <a class="details-popup-button details-popup-button-false-detection">FALSE DETECTION</a> <a class="details-popup-button details-popup-button-not-identifiable">NOT IDENTIFY-ABLE</a>' +
-    '      <h3>Source Text Snippets</h3>' + 
-    '      <div class="details-popup-content-preview">' +
-    '      </div>' +
-    '      <h3>Possible Alternatives</h3>' +
-    '      <table class="details-popup-content-candidates">' +
-    '      </table>' +    
-    '    </div>' +
-    '  </div>' +
-    '</div>';
+        '<div class="clicktrap">' +
+        '  <div class="details-popup">' +
+        '    <div class="details-popup-header">' +
+        '      <a class="details-popup-button details-popup-button-exit">EXIT</a>' +
+        '    </div>' +
+        '    <div class="details-popup-content">' +
+        '      <div class="details-popup-content-sidebar">' +
+        '        <div class="details-popup-content-search">' +
+        '          <div class="details-popup-content-search-container">' +
+        '            <span>Search</span> <input class="details-popup-content-search-input">' +
+        '          </div>'+
+        '          <table class="details-popup-content-search-results">' +
+        '          </table>' +
+        '        </div>' +
+        '      </div>' +
+        '      <h1>' + 
+        '        &quot;<span class="details-popup-content-toponym"></span>&quot; ' +
+        '        <span class="details-popup-content-source">in Online Source <span class="details-popup-content-source-label"></span></span>' + 
+        '      </h1>' +
+        '      <table class="details-popup-content-meta">' +
+        '        <tr><td><strong>Auto-Match</strong></td><td class="details-popup-content-auto-match"></td></tr>' +
+        '        <tr><td><strong>Correction</strong></td><td class="details-popup-content-correction"></td></tr>' +
+        '      </table>' +
+        '      <a class="details-popup-button details-popup-button-false-detection">FALSE DETECTION</a> <a class="details-popup-button details-popup-button-not-identifiable">NOT IDENTIFY-ABLE</a>' +
+        '      <h3>Source Text Snippets</h3>' + 
+        '      <div class="details-popup-content-preview">' +
+        '      </div>' +
+        '      <h3>Possible Alternatives</h3>' +
+        '      <table class="details-popup-content-candidates">' +
+        '      </table>' +    
+        '    </div>' +
+        '  </div>' +
+        '</div>';
     
-  var correctWithResult = function(result) {
-    if (confirm('Are you sure you want to correct the mapping to ' + result.title + '?')) {
-      if (!place.place_fixed)
-        place.place_fixed = { };
-        
-      place.place_fixed.title = result.title;
-      place.place_fixed.names = result.names;
-      place.place_fixed.uri = result.uri;    
-      place.place_fixed.coordinate = result.coords;
-            
-      // TODO API call - write to GDocs
-      self.destroy();
-            
-      if (opt_callback)
-        opt_callback(place);
-    }
-  }
+  // Event handlers
+  this.handlers = {};
     
+  // Details Popup DOM element
   this.element = $(template);
   $(this.element).appendTo(document.body);
+  
+  // Leaflet map
+  var map = this._initMap($('.details-popup-content-sidebar'));
+
+  /**
+   * Generates a view of a search result by rendering an HTML table row and attach a marker to the map
+   * @param {Object} result the search result
+   * @param {Object!} opt_style the map marker style
+   */
+  var displaySearchResult = function(result, opt_style) {
+    var warning = (result.coords) ? '' : '<a title="Place has no coordinates"><span class="table-no-coords">!</span> </a>'
+    var tr = $('<tr><td>' + warning + '</td><td><a href="javascript:void(0);" class="details-popup-content-candidate-link">' + result.title + '</a></td><td>' + result.names + '</td></tr>');
+    var marker = undefined;
+    if (result.coords) {
+      if (opt_style)
+        marker = L.circleMarker(result.coords, opt_style).addTo(map); 
+      else
+        marker = L.marker(result.coords).addTo(map);
+        
+      marker.on('click', function(e) { saveCorrection(result); });
+      marker.on('mouseover', function(e) { 
+        marker.bindPopup(result.title).openPopup();
+        $(tr).addClass('hilighted'); 
+      });
+      marker.on('mouseout', function(e) { 
+        marker.closePopup();
+        $(tr).removeClass('hilighted'); 
+      });
+    }
+     
+    var candidateLink = $(tr).find('.details-popup-content-candidate-link');
+    if (marker) {
+      candidateLink.mouseover(function() { marker.bindPopup(result.title).openPopup(); });
+      candidateLink.mouseout(function() { marker.closePopup(); });
+    }
+    candidateLink.click(function(e) { saveCorrection(result); });
+    
+    return { html: tr, marker: marker };
+  };
+    
+  /**
+   * Saves a manual correction by updating the place data from a search result
+   * @param {Object} result the search result
+   */
+  var saveCorrection = function(result) {
+    if (confirm('Are you sure you want to correct the mapping to ' + result.title + '?')) {
+      if (!annotation.place_fixed)
+        annotation.place_fixed = { };
+        
+      annotation.place_fixed.title = result.title;
+      annotation.place_fixed.names = result.names;
+      annotation.place_fixed.uri = result.uri;    
+      annotation.place_fixed.coordinate = result.coords;
+                  
+      if (self.handlers['save'])
+        self.handlers['save'](annotation);        
+        
+      self.destroy();
+    }
+  };
+    
+  // Populate the template
   $('.details-popup-button-exit').click(function() { self.destroy(); });
-  $('.details-popup-content-toponym').html(place.toponym);
-  $('.details-popup-content-source-label').html('<a href="' + place.source + '" target="_blank">' + place.worksheet + '</a>');
+  $('.details-popup-content-toponym').html(annotation.toponym);
+  $('.details-popup-content-source-label').html('<a href="' + annotation.source + '" target="_blank">' + annotation.worksheet + '</a>');
   $('.details-popup-button-false-detection').click(function() {
     if (confirm('This will remove the place from the list. Are you sure?')) {
-      // TODO evil hack - needs cleanup & event handling needs to be made consist across the app
-      if (self.onFalseDetection)
-        self.onFalseDetection();
+      if (self.handlers['markedAsFalse'])
+        self.handlers['markedAsFalse'](annotation);
         
       self.destroy();
     }
   });
   
-  if (place.place) {
+  if (annotation.place) {
     var meta = '<a href="http://pelagios.org/api/places/' + 
-                encodeURIComponent(pelagios.georesolution.Utils.normalizePleiadesURI(place.place.uri)) +
-               '" target="_blank">' + place.place.title + '</a><br/>' +
-               place.place.names;
+                encodeURIComponent(pelagios.georesolution.Utils.normalizePleiadesURI(annotation.place.uri)) +
+               '" target="_blank">' + annotation.place.title + '</a><br/>' +
+               annotation.place.names;
                
-    if (!place.place.coordinate)
+    if (!annotation.place.coordinate)
       meta += '<br/>No coordinates for this place! <span class="table-no-coords">!</span></a>';
                
     $('.details-popup-content-auto-match').html(meta);
@@ -92,13 +133,13 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
     $('.details-popup-content-auto-match').html('-');
   }
   
-  if (place.place_fixed) {
+  if (annotation.place_fixed) {
     var meta = '<a href="http://pelagios.org/api/places/' + 
-                encodeURIComponent(pelagios.georesolution.Utils.normalizePleiadesURI(place.place_fixed.uri)) +
-               '" target="_blank">' + place.place_fixed.title + '</a><br/>' +
-               place.place_fixed.names;
+                encodeURIComponent(pelagios.georesolution.Utils.normalizePleiadesURI(annotation.place_fixed.uri)) +
+               '" target="_blank">' + annotation.place_fixed.title + '</a><br/>' +
+               annotation.place_fixed.names;
                
-    if (!place.place_fixed.coordinate)
+    if (!annotation.place_fixed.coordinate)
       meta += '<br/>No coordinates for this place! <span class="table-no-coords">!</span></a>';
                
     $('.details-popup-content-correction').html(meta);
@@ -106,22 +147,20 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
     $('.details-popup-content-correction').html('-');
   }
   
-  var map = this._initMap($('.details-popup-content-sidebar'));
-  
-  // Neighbour sequence
-  if (opt_prev_places && opt_next_places) {
+  // Popuplate the map
+  if (prev_annotations && next_annotations) {
     var coords = [];
     
-    for (var i = opt_prev_places.length - 1; i > -1; i--)
-      coords.push(opt_prev_places[i].marker.getLatLng());
+    for (var i = prev_annotations.length - 1; i > -1; i--)
+      coords.push(prev_annotations[i].marker.getLatLng());
       
-    if (place.place_fixed && place.place_fixed.coordinate)
-      coords.push(place.place_fixed.coordinate);
-    else if (place.place && place.place.coordinate)
-      coords.push(place.place.coordinate);
+    if (annotation.place_fixed && annotation.place_fixed.coordinate)
+      coords.push(annotation.place_fixed.coordinate);
+    else if (annotation.place && annotation.place.coordinate)
+      coords.push(annotation.place.coordinate);
       
-    for (var i = 0; i < opt_next_places.length; i++)
-      coords.push(opt_next_places[i].marker.getLatLng());
+    for (var i = 0; i < next_annotations.length; i++)
+      coords.push(next_annotations[i].marker.getLatLng());
       
     var line = L.polyline(coords, { color:'blue', opacity:0.8 });
     map.fitBounds(line.getBounds());
@@ -129,57 +168,27 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
   }
   
   // Marker for auto-match
-  if (place.place && place.place.coordinate) {
-    var marker = L.circleMarker(place.place.coordinate, { color:'blue', opacity:1, fillOpacity:0.6 }).addTo(map);    
-    var popup = '<strong>Auto-Match:</strong> ' + place.place.title;
+  if (annotation.place && annotation.place.coordinate) {
+    var marker = L.circleMarker(annotation.place.coordinate, { color:'blue', opacity:1, fillOpacity:0.6 }).addTo(map);    
+    var popup = '<strong>Auto-Match:</strong> ' + annotation.place.title;
     marker.on('mouseover', function(e) { marker.bindPopup(popup).openPopup(); });
     $('.details-popup-content-auto-match').mouseover(function() { marker.bindPopup(popup).openPopup(); });
   }
   
   // Marker for manual correction (if any)
-  if (place.place_fixed && place.place_fixed.coordinate) {
-    var markerFixed = L.circleMarker(place.place_fixed.coordinate, { color:'red', opacity:1, fillOpacity:0.6 }).addTo(map);   
-    var popupFixed =   '<strong>Correction:</strong> ' + place.place_fixed.title;
+  if (annotation.place_fixed && annotation.place_fixed.coordinate) {
+    var markerFixed = L.circleMarker(annotation.place_fixed.coordinate, { color:'red', opacity:1, fillOpacity:0.6 }).addTo(map);   
+    var popupFixed =   '<strong>Correction:</strong> ' + annotation.place_fixed.title;
     markerFixed.on('mouseover', function(e) { markerFixed.bindPopup(popupFixed).openPopup(); });
     $('.details-popup-content-correction').mouseover(function() { markerFixed.bindPopup(popupFixed).openPopup(); });
   }
   
-  var displaySearchResult = function(result, opt_style) {
-    var warning = (result.coords) ? '' : '<a title="Place has no coordinates"><span class="table-no-coords">!</span> </a>'
-    var row = $('<tr><td>' + warning + '</td><td><a href="javascript:void(0);" class="details-popup-content-candidate-link">' + result.title + '</a></td><td>' + result.names + '</td></tr>');
-    var marker = undefined;
-    if (result.coords) {
-      if (opt_style) {
-        marker = L.circleMarker(result.coords, opt_style).addTo(map); 
-      } else {
-        marker = L.marker(result.coords).addTo(map);
-      }
-      marker.on('click', function(e) { correctWithResult(result); });
-      marker.on('mouseover', function(e) { 
-        marker.bindPopup(result.title).openPopup();
-        $(row).addClass('hilighted'); 
-      });
-      marker.on('mouseout', function(e) { 
-        marker.closePopup();
-        $(row).removeClass('hilighted'); 
-      });
-    }
-      
-    if (marker) {
-      $(row).find('.details-popup-content-candidate-link').mouseover(function() { marker.bindPopup(result.title).openPopup(); });
-      $(row).find('.details-popup-content-candidate-link').mouseout(function() { marker.closePopup(); });
-    }
-        
-    $(row).find('.details-popup-content-candidate-link').click(function(e) { 
-      correctWithResult(result);
-    });
+  // Other candidates list
+  $.getJSON('../search/' + annotation.toponym.toLowerCase(), function(data) {
+    var html = [],
+        automatchURI = (annotation.place) ? annotation.place.uri : undefined,
+        relevantURI = (annotation.place_fixed) ? annotation.place_fixed.uri : automatchURI;
     
-    return { html: row, marker: marker };
-  };
-  
-  // Other candidates  
-  $.getJSON('../search/' + place.toponym.toLowerCase(), function(data) {
-    var html = [];
     $.each(data.results, function(idx, result) {
       if (result.uri != relevantURI) {
         html.push(displaySearchResult(result, { color:'#0055ff', radius:5, stroke:false, fillOpacity:0.8 }).html);
@@ -194,14 +203,14 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
   });
   
   // Preview snippets
-  $.getJSON('../preview?url=' + encodeURIComponent(place.source) + '&term=' + place.toponym, function(snippets) {
+  $.getJSON('../preview?url=' + encodeURIComponent(annotation.source) + '&term=' + annotation.toponym, function(snippets) {
     var highlight = function(snippet) {
-      var startIdx = snippet.indexOf(place.toponym);
-      var endIdx = startIdx + place.toponym.length;
+      var startIdx = snippet.indexOf(annotation.toponym);
+      var endIdx = startIdx + annotation.toponym.length;
       if (startIdx > -1 && endIdx <= snippet.length) {
         var pre = snippet.substring(0, startIdx);
         var post = snippet.substring(endIdx);
-        return pre + '<em>' + place.toponym + '</em>' + post;
+        return pre + '<em>' + annotation.toponym + '</em>' + post;
       } else { 
         return snippet;
       }
@@ -216,7 +225,7 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
     }
   });
   
-  // Search
+  // Text search
   var markers = [];
   $('.details-popup-content-search-input').keypress(function(e) {
     if (e.charCode == 13) {
@@ -247,6 +256,11 @@ pelagios.georesolution.DetailsPopup = function(place, opt_callback, opt_prev_pla
   });
 }
 
+/**
+ * Initializes the Leaflet map
+ * @param {Element} parentEl the DOM element to attach to 
+ * @private
+ */
 pelagios.georesolution.DetailsPopup.prototype._initMap = function(parentEl) {
   var mapDiv = document.createElement('div');
   mapDiv.className = 'details-popup-map';
@@ -257,8 +271,6 @@ pelagios.georesolution.DetailsPopup.prototype._initMap = function(parentEl) {
   });
   
   var map = new L.Map(mapDiv, {
-    center: new L.LatLng(41.893588, 12.488022), // TODO fit to place coords
-    zoom: 3,
     layers: [baseLayer],
     minZoom: 3,
     maxZoom: 11
@@ -267,6 +279,19 @@ pelagios.georesolution.DetailsPopup.prototype._initMap = function(parentEl) {
   return map;
 }
 
+/**
+ * Adds an event handler to the popup. Currently there are two supported event
+ * types: 'save' and 'markedAsFalse'
+ * @param {String} event the event name
+ * @param {Function} handler the handler function
+ */
+pelagios.georesolution.DetailsPopup.prototype.on = function(event, handler) {  
+  this.handlers[event] = handler;
+}
+
+/**
+ * Destroys the popup.
+ */
 pelagios.georesolution.DetailsPopup.prototype.destroy = function() {
   $(this.element).remove();
 }
