@@ -3,7 +3,10 @@
  * @param {Element} tableDiv the DIV to hold the SlickGrid table
  * @constructor
  */
-pelagios.georesolution.TableView = function(tableDiv, opt_edit_callback) {  
+pelagios.georesolution.TableView = function(tableDiv) {  
+  // Inheritance - not the nicest pattern but works for our case
+  pelagios.georesolution.HasEvents.call(this);
+  
   var self = this;
     
   // A custom table cell formatter for Pleiades URIs
@@ -40,42 +43,37 @@ pelagios.georesolution.TableView = function(tableDiv, opt_edit_callback) {
   this._grid = new Slick.Grid('#table', {}, columns, options);
   this._grid.setSelectionModel(new Slick.RowSelectionModel());
   
-  var openCorrectionDialog = function(idx) {
+  // Opens the details popup
+  var openDetailsPopup = function(idx) {
     var prev2 = self.getPrevN(idx, 2);
     var next2 = self.getNextN(idx, 2);
     
     var popup = new pelagios.georesolution.DetailsPopup(self._grid.getDataItem(idx), prev2, next2);
     popup.on('save', function() {
       self._grid.invalidate();
-      if (opt_edit_callback)
-        opt_edit_callback();
+      if (self.handlers['update'])
+        self.handlers['update']();
     });
-    
-    popup.onFalseDetection = function() {
+    popup.on('markedAsFalse', function() {
       self.removeRow(idx);
       if (opt_edit_callback)
         opt_edit_callback();
-    };
+    });
   };
   
-  // Double-click brings up modal correction dialog...
-  this._grid.onDblClick.subscribe(function(e, args) {
-    openCorrectionDialog(args.row);
-  });
-  
-  // ...so does enter
+  this._grid.onDblClick.subscribe(function(e, args) { openDetailsPopup(args.row); });  
   this._grid.onKeyDown.subscribe(function(e, args) {
     if (e.which == 13) {
-      openCorrectionDialog(args.row);
+      openDetailsPopup(args.row);
     }
   });
 
-  // Selection in the table selects on the map, too
+  // Selection in the table is forwarded to event listener
   this._grid.onSelectedRowsChanged.subscribe(function(e, args) { 
     if (args.rows.length > 0) {
-      if (self.onSelectionChanged) {
+      if (self.handlers['selectionChanged']) {
         var place = self._grid.getDataItem(args.rows[0]);
-        self.onSelectionChanged(args, place);
+        self.handlers['selectionChanged'](args, place);
       }
     }
   });
@@ -83,6 +81,9 @@ pelagios.georesolution.TableView = function(tableDiv, opt_edit_callback) {
   // Redraw grid in case of window resize
   $(window).resize(function() { self._grid.resizeCanvas(); })
 }
+
+// Inheritance - not the nicest pattern but works for our case
+pelagios.georesolution.TableView.prototype = new pelagios.georesolution.HasEvents();
 
 /**
  * Removes a specific row from the table.
@@ -130,6 +131,15 @@ pelagios.georesolution.TableView.prototype.render = function() {
   this._grid.render();
 }
 
+/**
+ * Returns N neighbours of the annotation with the specified index, based
+ * on a (positive or  negative) step value.
+ * @param {Number} idx the index of the annotation
+ * @param {Number] n the number of neighbours to return
+ * @param {step} the step value
+ * @return the neighbours
+ * @private
+ */
 pelagios.georesolution.TableView.prototype._getNeighbours = function(idx, n, step) {
   var length = this._grid.getData().length;
   
@@ -158,10 +168,22 @@ pelagios.georesolution.TableView.prototype._getNeighbours = function(idx, n, ste
   return neighbours;
 }
 
+/**
+ * Returns the next N annotations in the list from the specified index.
+ * @param {Number} idx the index
+ * @param {Number} n the number of neighbours to return
+ * @return the next N annotations in the list
+ */
 pelagios.georesolution.TableView.prototype.getNextN = function(idx, n)  {
   return this._getNeighbours(idx, n, 1);
 }
 
+/**
+ * Returns the previous N annotations in the list from the specified index.
+ * @param {Number} idx the index
+ * @param {Number} n the number of neighbours to return
+ * @return the previous N annotations in the list
+ */
 pelagios.georesolution.TableView.prototype.getPrevN = function(idx, n)  {
   return this._getNeighbours(idx, n, -1);
 }

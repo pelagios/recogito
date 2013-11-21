@@ -1,12 +1,21 @@
 /**
  * A popup showing all details about a single annotation, with extra functionality
  * to make manual corrections to it.
+ * 
+ * Emits the following events:
+ * 'save' .............. when a correction is saved 
+ * 'markedAsFalse' ..... when an annotation is marked as a false detection
+ * 'notIdentifiable' ... when an annotation is marked as a 'not identifiable' place
+ * 
  * @param {Object} annotation the annotation
  * @param {Array.<Object>} prev_annotations previous annotations in the list (if any)
  * @param {Array.<Object>} next_annotations next annotations in the list (if any)
  * @constructor
  */
-pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, next_annotations) {  
+pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, next_annotations) {
+  // Inheritance - not the nicest pattern but works for our case
+  pelagios.georesolution.HasEvents.call(this);
+    
   var self = this,
       template = 
         '<div class="clicktrap">' +
@@ -42,9 +51,6 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
         '    </div>' +
         '  </div>' +
         '</div>';
-    
-  // Event handlers
-  this.handlers = {};
     
   // Details Popup DOM element
   this.element = $(template);
@@ -118,10 +124,16 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
     if (confirm('This will remove the place from the list. Are you sure?')) {
       if (self.handlers['markedAsFalse'])
         self.handlers['markedAsFalse'](annotation);
-        
       self.destroy();
     }
   });
+  $('.details-popup-button-not-identifiable').click(function() {
+    if (confirm('This will mark the place as not identifiable and flag it for future investigation. Are you sure?')) {
+      if (self.handlers['notIdentifiable'])
+        self.handlers['notIdentifiable'](annotation);
+      self.destroy();
+    }
+  }); 
   
   if (annotation.place) {
     var meta = '<a href="http://pelagios.org/api/places/' + 
@@ -260,6 +272,9 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
   });
 }
 
+// Inheritance - not the nicest pattern but works for our case
+pelagios.georesolution.DetailsPopup.prototype = new pelagios.georesolution.HasEvents();
+
 /**
  * Initializes the Leaflet map
  * @param {Element} parentEl the DOM element to attach to 
@@ -281,16 +296,6 @@ pelagios.georesolution.DetailsPopup.prototype._initMap = function(parentEl) {
   });
 
   return map;
-}
-
-/**
- * Adds an event handler to the popup. Currently there are two supported event
- * types: 'save' and 'markedAsFalse'
- * @param {String} event the event name
- * @param {Function} handler the handler function
- */
-pelagios.georesolution.DetailsPopup.prototype.on = function(event, handler) {  
-  this.handlers[event] = handler;
 }
 
 /**
