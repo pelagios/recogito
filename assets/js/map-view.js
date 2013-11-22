@@ -75,8 +75,7 @@ pelagios.georesolution.MapView.prototype.addPlaceMarker = function(annotation) {
     marker.addTo(this._map); 
     marker.on('click', function(e) {
       marker.bindPopup(annotation.toponym + ' (<a href="' + annotation.source + '" target="_blank">Source</a>)').openPopup(); 
-      if (self.handlers['select']) 
-        self.handlers['select'](annotation);
+      self.fireEvent('select', annotation);
     });
     self._allMarkers.push(marker);
 

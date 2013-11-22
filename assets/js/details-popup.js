@@ -108,10 +108,8 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
       annotation.place_fixed.names = result.names;
       annotation.place_fixed.uri = result.uri;    
       annotation.place_fixed.coordinate = result.coords;
-                  
-      if (self.handlers['save'])
-        self.handlers['save'](annotation);        
         
+      self.fireEvent('save', annotation);        
       self.destroy();
     }
   };
@@ -122,15 +120,13 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
   $('.details-popup-content-source-label').html('<a href="' + annotation.source + '" target="_blank">' + annotation.worksheet + '</a>');
   $('.details-popup-button-false-detection').click(function() {
     if (confirm('This will remove the place from the list. Are you sure?')) {
-      if (self.handlers['markedAsFalse'])
-        self.handlers['markedAsFalse'](annotation);
+      self.fireEvent('markedAsFalse', annotation);
       self.destroy();
     }
   });
   $('.details-popup-button-not-identifiable').click(function() {
     if (confirm('This will mark the place as not identifiable and flag it for future investigation. Are you sure?')) {
-      if (self.handlers['notIdentifiable'])
-        self.handlers['notIdentifiable'](annotation);
+      self.fireEvent('notIdentifiable', annotation);
       self.destroy();
     }
   }); 

@@ -57,13 +57,11 @@ pelagios.georesolution.TableView = function(tableDiv) {
     var popup = new pelagios.georesolution.DetailsPopup(self._grid.getDataItem(idx), prev2, next2);
     popup.on('save', function() {
       self._grid.invalidate();
-      if (self.handlers['update'])
-        self.handlers['update']();
+      self.fireEvent('update');
     });
-    popup.on('markedAsFalse', function() {
+    popup.on('markedAsFalse', function(annotation) {
       self.removeRow(idx);
-      if (self.handlers['markedAsFalse'])
-        self.handlers['markedAsFalse']();
+      self.fireEvent('markedAsFalse', annotation);
     });
   };
   
@@ -77,10 +75,8 @@ pelagios.georesolution.TableView = function(tableDiv) {
   // Selection in the table is forwarded to event listener
   this._grid.onSelectedRowsChanged.subscribe(function(e, args) { 
     if (args.rows.length > 0) {
-      if (self.handlers['selectionChanged']) {
-        var place = self._grid.getDataItem(args.rows[0]);
-        self.handlers['selectionChanged'](args, place);
-      }
+      var place = self._grid.getDataItem(args.rows[0]);
+      self.fireEvent('selectionChanged', args, place);
     }
   });
 

@@ -74,6 +74,17 @@ pelagios.georesolution.HasEvents.prototype.on = function(event, handler) {
 }
 
 /**
+ * Fires an event.
+ * @param {String} event the event name
+ * @param {Object} e the event object
+ * @param {Object} args the event arguments
+ */
+pelagios.georesolution.HasEvents.prototype.fireEvent = function(event, e, args) {
+  if (this.handlers[event])
+    this.handlers[event](e, args);     
+}
+
+/**
  * Helpers and utility methods.
  */
 pelagios.georesolution.Utils = {
