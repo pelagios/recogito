@@ -4,7 +4,6 @@ import model.Users
 import org.pelagios.grct.Global
 import play.api.data.Form
 import play.api.mvc._
-import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple.Session
 import play.api.Play.current
 
@@ -32,11 +31,11 @@ object Auth extends Controller {
     }
   }
 
-  def login = DBAction { implicit rs =>
+  def login = Action { implicit request =>
     Ok(views.html.login(loginForm))
   }
 
-  def authenticate = DBAction { implicit rs =>
+  def authenticate = Action { implicit request =>
     loginForm.bindFromRequest.fold(
       formWithErrors => BadRequest(views.html.login(formWithErrors)),
       user => Redirect(routes.Application.index).withSession(Security.username -> user._1)
