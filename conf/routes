@@ -3,12 +3,12 @@
 # ~~~~
 
 # Home page
-GET     /                                 controllers.Application.index()
+GET     /                           controllers.Application.index()
 
 # Authentication
-GET     /login                              controllers.Auth.login
-POST    /login                              controllers.Auth.authenticate
-GET     /logout                             controllers.Auth.logout
+GET     /login                      controllers.Auth.login
+POST    /login                      controllers.Auth.authenticate
+GET     /logout                     controllers.Auth.logout
 
 # Toponym search
 GET     /search                     controllers.Search.index(query: String)

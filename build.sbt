@@ -2,30 +2,19 @@ name := "pelagios-georesolution-correction-tool"
 
 version := "0.0.2"
 
-libraryDependencies ++= Seq(
-  jdbc,
-  cache
-)     
-
 play.Project.playScalaSettings
 
 resolvers += "Open Source Geospatial Foundation Repository" at "http://download.osgeo.org/webdav/geotools/"
 
+libraryDependencies ++= Seq(jdbc, cache)     
+
 /** Runtime dependencies **/
 libraryDependencies ++= Seq(
   "com.google.gdata" % "core" % "1.47.1",
-  "net.databinder" % "unfiltered-filter_2.10" % "0.6.7",
-  "net.databinder" % "unfiltered-jetty_2.10" % "0.6.7",
   "org.apache.lucene" % "lucene-analyzers-common" % "4.4.0",
   "org.apache.lucene" % "lucene-queryparser" % "4.4.0",
-  "org.slf4j" % "slf4j-simple" % "1.7.5",
-  "org.jsoup" % "jsoup" % "1.7.2"    
-)
-
-/** Test dependencies **/
-libraryDependencies ++= Seq(
-  "junit" % "junit" % "4.11" % "test",
-  "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test"
+  "org.jsoup" % "jsoup" % "1.7.2",
+  "com.typesafe.play" %% "play-slick" % "0.5.0.8"  
 )
 
 /** Transient dependencies required by Scalagios

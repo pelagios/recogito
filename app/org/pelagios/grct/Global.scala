@@ -1,17 +1,24 @@
 package org.pelagios.grct
 
+import model._
 import java.io.File
-import play.api.{ Application, GlobalSettings }
-import play.api.Logger
-import org.pelagios.grct.index.PlaceIndex
 import org.openrdf.rio.RDFFormat
+import org.pelagios.grct.index.PlaceIndex
+import play.api.{ Application, GlobalSettings, Logger }
+import play.api.db.DB
+import play.api.Play.current
+import scala.slick.session.Database
+import scala.slick.driver.H2Driver.simple._
+import scala.slick.jdbc.meta.MTable
 
 object Global extends GlobalSettings {
+
+  import Database.threadLocalSession
   
   private val INDEX_DATAFILE = "gazetteer/pleiades-20120826-migrated.ttl.gz"
   
   private val INDEX_DIR = new File("index")
-  
+ 
   lazy val index = {
     if (INDEX_DIR.exists()) {
       Logger.info("Loading existing index")
@@ -23,9 +30,21 @@ object Global extends GlobalSettings {
       idx
     }
   }
-  
+
+  lazy val database = Database.forDataSource(DB.getDataSource()) 
+
   override def onStart(app: Application): Unit = {
-    
+    // Create DB tables if they don't exist
+    database.withSession {
+      if (MTable.getTables("user").list().isEmpty) {
+        Users.ddl.create
+      
+        // Dummy data
+        Users.insertAll(
+          User(Some(1), "pelagios", "pelagios"),
+          User(Some(2), "admin", "admin"))
+      }
+    }
   }  
 
 }

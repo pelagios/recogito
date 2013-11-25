@@ -1,7 +1,12 @@
 package controllers
 
+import model.Users
+import org.pelagios.grct.Global
 import play.api.data.Form
 import play.api.mvc._
+import play.api.db.slick._
+import play.api.db.slick.Config.driver.simple.Session
+import play.api.Play.current
 
 object Auth extends Controller {
 
@@ -17,15 +22,21 @@ object Auth extends Controller {
   )
 
   def check(username: String, password: String) = {
-    // TODO just a dummy
-    (username == "pelagios" && password == "pelagios")  
+    Global.database.withSession { implicit s: Session =>
+      val user = Users.findByUsername(username)
+      if (user.isDefined) {
+        user.get.password.equals(password)
+      } else {
+        false
+      }
+    }
   }
 
-  def login = Action { implicit request =>
+  def login = DBAction { implicit rs =>
     Ok(views.html.login(loginForm))
   }
 
-  def authenticate = Action { implicit request =>
+  def authenticate = DBAction { implicit rs =>
     loginForm.bindFromRequest.fold(
       formWithErrors => BadRequest(views.html.login(formWithErrors)),
       user => Redirect(routes.Application.index).withSession(Security.username -> user._1)
