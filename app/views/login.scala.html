@@ -1,0 +1,38 @@
+@(form: Form[(String,String)])(implicit flash: Flash)
+
+<html>
+  <head>
+    <title>PELAGIOS Geo-Resolution Correction Tool</title>
+  </head>
+  
+  <body>      
+    @helper.form(routes.Auth.authenticate) {          
+      <h1>Sign in</h1>
+            
+      @form.globalError.map { error =>
+        <p class="error">
+          @error.message
+        </p>
+      }
+            
+      @flash.get("success").map { message =>
+        <p class="success">
+          @message
+        </p>
+      }
+            
+      <p>
+        <input name="username" placeholder="Username" id="username" value="@form("username").value">
+      </p>
+      <p>
+        <input type="password" name="password" id="password" placeholder="Password">
+      </p>
+      <p>
+        <button type="submit" id="loginbutton">Login</button>
+      </p>      
+    }       
+  </body>
+</html>
+    
+
+
