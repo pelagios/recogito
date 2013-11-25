@@ -1,23 +1,23 @@
 <html>
   <head>
     <title>PELAGIOS Geo-Resolution Correction Tool</title>
-    <link rel="stylesheet" href="assets/javascripts/lib/slickgrid/slick.grid.css" />
-    <link rel="stylesheet" href="assets/javascripts/lib/leaflet/leaflet.css" />
-    <link rel="stylesheet" href="assets/stylesheets/main.css" />
-    <script type="text/javascript" src="assets/javascripts/lib/jquery/jquery-2.0.0.min.js"></script>
-    <script type="text/javascript" src="assets/javascripts/lib/jquery/jquery.event.drag-2.2.js"></script>
-    <script type="text/javascript" src="assets/javascripts/lib/slickgrid/slick.core.js"></script>
-    <script type="text/javascript" src="assets/javascripts/lib/slickgrid/slick.grid.js"></script>
-    <script type="text/javascript" src="assets/javascripts/lib/slickgrid/slick.rowselectionmodel.js"></script>
-    <script type="text/javascript" src="assets/javascripts/lib/leaflet/leaflet.js"></script>
-    <script type="text/javascript" src="assets/javascripts/base.js"></script> 
-    <script type="text/javascript" src="assets/javascripts/table-view.js"></script>    
-    <script type="text/javascript" src="assets/javascripts/map-view.js"></script>    
-    <script type="text/javascript" src="assets/javascripts/details-popup.js"></script>    
+    <link rel="stylesheet" href="@routes.Assets.at("javascripts/lib/slickgrid/slick.grid.css")" />
+    <link rel="stylesheet" href="@routes.Assets.at("javascripts/lib/leaflet/leaflet.css")" />
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/main.css")" />
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery.event.drag-2.2.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/slickgrid/slick.core.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/slickgrid/slick.grid.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/slickgrid/slick.rowselectionmodel.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/leaflet/leaflet.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/base.js")"></script> 
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/table-view.js")"></script>    
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/map-view.js")"></script>    
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/details-popup.js")"></script>    
     <script>
       $(function() {
         var app = new pelagios.georesolution.CorrectionTool(
-          document.getElementById('table'), document.getElementById('map'),  'assets/test/mock-data.json');
+          document.getElementById('table'), document.getElementById('map'),  '@routes.Assets.at("test/mock-data.json")');
       });
     </script>
   </head>
