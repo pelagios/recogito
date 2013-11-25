@@ -9,7 +9,7 @@ GET     /labs/grct/                controllers.Application.index()
 # Authentication
 GET     /labs/grct/login           controllers.Auth.login
 POST    /labs/grct/login           controllers.Auth.authenticate
-GET     /labs/grct/logou           controllers.Auth.logout
+GET     /labs/grct/logout          controllers.Auth.logout
 
 # Toponym search
 GET     /labs/grct/search          controllers.Search.index(query: String)

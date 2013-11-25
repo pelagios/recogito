@@ -11,6 +11,7 @@ import scala.slick.session.Database
 import scala.slick.driver.H2Driver.simple._
 import scala.slick.jdbc.meta.MTable
 
+/** Play Global object **/
 object Global extends GlobalSettings {
 
   import Database.threadLocalSession
@@ -39,7 +40,7 @@ object Global extends GlobalSettings {
       if (MTable.getTables("user").list().isEmpty) {
         Users.ddl.create
       
-        // Dummy data
+        // Dummy data (temporary)
         Users.insertAll(
           User(Some(1), "pelagios", "pelagios"),
           User(Some(2), "admin", "admin"))

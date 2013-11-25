@@ -4,6 +4,7 @@ import play.api.mvc.{ Action, Controller }
 import org.pelagios.grct.Global
 import play.api.libs.json.Json
 
+/** Toponym search API controller **/
 object Search extends Controller {
     
   def index(query: String) = Action {

@@ -7,6 +7,7 @@ import play.api.mvc._
 import play.api.db.slick.Config.driver.simple.Session
 import play.api.Play.current
 
+/** Authentication based on username & password **/
 object Auth extends Controller {
 
   import play.api.data.Forms._
@@ -20,6 +21,7 @@ object Auth extends Controller {
     })
   )
 
+  /** Checks username and password against the database **/
   def check(username: String, password: String) = {
     Global.database.withSession { implicit s: Session =>
       val user = Users.findByUsername(username)
@@ -31,10 +33,10 @@ object Auth extends Controller {
     }
   }
 
-  def login = Action { implicit request =>
-    Ok(views.html.login(loginForm))
-  }
+  /** Login page **/
+  def login = Action { implicit request => Ok(views.html.login(loginForm)) }
 
+  /** Login POST handler **/
   def authenticate = Action { implicit request =>
     loginForm.bindFromRequest.fold(
       formWithErrors => BadRequest(views.html.login(formWithErrors)),
@@ -42,6 +44,7 @@ object Auth extends Controller {
     )
   }
 
+  /** Logout handler **/
   def logout = Action {
     Redirect(routes.Auth.login).withNewSession.flashing(
       "success" -> "You are now logged out."

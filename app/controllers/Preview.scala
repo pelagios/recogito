@@ -4,6 +4,7 @@ import org.jsoup.Jsoup
 import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.Json
 
+/** Controller for retrieving source text preview snippets **/
 object Preview extends Controller {
   
   private val CHAR_BUFFER = 40
