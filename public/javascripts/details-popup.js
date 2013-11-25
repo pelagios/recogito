@@ -196,7 +196,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
   }
   
   // Other candidates list
-  $.getJSON('../search/' + annotation.toponym.toLowerCase(), function(data) {
+  $.getJSON('search?query=' + annotation.toponym.toLowerCase(), function(data) {
     var html = [],
         automatchURI = (annotation.place) ? annotation.place.uri : undefined,
         relevantURI = (annotation.place_fixed) ? annotation.place_fixed.uri : automatchURI;
@@ -215,7 +215,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
   });
   
   // Preview snippets
-  $.getJSON('../preview?url=' + encodeURIComponent(annotation.source) + '&term=' + annotation.toponym, function(snippets) {
+  $.getJSON('preview?url=' + encodeURIComponent(annotation.source) + '&term=' + annotation.toponym, function(snippets) {
     var highlight = function(snippet) {
       var startIdx = snippet.indexOf(annotation.toponym);
       var endIdx = startIdx + annotation.toponym.length;
@@ -246,7 +246,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
       $.each(markers, function(idx, marker) { map.removeLayer(marker); });
       markers = [];
       
-      $.getJSON('../search/' + e.target.value.toLowerCase(), function(response) {
+      $.getJSON('search?query=' + e.target.value.toLowerCase(), function(response) {
         var html = [];
         $.each(response.results, function(idx, result) {
           var displayedResult = displaySearchResult(result)

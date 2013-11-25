@@ -1,13 +1,16 @@
 name := "pelagios-georesolution-correction-tool"
 
-version := "0.0.1"
+version := "0.0.2"
 
-scalaVersion := "2.10.0"
+libraryDependencies ++= Seq(
+  jdbc,
+  cache
+)     
+
+play.Project.playScalaSettings
 
 resolvers += "Open Source Geospatial Foundation Repository" at "http://download.osgeo.org/webdav/geotools/"
 
-resolvers += "Mandubian repository releases" at "https://github.com/mandubian/mandubian-mvn/raw/master/snapshots/"
-  
 /** Runtime dependencies **/
 libraryDependencies ++= Seq(
   "com.google.gdata" % "core" % "1.47.1",
@@ -16,8 +19,7 @@ libraryDependencies ++= Seq(
   "org.apache.lucene" % "lucene-analyzers-common" % "4.4.0",
   "org.apache.lucene" % "lucene-queryparser" % "4.4.0",
   "org.slf4j" % "slf4j-simple" % "1.7.5",
-  "org.jsoup" % "jsoup" % "1.7.2",
-  "play" %% "play-json" % "2.2-SNAPSHOT"          
+  "org.jsoup" % "jsoup" % "1.7.2"    
 )
 
 /** Test dependencies **/

@@ -6,3 +6,7 @@
 /index
 /lib
 /pid.txt
+/.settings
+/.target
+/bin
+/logs

@@ -1,19 +1,19 @@
-package org.pelagios.georescorrector.index
+package org.pelagios.grct.index
 
+import com.vividsolutions.jts.io.WKTWriter
 import java.io.{ File, FileInputStream }
 import java.util.zip.GZIPInputStream
-import com.vividsolutions.jts.io.WKTWriter
-import org.apache.lucene.util.Version
-import org.apache.lucene.store.FSDirectory
-import org.apache.lucene.document.{ Document, Field, StringField, TextField }
+import org.apache.commons.io.FileUtils
 import org.apache.lucene.analysis.standard.StandardAnalyzer
-import org.apache.lucene.index.{ IndexReader, IndexWriter, IndexWriterConfig, Term }
+import org.apache.lucene.document.{ Document, Field, StringField, TextField }
+import org.apache.lucene.index.{ DirectoryReader, IndexWriter, IndexWriterConfig, Term }
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser
 import org.apache.lucene.search.{ BooleanClause, BooleanQuery, IndexSearcher, TermQuery, TopScoreDocCollector }
+import org.apache.lucene.store.FSDirectory
+import org.apache.lucene.util.Version
 import org.openrdf.rio.RDFFormat
 import org.pelagios.Scalagios
 import org.pelagios.api._
-import org.apache.commons.io.FileUtils
-import org.apache.lucene.queryparser.classic.MultiFieldQueryParser
 
 class PlaceIndex(directory: File) {
   
@@ -63,7 +63,7 @@ class PlaceIndex(directory: File) {
     val q = new BooleanQuery()
     q.add(new TermQuery(new Term(FIELD_URI, normalizeURI(uri))), BooleanClause.Occur.MUST)
     
-    val reader = IndexReader.open(index)
+    val reader = DirectoryReader.open(index)
     val searcher = new IndexSearcher(reader)
     
     val collector = TopScoreDocCollector.create(1, true)
@@ -86,7 +86,7 @@ class PlaceIndex(directory: File) {
     val fields = Seq(FIELD_TITLE, FIELD_NAME_LABEL, FIELD_NAME_ALTLABEL).toArray    
     val q = new MultiFieldQueryParser(Version.LUCENE_44, fields, analyzer).parse(query + "~")
     
-    val reader = IndexReader.open(index)
+    val reader = DirectoryReader.open(index)
     val searcher = new IndexSearcher(reader)
     
     val collector = TopScoreDocCollector.create(50, true)
