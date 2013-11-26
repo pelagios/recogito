@@ -5,12 +5,12 @@ import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 
 /** User case class **/ 
-case class User(id: Option[Long] = None, username: String, password: String)
+case class User(id: Option[Int] = None, username: String, password: String)
 
 /** User database table **/
 object Users extends Table[User]("user") {
   
-  def id = column[Long]("id", O.PrimaryKey, O.AutoInc)
+  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   
   def username = column[String]("username")
   
