@@ -55,9 +55,9 @@ pelagios.georesolution.TableView = function(tableDiv) {
     var next2 = self.getNextN(idx, 2);
     
     var popup = new pelagios.georesolution.DetailsPopup(self._grid.getDataItem(idx), prev2, next2);
-    popup.on('save', function() {
+    popup.on('save', function(annotation) {
       self._grid.invalidate();
-      self.fireEvent('update');
+      self.fireEvent('update', annotation);
     });
     popup.on('markedAsFalse', function(annotation) {
       self.removeRow(idx);

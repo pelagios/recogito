@@ -8,7 +8,7 @@ import play.api.db.slick.Config.driver.simple._
 case class User(id: Option[Int] = None, username: String, password: String)
 
 /** User database table **/
-object Users extends Table[User]("user") {
+object Users extends Table[User]("users") {
   
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   

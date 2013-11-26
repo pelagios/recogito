@@ -5,7 +5,6 @@ import play.api.db.slick._
 import play.api.mvc.{ Action, Controller }
 import play.api.Play.current
 import play.api.libs.json.Json
-import org.omg.CosNaming.NamingContextPackage.NotFound
 import org.pelagios.grct.Global
 import play.api.libs.json.JsObject
 
@@ -52,6 +51,7 @@ object Documents extends Controller {
         "title" -> part.title,
         "source" -> part.source,
         "annotations" -> Annotations.findByGeoDocumentPart(part.id.get).map(annotation => Json.obj(
+          "id" -> annotation.id,
           "toponym" -> annotation.toponym,
           "status" -> annotation.status.toString,
           "place" -> annotation.automatch.map(placeUriToJson(_)),

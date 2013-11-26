@@ -38,7 +38,7 @@ object Global extends GlobalSettings {
   override def onStart(app: Application): Unit = {
     // Create DB tables if they don't exist
     database.withSession {
-      if (MTable.getTables("user").list().isEmpty) {
+      if (MTable.getTables("users").list().isEmpty) {
         Users.ddl.create
       
         // Dummy data (temporary)

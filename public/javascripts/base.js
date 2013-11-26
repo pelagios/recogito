@@ -23,7 +23,8 @@ pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv, dataURL) {
     map.highlightPlace(place, prev2, next2); 
   });
   
-  table.on('update', function() {
+  table.on('update', function(annotation) {
+	self._storeEdit(annotation);
     map.clear();
     if (self.places)
       $.each(self.places, function(idx, place) { map.addPlaceMarker(place) })
@@ -54,6 +55,25 @@ pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv, dataURL) {
     self.annotations = annotations;
   });
 }
+
+// Stores edits to the database
+pelagios.georesolution.CorrectionTool.prototype._storeEdit = function(annotation) {
+  var payload = {
+    'id': annotation.id,
+    'toponym': annotation.toponym,
+    'status': annotation.status,
+  };
+  
+  if (annotation.place_fixed)
+    payload.fix = annotation.place_fixed.uri;
+  
+  $.ajax({
+    type: 'PUT',
+    url: 'annotations/' + annotation.id,
+    contentType: 'application/json',
+    data: JSON.stringify(payload) 
+  });
+};
 
 /**
  * A simple base class that takes care of event subcription.
