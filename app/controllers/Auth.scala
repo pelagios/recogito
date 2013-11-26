@@ -3,9 +3,12 @@ package controllers
 import models.Users
 import org.pelagios.grct.Global
 import play.api.data.Form
-import play.api.mvc._
-import play.api.db.slick.Config.driver.simple.Session
+import play.api.db.slick._
+import play.api.db.slick.Config.driver.simple._
 import play.api.Play.current
+import play.api.mvc._
+import scala.slick.session.Session
+import play.api.libs.json.JsValue
 
 /** Authentication based on username & password **/
 object Auth extends Controller {
@@ -62,6 +65,12 @@ trait Secured {
   def withAuth(f: => String => Request[AnyContent] => Result) = {
     Security.Authenticated(username, onUnauthorized) { user =>
       Action(request => f(user)(request))
+    }
+  }
+  
+  def apiWithAuth(f: => String => DBSessionRequest[JsValue] => SimpleResult) = {
+    Security.Authenticated(username, onUnauthorized) { user =>
+      DBAction(BodyParsers.parse.json)(rs => f(user)(rs))
     }
   }
 

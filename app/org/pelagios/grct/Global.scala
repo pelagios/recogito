@@ -8,7 +8,7 @@ import play.api.{ Application, GlobalSettings, Logger }
 import play.api.db.DB
 import play.api.Play.current
 import scala.slick.session.Database
-import scala.slick.driver.H2Driver.simple._
+import play.api.db.slick.Config.driver.simple._
 import scala.slick.jdbc.meta.MTable
 import org.pelagios.grct.importer.CSVImporter
 
@@ -94,6 +94,10 @@ object Global extends GlobalSettings {
         csv.foreach { case (file, gdocPartId) => {
           CSVImporter.importAnnotations(file, gdocPartId).foreach(annotation => Annotations.insert(annotation))
         }}
+      }
+      
+      if (MTable.getTables("edit_history").list().isEmpty) {
+        EditHistory.ddl.create        
       }
     }
   }  

@@ -37,17 +37,17 @@ object EditHistory extends Table[EditEvent]("edit_history") with HasStatusColumn
   
   def userId = column[Int]("user")
   
-  def updatedToponym = column[String]("updated_toponym")
+  def updatedToponym = column[String]("updated_toponym", O.Nullable)
   
-  def updatedStatus = column[AnnotationStatus.Value]("updated_status")
+  def updatedStatus = column[AnnotationStatus.Value]("updated_status", O.Nullable)
   
-  def updatedURI = column[String]("updated_uri")
+  def updatedURI = column[String]("updated_uri", O.Nullable)
   
-  def updatedComment = column[String]("updated_comment")
+  def updatedComment = column[String]("updated_comment", O.Nullable)
   
   def * = id.? ~ annotationId ~ userId ~ updatedToponym.? ~ updatedStatus.? ~ updatedURI.? ~ updatedComment.? <> (EditEvent.apply _, EditEvent.unapply _)
   
   def findByAnnotation(id: Int)(implicit s: Session): Seq[EditEvent] =
     Query(EditHistory).where(_.annotationId === id).list
-  
+    
 }
