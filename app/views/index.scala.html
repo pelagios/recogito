@@ -14,11 +14,11 @@
     <script type="text/javascript" src="@routes.Assets.at("javascripts/table-view.js")"></script>    
     <script type="text/javascript" src="@routes.Assets.at("javascripts/map-view.js")"></script>    
     <script type="text/javascript" src="@routes.Assets.at("javascripts/details-popup.js")"></script>    
-    <base href="@routes.Application.index/">
+    <base href="@routes.Application.index">
     <script>
       $(function() {
         var app = new pelagios.georesolution.CorrectionTool(
-          document.getElementById('table'), document.getElementById('map'),  '@routes.Assets.at("test/mock-data.json")');
+          document.getElementById('table'), document.getElementById('map'),  '@routes.Documents.getDocument(0)');
       });
     </script>
   </head>

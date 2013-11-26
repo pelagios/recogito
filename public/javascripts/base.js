@@ -32,26 +32,26 @@ pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv, dataURL) {
   // Fetch JSON data
   $.getJSON(dataURL, function(data) {
     // Flatten & repackage response
-    var places = [];
+    var annotations = [];
     var runningIdx = 0;
     $.each(data.parts, function(idx, part) {
-      $.each(part.places, function(idx, place) {
-        place.idx = runningIdx;
-        place.source = part.source;
-        place.worksheet = part.title;
-        places.push(place);
+      $.each(part.annotations, function(idx, annotation) {
+        annotation.idx = runningIdx;
+        annotation.source = part.source;
+        annotation.part = part.title;
+        annotations.push(annotation);
         runningIdx++;
       });
     });
     
     // Set data on table
-    table.setData(places, true);
+    table.setData(annotations, true);
     table.render();
     
     // Set data on map
-    $.each(places, function(idx, place) { map.addPlaceMarker(place) });
+    $.each(annotations, function(idx, annotation) { map.addPlaceMarker(annotation) });
     
-    self.places = places;
+    self.annotations = annotations;
   });
 }
 

@@ -39,7 +39,7 @@ pelagios.georesolution.TableView = function(tableDiv) {
 
   var columns = [{ name: '#', field: 'idx', id: 'idx' },
                  { name: 'Toponym', field: 'toponym', id: 'toponym' },
-                 { name: 'Worksheet', field: 'worksheet', id: 'worksheet' },
+                 { name: 'Part', field: 'part', id: 'part' },
                  { name: 'Place ID', field: 'place', id: 'place' , formatter: pleiadesFormatter },
                  { name: 'Corrected', field: 'place_fixed', id: 'place_fixed', formatter: pleiadesFormatter },
                  { name: 'Comment', field: 'comment', id: 'comment' }];
