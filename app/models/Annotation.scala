@@ -33,15 +33,15 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   
-  def toponym = column[String]("toponym")
+  def toponym = column[String]("toponym", O.Nullable)
   
   def status = column[AnnotationStatus.Value]("status")
   
-  def automatch = column[String]("automatch")
+  def automatch = column[String]("automatch", O.Nullable)
   
-  def fix = column[String]("fix")
+  def fix = column[String]("fix", O.Nullable)
   
-  def comment = column[String]("comment")
+  def comment = column[String]("comment", O.Nullable)
   
   def gdocPartId = column[Int]("gdoc_part")
   

@@ -18,4 +18,7 @@ object GeoDocuments extends Table[GeoDocument]("gdocuments") {
   
   def listAll()(implicit s: Session): Seq[GeoDocument] = Query(GeoDocuments).list
   
+  def findById(id: Int)(implicit s: Session): Option[GeoDocument] =
+    Query(GeoDocuments).where(_.id === id).firstOption
+  
 }

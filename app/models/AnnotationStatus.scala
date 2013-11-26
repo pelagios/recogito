@@ -5,6 +5,8 @@ import scala.slick.lifted.MappedTypeMapper
 /** Possible annotation status values **/
 object AnnotationStatus extends Enumeration {
   
+  val NOT_VERIFIED = Value("NOT_VERIFIED")
+  
   val VERIFIED = Value("VERIFIED")
   
   val NOT_IDENTIFYABLE = Value("NOT_IDENTIFYABLE")

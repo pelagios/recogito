@@ -2,14 +2,14 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Home page
-GET     /labs/grct                 controllers.Application.index()
-GET     /labs/grct/                controllers.Application.index()
-
 # Authentication
 GET     /labs/grct/login           controllers.Auth.login
 POST    /labs/grct/login           controllers.Auth.authenticate
 GET     /labs/grct/logout          controllers.Auth.logout
+
+# Document API
+GET     /labs/grct/documents/:id   controllers.Documents.getDocument(id: Int)
+GET     /labs/grct/documents       controllers.Documents.listAll
 
 # Toponym search
 GET     /labs/grct/search          controllers.Search.index(query: String)
@@ -19,3 +19,7 @@ GET     /labs/grct/preview         controllers.Preview.index(url: String, term: 
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /labs/grct/assets/*file    controllers.Assets.at(path="/public", file)
+
+# Home page
+GET     /labs/grct/                controllers.Application.index
+GET     /labs/grct                 controllers.Application.index

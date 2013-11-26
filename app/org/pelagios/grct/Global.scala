@@ -10,6 +10,7 @@ import play.api.Play.current
 import scala.slick.session.Database
 import scala.slick.driver.H2Driver.simple._
 import scala.slick.jdbc.meta.MTable
+import org.pelagios.grct.importer.CSVImporter
 
 /** Play Global object **/
 object Global extends GlobalSettings {
@@ -70,6 +71,29 @@ object Global extends GlobalSettings {
            GeoDocumentPart(Some(10), "Part 9", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord09Heraclea.html", 0),
            GeoDocumentPart(Some(11), "Part 10", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord10Valona.html", 0),
            GeoDocumentPart(Some(12), "Part 11", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord11Rome.html", 0))
+      }
+      
+      if (MTable.getTables("annotations").list().isEmpty) {
+        Annotations.ddl.create
+        
+        val csv = Seq(
+          "public/test/part1.csv",
+          "public/test/part2.csv",
+          "public/test/part3.csv",
+          "public/test/part4.csv",
+          "public/test/part5.csv",
+          "public/test/part6.csv",
+          "public/test/part7a.csv",
+          "public/test/part7b.csv",
+          "public/test/part8a.csv",
+          "public/test/part8b.csv",
+          "public/test/part9.csv",
+          "public/test/part10.csv",
+          "public/test/part11.csv").zipWithIndex
+          
+        csv.foreach { case (file, gdocPartId) => {
+          CSVImporter.importAnnotations(file, gdocPartId).foreach(annotation => Annotations.insert(annotation))
+        }}
       }
     }
   }  
