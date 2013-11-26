@@ -1,4 +1,4 @@
-package model
+package models
 
 import play.api.Play.current
 import play.api.db.slick._

@@ -1,6 +1,6 @@
 package org.pelagios.grct
 
-import model._
+import models._
 import java.io.File
 import org.openrdf.rio.RDFFormat
 import org.pelagios.grct.index.PlaceIndex

@@ -1,6 +1,6 @@
 package controllers
 
-import model.Users
+import models.Users
 import org.pelagios.grct.Global
 import play.api.data.Form
 import play.api.mvc._
