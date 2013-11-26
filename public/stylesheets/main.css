@@ -1,3 +1,8 @@
+@font-face { 
+  font-family: "Font Awesome"; 
+  src: url("fontawesome-webfont.woff"); 
+}
+
 html, body, div {
   padding:0;
   margin:0;
@@ -22,7 +27,8 @@ html, body, div {
 }
 
 .slick-viewport {
-  background-color:#eeeeee;
+  background-color:#eee;
+  overflow-x:hidden !important;
 }
 
 .slick-header-column.ui-state-default {
@@ -33,16 +39,32 @@ html, body, div {
   font-size:13px;
   height:35px;
   line-height:35px;   
-  width:100%;s 
+  width:100%;
 }
 
-.slick-row.ui-widget-content, .slick-cell {
-  background-color:#eeeeee;
-  color:#666666;
+.slick-resizable-handle {
+  border-right:1px solid #646464;
+}
+
+.slick-resizable-handle:hover {
+  border-right:1px solid #aaa;
+}
+
+.slick-row.ui-widget-content {
+  background-color:#efefef;
+}
+
+.slick-row.ui-widget-content.even {
+  background-color:#e2e2e2 !important;
+}
+
+.slick-cell {
+  color:#656565;
   font-size:13px;
   padding:0 5px;
   height:30px;
-  line-height:20px;
+  line-height:24px;
+  border-width:0px !important;
 }
 
 .slick-cell a {
@@ -54,18 +76,36 @@ html, body, div {
 }
 
 .slick-cell.selected {
-  background-color:#FFA52C;
+  background-color:#98BBF5;
 } 
 
-.table-no-coords {
+.table-status {
+  display:inline-block;
+  width:100%;
+  text-align:center;
+}
+
+.table-icon {
+  font-family:"Font Awesome";
+  font-size:14px;
+  color:#656565;
+}
+
+.table-label {
+  padding:1px 4px;
+}
+
+.label-no-coords {
   background-color:#ff0000;
   color:#fff;
-  padding:1px 3px;
+  margin: 2px;
   font-weight:bold;
-  -moz-border-radius:3px;
-  -webkit-border-radius:3px;
-  -khtml-border-radius:3px;
-  border-radius:3px;
+  -moz-border-radius:4px;
+  -webkit-border-radius:4px;
+  -khtml-border-radius:4px;
+  border-radius:4px;
+  font-size:14px;
+  width:30px;
 }
 
 .clicktrap {

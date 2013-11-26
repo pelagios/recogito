@@ -30,19 +30,25 @@ pelagios.georesolution.TableView = function(tableDiv) {
         if (value.coordinate) 
           return formatted;
         else
-          return '<a title="Place has no coordinates"><span class="table-no-coords">!</span></a> ' + formatted;
+          return '<a title="Place has no coordinates"><span class="table-label label-no-coords">!</span></a> ' + formatted;
       } else {
         return value;
       }
     }
-  }
+  };
+  
+  var statusFormatter = function (row, cell, value, columnDef, dataContext) {
+    if (value) {
+      return '<span class="table-icon table-status">&#xf059;</a>';
+    }
+  };
 
-  var columns = [{ name: '#', field: 'idx', id: 'idx' },
+  var columns = [{ name: '#', field: 'idx', id: 'idx', width:25 },
                  { name: 'Toponym', field: 'toponym', id: 'toponym' },
-                 { name: 'Part', field: 'part', id: 'part' },
-                 { name: 'Place ID', field: 'place', id: 'place' , formatter: pleiadesFormatter },
+                 { name: 'EGD Part', field: 'part', id: 'part' },
+                 { name: 'Auto Match', field: 'place', id: 'place' , formatter: pleiadesFormatter },
                  { name: 'Corrected', field: 'place_fixed', id: 'place_fixed', formatter: pleiadesFormatter },
-                 { name: 'Comment', field: 'comment', id: 'comment' }];
+                 { name: 'Status', field: 'status', id: 'status', width:45, formatter: statusFormatter }];
 
   var options = { enableCellNavigation: true, enableColumnReorder: false, forceFitColumns: true, autoEdit: false };
     
