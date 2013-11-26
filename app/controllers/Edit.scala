@@ -30,7 +30,6 @@ object Edit extends Controller with Secured {
       Annotations.update(updatedAnnotation)
       
       // Create a record in the edit history
-      // TODO resolve diff
       EditHistory.insert(createEvent(annotation.get, updatedAnnotation, user.get.id.get))
       
       Ok(Json.obj("msg" -> "ack"))
