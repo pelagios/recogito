@@ -18,8 +18,7 @@ object Users extends Table[User]("user") {
   
   def * = id.? ~ username ~ password <> (User.apply _, User.unapply _)
   
-  def findByUsername(username: String)(implicit s: Session): Option[User] = {
+  def findByUsername(username: String)(implicit s: Session): Option[User] =
     Query(Users).where(_.username === username).firstOption
-  }
   
 }
