@@ -42,8 +42,34 @@ object Global extends GlobalSettings {
       
         // Dummy data (temporary)
         Users.insertAll(
-          User(Some(1), "pelagios", "pelagios"),
-          User(Some(2), "admin", "admin"))
+          User(Some(0), "pelagios", "pelagios"),
+          User(Some(1), "admin", "admin"))
+      }
+       
+      if (MTable.getTables("gdocuments").list().isEmpty) {
+        GeoDocuments.ddl.create
+        
+        GeoDocuments.insert(
+          GeoDocument(Some(0), "Bordeaux Itinerary"))
+      }
+      
+      if (MTable.getTables("gdocument_parts").list().isEmpty) {
+        GeoDocumentParts.ddl.create
+        
+        GeoDocumentParts.insertAll(
+           GeoDocumentPart(Some(0), "Part 1", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord01Bordeaux.html", 0),
+           GeoDocumentPart(Some(1), "Part 2", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord02Milan.html", 0),
+           GeoDocumentPart(Some(2), "Part 3", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord03Sirmium.html", 0),
+           GeoDocumentPart(Some(3), "Part 4", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord04Const.html", 0),
+           GeoDocumentPart(Some(4), "Part 5", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord05Antiochia.html", 0),
+           GeoDocumentPart(Some(5), "Part 6", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord06Caesarea.html", 0),
+           GeoDocumentPart(Some(6), "Part 7a", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord07aJerus.html", 0),
+           GeoDocumentPart(Some(7), "Part 7b", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord07bJerus.html", 0),
+           GeoDocumentPart(Some(8), "Part 8a", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord08aJerusSurr.html", 0),
+           GeoDocumentPart(Some(9), "Part 8b", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord08bJerusSurr.html", 0),
+           GeoDocumentPart(Some(10), "Part 9", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord09Heraclea.html", 0),
+           GeoDocumentPart(Some(11), "Part 10", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord10Valona.html", 0),
+           GeoDocumentPart(Some(12), "Part 11", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord11Rome.html", 0))
       }
     }
   }  
