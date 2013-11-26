@@ -1,8 +1,8 @@
 package controllers
 
 import play.api.mvc.{ Action, Controller }
-import org.pelagios.grct.Global
 import play.api.libs.json.Json
+import org.pelagios.grct.Global
 
 /** Toponym search API controller **/
 object Search extends Controller {

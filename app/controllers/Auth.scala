@@ -3,12 +3,11 @@ package controllers
 import models.Users
 import org.pelagios.grct.Global
 import play.api.data.Form
-import play.api.db.slick._
-import play.api.db.slick.Config.driver.simple._
-import play.api.Play.current
+import play.api.db.slick.{ DBAction, DBSessionRequest }
 import play.api.mvc._
-import scala.slick.session.Session
+import play.api.Play.current
 import play.api.libs.json.JsValue
+import scala.slick.session.Session
 
 /** Authentication based on username & password **/
 object Auth extends Controller {
@@ -62,27 +61,18 @@ trait Secured {
 
   def onUnauthorized(request: RequestHeader) = Results.Redirect(routes.Auth.login)
 
+  /** For authenticated actions **/
   def withAuth(f: => String => Request[AnyContent] => Result) = {
     Security.Authenticated(username, onUnauthorized) { user =>
       Action(request => f(user)(request))
     }
   }
   
+  /** For authenticated actions with DB access **/
   def apiWithAuth(f: => String => DBSessionRequest[JsValue] => SimpleResult) = {
     Security.Authenticated(username, onUnauthorized) { user =>
       DBAction(BodyParsers.parse.json)(rs => f(user)(rs))
     }
   }
-
-  /*
-   * This method shows how you could wrap the withAuth method to also fetch your user
-   * You will need to implement UserDAO.findOneByUsername
-   *
-  def withUser(f: User => Request[AnyContent] => Result) = withAuth { username => implicit request =>
-    UserDAO.findOneByUsername(username).map { user =>
-      f(user)(request)
-    }.getOrElse(onUnauthorized(request))
-  }
-  */
-
+  
 }
