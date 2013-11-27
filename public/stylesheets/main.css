@@ -14,7 +14,7 @@ html, body, div {
   top:0px;
   left:0px;
   width:100%;
-  bottom:60px;
+  bottom:40px;
 }
 
 #table {
@@ -24,7 +24,6 @@ html, body, div {
   width:40%;
   height:100%;	
   background-color:#505050;
-  margin-bottom:40px;
 }
 
 #map {
@@ -33,7 +32,6 @@ html, body, div {
   right:0px;
   width:60%;
   height:100%;
-  margin-bottom:40px;
 }
 
 #footer {
@@ -41,14 +39,52 @@ html, body, div {
   bottom:0px;
   left:0px;
   width:100%;
-  height:60px;
-  background-color:#ccc;
+  height:40px;
+  z-index:99999;
+  background-color:#494949;
+  border-top:1px solid #999;
+  background:-webkit-gradient(linear,left top,left bottom,from(#5a5a5a),to(#494949));
+  background:-moz-linear-gradient(top,#5a5a5a,#494949);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#5a5a5a',endColorstr='#494949');
+  color:#bbb;
+}
+
+#footer-info {
+  display:inline-block;
+  padding:10px;
+  height:20px;
+}
+
+#footer-user {
+  display:inline-block;
+  padding:10px 20px 10px 30px;
+  height:20px;
+  font-size:16px;
+  line-height:20px;
+  float:right;
+  border-left:1px solid #777;
+}
+
+.footer-username {
+  color:#fff;
+}
+
+a.footer-logout {
+  font-family:"Font Awesome";
+  font-size:18px;
+  padding-left:20px;
+  color:#ccc;
+  text-decoration:none;
+}
+
+a.footer-logout:hover {
+  color:#eee;
 }
 
 /* Additional SlickGrid styles */
 
 .slick-viewport {
-  background-color:#eee;
+  background-color:#e8e8e8;
   overflow-x:hidden !important;
 }
 

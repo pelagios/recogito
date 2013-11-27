@@ -1,3 +1,4 @@
+@(username: String)
 <html>
   <head>
     <title>PELAGIOS Geo-Resolution Correction Tool</title>
@@ -29,6 +30,9 @@
       <div id="table"></div>
       <div id="map"></div>
     </div>
-    <div id="footer"></div>
+    <div id="footer">
+      <span id="footer-info"></span>
+      <span id="footer-user">You are logged in as: <span class="footer-username">@username</span><a href="logout" title="Logout" class="footer-logout">&#xf011;</a></span>
+    </div>
   </body>
 </html>

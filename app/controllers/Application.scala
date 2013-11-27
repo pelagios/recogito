@@ -6,6 +6,6 @@ import play.api.mvc.{ Action, Controller }
 object Application extends Controller with Secured {
   
   /** Returns the index HTML page for logged-in users **/
-  def index() = withAuth { username => implicit request => Ok(views.html.index()) }
+  def index() = withAuth { username => implicit request => Ok(views.html.index(username)) }
 
 }
