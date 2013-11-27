@@ -6,6 +6,8 @@ import play.api.db.slick.Config.driver.simple._
 import play.api.Play.current
 import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.Json
+import java.sql.Timestamp
+import java.util.Date
 
 /** Controller for the edit API.
   *
@@ -25,8 +27,10 @@ object Edit extends Controller with Secured {
       val toponym = (body \ "toponym").as[String]
       val status = AnnotationStatus.withName((body \ "status").as[String])
       val fix = (body \ "fix").as[String]
-      val updatedAnnotation = Annotation(Some(id), toponym,status, annotation.get.automatch, 
-          Some(fix), annotation.get.comment, annotation.get.gdocPartId)
+   
+      val updatedAnnotation = Annotation(Some(id), annotation.get.gdocId, annotation.get.gdocPartId, status, annotation.get.toponym,
+          annotation.get.offset, annotation.get.gazetteerURI, None, None, Some(fix), annotation.get.comment)
+          
       Annotations.update(updatedAnnotation)
       
       // Create a record in the edit history
@@ -42,8 +46,8 @@ object Edit extends Controller with Secured {
   /** Creates an update event by comparing original and update annotation **/
   private def createEvent(original: Annotation, updated: Annotation, userId: Int): EditEvent = {
     val updatedStatus = if (original.status.equals(updated.status)) None else Some(updated.status)
-    val updatedURI = if (original.fix.equals(updated.fix)) None else updated.fix
-    EditEvent(None, original.id.get, userId, None, updatedStatus, updatedURI, None)
+    val updatedURI = if (original.correctedGazetteerURI.equals(updated.correctedGazetteerURI)) None else updated.correctedGazetteerURI
+    EditEvent(None, original.id.get, userId, new Timestamp(new Date().getTime), None, updatedStatus, updatedURI, None)
   }
 
 }

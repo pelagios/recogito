@@ -11,6 +11,8 @@ import scala.slick.session.Database
 import play.api.db.slick.Config.driver.simple._
 import scala.slick.jdbc.meta.MTable
 import org.pelagios.grct.importer.CSVImporter
+import javax.sql.rowset.serial.SerialBlob
+import scala.io.Source
 
 /** Play Global object **/
 object Global extends GlobalSettings {
@@ -41,7 +43,7 @@ object Global extends GlobalSettings {
       if (MTable.getTables("users").list().isEmpty) {
         Users.ddl.create
       
-        // Dummy data (temporary)
+        // Dummy users (temporary)
         Users.insertAll(
           User(Some(0), "pelagios", "pelagios"),
           User(Some(1), "admin", "admin"))
@@ -58,19 +60,38 @@ object Global extends GlobalSettings {
         GeoDocumentParts.ddl.create
         
         GeoDocumentParts.insertAll(
-           GeoDocumentPart(Some(0), "Part 1", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord01Bordeaux.html", 0),
-           GeoDocumentPart(Some(1), "Part 2", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord02Milan.html", 0),
-           GeoDocumentPart(Some(2), "Part 3", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord03Sirmium.html", 0),
-           GeoDocumentPart(Some(3), "Part 4", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord04Const.html", 0),
-           GeoDocumentPart(Some(4), "Part 5", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord05Antiochia.html", 0),
-           GeoDocumentPart(Some(5), "Part 6", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord06Caesarea.html", 0),
-           GeoDocumentPart(Some(6), "Part 7a", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord07aJerus.html", 0),
-           GeoDocumentPart(Some(7), "Part 7b", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord07bJerus.html", 0),
-           GeoDocumentPart(Some(8), "Part 8a", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord08aJerusSurr.html", 0),
-           GeoDocumentPart(Some(9), "Part 8b", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord08bJerusSurr.html", 0),
-           GeoDocumentPart(Some(10), "Part 9", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord09Heraclea.html", 0),
-           GeoDocumentPart(Some(11), "Part 10", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord10Valona.html", 0),
-           GeoDocumentPart(Some(12), "Part 11", "http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord11Rome.html", 0))
+           GeoDocumentPart(Some(0), 0, "Part 1", Some("http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord01Bordeaux.html")),
+           GeoDocumentPart(Some(1), 0, "Part 2", Some("http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord02Milan.html")),
+           GeoDocumentPart(Some(2), 0, "Part 3", Some("http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord03Sirmium.html")),
+           GeoDocumentPart(Some(3), 0, "Part 4", Some("http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord04Const.html")),
+           GeoDocumentPart(Some(4), 0, "Part 5", Some("http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord05Antiochia.html")),              
+           GeoDocumentPart(Some(5), 0, "Part 6", Some("http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord06Caesarea.html")),
+           GeoDocumentPart(Some(6), 0, "Part 7a", Some("http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord07aJerus.html")),
+           GeoDocumentPart(Some(7), 0, "Part 7b", Some("http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord07bJerus.html")),
+           GeoDocumentPart(Some(8), 0, "Part 8a", Some("http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord08aJerusSurr.html")),
+           GeoDocumentPart(Some(9), 0, "Part 8b", Some("http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord08bJerusSurr.html")),
+           GeoDocumentPart(Some(10), 0, "Part 9", Some("http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord09Heraclea.html")),
+           GeoDocumentPart(Some(11), 0, "Part 10", Some("http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord10Valona.html")),
+           GeoDocumentPart(Some(12), 0, "Part 11", Some("http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord11Rome.html")))
+      }
+      
+      if (MTable.getTables("gdocument_texts").list().isEmpty) {
+        GeoDocumentTexts.ddl.create
+        
+        GeoDocumentTexts.insertAll(
+            GeoDocumentText(Some(0), None, Some(0), Source.fromFile("public/test/part1.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(1), None, Some(1), Source.fromFile("public/test/part2.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(2), None, Some(2), Source.fromFile("public/test/part3.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(3), None, Some(3), Source.fromFile("public/test/part4.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(4), None, Some(4), Source.fromFile("public/test/part5.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(5), None, Some(5), Source.fromFile("public/test/part6.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(6), None, Some(6), Source.fromFile("public/test/part7a.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(7), None, Some(7), Source.fromFile("public/test/part7b.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(8), None, Some(8), Source.fromFile("public/test/part8a.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(9), None, Some(9), Source.fromFile("public/test/part8b.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(10), None, Some(10), Source.fromFile("public/test/part9.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(11), None, Some(11), Source.fromFile("public/test/part10.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(12), None, Some(12), Source.fromFile("public/test/part11.txt").map(_.toByte).toArray))
       }
       
       if (MTable.getTables("annotations").list().isEmpty) {
@@ -92,7 +113,7 @@ object Global extends GlobalSettings {
           "public/test/part11.csv").zipWithIndex
           
         csv.foreach { case (file, gdocPartId) => {
-          CSVImporter.importAnnotations(file, gdocPartId).foreach(annotation => Annotations.insert(annotation))
+          CSVImporter.importAnnotations(file, 0, gdocPartId).foreach(annotation => Annotations.insert(annotation))
         }}
       }
       

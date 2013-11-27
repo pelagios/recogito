@@ -63,8 +63,8 @@ object Documents extends Controller {
           "id" -> annotation.id,
           "toponym" -> annotation.toponym,
           "status" -> annotation.status.toString,
-          "place" -> annotation.automatch.map(placeUriToJson(_)),
-          "place_fixed" -> annotation.fix.map(placeUriToJson(_))
+          "place" -> annotation.gazetteerURI.map(placeUriToJson(_)),
+          "place_fixed" -> annotation.correctedGazetteerURI.map(placeUriToJson(_))
         ))
       ))
     )
