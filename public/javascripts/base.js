@@ -9,10 +9,11 @@ pelagios.georesolution = (pelagios.georesolution) ? pelagios.georesolution : { }
  * @param {String} dataURL the URL from where to retrieve the JSON data
  * @constructor
  */
-pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv, dataURL) {  
+pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv, footerDiv, dataURL) {  
   var self = this,
       map = new pelagios.georesolution.MapView(mapDiv),
-      table = new pelagios.georesolution.TableView(tableDiv);
+      table = new pelagios.georesolution.TableView(tableDiv),
+      footer = new pelagios.georesolution.Footer(footerDiv);
   
   // Set up inter-component eventing
   map.on('select', function(place) { table.selectByPlaceURI(place.place.uri); });
@@ -51,6 +52,9 @@ pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv, dataURL) {
     
     // Set data on map
     $.each(annotations, function(idx, annotation) { map.addPlaceMarker(annotation) });
+    
+    // Set data on Footer
+    footer.setData(annotations);
     
     self.annotations = annotations;
   });

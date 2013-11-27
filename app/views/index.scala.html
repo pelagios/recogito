@@ -12,19 +12,23 @@
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/leaflet/leaflet.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/base.js")"></script> 
     <script type="text/javascript" src="@routes.Assets.at("javascripts/table-view.js")"></script>    
-    <script type="text/javascript" src="@routes.Assets.at("javascripts/map-view.js")"></script>    
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/map-view.js")"></script>   
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/footer.js")"></script>    
     <script type="text/javascript" src="@routes.Assets.at("javascripts/details-popup.js")"></script>    
     <base href="@routes.Application.index">
     <script>
       $(function() {
         var app = new pelagios.georesolution.CorrectionTool(
-          document.getElementById('table'), document.getElementById('map'),  '@routes.Documents.getDocument(0)');
+          document.getElementById('table'), document.getElementById('map'), document.getElementById('footer'), '@routes.Documents.getDocument(0)');
       });
     </script>
   </head>
   
   <body>
-    <div id="table"></div>
-    <div id="map"></div>
+    <div id="container">
+      <div id="table"></div>
+      <div id="map"></div>
+    </div>
+    <div id="footer"></div>
   </body>
 </html>
