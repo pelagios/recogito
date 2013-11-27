@@ -36,10 +36,10 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
         '            </table>' +
         '          </div>' +
         '        </div>' +
-        '        <table class="details-content-meta">' +
-        '          <tr><td><strong>Auto-Match</strong></td><td class="details-content-auto-match"></td></tr>' +
-        '          <tr><td><strong>Correction</strong></td><td class="details-content-correction"></td></tr>' +
-        '        </table>' +
+        '        <div class="details-content-placeinfo">' +
+        '          <p class="details-content-automatch"></p>' +
+        '          <p class="details-content-correction"></p>' +
+        '        </div>' +
         '        <a class="details-button details-button-false-detection">FALSE DETECTION</a> <a class="details-button details-button-not-identifiable">NOT IDENTIFY-ABLE</a>' +
         '        <h3>Source Text Snippets</h3>' + 
         '        <div class="details-content-preview">' +
@@ -140,9 +140,9 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
     if (!annotation.place.coordinate)
       meta += '<br/>No coordinates for this place! <span class="table-no-coords">!</span></a>';
                
-    $('.details-content-auto-match').html(meta);
+    $('.details-content-automatch').html(meta);
   } else {
-    $('.details-content-auto-match').html('-');
+    $('.details-content-automatch').html('-');
   }
   
   if (annotation.place_fixed) {

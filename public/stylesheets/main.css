@@ -279,23 +279,54 @@ a.footer-logout:hover {
   position:relative;
   top:-42px;
   max-height:100%;
-  overflow-y:scroll;
+  overflow-y:auto;
+  font-size:14px;
+  line-height:20px;
 }
 
 .details-content-inner {
   padding:20px;
 }
 
-.details td {
-  padding-right:5px;
+.details-content-placeinfo {
+  margin-right:440px;
 }
 
-.details h3 {
-  padding-bottom:0px;
-  margin-bottom:5px;
-  margin-top:20px;
-  font-size:16px;
+.details-content-automatch, .details-content-correction {
+  background-color:#dfdfdf;
+  padding:10px 15px 10px 50px;
+  margin-top:0px;
+  margin-bottom:0px;
+  border-style:dotted;
+  border-color:#ccc;
+  border-width:1px 1px 0px 1px;
+  position:relative;
 }
+
+.details-content-automatch:after {
+  content:'\f085';
+  font-family:"Font Awesome";
+  font-size:20px;
+  color:#777;
+  position:absolute;
+  top:14px;
+  left:14px;
+}
+
+.details-content-correction {
+  border-bottom-width:1px;
+}
+
+.details-content-correction:after {
+  content:'\f007';
+  font-family:"Font Awesome";
+  font-size:20px;
+  color:#777;
+  position:absolute;
+  top:10px;
+  left:14px;
+}
+
 
 
 
@@ -330,10 +361,6 @@ a.footer-logout:hover {
   color:#222;
 }
 
-.details-content a, .details-popup-content p, .details-popup-content td {
-  font-size:13px;
-}
-
 .details-content a:hover {
   color:#777;
 }
@@ -347,15 +374,6 @@ a.footer-logout:hover {
   font-weight:normal;
 }
 
-.details-content-meta {
-  background-color:#fcfcfc;
-  padding:10px 20px 10px 10px;
-  -moz-border-radius:3px;
-  -webkit-border-radius:3px;
-  -khtml-border-radius:3px;
-  border-radius:3px;
-}
-
 .details-content-meta td {
   padding-right:10px;
 }
@@ -363,7 +381,7 @@ a.footer-logout:hover {
 .details-content-sidebar {
   width:400px;
   float:right;
-  margin:10px;
+  margin:0px;
 }
 
 .details-map {
