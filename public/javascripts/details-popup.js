@@ -21,7 +21,9 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
         '<div class="clicktrap">' +
         '  <div class="details">' +
         '    <div class="details-header">' +
-        '      <a class="details-button details-button-exit">EXIT</a>' +
+        '      »<span class="details-header-toponym"></span>« ' +
+        '      <span class="details-header-source">in <span class="details-header-source-label"></span></span>' + 
+        '      <a class="details-header-exit">&#xf00d;</a>' +
         '    </div>' +
         '    <div class="details-content">' +
         '      <div class="details-content-inner">' +
@@ -34,10 +36,6 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
         '            </table>' +
         '          </div>' +
         '        </div>' +
-        '        <h1>' + 
-        '          &quot;<span class="details-content-toponym"></span>&quot; ' +
-        '          <span class="details-content-source">in Online Source <span class="details-content-source-label"></span></span>' + 
-        '        </h1>' +
         '        <table class="details-content-meta">' +
         '          <tr><td><strong>Auto-Match</strong></td><td class="details-content-auto-match"></td></tr>' +
         '          <tr><td><strong>Correction</strong></td><td class="details-content-correction"></td></tr>' +
@@ -117,9 +115,9 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
   };
     
   // Populate the template
-  $('.details-button-exit').click(function() { self.destroy(); });
-  $('.details-content-toponym').html(annotation.toponym);
-  $('.details-content-source-label').html('<a href="' + annotation.source + '" target="_blank">' + annotation.part + '</a>');
+  $('.details-header-exit').click(function() { self.destroy(); });
+  $('.details-header-toponym').html(annotation.toponym);
+  $('.details-header-source-label').html(annotation.part + ' <a href="' + annotation.source + '" target="_blank" title="Visit External Source">&#xf08e;</a>');
   $('.details-button-false-detection').click(function() {
     if (confirm('This will remove the place from the list. Are you sure?')) {
       self.fireEvent('markedAsFalse', annotation);
