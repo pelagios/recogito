@@ -79,19 +79,19 @@ object Global extends GlobalSettings {
         GeoDocumentTexts.ddl.create
         
         GeoDocumentTexts.insertAll(
-            GeoDocumentText(Some(0), None, Some(0), Source.fromFile("public/test/part1.txt").map(_.toByte).toArray),
-            GeoDocumentText(Some(1), None, Some(1), Source.fromFile("public/test/part2.txt").map(_.toByte).toArray),
-            GeoDocumentText(Some(2), None, Some(2), Source.fromFile("public/test/part3.txt").map(_.toByte).toArray),
-            GeoDocumentText(Some(3), None, Some(3), Source.fromFile("public/test/part4.txt").map(_.toByte).toArray),
-            GeoDocumentText(Some(4), None, Some(4), Source.fromFile("public/test/part5.txt").map(_.toByte).toArray),
-            GeoDocumentText(Some(5), None, Some(5), Source.fromFile("public/test/part6.txt").map(_.toByte).toArray),
-            GeoDocumentText(Some(6), None, Some(6), Source.fromFile("public/test/part7a.txt").map(_.toByte).toArray),
-            GeoDocumentText(Some(7), None, Some(7), Source.fromFile("public/test/part7b.txt").map(_.toByte).toArray),
-            GeoDocumentText(Some(8), None, Some(8), Source.fromFile("public/test/part8a.txt").map(_.toByte).toArray),
-            GeoDocumentText(Some(9), None, Some(9), Source.fromFile("public/test/part8b.txt").map(_.toByte).toArray),
-            GeoDocumentText(Some(10), None, Some(10), Source.fromFile("public/test/part9.txt").map(_.toByte).toArray),
-            GeoDocumentText(Some(11), None, Some(11), Source.fromFile("public/test/part10.txt").map(_.toByte).toArray),
-            GeoDocumentText(Some(12), None, Some(12), Source.fromFile("public/test/part11.txt").map(_.toByte).toArray))
+            GeoDocumentText(Some(0), 0, Some(0), Source.fromFile("public/test/part1.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(1), 0, Some(1), Source.fromFile("public/test/part2.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(2), 0, Some(2), Source.fromFile("public/test/part3.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(3), 0, Some(3), Source.fromFile("public/test/part4.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(4), 0, Some(4), Source.fromFile("public/test/part5.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(5), 0, Some(5), Source.fromFile("public/test/part6.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(6), 0, Some(6), Source.fromFile("public/test/part7a.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(7), 0, Some(7), Source.fromFile("public/test/part7b.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(8), 0, Some(8), Source.fromFile("public/test/part8a.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(9), 0, Some(9), Source.fromFile("public/test/part8b.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(10), 0, Some(10), Source.fromFile("public/test/part9.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(11), 0, Some(11), Source.fromFile("public/test/part10.txt").map(_.toByte).toArray),
+            GeoDocumentText(Some(12), 0, Some(12), Source.fromFile("public/test/part11.txt").map(_.toByte).toArray))
       }
       
       if (MTable.getTables("annotations").list().isEmpty) {
