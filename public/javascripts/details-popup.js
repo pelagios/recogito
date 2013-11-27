@@ -19,34 +19,34 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
   var self = this,
       template = 
         '<div class="clicktrap">' +
-        '  <div class="details-popup">' +
-        '    <div class="details-popup-header">' +
-        '      <a class="details-popup-button details-popup-button-exit">EXIT</a>' +
+        '  <div class="details">' +
+        '    <div class="details-header">' +
+        '      <a class="details-button details-button-exit">EXIT</a>' +
         '    </div>' +
-        '    <div class="details-popup-content">' +
-        '      <div class="details-popup-content-sidebar">' +
-        '        <div class="details-popup-content-search">' +
-        '          <div class="details-popup-content-search-container">' +
-        '            <span>Search</span> <input class="details-popup-content-search-input">' +
+        '    <div class="details-content">' +
+        '      <div class="details-content-sidebar">' +
+        '        <div class="details-content-search">' +
+        '          <div class="details-content-search-container">' +
+        '            <span>Search</span> <input class="details-content-search-input">' +
         '          </div>'+
-        '          <table class="details-popup-content-search-results">' +
+        '          <table class="details-content-search-results">' +
         '          </table>' +
         '        </div>' +
         '      </div>' +
         '      <h1>' + 
-        '        &quot;<span class="details-popup-content-toponym"></span>&quot; ' +
-        '        <span class="details-popup-content-source">in Online Source <span class="details-popup-content-source-label"></span></span>' + 
+        '        &quot;<span class="details-content-toponym"></span>&quot; ' +
+        '        <span class="details-content-source">in Online Source <span class="details-content-source-label"></span></span>' + 
         '      </h1>' +
-        '      <table class="details-popup-content-meta">' +
-        '        <tr><td><strong>Auto-Match</strong></td><td class="details-popup-content-auto-match"></td></tr>' +
-        '        <tr><td><strong>Correction</strong></td><td class="details-popup-content-correction"></td></tr>' +
+        '      <table class="details-content-meta">' +
+        '        <tr><td><strong>Auto-Match</strong></td><td class="details-content-auto-match"></td></tr>' +
+        '        <tr><td><strong>Correction</strong></td><td class="details-content-correction"></td></tr>' +
         '      </table>' +
-        '      <a class="details-popup-button details-popup-button-false-detection">FALSE DETECTION</a> <a class="details-popup-button details-popup-button-not-identifiable">NOT IDENTIFY-ABLE</a>' +
+        '      <a class="details-button details-button-false-detection">FALSE DETECTION</a> <a class="details-button details-button-not-identifiable">NOT IDENTIFY-ABLE</a>' +
         '      <h3>Source Text Snippets</h3>' + 
-        '      <div class="details-popup-content-preview">' +
+        '      <div class="details-content-preview">' +
         '      </div>' +
         '      <h3>Possible Alternatives</h3>' +
-        '      <table class="details-popup-content-candidates">' +
+        '      <table class="details-content-candidates">' +
         '      </table>' +    
         '    </div>' +
         '  </div>' +
@@ -57,7 +57,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
   $(this.element).appendTo(document.body);
   
   // Leaflet map
-  var map = this._initMap($('.details-popup-content-sidebar'));
+  var map = this._initMap($('.details-content-sidebar'));
 
   /**
    * Generates a view of a search result by rendering an HTML table row and attach a marker to the map
@@ -65,8 +65,8 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
    * @param {Object!} opt_style the map marker style
    */
   var displaySearchResult = function(result, opt_style) {
-    var warning = (result.coords) ? '' : '<a title="Place has no coordinates"><span class="table-no-coords">!</span> </a>'
-    var tr = $('<tr><td>' + warning + '</td><td><a href="javascript:void(0);" class="details-popup-content-candidate-link">' + result.title + '</a></td><td>' + result.names + '</td></tr>');
+    var warning = (result.coords) ? '' : '<span title="Place has no coordinates" class="icon no-coords">&#xf041;</span>'     
+    var tr = $('<tr><td>' + warning + '</td><td><a href="javascript:void(0);" class="details-content-candidate-link">' + result.title + '</a></td><td>' + result.names + '</td></tr>');
     var marker = undefined;
     if (result.coords) {
       if (opt_style)
@@ -85,7 +85,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
       });
     }
      
-    var candidateLink = $(tr).find('.details-popup-content-candidate-link');
+    var candidateLink = $(tr).find('.details-content-candidate-link');
     if (marker) {
       candidateLink.mouseover(function() { marker.bindPopup(result.title).openPopup(); });
       candidateLink.mouseout(function() { marker.closePopup(); });
@@ -115,16 +115,16 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
   };
     
   // Populate the template
-  $('.details-popup-button-exit').click(function() { self.destroy(); });
-  $('.details-popup-content-toponym').html(annotation.toponym);
-  $('.details-popup-content-source-label').html('<a href="' + annotation.source + '" target="_blank">' + annotation.worksheet + '</a>');
-  $('.details-popup-button-false-detection').click(function() {
+  $('.details-button-exit').click(function() { self.destroy(); });
+  $('.details-content-toponym').html(annotation.toponym);
+  $('.details-content-source-label').html('<a href="' + annotation.source + '" target="_blank">' + annotation.part + '</a>');
+  $('.details-button-false-detection').click(function() {
     if (confirm('This will remove the place from the list. Are you sure?')) {
       self.fireEvent('markedAsFalse', annotation);
       self.destroy();
     }
   });
-  $('.details-popup-button-not-identifiable').click(function() {
+  $('.details-button-not-identifiable').click(function() {
     if (confirm('This will mark the place as not identifiable and flag it for future investigation. Are you sure?')) {
       self.fireEvent('notIdentifiable', annotation);
       self.destroy();
@@ -140,9 +140,9 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
     if (!annotation.place.coordinate)
       meta += '<br/>No coordinates for this place! <span class="table-no-coords">!</span></a>';
                
-    $('.details-popup-content-auto-match').html(meta);
+    $('.details-content-auto-match').html(meta);
   } else {
-    $('.details-popup-content-auto-match').html('-');
+    $('.details-content-auto-match').html('-');
   }
   
   if (annotation.place_fixed) {
@@ -154,9 +154,9 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
     if (!annotation.place_fixed.coordinate)
       meta += '<br/>No coordinates for this place! <span class="table-no-coords">!</span></a>';
                
-    $('.details-popup-content-correction').html(meta);
+    $('.details-content-correction').html(meta);
   } else {
-    $('.details-popup-content-correction').html('-');
+    $('.details-content-correction').html('-');
   }
   
   // Popuplate the map
@@ -184,7 +184,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
     var marker = L.circleMarker(annotation.place.coordinate, { color:'blue', opacity:1, fillOpacity:0.6 }).addTo(map);    
     var popup = '<strong>Auto-Match:</strong> ' + annotation.place.title;
     marker.on('mouseover', function(e) { marker.bindPopup(popup).openPopup(); });
-    $('.details-popup-content-auto-match').mouseover(function() { marker.bindPopup(popup).openPopup(); });
+    $('.details-content-auto-match').mouseover(function() { marker.bindPopup(popup).openPopup(); });
   }
   
   // Marker for manual correction (if any)
@@ -192,7 +192,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
     var markerFixed = L.circleMarker(annotation.place_fixed.coordinate, { color:'red', opacity:1, fillOpacity:0.6 }).addTo(map);   
     var popupFixed =   '<strong>Correction:</strong> ' + annotation.place_fixed.title;
     markerFixed.on('mouseover', function(e) { markerFixed.bindPopup(popupFixed).openPopup(); });
-    $('.details-popup-content-correction').mouseover(function() { markerFixed.bindPopup(popupFixed).openPopup(); });
+    $('.details-content-correction').mouseover(function() { markerFixed.bindPopup(popupFixed).openPopup(); });
   }
   
   // Other candidates list
@@ -208,9 +208,9 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
     });
 
     if (html.length == 0) {
-      $('.details-popup-content-candidates').html('<p>No alternatives found.</p>');
+      $('.details-content-candidates').html('<p>No alternatives found.</p>');
     } else {
-      $('.details-popup-content-candidates').append(html);
+      $('.details-content-candidates').append(html);
     }
   });
   
@@ -233,16 +233,16 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
       $.each(snippets, function(idx, snippet) {
         preview += '<p>...' + highlight(snippet) + "...</p>";        
       });
-      $('.details-popup-content-preview').html(preview);
+      $('.details-content-preview').html(preview);
     }
   });
   
   // Text search
   var markers = [];
-  $('.details-popup-content-search-input').keypress(function(e) {
+  $('.details-content-search-input').keypress(function(e) {
     if (e.charCode == 13) {
       // Clear previous results (if any)
-      $('.details-popup-content-search-results').html('');
+      $('.details-content-search-results').html('');
       $.each(markers, function(idx, marker) { map.removeLayer(marker); });
       markers = [];
       
@@ -257,9 +257,9 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
         });
         
         if (html.length == 0) {
-          $('.details-popup-content-search-results').html('<p>No results for &quot;' + response.query + '</p>');
+          $('.details-content-search-results').html('<p>No results for &quot;' + response.query + '</p>');
         } else {
-          $('.details-popup-content-search-results').append(html);
+          $('.details-content-search-results').append(html);
         }
         
         map.fitBounds(new L.featureGroup(markers).getBounds());
@@ -278,7 +278,7 @@ pelagios.georesolution.DetailsPopup.prototype = new pelagios.georesolution.HasEv
  */
 pelagios.georesolution.DetailsPopup.prototype._initMap = function(parentEl) {
   var mapDiv = document.createElement('div');
-  mapDiv.className = 'details-popup-map';
+  mapDiv.className = 'details-map';
   $(parentEl).prepend(mapDiv);
   
   var baseLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {

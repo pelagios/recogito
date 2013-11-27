@@ -13,7 +13,16 @@ pelagios.georesolution.TableView = function(tableDiv) {
   // Inheritance - not the nicest pattern but works for our case
   pelagios.georesolution.HasEvents.call(this);
   
-  var self = this;
+  var self = this,
+      statusTemplate = 
+        '<div class="table-status">' + 
+          '<span class="icon {{current-status-css}}" title="{{current-status-title}}">{{current-status-icon}}</span>' +
+            '<span class="table-status-selectors">' +
+              '<span class="icon status-btn {{status-1-css}}" title="{{status-1-title}}" data-row="{{row}}" data-status="{{status-1-value}}">{{status-1-icon}}</span>' +
+              '<span class="icon edit" title="More..." data-row="{{row}}">&#xf040;</span>' +
+            '<span>' +
+          '</span>' +
+        '</div>';
     
   // A custom table cell formatter for Pleiades URIs
   var pleiadesFormatter = function (row, cell, value, columnDef, dataContext) {
@@ -28,35 +37,58 @@ pelagios.georesolution.TableView = function(tableDiv) {
                         '" target="_blank" title="' + value.title + '">pleiades:' + id + '</a>';
         
         if (value.coordinate) 
-          return formatted;
+          return '<span class="icon empty"></span>' + formatted;
         else
-          return '<a title="Place has no coordinates"><span class="table-label label-no-coords">!</span></a> ' + formatted;
+          return '<span title="Place has no coordinates" class="icon no-coords">&#xf041;</span>' + formatted;
       } else {
         return value;
       }
     }
   };
   
+  // The table cell formatter for the status column
   var statusFormatter = function (row, cell, value, columnDef, dataContext) {
-    // TODO needs templating!
     if (value) {
+      var html = statusTemplate;
+      
       if (value == 'VERIFIED') {
-        return '<div class="table-status">' + 
-                 '<span class="icon verified">&#xf14a;</span>' +
-                 '<span class="table-status-selectors">' +
-                   '<span class="icon not-verified" data-row="' + row + '" data-status="NOT_VERIFIED">&#xf059;</span>' +
-                   '<span class="icon edit" data-action="EDIT" data-row="' + row + '">&#xf14b;</span>' +
-                 '<span>' +
-              '</div>';
+        html = html.replace('{{current-status-css}}', 'verified');
+        html = html.replace('{{current-status-title}}', 'Verified');
+        html = html.replace('{{current-status-icon}}', '&#xf14a;');
+        html = html.replace('{{status-1-css}}', 'not-verified');
+        html = html.replace('{{status-1-title}}', 'Not Verified');
+        html = html.replace('{{status-1-value}}', 'NOT_VERIFIED');
+        html = html.replace('{{status-1-icon}}', '&#xf059;');
+        html = html.replace(/{{row}}/g, row);
+      } else if (value == 'NOT_IDENTIFYABLE') {
+        html = html.replace('{{current-status-css}}', 'not-identifyable');
+        html = html.replace('{{current-status-title}}', 'Not Identifyable');
+        html = html.replace('{{current-status-icon}}', '&#xf024;');
+        html = html.replace('{{status-1-css}}', 'not-verified');
+        html = html.replace('{{status-1-title}}', 'Not Verified');
+        html = html.replace('{{status-1-value}}', 'NOT_VERIFIED');
+        html = html.replace('{{status-1-icon}}', '&#xf059;');        
+      } else if (value == 'FALSE_DETECTION') { 
+        html = html.replace('{{current-status-css}}', 'false-detection');
+        html = html.replace('{{current-status-title}}', 'False Detection');
+        html = html.replace('{{current-status-icon}}', '&#xf05e;');
+        html = html.replace('{{status-1-css}}', 'not-verified');
+        html = html.replace('{{status-1-title}}', 'Not Verified');
+        html = html.replace('{{status-1-value}}', 'NOT_VERIFIED');
+        html = html.replace('{{status-1-icon}}', '&#xf059;');
       } else {
-        return '<div class="table-status">' + 
-                 '<span class="icon not-verified">&#xf059;</span>' +
-                 '<span class="table-status-selectors">' +
-                   '<span class="icon verified" data-row="' + row + '" data-status="VERIFIED">&#xf14a;</span>' +
-                   '<span class="icon edit" data-action="EDIT" data-row="' + row + '">&#xf14b;</span>' +
-                 '<span>' +
-              '</div>';
+        // 'NOT_VERIFIED'
+        html = html.replace('{{current-status-css}}', 'not-verified');
+        html = html.replace('{{current-status-title}}', 'Not Verified');
+        html = html.replace('{{current-status-icon}}', '&#xf059;');
+        html = html.replace('{{status-1-css}}', 'verified');
+        html = html.replace('{{status-1-title}}', 'Verified');
+        html = html.replace('{{status-1-value}}', 'VERIFIED');
+        html = html.replace('{{status-1-icon}}', '&#xf14a;');
+        html = html.replace(/{{row}}/g, row);
       }
+      
+      return html;
     }
   };
 
@@ -106,20 +138,20 @@ pelagios.georesolution.TableView = function(tableDiv) {
   // Redraw grid in case of window resize
   $(window).resize(function() { self._grid.resizeCanvas(); })
   
-  // Add verification button handler
-  $(document).on('click', '.table-status-selectors .icon', function(e) { 
-    if (e.target.getAttribute('data-action')) {
-      var idx = parseInt(e.target.getAttribute('data-row'));
-      openDetailsPopup(idx);
-    } else {
-      var row = parseInt(e.target.getAttribute('data-row'));
-      var status = e.target.getAttribute('data-status');
+  // Add status column button handlers
+  $(document).on('click', '.status-btn', function(e) { 
+    var row = parseInt(e.target.getAttribute('data-row'));
+    var status = e.target.getAttribute('data-status');
     
-      var annotation = self._grid.getDataItem(row);
-      annotation.status = status;
-      self._grid.invalidate();
-      self.fireEvent('update', annotation);
-    }
+    var annotation = self._grid.getDataItem(row);
+    annotation.status = status;
+    self._grid.invalidate();
+    self.fireEvent('update', annotation);
+  });
+    
+  $(document).on('click', '.edit', function(e) {
+    var idx = parseInt(e.target.getAttribute('data-row'));
+    openDetailsPopup(idx);
   });
 }
 

@@ -25,10 +25,12 @@ pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv, footerDiv, da
   });
   
   table.on('update', function(annotation) {
-  	self._storeEdit(annotation);
+  	self._storeToDB(annotation);
     map.clear();
-    if (self.annotations)
+    if (self.annotations) {
       $.each(self.annotations, function(idx, place) { map.addPlaceMarker(place) })
+      footer.setData(self.annotations);
+    }
   });
 
   // Fetch JSON data
@@ -60,8 +62,11 @@ pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv, footerDiv, da
   });
 }
 
-// Stores edits to the database
-pelagios.georesolution.CorrectionTool.prototype._storeEdit = function(annotation) {
+/**
+ * Stores an updated annotation to the database.
+ * @private
+ */
+pelagios.georesolution.CorrectionTool.prototype._storeToDB = function(annotation) {
   var payload = {
     'id': annotation.id,
     'toponym': annotation.toponym,
