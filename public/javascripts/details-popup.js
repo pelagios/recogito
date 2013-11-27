@@ -24,30 +24,32 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
         '      <a class="details-button details-button-exit">EXIT</a>' +
         '    </div>' +
         '    <div class="details-content">' +
-        '      <div class="details-content-sidebar">' +
-        '        <div class="details-content-search">' +
-        '          <div class="details-content-search-container">' +
-        '            <span>Search</span> <input class="details-content-search-input">' +
-        '          </div>'+
-        '          <table class="details-content-search-results">' +
-        '          </table>' +
+        '      <div class="details-content-inner">' +
+        '        <div class="details-content-sidebar">' +
+        '          <div class="details-content-search">' +
+        '            <div class="details-content-search-container">' +
+        '              <span>Search</span> <input class="details-content-search-input">' +
+        '            </div>'+
+        '            <table class="details-content-search-results">' +
+        '            </table>' +
+        '          </div>' +
         '        </div>' +
-        '      </div>' +
-        '      <h1>' + 
-        '        &quot;<span class="details-content-toponym"></span>&quot; ' +
-        '        <span class="details-content-source">in Online Source <span class="details-content-source-label"></span></span>' + 
-        '      </h1>' +
-        '      <table class="details-content-meta">' +
-        '        <tr><td><strong>Auto-Match</strong></td><td class="details-content-auto-match"></td></tr>' +
-        '        <tr><td><strong>Correction</strong></td><td class="details-content-correction"></td></tr>' +
-        '      </table>' +
-        '      <a class="details-button details-button-false-detection">FALSE DETECTION</a> <a class="details-button details-button-not-identifiable">NOT IDENTIFY-ABLE</a>' +
-        '      <h3>Source Text Snippets</h3>' + 
-        '      <div class="details-content-preview">' +
-        '      </div>' +
-        '      <h3>Possible Alternatives</h3>' +
-        '      <table class="details-content-candidates">' +
-        '      </table>' +    
+        '        <h1>' + 
+        '          &quot;<span class="details-content-toponym"></span>&quot; ' +
+        '          <span class="details-content-source">in Online Source <span class="details-content-source-label"></span></span>' + 
+        '        </h1>' +
+        '        <table class="details-content-meta">' +
+        '          <tr><td><strong>Auto-Match</strong></td><td class="details-content-auto-match"></td></tr>' +
+        '          <tr><td><strong>Correction</strong></td><td class="details-content-correction"></td></tr>' +
+        '        </table>' +
+        '        <a class="details-button details-button-false-detection">FALSE DETECTION</a> <a class="details-button details-button-not-identifiable">NOT IDENTIFY-ABLE</a>' +
+        '        <h3>Source Text Snippets</h3>' + 
+        '        <div class="details-content-preview">' +
+        '        </div>' +
+        '        <h3>Possible Alternatives</h3>' +
+        '        <table class="details-content-candidates">' +
+        '        </table>' +   
+        '      </div>' + 
         '    </div>' +
         '  </div>' +
         '</div>';

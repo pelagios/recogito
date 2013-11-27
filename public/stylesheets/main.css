@@ -17,6 +17,8 @@ html, body, div {
   bottom:40px;
 }
 
+/* Top level elements: table, map, footer */
+
 #table {
   position:absolute;
   top:0px:
@@ -198,6 +200,8 @@ a.footer-logout:hover {
   width:12px;
 }
 
+/* Details popup */
+
 .clicktrap {
   position:absolute;
   top:0px;
@@ -209,18 +213,45 @@ a.footer-logout:hover {
 }
 
 .details {
-  position:absolute;
-  top:5%;
-  left:5%;
+  position:relative;
+  top:3%;
+  margin-left: auto;
+  margin-right: auto;
   width:90%;
-  height:90%;
+  max-width:1200px;
+  height:85%;
   background-color:#eee;
   z-index:99999;
   -moz-box-shadow:0px 0px 5px 6px #222;
   -webkit-box-shadow:0px 0px 5px 6px #222;
   box-shadow:0px 0px 5px 6px #222;
   font-size:13px;
-  overflow-y:auto;
+  padding-top:40px;
+}
+
+.details-header {
+  position:relative;
+  top:-40px;
+  width:100%;
+  height:40px;
+  background-color:#494949;
+  border-top:1px solid #686868;
+  border-bottom:1px solid #999;
+  background:-webkit-gradient(linear,left top,left bottom,from(#5a5a5a),to(#494949));
+  background:-moz-linear-gradient(top,#5a5a5a,#494949);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#5a5a5a',endColorstr='#494949');
+  z-index:99999;
+}
+
+.details-content {
+  position:relative;
+  top:-42px;
+  max-height:100%;
+  overflow-y:scroll;
+}
+
+.details-content-inner {
+  padding:20px;
 }
 
 .details td {
@@ -234,11 +265,7 @@ a.footer-logout:hover {
   font-size:16px;
 }
 
-.details-header {
-  width:100%;
-  height:40px;
-  background-color:#505050;
-}
+
 
 .details-button {
   display:inline-block;
@@ -273,9 +300,7 @@ a.footer-logout:hover {
   border:1px solid #ddd;
 }
 
-.details-content {
-  padding:10px 20px;
-}
+
 
 .details-content h1 {
   padding:0px;
