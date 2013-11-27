@@ -77,18 +77,43 @@ html, body, div {
 
 .slick-cell.selected {
   background-color:#98BBF5;
-} 
+}
 
 .table-status {
   display:inline-block;
   width:100%;
   text-align:center;
-}
-
-.table-icon {
   font-family:"Font Awesome";
   font-size:14px;
   color:#656565;
+}
+
+.icon {
+  padding:0px 2px;
+}
+
+.icon.not-verified {
+  color:#777;
+}
+
+.icon.verified {
+  color:#00bb00;
+}
+
+.icon.edit {
+  color:#cc8100;
+}
+
+.table-status-selectors {
+  visibility:hidden;
+}
+
+.table-status-selectors .icon {
+  cursor:hand;
+}
+
+.table-status:hover .table-status-selectors {
+  visibility:visible;
 }
 
 .table-label {

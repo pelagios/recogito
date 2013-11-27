@@ -8,6 +8,7 @@ import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.Json
 import java.sql.Timestamp
 import java.util.Date
+import play.api.Logger
 
 /** Controller for the edit API.
   *
@@ -26,16 +27,15 @@ object Edit extends Controller with Secured {
       val body = requestWithSession.request.body
       val toponym = (body \ "toponym").as[String]
       val status = AnnotationStatus.withName((body \ "status").as[String])
-      val fix = (body \ "fix").as[String]
+      val fix = (body \ "fix").as[Option[String]]
    
       val updatedAnnotation = Annotation(Some(id), annotation.get.gdocId, annotation.get.gdocPartId, status, annotation.get.toponym,
-          annotation.get.offset, annotation.get.gazetteerURI, None, None, Some(fix), annotation.get.comment)
+          annotation.get.offset, annotation.get.gazetteerURI, None, None, fix, annotation.get.comment)
           
       Annotations.update(updatedAnnotation)
-      
+
       // Create a record in the edit history
       EditHistory.insert(createEvent(annotation.get, updatedAnnotation, user.get.id.get))
-      
       Ok(Json.obj("msg" -> "ack"))
     } else {
       val msg = if (user.isEmpty) "Not logged in" else "No annotation with ID " + id

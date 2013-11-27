@@ -38,8 +38,25 @@ pelagios.georesolution.TableView = function(tableDiv) {
   };
   
   var statusFormatter = function (row, cell, value, columnDef, dataContext) {
+    // TODO needs templating!
     if (value) {
-      return '<span class="table-icon table-status">&#xf059;</a>';
+      if (value == 'VERIFIED') {
+        return '<div class="table-status">' + 
+                 '<span class="icon verified">&#xf14a;</span>' +
+                 '<span class="table-status-selectors">' +
+                   '<span class="icon not-verified" data-row="' + row + '" data-status="NOT_VERIFIED">&#xf059;</span>' +
+                   '<span class="icon edit" data-action="EDIT" data-row="' + row + '">&#xf14b;</span>' +
+                 '<span>' +
+              '</div>';
+      } else {
+        return '<div class="table-status">' + 
+                 '<span class="icon not-verified">&#xf059;</span>' +
+                 '<span class="table-status-selectors">' +
+                   '<span class="icon verified" data-row="' + row + '" data-status="VERIFIED">&#xf14a;</span>' +
+                   '<span class="icon edit" data-action="EDIT" data-row="' + row + '">&#xf14b;</span>' +
+                 '<span>' +
+              '</div>';
+      }
     }
   };
 
@@ -48,7 +65,7 @@ pelagios.georesolution.TableView = function(tableDiv) {
                  { name: 'EGD Part', field: 'part', id: 'part' },
                  { name: 'Auto Match', field: 'place', id: 'place' , formatter: pleiadesFormatter },
                  { name: 'Corrected', field: 'place_fixed', id: 'place_fixed', formatter: pleiadesFormatter },
-                 { name: 'Status', field: 'status', id: 'status', width:45, formatter: statusFormatter }];
+                 { name: 'Status', field: 'status', id: 'status', width:55, formatter: statusFormatter }];
 
   var options = { enableCellNavigation: true, enableColumnReorder: false, forceFitColumns: true, autoEdit: false };
     
@@ -88,6 +105,22 @@ pelagios.georesolution.TableView = function(tableDiv) {
 
   // Redraw grid in case of window resize
   $(window).resize(function() { self._grid.resizeCanvas(); })
+  
+  // Add verification button handler
+  $(document).on('click', '.table-status-selectors .icon', function(e) { 
+    if (e.target.getAttribute('data-action')) {
+      var idx = parseInt(e.target.getAttribute('data-row'));
+      openDetailsPopup(idx);
+    } else {
+      var row = parseInt(e.target.getAttribute('data-row'));
+      var status = e.target.getAttribute('data-status');
+    
+      var annotation = self._grid.getDataItem(row);
+      annotation.status = status;
+      self._grid.invalidate();
+      self.fireEvent('update', annotation);
+    }
+  });
 }
 
 // Inheritance - not the nicest pattern but works for our case
@@ -159,7 +192,7 @@ pelagios.georesolution.TableView.prototype._getNeighbours = function(idx, n, ste
             
   var neighbours = [];
   var ctr = 1;
-  while (neighbours.length < n) {   
+  while (neighbours.length < n) {  
     if (idx + ctr * step >= length)
       break;
       
