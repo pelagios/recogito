@@ -24,10 +24,10 @@ pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv, dataURL) {
   });
   
   table.on('update', function(annotation) {
-	self._storeEdit(annotation);
+  	self._storeEdit(annotation);
     map.clear();
-    if (self.places)
-      $.each(self.places, function(idx, place) { map.addPlaceMarker(place) })
+    if (self.annotations)
+      $.each(self.annotations, function(idx, place) { map.addPlaceMarker(place) })
   });
 
   // Fetch JSON data
