@@ -11,9 +11,10 @@ pelagios.georesolution.MapView = function(mapDiv) {
   // Inheritance - not the nicest pattern but works for our case
   pelagios.georesolution.HasEvents.call(this);
   
-  var baseLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
-    attribution: 'Tiles: <a href="http://pelagios.org/maps/greco-roman/about.html">Pelagios</a>, 2012; Data: NASA, OSM, Pleiades, DARMC'
-  });
+  var self = this,
+      baseLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
+        attribution: 'Tiles: <a href="http://pelagios.org/maps/greco-roman/about.html">Pelagios</a>, 2012; Data: NASA, OSM, Pleiades, DARMC'
+      });
         
   this._map = new L.Map(mapDiv, {
     center: new L.LatLng(41.893588, 12.488022),
@@ -29,13 +30,15 @@ pelagios.georesolution.MapView = function(mapDiv) {
   
   this._allMarkers = [];
   
+  this._MARKER_SIZE = 4;
+      
+  this._MARKER_SIZE_HOVER = 8;
+  
   this._styles = { 
     
-    DEFAULT: { color: '#6464dd', fillColor:'#98BBF5', radius: 4, weight:2, opacity:1, fillOpacity: 1 },
+    NOT_VERIFIED: { color: '#808080', fillColor:'#aaa', radius: self._MARKER_SIZE, weight:2, opacity:1, fillOpacity: 1 },
     
-    DEFAULT_HOVER: { color: '#6464dd', fillColor:'#98BBF5', radius: 8, weight:2, opacity:1, fillOpacity: 1 },
-        
-    CORRECTION: { color: '#ff0000', radius: 5, fillOpacity: 0.8 }
+    VERIFIED: { color: '#118128', fillColor:'#1bcc3f', radius: self._MARKER_SIZE, weight:2, opacity:1, fillOpacity: 1 }
     
   }
 }
@@ -50,58 +53,46 @@ pelagios.georesolution.MapView.prototype = new pelagios.georesolution.HasEvents(
 pelagios.georesolution.MapView.prototype.addPlaceMarker = function(annotation) {
   var self = this;
 
-  if (annotation.place_fixed && annotation.place_fixed.coordinate) { 
-    var markerFixed = L.circleMarker(annotation.place_fixed.coordinate, this._styles.CORRECTION);
+  if (annotation.place && annotation.place.coordinate) {
+    var style = undefined;
+    switch(annotation.status) {
+      case 'VERIFIED': 
+        style = this._styles.VERIFIED;
+        break;
+        
+      case 'NOT_VERIFIED':
+        style = this._styles.NOT_VERIFIED;
+        break;
+    }
     
-    if (annotation.place && annotation.place.coordinate) {
-      var connectingLine;
-      
-      var showConnection = function() {
-        connectingLine = L.polyline([annotation.place_fixed.coordinate, annotation.place.coordinate], this._styles.CORRECTION);
-        connectingLine.addTo(self._map);
-      }; 
-      
-      var hideConnection = function() {
-        self._map.removeLayer(connectingLine);
-      };
-      
-      markerFixed.on('mouseover', function(e) { showConnection(); });
-      markerFixed.on('mouseout', function(e) { hideConnection(); });
-      
-      var markerAutomatch = L.circleMarker(annotation.place.coordinate, this._styles.DEFAULT);
-      markerAutomatch.on('mouseover', function(e) { showConnection(); });
-      markerAutomatch.on('mouseout', function(e) { hideConnection(); });
-      markerAutomatch.addTo(this._map);
-      
-      self._allMarkers.push(markerAutomatch);
-    } 
-      
-    self._allMarkers.push(markerFixed);
-    markerFixed.addTo(this._map);
-    annotation.marker = markerFixed;
-  } else if (annotation.place && annotation.place.coordinate) {
-    var marker = L.circleMarker(annotation.place.coordinate, this._styles.DEFAULT);
-    marker.addTo(this._map); 
-    marker.on('click', function(e) {
-      marker.bindPopup(annotation.toponym + ' (<a href="' + annotation.source + '" target="_blank">Source</a>)').openPopup(); 
-      self.fireEvent('select', annotation);
-    });
-    self._allMarkers.push(marker);
-
-    annotation.marker = marker    
+    if (style) {
+      var marker = L.circleMarker(annotation.place.coordinate, style);
+      marker.addTo(this._map); 
+      marker.on('click', function(e) {
+        self.fireEvent('select', annotation);
+        self._currentSelection.openPopup();
+      });
+  
+      this._allMarkers.push(marker);
+      annotation.marker = marker  
+    }
   }
 }
 
 pelagios.georesolution.MapView.prototype.emphasizePlace = function(annotation, prevN, nextN) {
   if (annotation.marker) {
-    annotation.marker.setStyle(this._styles.DEFAULT_HOVER);
+    var style = annotation.marker.options;
+    style.radius = this._MARKER_SIZE_HOVER;
+    annotation.marker.setStyle(style);
     annotation.marker.bringToFront();
   }
 }
 
 pelagios.georesolution.MapView.prototype.deemphasizePlace = function(annotation, prevN, nextN) {
   if (annotation.marker) {
-    annotation.marker.setStyle(this._styles.DEFAULT);
+    var style = annotation.marker.options;
+    style.radius = this._MARKER_SIZE;
+    annotation.marker.setStyle(style);
   }
 }
 
@@ -116,7 +107,7 @@ pelagios.georesolution.MapView.prototype.selectPlace = function(annotation, prev
 
   // Utility function to draw the sequence line
   var drawSequenceLine = function(coords, opacity) {
-    var line = L.polyline(coords, { color: self._styles.DEFAULT.color, opacity: opacity, weight:8 });
+    var line = L.polyline(coords, { color: annotation.marker.options.color, opacity: opacity, weight:8 });
     line.setText('►', { repeat: true, offset: 3, attributes: { fill: '#fff', 'font-size':10 }});    
     self._currentSequence.push(line);
     line.addTo(self._map);

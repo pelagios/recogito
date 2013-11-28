@@ -19,6 +19,7 @@ pelagios.georesolution.TableView = function(tableDiv) {
           '<span class="icon {{current-status-css}}" title="{{current-status-title}}">{{current-status-icon}}</span>' +
             '<span class="table-status-selectors">' +
               '<span class="icon status-btn {{status-1-css}}" title="{{status-1-title}}" data-row="{{row}}" data-status="{{status-1-value}}">{{status-1-icon}}</span>' +
+              '<span class="icon status-btn {{status-2-css}}" title="{{status-2-title}}" data-row="{{row}}" data-status="{{status-2-value}}">{{status-2-icon}}</span>' +
               '<span class="icon edit" title="More..." data-row="{{row}}">&#xf040;</span>' +
             '<span>' +
           '</span>' +
@@ -59,6 +60,10 @@ pelagios.georesolution.TableView = function(tableDiv) {
         html = html.replace('{{status-1-title}}', 'Set to Not Verified');
         html = html.replace('{{status-1-value}}', 'NOT_VERIFIED');
         html = html.replace('{{status-1-icon}}', '&#xf059;');
+        html = html.replace('{{status-2-css}}', 'false-detection');
+        html = html.replace('{{status-2-title}}', 'Set to False Detection');
+        html = html.replace('{{status-2-value}}', 'FALSE_DETECTION');
+        html = html.replace('{{status-2-icon}}', '&#xf057;');
         html = html.replace(/{{row}}/g, row);
       } else if (value == 'NOT_IDENTIFYABLE') {
         html = html.replace('{{current-status-css}}', 'not-identifyable');
@@ -67,15 +72,25 @@ pelagios.georesolution.TableView = function(tableDiv) {
         html = html.replace('{{status-1-css}}', 'not-verified');
         html = html.replace('{{status-1-title}}', 'Set to Not Verified');
         html = html.replace('{{status-1-value}}', 'NOT_VERIFIED');
-        html = html.replace('{{status-1-icon}}', '&#xf059;');        
+        html = html.replace('{{status-1-icon}}', '&#xf059;'); 
+        html = html.replace('{{status-2-css}}', 'false-detection');
+        html = html.replace('{{status-2-title}}', 'Set to False Detection');
+        html = html.replace('{{status-2-value}}', 'FALSE_DETECTION');
+        html = html.replace('{{status-2-icon}}', '&#xf057;');
+        html = html.replace(/{{row}}/g, row);
       } else if (value == 'FALSE_DETECTION') { 
         html = html.replace('{{current-status-css}}', 'false-detection');
         html = html.replace('{{current-status-title}}', 'False Detection');
         html = html.replace('{{current-status-icon}}', '&#xf057;');
-        html = html.replace('{{status-1-css}}', 'not-verified');
-        html = html.replace('{{status-1-title}}', 'Set to Not Verified');
-        html = html.replace('{{status-1-value}}', 'NOT_VERIFIED');
-        html = html.replace('{{status-1-icon}}', '&#xf059;');
+        html = html.replace('{{status-1-css}}', 'verified');
+        html = html.replace('{{status-1-title}}', 'Set to Verified');
+        html = html.replace('{{status-1-value}}', 'VERIFIED');
+        html = html.replace('{{status-1-icon}}', '&#xf14a;');
+        html = html.replace('{{status-2-css}}', 'not-verified');
+        html = html.replace('{{status-2-title}}', 'Set to Not Verified');
+        html = html.replace('{{status-2-value}}', 'NOT_VERIFIED');
+        html = html.replace('{{status-2-icon}}', '&#xf059;');
+        html = html.replace(/{{row}}/g, row);
       } else {
         // 'NOT_VERIFIED'
         html = html.replace('{{current-status-css}}', 'not-verified');
@@ -85,6 +100,10 @@ pelagios.georesolution.TableView = function(tableDiv) {
         html = html.replace('{{status-1-title}}', 'Set to Verified');
         html = html.replace('{{status-1-value}}', 'VERIFIED');
         html = html.replace('{{status-1-icon}}', '&#xf14a;');
+        html = html.replace('{{status-2-css}}', 'false-detection');
+        html = html.replace('{{status-2-title}}', 'Set to False Detection');
+        html = html.replace('{{status-2-value}}', 'FALSE_DETECTION');
+        html = html.replace('{{status-2-icon}}', '&#xf057;');
         html = html.replace(/{{row}}/g, row);
       }
       
@@ -97,7 +116,7 @@ pelagios.georesolution.TableView = function(tableDiv) {
                  { name: 'EGD Part', field: 'part', id: 'part' },
                  { name: 'Auto Match', field: 'place', id: 'place' , formatter: pleiadesFormatter },
                  { name: 'Corrected', field: 'place_fixed', id: 'place_fixed', formatter: pleiadesFormatter },
-                 { name: 'Status', field: 'status', id: 'status', width:55, formatter: statusFormatter }];
+                 { name: 'Status', field: 'status', id: 'status', width:70, formatter: statusFormatter }];
 
   var options = { enableCellNavigation: true, enableColumnReorder: false, forceFitColumns: true, autoEdit: false };
     
@@ -267,9 +286,7 @@ pelagios.georesolution.TableView.prototype._getNeighbours = function(idx, n, ste
  * @return the next N annotations in the list
  */
 pelagios.georesolution.TableView.prototype.getNextN = function(idx, n)  {
-  var foo = this._getNeighbours(idx, n, 1);
-  console.log("next", foo);
-  return foo;
+  return this._getNeighbours(idx, n, 1);
 }
 
 /**
@@ -279,7 +296,5 @@ pelagios.georesolution.TableView.prototype.getNextN = function(idx, n)  {
  * @return the previous N annotations in the list
  */
 pelagios.georesolution.TableView.prototype.getPrevN = function(idx, n)  {
-  var foo = this._getNeighbours(idx, n, -1);
-  console.log("previous", foo);
-  return foo;
+  return this._getNeighbours(idx, n, -1);
 }

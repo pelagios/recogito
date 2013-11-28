@@ -109,6 +109,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
       annotation.place_fixed.names = result.names;
       annotation.place_fixed.uri = result.uri;    
       annotation.place_fixed.coordinate = result.coords;
+      annotation.status = 'VERIFIED';
         
       self.fireEvent('update', annotation);        
       self.destroy();

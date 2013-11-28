@@ -359,7 +359,7 @@ a.footer-logout:hover {
   display:block;
   cursor:pointer;
   color:#eee;
-  background-color:#bfbfbf;
+  background-color:#dfdfdf;
   width:40px;
   height:30px;
   margin:0px auto;
@@ -374,7 +374,7 @@ a.footer-logout:hover {
   font-size:12px;
   line-height:12px;
   white-space:nowrap;
-  color:#bfbfbf;
+  color:#dfdfdf;
   font-weight:bold;
   visibility:hidden;
 }
