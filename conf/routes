@@ -12,17 +12,18 @@ GET     /labs/grct/documents/:id     controllers.Documents.getDocument(id: Int)
 GET     /labs/grct/documents         controllers.Documents.listAll
 
 # Annotation Editing
-PUT    /labs/grct/annotations/:id   controllers.Edit.updateAnnotation(id: Int)
+GET    /labs/grct/edit-history       controllers.Edit.showHistory
+PUT    /labs/grct/annotations/:id    controllers.Edit.updateAnnotation(id: Int)
 
 # Toponym search
-GET     /labs/grct/search          controllers.Search.index(query: String)
+GET     /labs/grct/search            controllers.Search.index(query: String)
 
 # Remote source preview snippet
-GET     /labs/grct/preview         controllers.Preview.index(url: String, term: String)
+GET     /labs/grct/preview           controllers.Preview.index(url: String, term: String)
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /labs/grct/assets/*file    controllers.Assets.at(path="/public", file)
+GET     /labs/grct/assets/*file      controllers.Assets.at(path="/public", file)
 
 # Home page
-GET     /labs/grct/                controllers.Application.index
-GET     /labs/grct                 controllers.Application.index
+GET     /labs/grct/                  controllers.Application.index
+GET     /labs/grct                   controllers.Application.index

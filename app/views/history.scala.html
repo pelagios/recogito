@@ -1,0 +1,28 @@
+@(history: Seq[models.EditEvent])(implicit s: play.api.db.slick.Config.driver.simple.Session)
+
+<html>
+  <head>
+    <title>PELAGIOS Geo-Resolution Correction Tool</title>
+  </head>
+  
+  <body>
+    <table>
+       <tr>
+         <td>By</td>
+         <td>Changed URI</td>
+         <td>Changed Status</td>
+         <td>At</td>
+       </tr>
+      @for(event <- history) {
+      	<tr>
+          <td>@models.Users.findById(event.userId).map(_.username).getOrElse("anonymous")</td>
+      	  <td>@event.updatedURI</td>
+      	  <td>@event.updatedStatus</td>
+      	  <td>@event.timestamp</td>
+        </tr>
+      }
+    </table>
+  </body>
+</html>
+    
+

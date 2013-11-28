@@ -1,14 +1,13 @@
 package controllers
 
+import java.sql.Timestamp
+import java.util.Date
 import models._
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import play.api.Play.current
 import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.Json
-import java.sql.Timestamp
-import java.util.Date
-import play.api.Logger
 
 /** Controller for the edit API.
   *
@@ -16,6 +15,10 @@ import play.api.Logger
   * available to everyone).  
   */
 object Edit extends Controller with Secured {
+  
+  def showHistory() = DBAction { implicit session =>
+    Ok(views.html.history(EditHistory.getLastN(100))) 
+  }
   
   /** Updates the annotation with the specified ID **/
   def updateAnnotation(id: Int) = apiWithAuth { username => implicit requestWithSession =>
