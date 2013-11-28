@@ -103,27 +103,10 @@ pelagios.georesolution.TableView = function(tableDiv) {
     
   this._grid = new Slick.Grid('#table', {}, columns, options);
   this._grid.setSelectionModel(new Slick.RowSelectionModel());
-  
-  // Opens the details popup
-  var openDetailsPopup = function(idx) {
-    var prev2 = self.getPrevN(idx, 2);
-    var next2 = self.getNextN(idx, 2);
-    
-    var popup = new pelagios.georesolution.DetailsPopup(self._grid.getDataItem(idx), prev2, next2);
-    popup.on('save', function(annotation) {
-      self._grid.invalidate();
-      self.fireEvent('update', annotation);
-    });
-    popup.on('markedAsFalse', function(annotation) {
-      self.removeRow(idx);
-      self.fireEvent('markedAsFalse', annotation);
-    });
-  };
-  
-  this._grid.onDblClick.subscribe(function(e, args) { openDetailsPopup(args.row); });  
+  this._grid.onDblClick.subscribe(function(e, args) { self._openDetailsPopup(args.row); });  
   this._grid.onKeyDown.subscribe(function(e, args) {
     if (e.which == 13) {
-      openDetailsPopup(args.row);
+      self._openDetailsPopup(args.row);
     }
   });
 
@@ -151,12 +134,32 @@ pelagios.georesolution.TableView = function(tableDiv) {
     
   $(document).on('click', '.edit', function(e) {
     var idx = parseInt(e.target.getAttribute('data-row'));
-    openDetailsPopup(idx);
+    self._openDetailsPopup(idx);
   });
 }
 
 // Inheritance - not the nicest pattern but works for our case
 pelagios.georesolution.TableView.prototype = new pelagios.georesolution.HasEvents();
+
+/**
+ * Opens the details popup
+ * @private
+ */
+pelagios.georesolution.TableView.prototype._openDetailsPopup = function(idx) {
+  var self = this,
+      prev2 = this.getPrevN(idx, 2),
+      next2 = this.getNextN(idx, 2);
+    
+  var popup = new pelagios.georesolution.DetailsPopup(this._grid.getDataItem(idx), prev2, next2);
+  popup.on('save', function(annotation) {
+    self._grid.invalidate();
+    self.fireEvent('update', annotation);
+  });
+  popup.on('markedAsFalse', function(annotation) {
+    self.removeRow(idx);
+    self.fireEvent('markedAsFalse', annotation);
+  });
+}
 
 /**
  * Removes a specific row from the table.
@@ -195,6 +198,12 @@ pelagios.georesolution.TableView.prototype.selectByPlaceURI = function(uri) {
  */
 pelagios.georesolution.TableView.prototype.setData = function(data) {
   this._grid.setData(data);
+  
+  // Check if there's a '#{rownumber}' URL fragment - and open the popup if so
+  if (window.location.hash) {
+    var idx = parseInt(window.location.hash.substring(1));
+    this._openDetailsPopup(idx);
+  }
 }
 
 /**
