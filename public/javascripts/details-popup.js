@@ -3,9 +3,7 @@
  * to make manual corrections to it.
  * 
  * Emits the following events:
- * 'save' .............. when a correction is saved 
- * 'markedAsFalse' ..... when an annotation is marked as a false detection
- * 'notIdentifiable' ... when an annotation is marked as a 'not identifiable' place
+ * 'update' .............. when a correction is saved 
  * 
  * @param {Object} annotation the annotation
  * @param {Array.<Object>} prev_annotations previous annotations in the list (if any)
@@ -40,7 +38,10 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
         '          <p class="details-content-automatch"></p>' +
         '          <p class="details-content-correction"></p>' +
         '        </div>' +
-        '        <a class="details-button details-button-false-detection">FALSE DETECTION</a> <a class="details-button details-button-not-identifiable">NOT IDENTIFY-ABLE</a>' +
+        '        <div class="details-button details-button-verified"><span class="icon">&#xf14a;</span><span class="caption">VERIFIED</span></div>' +        
+        '        <div class="details-button details-button-not-verified"><span class="icon">&#xf059;</span><span class="caption">NOT VERIFIED</span></div>' +   
+        '        <div class="details-button details-button-not-identifyable"><span class="icon">&#xf024;</span><span class="caption">NOT IDENTIFYABLE</span></div>' +   
+        '        <div class="details-button details-button-false-detection"><span class="icon">&#xf057;</span><span class="caption">FALSE DETECTION</span></div>' +   
         '        <h3>Source Text Snippets</h3>' + 
         '        <div class="details-content-preview">' +
         '        </div>' +
@@ -109,7 +110,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
       annotation.place_fixed.uri = result.uri;    
       annotation.place_fixed.coordinate = result.coords;
         
-      self.fireEvent('save', annotation);        
+      self.fireEvent('update', annotation);        
       self.destroy();
     }
   };
@@ -118,46 +119,85 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
   $('.details-header-exit').click(function() { self.destroy(); });
   $('.details-header-toponym').html(annotation.toponym);
   $('.details-header-source-label').html(annotation.part + ' <a href="' + annotation.source + '" target="_blank" title="Visit External Source">&#xf08e;</a>');
-  $('.details-button-false-detection').click(function() {
-    if (confirm('This will remove the place from the list. Are you sure?')) {
-      self.fireEvent('markedAsFalse', annotation);
-      self.destroy();
-    }
-  });
-  $('.details-button-not-identifiable').click(function() {
-    if (confirm('This will mark the place as not identifiable and flag it for future investigation. Are you sure?')) {
-      self.fireEvent('notIdentifiable', annotation);
-      self.destroy();
-    }
-  }); 
   
+  // Automatch info
   if (annotation.place) {
-    var meta = '<a href="http://pelagios.org/api/places/' + 
-                encodeURIComponent(pelagios.georesolution.Utils.normalizePleiadesURI(annotation.place.uri)) +
-               '" target="_blank">' + annotation.place.title + '</a><br/>' +
-               annotation.place.names;
-               
+    var meta = annotation.place.title + '<br/>' +
+               annotation.place.names + '<br/>' +
+               '<a href="http://pelagios.org/api/places/' + 
+               encodeURIComponent(pelagios.georesolution.Utils.normalizePleiadesURI(annotation.place.uri)) +
+               '" target="_blank">' + annotation.place.uri + '</a>'; 
+                              
     if (!annotation.place.coordinate)
-      meta += '<br/>No coordinates for this place! <span class="table-no-coords">!</span></a>';
+      meta += '<br/><span class="icon no-coords ">&#xf041;</span>No coordinates for this place!</a>';
                
     $('.details-content-automatch').html(meta);
   } else {
     $('.details-content-automatch').html('-');
   }
   
+  // Expert correction info
   if (annotation.place_fixed) {
-    var meta = '<a href="http://pelagios.org/api/places/' + 
-                encodeURIComponent(pelagios.georesolution.Utils.normalizePleiadesURI(annotation.place_fixed.uri)) +
-               '" target="_blank">' + annotation.place_fixed.title + '</a><br/>' +
-               annotation.place_fixed.names;
+    var meta = annotation.place_fixed.title + '<br/>' +
+               annotation.place_fixed.names + '<br/>' +
+               '<a href="http://pelagios.org/api/places/' + 
+               encodeURIComponent(pelagios.georesolution.Utils.normalizePleiadesURI(annotation.place_fixed.uri)) +
+               '" target="_blank">' + annotation.place_fixed.uri + '</a>'; 
                
     if (!annotation.place_fixed.coordinate)
-      meta += '<br/>No coordinates for this place! <span class="table-no-coords">!</span></a>';
+      meta += '<br/><span class="icon no-coords ">&#xf041;</span>No coordinates for this place!</a>';
                
     $('.details-content-correction').html(meta);
   } else {
     $('.details-content-correction').html('-');
   }
+  
+  // Status info & buttons
+  if (annotation.status == 'VERIFIED') {
+    $('.details-button-verified').addClass('active');
+  } else if (annotation.status == 'NOT_VERIFIED') {
+    $('.details-button-not-verified').addClass('active');
+  } else if (annotation.status == 'NOT_IDENTIFYABLE') {
+    $('.details-button-not-identifyable').addClass('active');
+  } else if (annotation.status == 'FALSE_DETECTION') {
+    $('.details-button-false-detection').addClass('active');
+  }
+  
+  // Button 'verified'
+  $('.details-button-verified').click(function() {
+    if (annotation.status != 'VERIFIED') {
+      annotation.status = 'VERIFIED';
+      self.fireEvent('update', annotation);
+      self.destroy();
+    }
+  }); 
+  
+  // Button 'not verified'
+  $('.details-button-not-verified').click(function() {
+    if (annotation.status != 'NOT_VERIFIED') {
+      annotation.status = 'NOT_VERIFIED';
+      self.fireEvent('update', annotation);
+      self.destroy();
+    }
+  }); 
+  
+  // Button 'not identifyable'
+  $('.details-button-not-identifyable').click(function() {
+    if (annotation.status != 'NOT_IDENTIFYABLE') {
+      annotation.status = 'NOT_IDENTIFYABLE';
+      self.fireEvent('update', annotation);
+      self.destroy();
+    }
+  }); 
+  
+  // Button 'false detection'
+  $('.details-button-false-detection').click(function() {
+    if (annotation.status != 'FALSE_DETECTION') {
+      annotation.status = 'FALSE_DETECTION';
+      self.fireEvent('update', annotation);
+      self.destroy();
+    }
+  });
   
   // Popuplate the map
   if (prev_annotations && next_annotations) {
@@ -184,7 +224,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
     var marker = L.circleMarker(annotation.place.coordinate, { color:'blue', opacity:1, fillOpacity:0.6 }).addTo(map);    
     var popup = '<strong>Auto-Match:</strong> ' + annotation.place.title;
     marker.on('mouseover', function(e) { marker.bindPopup(popup).openPopup(); });
-    $('.details-content-auto-match').mouseover(function() { marker.bindPopup(popup).openPopup(); });
+    $('.details-content-automatch').mouseover(function() { marker.bindPopup(popup).openPopup(); });
   }
   
   // Marker for manual correction (if any)

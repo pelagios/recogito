@@ -71,7 +71,7 @@ pelagios.georesolution.TableView = function(tableDiv) {
       } else if (value == 'FALSE_DETECTION') { 
         html = html.replace('{{current-status-css}}', 'false-detection');
         html = html.replace('{{current-status-title}}', 'False Detection');
-        html = html.replace('{{current-status-icon}}', '&#xf05e;');
+        html = html.replace('{{current-status-icon}}', '&#xf057;');
         html = html.replace('{{status-1-css}}', 'not-verified');
         html = html.replace('{{status-1-title}}', 'Not Verified');
         html = html.replace('{{status-1-value}}', 'NOT_VERIFIED');
@@ -151,13 +151,9 @@ pelagios.georesolution.TableView.prototype._openDetailsPopup = function(idx) {
       next2 = this.getNextN(idx, 2);
     
   var popup = new pelagios.georesolution.DetailsPopup(this._grid.getDataItem(idx), prev2, next2);
-  popup.on('save', function(annotation) {
+  popup.on('update', function(annotation) {
     self._grid.invalidate();
     self.fireEvent('update', annotation);
-  });
-  popup.on('markedAsFalse', function(annotation) {
-    self.removeRow(idx);
-    self.fireEvent('markedAsFalse', annotation);
   });
 }
 
