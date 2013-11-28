@@ -2,9 +2,9 @@
  * The table component of the UI.
  * 
  * Emits the following events:
- * 'selectionChanged' ... when the selection was changed in the table
  * 'update' ............. when an annotation was updated in the details popup
- * 'markedAsFalse' ...... when an annotation was marked as false detection in the details popup
+ * 'mouseover' .......... when the mouse is over an annotation
+ * 'mouseout' ........... when the mouse exits an annotation
  * 
  * @param {Element} tableDiv the DIV to hold the SlickGrid table
  * @constructor
@@ -56,7 +56,7 @@ pelagios.georesolution.TableView = function(tableDiv) {
         html = html.replace('{{current-status-title}}', 'Verified');
         html = html.replace('{{current-status-icon}}', '&#xf14a;');
         html = html.replace('{{status-1-css}}', 'not-verified');
-        html = html.replace('{{status-1-title}}', 'Not Verified');
+        html = html.replace('{{status-1-title}}', 'Set to Not Verified');
         html = html.replace('{{status-1-value}}', 'NOT_VERIFIED');
         html = html.replace('{{status-1-icon}}', '&#xf059;');
         html = html.replace(/{{row}}/g, row);
@@ -65,7 +65,7 @@ pelagios.georesolution.TableView = function(tableDiv) {
         html = html.replace('{{current-status-title}}', 'Not Identifyable');
         html = html.replace('{{current-status-icon}}', '&#xf024;');
         html = html.replace('{{status-1-css}}', 'not-verified');
-        html = html.replace('{{status-1-title}}', 'Not Verified');
+        html = html.replace('{{status-1-title}}', 'Set to Not Verified');
         html = html.replace('{{status-1-value}}', 'NOT_VERIFIED');
         html = html.replace('{{status-1-icon}}', '&#xf059;');        
       } else if (value == 'FALSE_DETECTION') { 
@@ -73,7 +73,7 @@ pelagios.georesolution.TableView = function(tableDiv) {
         html = html.replace('{{current-status-title}}', 'False Detection');
         html = html.replace('{{current-status-icon}}', '&#xf057;');
         html = html.replace('{{status-1-css}}', 'not-verified');
-        html = html.replace('{{status-1-title}}', 'Not Verified');
+        html = html.replace('{{status-1-title}}', 'Set to Not Verified');
         html = html.replace('{{status-1-value}}', 'NOT_VERIFIED');
         html = html.replace('{{status-1-icon}}', '&#xf059;');
       } else {
@@ -82,7 +82,7 @@ pelagios.georesolution.TableView = function(tableDiv) {
         html = html.replace('{{current-status-title}}', 'Not Verified');
         html = html.replace('{{current-status-icon}}', '&#xf059;');
         html = html.replace('{{status-1-css}}', 'verified');
-        html = html.replace('{{status-1-title}}', 'Verified');
+        html = html.replace('{{status-1-title}}', 'Set to Verified');
         html = html.replace('{{status-1-value}}', 'VERIFIED');
         html = html.replace('{{status-1-icon}}', '&#xf14a;');
         html = html.replace(/{{row}}/g, row);
@@ -108,6 +108,16 @@ pelagios.georesolution.TableView = function(tableDiv) {
     if (e.which == 13) {
       self._openDetailsPopup(args.row);
     }
+  });
+  this._grid.onMouseEnter.subscribe(function(e, args, foo) {
+    var row = args.grid.getCellFromEvent(e).row;
+    var dataItem = args.grid.getDataItem(row);
+    self.fireEvent('mouseover', dataItem);
+  });
+  this._grid.onMouseLeave.subscribe(function(e, args, foo) {
+    var row = args.grid.getCellFromEvent(e).row;
+    var dataItem = args.grid.getDataItem(row);
+    self.fireEvent('mouseout', dataItem);
   });
 
   // Selection in the table is forwarded to event listener
@@ -237,8 +247,12 @@ pelagios.georesolution.TableView.prototype._getNeighbours = function(idx, n, ste
       break;
              
     var dataItem = this._grid.getDataItem(idx + ctr * step);
-    if (dataItem.marker)
-      neighbours.push(dataItem);
+    if (dataItem.marker) {
+      if (step > 0)
+        neighbours.push(dataItem);
+      else 
+        neighbours.unshift(dataItem);
+    }
       
     ctr++;
   }
@@ -253,7 +267,9 @@ pelagios.georesolution.TableView.prototype._getNeighbours = function(idx, n, ste
  * @return the next N annotations in the list
  */
 pelagios.georesolution.TableView.prototype.getNextN = function(idx, n)  {
-  return this._getNeighbours(idx, n, 1);
+  var foo = this._getNeighbours(idx, n, 1);
+  console.log("next", foo);
+  return foo;
 }
 
 /**
@@ -263,5 +279,7 @@ pelagios.georesolution.TableView.prototype.getNextN = function(idx, n)  {
  * @return the previous N annotations in the list
  */
 pelagios.georesolution.TableView.prototype.getPrevN = function(idx, n)  {
-  return this._getNeighbours(idx, n, -1);
+  var foo = this._getNeighbours(idx, n, -1);
+  console.log("previous", foo);
+  return foo;
 }

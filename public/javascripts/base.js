@@ -18,10 +18,10 @@ pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv, footerDiv, da
   // Set up inter-component eventing
   map.on('select', function(place) { table.selectByPlaceURI(place.place.uri); });
   
-  table.on('selectionChanged', function(args, place) { 
-    var prev2 = table.getPrevN(args.rows[0], 2);
+  table.on('selectionChanged', function(args, annotation) { 
+    var prev3 = table.getPrevN(args.rows[0], 3);
     var next2 = table.getNextN(args.rows[0], 2);
-    map.highlightPlace(place, prev2, next2); 
+    map.selectPlace(annotation, prev3, next2); 
   });
   
   table.on('update', function(annotation) {
@@ -32,6 +32,9 @@ pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv, footerDiv, da
       footer.setData(self.annotations);
     }
   });
+  
+  table.on('mouseover', function(annotation) { map.emphasizePlace(annotation); });
+  table.on('mouseout', function(annotation) { map.deemphasizePlace(annotation); });
 
   // Fetch JSON data
   $.getJSON(dataURL, function(data) {
