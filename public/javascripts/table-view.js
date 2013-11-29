@@ -91,6 +91,19 @@ pelagios.georesolution.TableView = function(tableDiv) {
         html = html.replace('{{status-2-value}}', 'NOT_VERIFIED');
         html = html.replace('{{status-2-icon}}', '&#xf059;');
         html = html.replace(/{{row}}/g, row);
+      } else if (value == 'IGNORE') { 
+        html = html.replace('{{current-status-css}}', 'ignore');
+        html = html.replace('{{current-status-title}}', 'Ignore');
+        html = html.replace('{{current-status-icon}}', '&#xf05e;');
+        html = html.replace('{{status-1-css}}', 'not-verified');
+        html = html.replace('{{status-1-title}}', 'Set to Not Verified');
+        html = html.replace('{{status-1-value}}', 'NOT_VERIFIED');
+        html = html.replace('{{status-1-icon}}', '&#xf059;');
+        html = html.replace('{{status-2-css}}', 'verified');
+        html = html.replace('{{status-2-title}}', 'Set to Verified');
+        html = html.replace('{{status-2-value}}', 'VERIFIED');
+        html = html.replace('{{status-2-icon}}', '&#xf14a;');
+        html = html.replace(/{{row}}/g, row);
       } else {
         // 'NOT_VERIFIED'
         html = html.replace('{{current-status-css}}', 'not-verified');

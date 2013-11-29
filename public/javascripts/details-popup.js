@@ -42,6 +42,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
         '        <div class="details-button details-button-not-verified"><span class="icon">&#xf059;</span><span class="caption">NOT VERIFIED</span></div>' +   
         '        <div class="details-button details-button-not-identifyable"><span class="icon">&#xf024;</span><span class="caption">NOT IDENTIFYABLE</span></div>' +   
         '        <div class="details-button details-button-false-detection"><span class="icon">&#xf057;</span><span class="caption">FALSE DETECTION</span></div>' +   
+        '        <div class="details-button details-button-ignore"><span class="icon">&#xf05e;</span><span class="caption">IGNORE/DUPLICATE</span></div>' + 
         '        <h3>Source Text Snippets</h3>' + 
         '        <div class="details-content-preview">' +
         '        </div>' +
@@ -162,7 +163,11 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
     $('.details-button-not-identifyable').addClass('active');
   } else if (annotation.status == 'FALSE_DETECTION') {
     $('.details-button-false-detection').addClass('active');
+  } else if (annotation.status == 'IGNORE') {
+    $('.details-button-ignore').addClass('active');
   }
+  
+  // TODO remove code duplication!
   
   // Button 'verified'
   $('.details-button-verified').click(function() {
@@ -195,6 +200,15 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
   $('.details-button-false-detection').click(function() {
     if (annotation.status != 'FALSE_DETECTION') {
       annotation.status = 'FALSE_DETECTION';
+      self.fireEvent('update', annotation);
+      self.destroy();
+    }
+  });
+  
+  // Button 'ignore'
+  $('.details-button-ignore').click(function() {
+    if (annotation.status != 'IGNORE') {
+      annotation.status = 'IGNORE';
       self.fireEvent('update', annotation);
       self.destroy();
     }

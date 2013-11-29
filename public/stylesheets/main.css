@@ -415,6 +415,14 @@ a.footer-logout:hover {
   color:#bb0000;
 }
 
+.details-button-ignore.active .icon {
+  background-color:#555;
+}
+
+.details-button-ignore.active .caption {
+  color:#555;
+}
+
 
 
 

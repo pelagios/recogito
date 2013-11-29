@@ -13,6 +13,8 @@ object AnnotationStatus extends Enumeration {
   
   val FALSE_DETECTION = Value ("FALSE_DETECTION")
   
+  val IGNORE = Value("IGNORE")
+  
 }
 
 trait HasStatusColumn {
