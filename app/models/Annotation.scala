@@ -37,6 +37,9 @@ case class Annotation(
     /** Gazetteer URI identified by human expert **/
     correctedGazetteerURI: Option[String] = None,
     
+    /** Tags **/
+    tags: Option[String] = None,
+    
     /** A comment **/
     comment: Option[String] = None
     
@@ -65,10 +68,12 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
   
   def correctedGazetteerURI = column[String]("gazetteer_uri_corrected", O.Nullable)
   
+  def tags = column[String]("tags", O.Nullable)
+  
   def comment = column[String]("comment", O.Nullable)
   
   def * = id.? ~ gdocId ~ gdocPartId.? ~ status ~ toponym.? ~ offset.? ~ gazetteerURI.? ~ correctedToponym.? ~ 
-    correctedOffset.? ~ correctedGazetteerURI.? ~ comment.?  <> (Annotation.apply _, Annotation.unapply _)
+    correctedOffset.? ~ correctedGazetteerURI.? ~ tags.? ~ comment.?  <> (Annotation.apply _, Annotation.unapply _)
   
   def findById(id: Int)(implicit s: Session): Option[Annotation] =
     Query(Annotations).where(_.id === id).firstOption
