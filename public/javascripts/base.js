@@ -16,7 +16,10 @@ pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv, footerDiv, da
       footer = new pelagios.georesolution.Footer(footerDiv);
   
   // Set up inter-component eventing
-  map.on('select', function(place) { table.selectByPlaceURI(place.place.uri); });
+  map.on('select', function(annotation) { 
+    var place = (annotation.place_fixed) ? annotation.place_fixed : annotation.place;
+    table.selectByPlaceURI(place.uri); 
+  });
   
   table.on('selectionChanged', function(args, annotation) { 
     var prev3 = table.getPrevN(args.rows[0], 3);

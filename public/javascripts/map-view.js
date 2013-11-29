@@ -52,8 +52,21 @@ pelagios.georesolution.MapView.prototype = new pelagios.georesolution.HasEvents(
  */
 pelagios.georesolution.MapView.prototype.addPlaceMarker = function(annotation) {
   var self = this;
+  
+  var createMarker = function(place, style) {
+    var marker = L.circleMarker(place.coordinate, style);
+    marker.addTo(self._map); 
+    marker.on('click', function(e) {
+      self.fireEvent('select', annotation);
+      self._currentSelection.openPopup();
+    });
+  
+    self._allMarkers.push(marker);
+    annotation.marker = marker  
+  }
 
-  if (annotation.place && annotation.place.coordinate) {
+  var place = (annotation.place_fixed) ? annotation.place_fixed : annotation.place;
+  if (place && place.coordinate) {
     var style = undefined;
     switch(annotation.status) {
       case 'VERIFIED': 
@@ -66,15 +79,7 @@ pelagios.georesolution.MapView.prototype.addPlaceMarker = function(annotation) {
     }
     
     if (style) {
-      var marker = L.circleMarker(annotation.place.coordinate, style);
-      marker.addTo(this._map); 
-      marker.on('click', function(e) {
-        self.fireEvent('select', annotation);
-        self._currentSelection.openPopup();
-      });
-  
-      this._allMarkers.push(marker);
-      annotation.marker = marker  
+      createMarker(place, style);
     }
   }
 }

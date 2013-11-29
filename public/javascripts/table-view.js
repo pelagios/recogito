@@ -207,8 +207,11 @@ pelagios.georesolution.TableView.prototype.selectByPlaceURI = function(uri) {
   var rows = [];
   for (var i = 0; i < size; i++) {
     var row = this._grid.getDataItem(i);
-    if (row.place && row.place.uri == uri)
+    
+    var place = (row.place_fixed) ? row.place_fixed: row.place;
+    if (place && place.uri == uri) {
       rows.push(i);
+    }
   }
  
   this._grid.setSelectedRows(rows);
