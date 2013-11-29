@@ -215,43 +215,46 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
   });
   
   // Popuplate the map
+  if (annotation.marker) {
+    // Marker for auto-match
+    if (annotation.place && annotation.place.coordinate) {
+      var marker = L.circleMarker(annotation.place.coordinate, { color:'blue', opacity:1, fillOpacity:0.6 }).addTo(map);    
+      var popup = '<strong>Auto-Match:</strong> ' + annotation.place.title;
+      marker.on('mouseover', function(e) { marker.bindPopup(popup).openPopup(); });
+      $('.details-content-automatch').mouseover(function() { marker.bindPopup(popup).openPopup(); });
+    }
   
-  // Marker for auto-match
-  if (annotation.place && annotation.place.coordinate) {
-    var marker = L.circleMarker(annotation.place.coordinate, { color:'blue', opacity:1, fillOpacity:0.6 }).addTo(map);    
-    var popup = '<strong>Auto-Match:</strong> ' + annotation.place.title;
-    marker.on('mouseover', function(e) { marker.bindPopup(popup).openPopup(); });
-    $('.details-content-automatch').mouseover(function() { marker.bindPopup(popup).openPopup(); });
-  }
+    // Marker for manual correction (if any)
+    if (annotation.place_fixed && annotation.place_fixed.coordinate) {
+      var markerFixed = L.circleMarker(annotation.place_fixed.coordinate, { color:'red', opacity:1, fillOpacity:0.6 }).addTo(map);   
+      var popupFixed =   '<strong>Correction:</strong> ' + annotation.place_fixed.title;
+      markerFixed.on('mouseover', function(e) { markerFixed.bindPopup(popupFixed).openPopup(); });
+      $('.details-content-correction').mouseover(function() { markerFixed.bindPopup(popupFixed).openPopup(); });
+    }
   
-  // Marker for manual correction (if any)
-  if (annotation.place_fixed && annotation.place_fixed.coordinate) {
-    var markerFixed = L.circleMarker(annotation.place_fixed.coordinate, { color:'red', opacity:1, fillOpacity:0.6 }).addTo(map);   
-    var popupFixed =   '<strong>Correction:</strong> ' + annotation.place_fixed.title;
-    markerFixed.on('mouseover', function(e) { markerFixed.bindPopup(popupFixed).openPopup(); });
-    $('.details-content-correction').mouseover(function() { markerFixed.bindPopup(popupFixed).openPopup(); });
-  }
-  
-  // Sequence
-  if (prev_annotations && next_annotations) {
-    var coords = [];
+    // Sequence
+    if (prev_annotations && next_annotations) {
+      var coords = [];
     
-    for (var i = 0; i < prev_annotations.length; i++)
-      coords.push(prev_annotations[i].marker.getLatLng());
+      for (var i = 0; i < prev_annotations.length; i++)
+        coords.push(prev_annotations[i].marker.getLatLng());
+       
+      if (annotation.place_fixed && annotation.place_fixed.coordinate)
+        coords.push(annotation.place_fixed.coordinate);
+      else if (annotation.place && annotation.place.coordinate)
+        coords.push(annotation.place.coordinate);
       
-    if (annotation.place_fixed && annotation.place_fixed.coordinate)
-      coords.push(annotation.place_fixed.coordinate);
-    else if (annotation.place && annotation.place.coordinate)
-      coords.push(annotation.place.coordinate);
+      for (var i = 0; i < next_annotations.length; i++)
+        coords.push(next_annotations[i].marker.getLatLng());
       
-    for (var i = 0; i < next_annotations.length; i++)
-      coords.push(next_annotations[i].marker.getLatLng());
-      
-    var line = L.polyline(coords, { color:annotation.marker.options.color, opacity:1, weight:8 });
-    line.setText('►', { repeat: true, offset: 3, attributes: { fill: '#fff', 'font-size':10 }});    
-    map.fitBounds(line.getBounds());
-    line.addTo(map);
-    line.bringToBack();
+      var line = L.polyline(coords, { color:annotation.marker.options.color, opacity:1, weight:8 });
+      line.setText('►', { repeat: true, offset: 3, attributes: { fill: '#fff', 'font-size':10 }});    
+      map.fitBounds(line.getBounds());
+      line.addTo(map);
+      line.bringToBack();
+    }
+  } else {
+    map.setView([48.69096, 9.14062], 4);
   }
   
   // Other candidates list
