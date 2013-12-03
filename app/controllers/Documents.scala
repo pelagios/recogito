@@ -64,7 +64,8 @@ object Documents extends Controller {
           "toponym" -> annotation.toponym,
           "status" -> annotation.status.toString,
           "place" -> annotation.gazetteerURI.map(placeUriToJson(_)),
-          "place_fixed" -> annotation.correctedGazetteerURI.map(placeUriToJson(_))
+          "place_fixed" -> annotation.correctedGazetteerURI.map(placeUriToJson(_)),
+          "tags" -> annotation.tags.map(_.split(","))
         ))
       ))
     )

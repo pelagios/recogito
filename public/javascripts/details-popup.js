@@ -38,6 +38,9 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
         '          <p class="details-content-automatch"></p>' +
         '          <p class="details-content-correction"></p>' +
         '        </div>' +
+        '        <div class="details-content-tags">' +
+        '          <!-- span class="details-content-tags-add">ADD TAG</span -->' +
+        '        </div>' +
         '        <div class="details-button details-button-verified"><span class="icon">&#xf14a;</span><span class="caption">VERIFIED</span></div>' +        
         '        <div class="details-button details-button-not-verified"><span class="icon">&#xf059;</span><span class="caption">NOT VERIFIED</span></div>' +   
         '        <div class="details-button details-button-not-identifyable"><span class="icon">&#xf024;</span><span class="caption">NOT IDENTIFYABLE</span></div>' +   
@@ -156,6 +159,16 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
   } else {
     $('.details-content-correction').html('-');
   }
+  
+  // Tags
+  if (annotation.tags) {
+    // var tags = [];
+    $.each(annotation.tags, function(idx, tag) {
+      // tags.push('<span class="details-content-tag">' + tag + '</span>');
+      $('.details-content-tags').prepend('<span class="details-content-tag">' + tag + '</span>');
+    });
+    // $('.details-content-tags').html(tags.join(''));
+  }  
   
   // Status info & buttons
   if (annotation.status == 'VERIFIED') {

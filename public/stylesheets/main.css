@@ -336,6 +336,14 @@ a.footer-logout:hover {
   left:14px;
 }
 
+.details-content-tag {
+  display:inline-block;
+  background-color:#ff0000;
+  padding:5px;
+  margin:5px 3px;
+  border:1px solid black;
+}
+
 .details-content-sidebar {
   width:400px;
   float:right;

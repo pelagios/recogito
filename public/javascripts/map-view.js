@@ -28,7 +28,7 @@ pelagios.georesolution.MapView = function(mapDiv) {
   
   this._currentSelection;
   
-  this._allMarkers = [];
+  this._allAnnotations = [];
   
   this._MARKER_SIZE = 4;
       
@@ -61,8 +61,8 @@ pelagios.georesolution.MapView.prototype.addPlaceMarker = function(annotation) {
       self._currentSelection.openPopup();
     });
   
-    self._allMarkers.push(marker);
     annotation.marker = marker  
+    self._allAnnotations.push(annotation);
   }
 
   var place = (annotation.place_fixed) ? annotation.place_fixed : annotation.place;
@@ -163,6 +163,6 @@ pelagios.georesolution.MapView.prototype.selectPlace = function(annotation, prev
  */
 pelagios.georesolution.MapView.prototype.clear = function() {
   var self = this;
-  $.each(this._allMarkers, function(idx, marker) { self._map.removeLayer(marker); });
+  $.each(this._allAnnotations, function(idx, annotation) { self._map.removeLayer(annotation.marker); });
   $.each(this._currentSequence, function(idx, marker) { self._map.removeLayer(marker) });
 }
