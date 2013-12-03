@@ -8,7 +8,7 @@ import java.sql.Timestamp
 /** Edit event case class **/
 case class EditEvent(
     
-    /** Annotation **/
+    /** ID **/
     id: Option[Int] = None,
     
     /** Relation: ID of the annotation the edit event belongs to **/
@@ -28,6 +28,9 @@ case class EditEvent(
         
     /** Updated place URI **/
     updatedURI: Option[String], 
+    
+    /** Update tags **/
+    updatedTags: Option[String],
     
     /** A comment **/
     updatedComment: Option[String])
@@ -49,9 +52,12 @@ object EditHistory extends Table[EditEvent]("edit_history") with HasStatusColumn
   
   def updatedURI = column[String]("updated_uri", O.Nullable)
   
+  def updatedTags = column[String]("updated_tags", O.Nullable)
+  
   def updatedComment = column[String]("updated_comment", O.Nullable)
   
-  def * = id.? ~ annotationId ~ userId ~ timestamp ~ updatedToponym.? ~ updatedStatus.? ~ updatedURI.? ~ updatedComment.? <> (EditEvent.apply _, EditEvent.unapply _)
+  def * = id.? ~ annotationId ~ userId ~ timestamp ~ updatedToponym.? ~ updatedStatus.? ~ updatedURI.? ~
+    updatedTags.? ~ updatedComment.? <> (EditEvent.apply _, EditEvent.unapply _)
   
   def findByAnnotation(id: Int)(implicit s: Session): Seq[EditEvent] =
     Query(EditHistory).where(_.annotationId === id).list

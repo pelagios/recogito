@@ -423,8 +423,24 @@ a.footer-logout:hover {
   color:#555;
 }
 
+.details-content-actions {
+  margin:0;
+  padding:0;
+}
 
+.details-comment {
+  display:inline-block;
+  margin:0px;
+  padding:9px 15px 20px 0px;
+}
 
+.details-comment-textfield {
+  height:40px;
+  border:1px solid black;
+  margin:0px;
+  line-height:100%;
+  display:inline;
+}
 
 
 

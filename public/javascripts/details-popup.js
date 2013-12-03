@@ -43,6 +43,9 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
         '        <div class="details-button details-button-not-identifyable"><span class="icon">&#xf024;</span><span class="caption">NOT IDENTIFYABLE</span></div>' +   
         '        <div class="details-button details-button-false-detection"><span class="icon">&#xf057;</span><span class="caption">FALSE DETECTION</span></div>' +   
         '        <div class="details-button details-button-ignore"><span class="icon">&#xf05e;</span><span class="caption">IGNORE/DUPLICATE</span></div>' + 
+        '        <!-- div class="details-comment">' +
+        '          <input class="details-comment-textfield"></input><input class="details-button-edit-comment" type="button" value="EDIT"></input>' +
+        '        </div -->' +
         '        <h3>Source Text Snippets</h3>' + 
         '        <div class="details-content-preview">' +
         '        </div>' +

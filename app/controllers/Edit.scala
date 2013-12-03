@@ -50,7 +50,7 @@ object Edit extends Controller with Secured {
   private def createEvent(original: Annotation, updated: Annotation, userId: Int): EditEvent = {
     val updatedStatus = if (original.status.equals(updated.status)) None else Some(updated.status)
     val updatedURI = if (original.correctedGazetteerURI.equals(updated.correctedGazetteerURI)) None else updated.correctedGazetteerURI
-    EditEvent(None, original.id.get, userId, new Timestamp(new Date().getTime), None, updatedStatus, updatedURI, None)
+    EditEvent(None, original.id.get, userId, new Timestamp(new Date().getTime), None, updatedStatus, updatedURI, None, None)
   }
 
 }
