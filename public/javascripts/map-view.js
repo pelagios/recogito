@@ -14,7 +14,10 @@ pelagios.georesolution.MapView = function(mapDiv) {
   var self = this,
       baseLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
         attribution: 'Tiles: <a href="http://pelagios.org/maps/greco-roman/about.html">Pelagios</a>, 2012; Data: NASA, OSM, Pleiades, DARMC'
-      });
+      }),
+      selector_template = 
+        '<div class="map-selector">' +
+        '</div>';
         
   this._map = new L.Map(mapDiv, {
     center: new L.LatLng(41.893588, 12.488022),
@@ -22,6 +25,20 @@ pelagios.georesolution.MapView = function(mapDiv) {
     layers: [baseLayer],
     minZoom: 3,
     maxZoom: 11
+  });
+
+  // List of current EGD parts
+  // [{ name: { visible: true | false, tags: [ { name: ..., visible: true | false }] }]
+  this._parts = {};
+  
+  // Part/tag visibility selector widget
+  this._selector = $(selector_template);
+  $(this._selector).appendTo(mapDiv);
+  $(this._selector).click(function() { self._currentPart += 1; self.redraw(); });
+  $(this._selector).on('click', '.map-selector-part', function(e) {
+    var part = $(e.target).data('part');
+    self._parts[part].visible = !self._parts[part].visible;
+    self.redraw(); 
   });
   
   this._currentSequence = [];
@@ -46,16 +63,38 @@ pelagios.georesolution.MapView = function(mapDiv) {
 // Inheritance - not the nicest pattern but works for our case
 pelagios.georesolution.MapView.prototype = new pelagios.georesolution.HasEvents();
 
+pelagios.georesolution.MapView.prototype._isVisible = function(annotation) {
+  var part_settings = this._parts[annotation.part];
+  if (part_settings) {
+    // TODO take visibility of tags into account
+    return part_settings.visible;
+  }
+}
+
 /**
  * Places a marker for the specified place.
  * @param {Object} annotation the place annotation
  */
 pelagios.georesolution.MapView.prototype.addPlaceMarker = function(annotation) {
   var self = this;
-  
+
+  // Update parts & tags list
+  if (!this._parts[annotation.part])
+    this._parts[annotation.part] = { visible: true };
+
+  // Update selector widget
+  var html = "";
+  for (name in self._parts) {
+    html += '<input type="checkbox" checked="true" data-part="' + name + '" class="map-selector-part">' + name + '</input><br/>';
+  }
+  $(self._selector).html(html);
+    
   var createMarker = function(place, style) {
     var marker = L.circleMarker(place.coordinate, style);
-    marker.addTo(self._map); 
+    
+    if (self._isVisible(annotation))
+      marker.addTo(self._map); 
+      
     marker.on('click', function(e) {
       self.fireEvent('select', annotation);
       self._currentSelection.openPopup();
@@ -85,7 +124,7 @@ pelagios.georesolution.MapView.prototype.addPlaceMarker = function(annotation) {
 }
 
 pelagios.georesolution.MapView.prototype.emphasizePlace = function(annotation, prevN, nextN) {
-  if (annotation.marker) {
+  if (annotation.marker && this._isVisible(annotation)) {      
     var style = annotation.marker.options;
     style.radius = this._MARKER_SIZE_HOVER;
     annotation.marker.setStyle(style);
@@ -94,7 +133,7 @@ pelagios.georesolution.MapView.prototype.emphasizePlace = function(annotation, p
 }
 
 pelagios.georesolution.MapView.prototype.deemphasizePlace = function(annotation, prevN, nextN) {
-  if (annotation.marker) {
+  if (annotation.marker && this._isVisible(annotation)) {
     var style = annotation.marker.options;
     style.radius = this._MARKER_SIZE;
     annotation.marker.setStyle(style);
@@ -156,6 +195,16 @@ pelagios.georesolution.MapView.prototype.selectPlace = function(annotation, prev
   } else {
     this._map.closePopup();
   }
+}
+
+pelagios.georesolution.MapView.prototype.redraw = function() {
+  this.clear();
+  
+  var self = this;
+  $.each(this._allAnnotations, function(idx, annotation) {
+    if (annotation.marker && self._isVisible(annotation))
+      annotation.marker.addTo(self._map);
+  });
 }
 
 /**
