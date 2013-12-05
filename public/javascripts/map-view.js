@@ -123,6 +123,11 @@ pelagios.georesolution.MapView.prototype.addPlaceMarker = function(annotation) {
   }
 }
 
+pelagios.georesolution.MapView.prototype.removePlaceMarker = function(annotation) {
+  if (annotation.marker)
+    this._map.removeLayer(annotation.marker);
+}
+
 pelagios.georesolution.MapView.prototype.emphasizePlace = function(annotation, prevN, nextN) {
   if (annotation.marker && this._isVisible(annotation)) {      
     var style = annotation.marker.options;

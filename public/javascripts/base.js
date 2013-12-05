@@ -29,11 +29,13 @@ pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv, footerDiv, da
   
   table.on('update', function(annotation) {
   	self._storeToDB(annotation);
-    map.clear();
-    if (self.annotations) {
-      $.each(self.annotations, function(idx, place) { map.addPlaceMarker(place) })
+  	if (annotation.marker) {
+  	  map.removePlaceMarker(annotation);
+  	  map.addPlaceMarker(annotation);
+  	}
+  	
+    if (self.annotations)
       footer.setData(self.annotations);
-    }
   });
   
   table.on('mouseover', function(annotation) { map.emphasizePlace(annotation); });
