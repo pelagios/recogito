@@ -21,7 +21,7 @@ object Edit extends Controller with Secured {
   }
   
   /** Updates the annotation with the specified ID **/
-  def updateAnnotation(id: Int) = apiWithAuth { username => implicit requestWithSession =>
+  def updateAnnotation(id: Int) = jsonWithAuth { username => implicit requestWithSession =>
     val annotation = Annotations.findById(id)
     val user = Users.findByUsername(username)
     

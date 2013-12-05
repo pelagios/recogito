@@ -8,6 +8,7 @@ import play.api.mvc._
 import play.api.Play.current
 import play.api.libs.json.JsValue
 import scala.slick.session.Session
+import play.api.db.slick.DBSessionRequest
 
 /** Authentication based on username & password **/
 object Auth extends Controller {
@@ -69,7 +70,14 @@ trait Secured {
   }
   
   /** For authenticated actions with DB access **/
-  def apiWithAuth(f: => String => DBSessionRequest[JsValue] => SimpleResult) = {
+  def dbSessionWithAuth(f: => String => DBSessionRequest[_] => SimpleResult) = {
+    Security.Authenticated(username, onUnauthorized) { user =>
+      DBAction(rs => f(user)(rs))
+    }
+  }
+  
+  /** For authenticated JSON actions with DB access **/
+  def jsonWithAuth(f: => String => DBSessionRequest[JsValue] => SimpleResult) = {
     Security.Authenticated(username, onUnauthorized) { user =>
       DBAction(BodyParsers.parse.json)(rs => f(user)(rs))
     }

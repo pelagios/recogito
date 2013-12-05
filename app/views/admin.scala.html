@@ -1,0 +1,48 @@
+@()(implicit s: play.api.db.slick.Config.driver.simple.Session)
+
+<html>
+  <head>
+    <title>PELAGIOS Geo-Resolution Correction Tool</title>
+  </head>
+  
+  <body>
+    <h1>EGDs</h1>
+    <table>
+      @for(egd <- models.GeoDocuments.listAll) {
+      	@defining(models.GeoDocumentParts.findByGeoDocument(egd.id.get)) { parts =>
+          <tr><td>@egd.id</td><td>@egd.title</td><td>@egd.source</td><td>@parts.size Parts</td></tr>
+          <tr>
+            <td colspan="4">
+              <table>
+                @for(part <- parts) {
+                  <tr><td>@part.id</td><td>@part.title</td><td>@part.source</td></tr>	
+                }
+              </table>
+              <input type="button" value="Add Part"/>
+            </td>
+          </tr>
+        }
+      }
+    </table>
+    
+
+    
+    @helper.form(action = routes.Admin.uploadEGDPart, 'enctype -> "multipart/form-data") {
+      <select name="egd_part" id="egd_part">
+        @for(egd <- models.GeoDocuments.listAll) {
+          @for(part <- models.GeoDocumentParts.findByGeoDocument(egd.id.get)) {
+            <option value="@part.id">@egd.title - @part.title</option>
+          }
+        }
+      </select>
+      <input type="file" name="csv" id="csv" />  
+      <p>
+        <input type="submit">
+      </p>
+    }    
+    
+    <input type="button" value="Add EGD"/>
+  </body>
+</html>
+    
+
