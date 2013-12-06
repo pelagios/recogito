@@ -22,7 +22,7 @@ object Admin extends Controller with Secured {
     val part = session.request.body.dataParts.toMap.get("egd_part")
     if (part.isDefined && part.get.size == 1) {
       session.request.body.file("csv").map { egdPart =>
-        CSVImporter.importAnnotations(egdPart.ref.file.getAbsolutePath, 0, part.get(0).toInt).foreach(annotation => Annotations.insert(annotation))
+        CSVImporter.importAnnotations(egdPart.ref.file.getAbsolutePath, 1, part.get(0).toInt).foreach(annotation => Annotations.insert(annotation))
       }     
     }
     

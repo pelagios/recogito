@@ -4,12 +4,14 @@ import scala.io.Source
 import models.Annotation
 import models.AnnotationStatus
 import play.api.Logger
+import org.pelagios.api.Tag
 
 object CSVImporter {
   
   private val IDX_URI = 1  
   private val IDX_TOPONYM = 2
   private val IDX_OFFSET = 3
+  private val IDX_TAGS = 4 
 
   def importAnnotations(file: String, gdocId: Int, gdocPartId: Int): Seq[Annotation] = {
     val data = Source.fromFile(file).getLines.drop(1).filter(!_.isEmpty)
@@ -19,7 +21,7 @@ object CSVImporter {
       val placeURI = if (fields(IDX_URI).isEmpty()) None else Some(fields(IDX_URI)) 
       
       Annotation(None, gdocId, Some(gdocPartId), AnnotationStatus.NOT_VERIFIED,
-          Some(fields(IDX_TOPONYM)), Some(fields(IDX_OFFSET).toInt), placeURI)
+          Some(fields(IDX_TOPONYM)), Some(fields(IDX_OFFSET).toInt), placeURI, tags = Some(fields(IDX_TAGS)))
     }).toSeq
   }
   

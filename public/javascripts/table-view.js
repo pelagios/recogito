@@ -25,6 +25,12 @@ pelagios.georesolution.TableView = function(tableDiv) {
           '</span>' +
         '</div>';
     
+  var tagsFormatter = function (row, cell, value, columnDef, dataContext) {
+    if (value) {
+      return value.join(", ");
+    } 
+  };
+    
   // A custom table cell formatter for Pleiades URIs
   var pleiadesFormatter = function (row, cell, value, columnDef, dataContext) {
     if (value) {
@@ -127,6 +133,7 @@ pelagios.georesolution.TableView = function(tableDiv) {
   var columns = [{ name: '#', field: 'idx', id: 'idx', width:25 },
                  { name: 'Toponym', field: 'toponym', id: 'toponym' },
                  { name: 'EGD Part', field: 'part', id: 'part' },
+                 { name: 'Tags', field: 'tags', id: 'tags', formatter: tagsFormatter },
                  { name: 'Auto Match', field: 'place', id: 'place' , formatter: pleiadesFormatter },
                  { name: 'Corrected', field: 'place_fixed', id: 'place_fixed', formatter: pleiadesFormatter },
                  { name: 'Status', field: 'status', id: 'status', width:70, formatter: statusFormatter }];
