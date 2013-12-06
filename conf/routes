@@ -29,5 +29,5 @@ GET     /labs/grct/admin             controllers.Admin.index
 POST    /labs/grct/admin             controllers.Admin.uploadEGDPart
 
 # Home page
-GET     /labs/grct/                  controllers.Application.index
-GET     /labs/grct                   controllers.Application.index
+GET     /labs/grct/                  controllers.Application.index(docId: Option[Int])
+GET     /labs/grct                   controllers.Application.index(docId: Option[Int])

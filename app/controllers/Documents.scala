@@ -1,11 +1,11 @@
 package controllers
 
 import models._
+import org.pelagios.grct.Global
 import play.api.db.slick._
 import play.api.mvc.{ Action, Controller }
 import play.api.Play.current
 import play.api.libs.json.Json
-import org.pelagios.grct.Global
 import play.api.libs.json.JsObject
 
 /** GeoDocument JSON API **/
