@@ -346,10 +346,13 @@ a.footer-logout:hover {
 
 .details-content-tag {
   display:inline-block;
-  background-color:#ff0000;
   padding:5px;
   margin:5px 3px;
   border:1px solid black;
+  -moz-border-radius:3px;
+  -webkit-border-radius:3px;
+  -khtml-border-radius:3px;
+  border-radius:3px;
 }
 
 .details-content-sidebar {

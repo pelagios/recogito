@@ -121,6 +121,23 @@ pelagios.georesolution.HasEvents.prototype.fireEvent = function(event, e, args) 
     this.handlers[event](e, args);     
 }
 
+/*
+pelagios.georesolution.Palette = {
+  
+  var palette = [ '#1f77b4', '#ff7f0e', '#2ca02c' ],
+      idx = 0,
+      color_table = {};
+
+  getColor: function(tag) {
+    if (!color_table[tag]) {
+      color_table[tag] = palette[idx];
+      idx++;
+    }
+    return color_table[tag];
+  }
+  
+}*/
+
 /**
  * Helpers and utility methods.
  */

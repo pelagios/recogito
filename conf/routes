@@ -24,6 +24,9 @@ GET     /labs/grct/preview           controllers.Preview.index(url: String, term
 # Map static resources from the /public folder to the /assets URL path
 GET     /labs/grct/assets/*file      controllers.Assets.at(path="/public", file)
 
+# Fulltext view
+GET     /labs/grct/fulltext          controllers.Fulltext.index
+
 # Admin area
 GET     /labs/grct/admin             controllers.Admin.index
 POST    /labs/grct/admin             controllers.Admin.uploadEGDPart

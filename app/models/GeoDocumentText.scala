@@ -18,4 +18,7 @@ object GeoDocumentTexts extends Table[GeoDocumentText]("gdocument_texts") {
   
   def * = id.? ~ gdocId ~ gdocPartId.? ~ text <> (GeoDocumentText.apply _, GeoDocumentText.unapply _)
   
+  def findById(id: Int)(implicit s: Session): Option[GeoDocumentText] =
+    Query(GeoDocumentTexts).where(_.id === id).firstOption
+  
 }
