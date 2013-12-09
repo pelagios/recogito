@@ -164,10 +164,8 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
   if (annotation.tags) {
     // var tags = [];
     $.each(annotation.tags, function(idx, tag) {
-      // tags.push('<span class="details-content-tag">' + tag + '</span>');
-      $('.details-content-tags').prepend('<span style="background-color:' + pelagios.georesolution.Palette[0] + '" class="details-content-tag">' + tag + '</span>');
+      $('.details-content-tags').prepend('<span class="details-content-tag">' + tag + '</span>');
     });
-    // $('.details-content-tags').html(tags.join(''));
   }  
   
   // Status info & buttons
