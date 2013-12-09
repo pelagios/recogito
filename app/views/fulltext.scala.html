@@ -4,6 +4,21 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <title>PELAGIOS Geo-Resolution Correction Tool</title>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/rangy/rangy-core-1.2.3.js")"></script>
+    <script>
+    $(document).ready(function() {
+      rangy.init();
+    
+      $(document).mouseup(function() {
+        var selection = rangy.getSelection().toHtml();
+        if (selection) {
+          console.log(rangy.getSelection());
+          var mark = confirm('Mark "' + selection + '" as a toponym?');
+        }
+      });
+    })
+    </script>
   </head>
   
   <body>
