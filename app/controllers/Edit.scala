@@ -32,7 +32,7 @@ object Edit extends Controller with Secured {
       val fix = (body \ "fix").as[Option[String]]
    
       val updatedAnnotation = Annotation(Some(id), annotation.get.gdocId, annotation.get.gdocPartId, status, annotation.get.toponym,
-          annotation.get.offset, annotation.get.gazetteerURI, None, None, fix, annotation.get.comment)
+          annotation.get.offset, annotation.get.gazetteerURI, None, None, fix, annotation.get.tags, annotation.get.comment)
           
       Annotations.update(updatedAnnotation)
       EditHistory.insert(createEvent(annotation.get, updatedAnnotation, user.get.id.get))
