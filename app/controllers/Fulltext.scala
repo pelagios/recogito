@@ -7,10 +7,10 @@ import models.AnnotationStatus
 
 object Fulltext extends Controller with Secured {
   
-  def index() = dbSessionWithAuth { username => implicit session =>
-    val text = GeoDocumentTexts.findById(4).get
+  def index(textId: Int) = dbSessionWithAuth { username => implicit session =>
+    val text = GeoDocumentTexts.findById(textId).get
     val annotations = Annotations.findByGeoDocumentPart(text.gdocPartId.get)
-    val string = new String(text.text, "ISO-8859-1")
+    val string = new String(text.text, "UTF-8")
     
     val ranges = annotations.foldLeft(("", 0)) { case ((result, beginIndex), annotation) => {
       val offset = annotation.offset

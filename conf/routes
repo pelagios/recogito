@@ -25,7 +25,7 @@ GET     /labs/grct/preview           controllers.Preview.index(url: String, term
 GET     /labs/grct/assets/*file      controllers.Assets.at(path="/public", file)
 
 # Fulltext view
-GET     /labs/grct/fulltext          controllers.Fulltext.index
+GET     /labs/grct/fulltext          controllers.Fulltext.index(textId: Int)
 
 # Admin area
 GET     /labs/grct/admin             controllers.Admin.index
