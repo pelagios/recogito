@@ -15,9 +15,9 @@ object Fulltext extends Controller with Secured {
     val ranges = annotations.foldLeft(("", 0)) { case ((result, beginIndex), annotation) => {
       val offset = annotation.offset
       val toponym = annotation.toponym
-      val color = if (annotation.status == AnnotationStatus.VERIFIED) "#77ff77;" else "#aaa;"
+      val cssClass = if (annotation.status == AnnotationStatus.VERIFIED) "annotation verified" else "annotation"
       if (offset.isDefined && toponym.isDefined) {
-        val rs = result + string.substring(beginIndex, offset.get) + "<span data-id=\"" + annotation.id.get + "\" style=\"background-color:" + color + "\">" + toponym.get + "</span>"
+        val rs = result + string.substring(beginIndex, offset.get) + "<span data-id=\"" + annotation.id.get + "\" class=\"" + cssClass + "\">" + toponym.get + "</span>"
         (rs, offset.get + toponym.get.size)
       } else {
         (result, beginIndex)

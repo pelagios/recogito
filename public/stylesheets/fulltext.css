@@ -1,0 +1,41 @@
+#fulltext {
+  padding:20px;
+  line-height:140%;
+  font-family:"Times New Roman", Times, serif;
+  font-size:17px;
+}
+
+.annotation {
+  background-color:#bbb;
+  border-bottom:1px dotted #333;
+}
+
+.annotation.verified {
+  background-color:#88ee88;
+  border-bottom:1px dotted #339933;
+}
+
+.annotation-editor {
+  position:absolute;
+  background-color:#fff;
+  width:300px;
+  -moz-box-shadow:2px 2px 18px 6px #4a4a4a;
+  -webkit-box-shadow:2px 2px 18px 6px #4a4a4a;
+  box-shadow:2px 2px 18px 6px #4a4a4a;
+  -moz-border-radius:2px;
+  -webkit-border-radius:2px;
+  -khtml-border-radius:2px;
+  border-radius:2px;
+  border:1px solid #525252;
+}
+
+.annotation-editor-header {
+  font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
+  font-size:14px;
+  background-color:#626262;
+  padding:3px;
+  color:#fff;
+  text-shadow:1px 1px 1px #333;
+}
+
+
