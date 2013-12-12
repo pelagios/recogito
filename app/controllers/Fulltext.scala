@@ -8,7 +8,7 @@ import models.AnnotationStatus
 object Fulltext extends Controller with Secured {
   
   def index() = dbSessionWithAuth { username => implicit session =>
-    val text = GeoDocumentTexts.findById(0).get
+    val text = GeoDocumentTexts.findById(4).get
     val annotations = Annotations.findByGeoDocumentPart(text.gdocPartId.get)
     val string = new String(text.text, "ISO-8859-1")
     
