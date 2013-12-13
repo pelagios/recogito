@@ -101,8 +101,9 @@ pelagios.georesolution.FulltextAnnotationView = function(textDiv) {
   };
  
   var handleSelection = function(e) {  
-    var x = e.offsetX,
-        y = e.offsetY,
+    console.log(e);
+    var x = (e.offsetX) ? e.offsetX : e.pageX,
+        y = (e.offsetY) ? e.offsetY : e.pageY,
         selection = rangy.getSelection();
         
     if (!selection.isCollapsed && selection.rangeCount == 1) {
@@ -177,15 +178,17 @@ pelagios.georesolution.FulltextAnnotationView.prototype.openEditor = function(ti
   this._editor = $(this._EDITOR_TEMPLATE);
   
   var self = this,
-      e = $(this._editor);
-  e.find('.annotation-editor-header').html(title);
+      e = $(this._editor),
+      header = e.find('.annotation-editor-header');
+      
+  header.html(title);
   e.find('.annotation-editor-selection').html(selection);
   e.find('.annotation-editor-message').html(msg);
   e.appendTo(document.body);
-  e.css('top', y + 'px');
-  e.css('left', x + 'px');  
+  e.css({ position: 'absolute', top: y + 'px', left: x + 'px' });
   e.find('.button-ok').focus().click(function() { ok_callback(); self.closeEditor(); });
   e.find('.button-cancel').click(function() { self.closeEditor(); });
+  e.draggable({ handle: header });
 }
 
 pelagios.georesolution.FulltextAnnotationView.prototype.closeEditor = function() { 

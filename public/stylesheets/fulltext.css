@@ -24,25 +24,27 @@
   position:absolute;
   background-color:#fff;
   width:300px;
-  -moz-box-shadow:2px 2px 18px 6px #4a4a4a;
-  -webkit-box-shadow:2px 2px 18px 6px #4a4a4a;
-  box-shadow:2px 2px 18px 6px #4a4a4a;
-  -moz-border-radius:2px;
-  -webkit-border-radius:2px;
-  -khtml-border-radius:2px;
-  border-radius:2px;
-  border-width:1px;
+  -moz-box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
+  -webkit-box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
+  box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
+  border-width:0px 1px 1px 1px;
   border-style:solid;
-  border-color:#6a6a6a #4a4a4a #4a4a4a #6a6a6a;
+  border-color:#898989;
 }
 
 .annotation-editor-header {
   font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
   font-size:16px;
-  background-color:#626262;
   padding:6px;
   color:#fff;
   text-shadow:1px 1px 1px #333;
+  background-color:#494949;
+  border-top:1px solid #686868;
+  border-bottom:1px solid #999;
+  background:-webkit-gradient(linear,left top,left bottom,from(#5a5a5a),to(#494949));
+  background:-moz-linear-gradient(top,#5a5a5a,#494949);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#5a5a5a',endColorstr='#494949');
+  cursor:move;
 }
 
 .annotation-editor-body {
