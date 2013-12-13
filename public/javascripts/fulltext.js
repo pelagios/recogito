@@ -35,7 +35,7 @@ pelagios.georesolution.FulltextAnnotationView = function(textDiv) {
   
   var wrapToponym = function(selectedRange) { 
     var span = document.createElement('span');
-    span.className = 'annotation';
+    span.className = 'annotation corrected';
     span.appendChild(document.createTextNode(selectedRange.toString()));
     selectedRange.deleteContents();
     selectedRange.insertNode(span);
@@ -83,7 +83,7 @@ pelagios.georesolution.FulltextAnnotationView = function(textDiv) {
       });
     }
     
-    $(nodeToReplace).replaceWith(head + '<span class="annotation">' + toponym + '</span>' + tail);
+    $(nodeToReplace).replaceWith(head + '<span class="annotation corrected">' + toponym + '</span>' + tail);
   }
   
   // API call - delete annotation
@@ -184,7 +184,7 @@ pelagios.georesolution.FulltextAnnotationView.prototype.openEditor = function(ti
   e.appendTo(document.body);
   e.css('top', y + 'px');
   e.css('left', x + 'px');  
-  e.find('.button-ok').click(function() { ok_callback(); self.closeEditor(); });
+  e.find('.button-ok').focus().click(function() { ok_callback(); self.closeEditor(); });
   e.find('.button-cancel').click(function() { self.closeEditor(); });
 }
 

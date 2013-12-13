@@ -15,6 +15,11 @@
   border-bottom:1px dotted #339933;
 }
 
+.annotation.corrected {
+  background-color:#f2ee00;
+  border-bottom:1px dotted #99940b;
+}
+
 .annotation-editor {
   position:absolute;
   background-color:#fff;
