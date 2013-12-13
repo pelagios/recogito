@@ -26,16 +26,44 @@
   -webkit-border-radius:2px;
   -khtml-border-radius:2px;
   border-radius:2px;
-  border:1px solid #525252;
+  border-width:1px;
+  border-style:solid;
+  border-color:#6a6a6a #4a4a4a #4a4a4a #6a6a6a;
 }
 
 .annotation-editor-header {
   font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
-  font-size:14px;
+  font-size:16px;
   background-color:#626262;
-  padding:3px;
+  padding:6px;
   color:#fff;
   text-shadow:1px 1px 1px #333;
+}
+
+.annotation-editor-body {
+  text-align:center;
+  padding:0px 10px;
+}
+
+.annotation-editor-selection {
+  display:inline-block;
+  padding:2px;
+  margin:15px auto 10px auto;
+  background-color:#bbb;
+  border-bottom:1px dotted #333;  
+}
+
+.annotation-editor-message {
+  display:block;
+  font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
+  font-size:14px;
+  margin:0 5px 10px 5px;
+  line-height:140%;
+}
+
+.annotation-editor-buttons {
+  text-align:center;
+  padding:0px 15px 10px 15px;
 }
 
 
