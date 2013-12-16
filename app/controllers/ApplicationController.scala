@@ -5,7 +5,10 @@ import play.api.db.slick._
 import play.api.libs.json.Json
 import play.api.mvc.{ Action, Controller }
 
-/** Main application entrypoint **/
+/** Main application entrypoint 
+  *
+  * @author Rainer Simon <rainer.simon@ait.ac.at>
+  */
 object ApplicationController extends Controller with Secured {
   
   private val UTF8 = "UTF-8"
@@ -53,7 +56,7 @@ object ApplicationController extends Controller with Secured {
           }
         }}
     
-        Ok(views.html.fulltext(ranges._1.replace("\n", "<br/>")))
+        Ok(views.html.text_annotation(ranges._1.replace("\n", "<br/>")))
       } else {
       NotFound(Json.parse("{ \"success\": false, \"message\": \"Annotation not found\" }")) 
     }

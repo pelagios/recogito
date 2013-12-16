@@ -9,6 +9,8 @@ GET     /labs/grct/login             controllers.Auth.login
 POST    /labs/grct/login             controllers.Auth.authenticate
 GET     /labs/grct/logout            controllers.Auth.logout
 
+
+
 # API
 # ~~~~
 
@@ -17,6 +19,9 @@ POST    /labs/grct/annotations       controllers.AnnotationController.create
 PUT     /labs/grct/annotations/:id   controllers.AnnotationController.update(id: Int)
 DELETE  /labs/grct/annotations/:id   controllers.AnnotationController.delete(id: Int)
 
+# Toponym search API
+GET     /labs/grct/search            controllers.SearchController.index(query: String)
+
 # Document API
 GET     /labs/grct/documents/:id     controllers.Documents.getDocument(id: Int)
 GET     /labs/grct/documents         controllers.Documents.listAll
@@ -24,11 +29,10 @@ GET     /labs/grct/documents         controllers.Documents.listAll
 # Annotation Editing
 GET     /labs/grct/edit-history       controllers.EditHistoryController.showHistory
 
-# Toponym search
-GET     /labs/grct/search            controllers.SearchController.index(query: String)
-
 # Remote source preview snippet
 GET     /labs/grct/preview           controllers.Preview.index(url: String, term: String)
+
+
 
 # Application areas
 # ~~~~

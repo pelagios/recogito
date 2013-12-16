@@ -17,7 +17,7 @@ object EditHistoryController extends Controller with Secured {
   
   def showHistory() = DBAction { implicit session =>
     // TODO just a dummy
-    Ok(views.html.history(EditHistory.getLastN(500))) 
+    Ok(views.html.edit_history(EditHistory.getLastN(500))) 
   }
 
 }
