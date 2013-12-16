@@ -131,6 +131,12 @@ pelagios.georesolution.FulltextAnnotationView = function(textDiv) {
         
     if (!selection.isCollapsed && selection.rangeCount == 1) {
       var selectedRange = selection.getRangeAt(0);
+      
+      // Fix for browsers that include trailing space in double-click selection
+      if (selectedRange.toString().indexOf(" ", this.length - 1) !== -1) {
+        console.log('Fixing trailing space');
+        selectedRange.setEnd(selectedRange.endContainer, selectedRange.endOffset - 1);
+      }
          
       var offsetRange = rangy.createRange();
       offsetRange.setStart(textDiv, 0);
