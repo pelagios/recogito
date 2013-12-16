@@ -73,14 +73,14 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
    * @param {Object!} opt_style the map marker style
    */
   var displaySearchResult = function(result, opt_style) {
-    var warning = (result.coords) ? '' : '<span title="Place has no coordinates" class="icon no-coords">&#xf041;</span>'     
+    var warning = (result.coordinate) ? '' : '<span title="Place has no coordinates" class="icon no-coords">&#xf041;</span>'     
     var tr = $('<tr><td>' + warning + '</td><td><a href="javascript:void(0);" class="details-content-candidate-link">' + result.title + '</a></td><td>' + result.names + '</td></tr>');
     var marker = undefined;
-    if (result.coords) {
+    if (result.coordinate) {
       if (opt_style)
-        marker = L.circleMarker(result.coords, opt_style).addTo(map); 
+        marker = L.circleMarker(result.coordinate, opt_style).addTo(map); 
       else
-        marker = L.marker(result.coords).addTo(map);
+        marker = L.marker(result.coordinate).addTo(map);
         
       marker.on('click', function(e) { saveCorrection(result); });
       marker.on('mouseover', function(e) { 
@@ -115,7 +115,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
       annotation.place_fixed.title = result.title;
       annotation.place_fixed.names = result.names;
       annotation.place_fixed.uri = result.uri;    
-      annotation.place_fixed.coordinate = result.coords;
+      annotation.place_fixed.coordinate = result.coordinate;
       annotation.status = 'VERIFIED';
         
       self.fireEvent('update', annotation);        

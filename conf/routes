@@ -1,42 +1,44 @@
 # Routes
-# This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-## TODO Needs cleanup
+# Static resources
+GET     /labs/grct/assets/*file      controllers.Assets.at(path="/public", file)
 
 # Authentication
 GET     /labs/grct/login             controllers.Auth.login
 POST    /labs/grct/login             controllers.Auth.authenticate
 GET     /labs/grct/logout            controllers.Auth.logout
 
-# Document API
-GET     /labs/grct/documents/:id     controllers.Documents.getDocument(id: Int)
-GET     /labs/grct/documents         controllers.Documents.listAll
-
-# Annotation Editing
-GET     /labs/grct/edit-history       controllers.Edit.showHistory
-
-# Toponym search
-GET     /labs/grct/search            controllers.SearchController.index(query: String)
+# API
+# ~~~~
 
 # Annotation API
 POST    /labs/grct/annotations       controllers.AnnotationController.create
 PUT     /labs/grct/annotations/:id   controllers.AnnotationController.update(id: Int)
 DELETE  /labs/grct/annotations/:id   controllers.AnnotationController.delete(id: Int)
 
+# Document API
+GET     /labs/grct/documents/:id     controllers.Documents.getDocument(id: Int)
+GET     /labs/grct/documents         controllers.Documents.listAll
+
+# Annotation Editing
+GET     /labs/grct/edit-history       controllers.EditHistoryController.showHistory
+
+# Toponym search
+GET     /labs/grct/search            controllers.SearchController.index(query: String)
+
 # Remote source preview snippet
 GET     /labs/grct/preview           controllers.Preview.index(url: String, term: String)
 
-# Map static resources from the /public folder to the /assets URL path
-GET     /labs/grct/assets/*file      controllers.Assets.at(path="/public", file)
-
-# Fulltext view
-GET     /labs/grct/fulltext          controllers.Fulltext.index(textId: Int)
+# Application areas
+# ~~~~
 
 # Admin area
 GET     /labs/grct/admin             controllers.AdminController.index
 POST    /labs/grct/admin             controllers.AdminController.uploadEGDPart
 
-# Home page
-GET     /labs/grct/                  controllers.Application.index(docId: Option[Int])
-GET     /labs/grct                   controllers.Application.index(docId: Option[Int])
+# Main application views 
+GET     /labs/grct/fulltext          controllers.ApplicationController.text(textId: Option[Int])
+GET     /labs/grct/map               controllers.ApplicationController.map(docId: Option[Int])
+GET     /labs/grct/                  controllers.ApplicationController.index
+GET     /labs/grct                   controllers.ApplicationController.index

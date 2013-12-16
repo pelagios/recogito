@@ -43,7 +43,7 @@ object Auth extends Controller {
   def authenticate = Action { implicit request =>
     loginForm.bindFromRequest.fold(
       formWithErrors => BadRequest(views.html.login(formWithErrors)),
-      user => Redirect(routes.Application.index(None)).withSession(Security.username -> user._1)
+      user => Redirect(routes.ApplicationController.index()).withSession(Security.username -> user._1)
     )
   }
 

@@ -63,6 +63,6 @@ object EditHistory extends Table[EditEvent]("edit_history") with HasStatusColumn
     Query(EditHistory).where(_.annotationId === id).list
     
   def getLastN(n: Int)(implicit s: Session): Seq[EditEvent] =
-    Query(EditHistory).sortBy(_.timestamp.desc).list
+    Query(EditHistory).sortBy(_.timestamp.desc).take(n).list
     
 }

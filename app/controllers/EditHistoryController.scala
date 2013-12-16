@@ -9,15 +9,15 @@ import play.api.Play.current
 import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.Json
 
-/** Controller for the edit API.
+/** Controller in charge of displaying edit history stats.
   *
-  * Note that the API sits behind the login wall (while read API access is 
-  * available to everyone).  
+  * @author Rainer Simon <rainer.simon@ait.ac.at>  
   */
-object Edit extends Controller with Secured {
+object EditHistoryController extends Controller with Secured {
   
   def showHistory() = DBAction { implicit session =>
-    Ok(views.html.history(EditHistory.getLastN(100))) 
+    // TODO just a dummy
+    Ok(views.html.history(EditHistory.getLastN(500))) 
   }
 
 }

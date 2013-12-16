@@ -12,7 +12,7 @@ object SearchController extends Controller {
       "uri" -> place.uri,
       "title" -> place.title,
       "names" -> place.names.map(_.labels).flatten.map(_.label).mkString(", "),
-      "coords" -> place.getCentroid.map(coords => Json.toJson(Seq(coords.y, coords.x)))
+      "coordinate" -> place.getCentroid.map(coords => Json.toJson(Seq(coords.y, coords.x)))
     ))
     
     Ok(Json.obj(
