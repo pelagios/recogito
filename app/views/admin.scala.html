@@ -27,7 +27,7 @@
     
 
     
-    @helper.form(action = routes.Admin.uploadEGDPart, 'enctype -> "multipart/form-data") {
+    @helper.form(action = routes.AdminController.uploadEGDPart, 'enctype -> "multipart/form-data") {
       <select name="egd_part" id="egd_part">
         @for(egd <- models.GeoDocuments.listAll) {
           @for(part <- models.GeoDocumentParts.findByGeoDocument(egd.id.get)) {

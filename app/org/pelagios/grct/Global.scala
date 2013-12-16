@@ -11,7 +11,6 @@ import scala.slick.session.Database
 import play.api.db.slick.Config.driver.simple._
 import scala.slick.jdbc.meta.MTable
 import org.pelagios.grct.importer.CSVImporter
-import javax.sql.rowset.serial.SerialBlob
 import scala.io.Source
 
 /** Play Global object **/

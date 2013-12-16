@@ -14,6 +14,7 @@ pelagios.georesolution = (pelagios.georesolution) ? pelagios.georesolution : { }
  */
 pelagios.georesolution.FulltextAnnotationView = function(textDiv) { 
   var self = this,
+      gdocId = parseInt(pelagios.georesolution.FulltextAnnotationView.getQueryParam('textId')[0]), 
       getId = function(span) { return parseInt($(span).data('id')); };
    
   this._EDITOR_TEMPLATE = 
@@ -88,20 +89,42 @@ pelagios.georesolution.FulltextAnnotationView = function(textDiv) {
   
   // API call - delete annotation
   var deleteAnnotation = function(id) {
-    
+    $.ajax({
+      url: 'annotations/' + id,
+      type: 'DELETE',
+      error: function(result) {
+        console.log('ERROR deleting annotation!');
+      }
+    });    
   };
   
   // API call - create new annotation
   var createAnnotation = function(toponym, offset) {
-    
+    $.ajax({
+      url: 'annotations',
+      type: 'POST',
+      data: '{ "gdocId": ' + gdocId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }',
+      contentType : 'application/json',
+      error: function(result) {
+        console.log('ERROR creating annotation!');
+      }
+    });
   };
   
   // API call - update annotation
   var updateAnnotation = function(id, toponym, offset) {
+    $.ajax({
+      url: 'annotations/' + id,
+      type: 'PUT',
+      data: '{ "gdocId": ' + gdocId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }',
+      contentType : 'application/json',
+      error: function(result) {
+        console.log('ERROR updating annotation!');
+      }
+    });    
   };
  
   var handleSelection = function(e) {  
-    console.log(e);
     var x = (e.offsetX) ? e.offsetX : e.pageX,
         y = (e.offsetY) ? e.offsetY : e.pageY,
         selection = rangy.getSelection();
@@ -117,7 +140,8 @@ pelagios.georesolution.FulltextAnnotationView = function(textDiv) {
       var toponym = selectedRange.toString();
       
       // The character offset in the source text
-      var offset = offsetRange.toString().length;
+      var newLines = offsetRange.getNodes([1], function(node) { return node.nodeName == 'BR'; });
+      var offset = offsetRange.toString().length + newLines.length - 1;
       
       // The <span>s crossed by the selection 
       var spans = selectedRange.getNodes([1], function(e) { return e.nodeName.toLowerCase() == 'span' })
@@ -129,7 +153,7 @@ pelagios.georesolution.FulltextAnnotationView = function(textDiv) {
           
           if ($(parent).text() == toponym) {
             // Selection identical with existing annotation - ask if delete?
-            self.openEditor("MODIFY ANNOTATION", toponym, "Already marked as a toponym. Do you want to delete annotation instead?", x, y,
+            self.openEditor("DELETE ANNOTATION", toponym, "Already marked as a toponym. Do you want to delete annotation instead?", x, y,
               function() {
                 deleteAnnotation(getId(parent));
                 unwrapToponym(parent);
@@ -161,7 +185,14 @@ pelagios.georesolution.FulltextAnnotationView = function(textDiv) {
         // More than one span crossed - merge
         var ids = $.map(spans, function(span) { return getId(span); });
         self.openEditor("MERGE ANNOTATIONS", toponym, "Merge to one toponym?", x, y, function() {
-          // TODO
+          // Update first annotation
+          updateAnnotation(ids[0], toponym, offset);
+          
+          // Delete the rest
+          for (var i=1, j=ids.length; i<j; i++) {
+            deleteAnnotation(ids[i]);
+          }
+          
           rewrapToponym(selectedRange);
           selection.removeAllRanges();
         });
@@ -196,6 +227,13 @@ pelagios.georesolution.FulltextAnnotationView.prototype.closeEditor = function()
     $(this._editor).remove();
     delete this._editor;
   }
+}
+
+pelagios.georesolution.FulltextAnnotationView.getQueryParam = function(key) {
+  var re = new RegExp('(?:\\?|&)'+key+'=(.*?)(?=&|$)','gi');
+  var r = [], m;
+  while ((m = re.exec(document.location.search)) != null) r.push(m[1]);
+  return r;
 }
 
 

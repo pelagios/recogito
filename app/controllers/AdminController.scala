@@ -12,7 +12,7 @@ import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 
-object Admin extends Controller with Secured {
+object AdminController extends Controller with Secured {
   
   def index() = dbSessionWithAuth { username => implicit session => {
     Ok(views.html.admin())

@@ -20,6 +20,9 @@ object GeoDocumentParts extends Table[GeoDocumentPart]("gdocument_parts") {
   
   def * = id.? ~ gdocId ~ title ~ source.? <> (GeoDocumentPart.apply _, GeoDocumentPart.unapply _)
   
+  def findById(id: Int)(implicit s: Session): Option[GeoDocumentPart] =
+    Query(GeoDocumentParts).where(_.id === id).firstOption
+  
   def findByGeoDocument(id: Int)(implicit s: Session): Seq[GeoDocumentPart] =
     Query(GeoDocumentParts).where(_.gdocId === id).list
   

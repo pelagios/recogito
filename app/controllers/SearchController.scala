@@ -5,7 +5,7 @@ import play.api.libs.json.Json
 import org.pelagios.grct.Global
 
 /** Toponym search API controller **/
-object Search extends Controller {
+object SearchController extends Controller {
     
   def index(query: String) = Action {
     val results = Global.index.query(query).map(place => Json.obj(
@@ -16,8 +16,7 @@ object Search extends Controller {
     ))
     
     Ok(Json.obj(
-      "query" -> query,
-      "results" -> Json.toJson(results))
+      "query" -> query,      "results" -> Json.toJson(results))
     )
   }
 
