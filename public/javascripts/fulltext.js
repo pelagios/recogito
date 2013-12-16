@@ -139,9 +139,13 @@ pelagios.georesolution.FulltextAnnotationView = function(textDiv) {
       // The selected text     
       var toponym = selectedRange.toString();
       
-      // Fix for browsers that include trailing space in double-click selection
+      // Remove leading & trailing spaces
+      if (toponym.indexOf(" ") == 0) {
+        selectedRange.setStart(selectedRange.startContainer, selectedRange.startOffset + 1);
+        toponym = selectedRange.toString();
+      }
+      
       if (toponym.indexOf(" ", toponym.length - 1) !== -1) {
-        console.log('Fixing trailing space');
         selectedRange.setEnd(selectedRange.endContainer, selectedRange.endOffset - 1);
         toponym = selectedRange.toString();
       }
