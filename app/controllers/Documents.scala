@@ -61,7 +61,7 @@ object Documents extends Controller {
         "source" -> part.source,
         "annotations" -> Annotations.findByGeoDocumentPart(part.id.get).map(annotation => Json.obj(
           "id" -> annotation.id,
-          "toponym" -> annotation.toponym,
+          "toponym" -> { if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym },
           "status" -> annotation.status.toString,
           "place" -> annotation.gazetteerURI.map(placeUriToJson(_)),
           "place_fixed" -> annotation.correctedGazetteerURI.map(placeUriToJson(_)),
