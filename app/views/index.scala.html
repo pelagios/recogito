@@ -1,4 +1,4 @@
-@(username: String)
+@(username: String)(implicit s: play.api.db.slick.Config.driver.simple.Session)
 <html>
   <head>
     <title>PELAGIOS Geo-Resolution Correction Tool</title>
@@ -21,7 +21,20 @@
   
   <body>
     <div id="container">
-
+      <ul>
+        @for(document <- models.GeoDocuments.listAll()) {
+      	  <li class="geo-document">
+      	    @document.title <a href="@routes.ApplicationController.map(document.id)">Map</a>
+      	    <ul>
+      	    @for(part <- models.GeoDocumentParts.findByGeoDocument(document.id.get)) {
+      	      @defining(GeoDocumentTexts.findByGeoDocumentPart(part.id.get).map(_.id).flatten) { textId =>
+      	        <li>@part.title <a href="@routes.ApplicationController.text(textId)" target="_blank">Text</a></li> 
+      	      }
+      	    }
+      	    </ul>
+      	  </li>      	  
+        }
+      </ul>
     </div>
     <div id="footer">
       <span id="footer-info"></span>

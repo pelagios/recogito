@@ -14,7 +14,7 @@ object ApplicationController extends Controller with Secured {
   private val UTF8 = "UTF-8"
   
   /** Returns the index page for logged-in users **/
-  def index = withAuth { username => implicit request => 
+  def index = dbSessionWithAuth { username => implicit request => 
     Ok(views.html.index(username)) 
   }
   
