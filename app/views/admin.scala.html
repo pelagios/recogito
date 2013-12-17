@@ -3,55 +3,59 @@
 <html>
   <head>
     <title>PELAGIOS Geo-Resolution Correction Tool</title>
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/admin.css")" />
+    <script>
+      function toggleImportForm(id) {
+        var el = document.getElementById(id);
+        if (el.style.display == 'block')
+            el.style.display = 'none';
+        else
+            el.style.display = 'block';
+      }
+    </script>
   </head>
   
   <body>
     @for(egd <- models.GeoDocuments.listAll) {
-      <h1>@egd.title</h1>
-      @defining(models.GeoDocumentParts.findByGeoDocument(egd.id.get)) { parts =>
-      	<table>
-      	  <thead>
-      	    <tr>
-      	      <td>ID</td>
-      	      <td>Title</td>
-      	      <td>Source</td>
-      	      <td># Annotations</td>
-      	    </tr>
-      	  </thead>
-      	  <tbody>
-            @for(part <- parts) {
-              <tr>
-                <td>@part.id</td>
-                <td>@part.title</td>
-                <td>@part.source</td>
-                <td>@models.Annotations.countForGeoDocumentPart(part.id.get)</td>
-                <td>
-                  <button onclick="location.href='@routes.AdminController.downloadPart(part.id.get)'">Download CSV</button>
-                </td>
-              </tr>	
-            }
-          </tbody>
-        </table>
-        <button onclick="location.href='@routes.AdminController.downloadDocument(egd.id.get)'">Download CSV (Entire Document)</button>
-        <button onclick="if (confirm('Are you sure about that?')) location.href='@routes.AdminController.dropDocument(egd.id.get)'">Drop All Annotations</button>
-        @helper.form(action = routes.AdminController.importCSV(egd.id.get), 'enctype -> "multipart/form-data") {
-          <input type="file" name="csv" value="Import CSV" />
-          <input type="submit" value="GO" />
+      <div class="egd-container">
+        <h1>@egd.title</h1>
+        @defining(models.GeoDocumentParts.findByGeoDocument(egd.id.get)) { parts =>
+          <table>
+            <thead>
+      	      <tr>
+      	        <td>ID</td>
+      	        <td>Title</td>
+      	        <td>Source</td>
+      	        <td># Annotations</td>
+      	      </tr>
+      	    </thead>
+      	    <tbody>
+              @for(part <- parts) {
+                <tr>
+                  <td>@part.id</td>
+                  <td>@part.title</td>
+                  <td><a href="@part.source" target="_blank">@part.source</a></td>
+                  <td>@models.Annotations.countForGeoDocumentPart(part.id.get)</td>
+                  <td class="action"><button onclick="location.href='@routes.AdminController.downloadPart(part.id.get)'">CSV Backup</button></td>
+                </tr>	
+              }
+            </tbody>
+          </table>
+          <button onclick="location.href='@routes.AdminController.downloadDocument(egd.id.get)'">CSV Backup (Entire Document)</button>
+          <button onclick="if (confirm('Are you sure about that?')) location.href='@routes.AdminController.dropDocument(egd.id.get)'">Drop All Annotations</button>
+          <div class="import">
+            <button onclick="toggleImportForm('@egd.id.get')">Import CSV</button>
+            <div class="import-form" id="@egd.id.get">
+              @helper.form(action = routes.AdminController.importCSV(egd.id.get), 'enctype -> "multipart/form-data") {
+                <input type="file" name="csv" value="Import CSV" />
+                <input type="submit" value="IMPORT!" />
+              }
+            </div>
+          </div>
         }
-      }
+      </div>
     }
-    
-<!--     
-    
-      <select name="egd_part" id="egd_part">
-        @for(egd <- models.GeoDocuments.listAll) {
-          @for(part <- models.GeoDocumentParts.findByGeoDocument(egd.id.get)) {
-            <option value="@part.id">@egd.title - @part.title</option>
-          }
-        }
-      </select> -->
-
-   </body>
+  </body>
 </html>
     
 
