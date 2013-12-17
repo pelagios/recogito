@@ -26,25 +26,40 @@ object AnnotationController extends Controller with Secured {
         // Create new annotation
         val correctedToponym = (body \ "corrected_toponym").as[String]
         val correctedOffset = (body \ "corrected_offset").as[Int]
-        val annotation = 
-          Annotation(None, gdocPart.get.gdocId, gdocPart.get.id, 
-                     AnnotationStatus.NOT_VERIFIED, None, None, None, 
-                     Some(correctedToponym), Some(correctedOffset))
         
-        val id = Annotations returning Annotations.id insert(annotation)
+        if (isValid(gdocPart.get.gdocId, correctedToponym, correctedOffset)) {
+          val annotation = 
+            Annotation(None, gdocPart.get.gdocId, gdocPart.get.id, 
+                       AnnotationStatus.NOT_VERIFIED, None, None, None, 
+                       Some(correctedToponym), Some(correctedOffset))
+        
+          val id = Annotations returning Annotations.id insert(annotation)
       
-        // Record edit event
-        val event = 
-          EditEvent(None, id, user.get.id.get, new Timestamp(new Date().getTime), 
-                    Some(correctedToponym), None, None, None, None)
+          // Record edit event
+          val event = 
+            EditEvent(None, id, user.get.id.get, new Timestamp(new Date().getTime), 
+                      Some(correctedToponym), None, None, None, None)
                               
-        Ok(Json.parse("{ \"success\": true }"))
+          Ok(Json.parse("{ \"success\": true }"))
+        } else {
+          BadRequest(Json.parse("{ \"success\": false, \"message\": \"Annotation did not validate\" }"))
+        }
       } else {
         Ok(Json.parse("{ \"success\": false, \"message\": \"Invalid GDocPart ID\" }"))
       }      
     } else {
       Forbidden(Json.parse("{ \"success\": false, \"message\": \"Not authorized\" }"))
     }
+  }
+  
+  private def isValid(gdocPartId: Int, toponym: String, offset: Int)(implicit s: Session): Boolean = {
+    val intersectingAnnotations = Annotations.findByGeoDocumentPart(gdocPartId).filter(annotation => {
+      val otherOffset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset
+      otherOffset.isDefined && (otherOffset.get >= offset) && (otherOffset.get <= offset + toponym.size)
+    })
+    
+    // Intersections (or identical offsets) are not allowed! 
+    intersectingAnnotations.size == 0
   }
   
   /** Updates the annotation with the specified ID **/
