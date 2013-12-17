@@ -29,10 +29,11 @@ pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv, footerDiv, da
   
   table.on('update', function(annotation) {
   	self._storeToDB(annotation);
-  	if (annotation.marker) {
+    
+  	if (annotation.marker)
   	  map.removePlaceMarker(annotation);
-  	  map.addPlaceMarker(annotation);
-  	}
+      
+    map.addPlaceMarker(annotation);
   	
     if (self.annotations)
       footer.setData(self.annotations);
@@ -77,12 +78,11 @@ pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv, footerDiv, da
 pelagios.georesolution.CorrectionTool.prototype._storeToDB = function(annotation) {
   var payload = {
     'id': annotation.id,
-    'toponym': annotation.toponym,
     'status': annotation.status,
   };
   
   if (annotation.place_fixed)
-    payload.fix = annotation.place_fixed.uri;
+    payload.corrected_uri = annotation.place_fixed.uri;
   
   $.ajax({
     type: 'PUT',
@@ -120,23 +120,6 @@ pelagios.georesolution.HasEvents.prototype.fireEvent = function(event, e, args) 
   if (this.handlers[event])
     this.handlers[event](e, args);     
 }
-
-/*
-pelagios.georesolution.Palette = {
-  
-  var palette = [ '#1f77b4', '#ff7f0e', '#2ca02c' ],
-      idx = 0,
-      color_table = {};
-
-  getColor: function(tag) {
-    if (!color_table[tag]) {
-      color_table[tag] = palette[idx];
-      idx++;
-    }
-    return color_table[tag];
-  }
-  
-}*/
 
 /**
  * Helpers and utility methods.
