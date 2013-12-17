@@ -77,7 +77,17 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
   
   def findById(id: Int)(implicit s: Session): Option[Annotation] =
     Query(Annotations).where(_.id === id).firstOption
-      
+    
+  def findByGeoDocument(id: Int)(implicit s: Session): Seq[Annotation] = {
+    Query(Annotations).where(_.gdocId === id).list.sortBy(a => { 
+      val offset = if (a.correctedOffset.isDefined) a.correctedOffset.get else a.offset.get
+      (a.gdocPartId, offset)
+    })      
+  }
+    
+  def deleteForGeoDocument(id: Int)(implicit s: Session) =
+    Query(Annotations).where(_.gdocId === id).delete
+        
   def findByGeoDocumentPart(id: Int)(implicit s: Session): Seq[Annotation] = {
     Query(Annotations).where(_.gdocPartId === id).list.sortWith((a, b) => { 
       val offsetA = if (a.correctedOffset.isDefined) a.correctedOffset.get else a.offset.get
@@ -85,6 +95,9 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
       offsetA < offsetB
     })
   }
+    
+  def countForGeoDocumentPart(id: Int)(implicit s: Session): Int =
+    Query(Annotations).where(_.gdocPartId === id).list.size
     
   def update(annotation: Annotation)(implicit s: Session) =
     Query(Annotations).where(_.id === annotation.id).update(annotation)

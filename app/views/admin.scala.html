@@ -6,43 +6,52 @@
   </head>
   
   <body>
-    <h1>EGDs</h1>
-    <table>
-      @for(egd <- models.GeoDocuments.listAll) {
-      	@defining(models.GeoDocumentParts.findByGeoDocument(egd.id.get)) { parts =>
-          <tr><td>@egd.id</td><td>@egd.title</td><td>@egd.source</td><td>@parts.size Parts</td></tr>
-          <tr>
-            <td colspan="4">
-              <table>
-                @for(part <- parts) {
-                  <tr><td>@part.id</td><td>@part.title</td><td>@part.source</td></tr>	
-                }
-              </table>
-              <input type="button" value="Add Part"/>
-            </td>
-          </tr>
+    @for(egd <- models.GeoDocuments.listAll) {
+      <h1>@egd.title</h1>
+      @defining(models.GeoDocumentParts.findByGeoDocument(egd.id.get)) { parts =>
+      	<table>
+      	  <thead>
+      	    <tr>
+      	      <td>ID</td>
+      	      <td>Title</td>
+      	      <td>Source</td>
+      	      <td># Annotations</td>
+      	    </tr>
+      	  </thead>
+      	  <tbody>
+            @for(part <- parts) {
+              <tr>
+                <td>@part.id</td>
+                <td>@part.title</td>
+                <td>@part.source</td>
+                <td>@models.Annotations.countForGeoDocumentPart(part.id.get)</td>
+                <td>
+                  <button onclick="location.href='@routes.AdminController.downloadPart(part.id.get)'">Download CSV</button>
+                </td>
+              </tr>	
+            }
+          </tbody>
+        </table>
+        <button onclick="location.href='@routes.AdminController.downloadDocument(egd.id.get)'">Download CSV (Entire Document)</button>
+        <button onclick="if (confirm('Are you sure about that?')) location.href='@routes.AdminController.dropDocument(egd.id.get)'">Drop All Annotations</button>
+        @helper.form(action = routes.AdminController.importCSV(egd.id.get), 'enctype -> "multipart/form-data") {
+          <input type="file" name="csv" value="Import CSV" />
+          <input type="submit" value="GO" />
         }
       }
-    </table>
+    }
     
-
+<!--     
     
-    @helper.form(action = routes.AdminController.uploadEGDPart, 'enctype -> "multipart/form-data") {
       <select name="egd_part" id="egd_part">
         @for(egd <- models.GeoDocuments.listAll) {
           @for(part <- models.GeoDocumentParts.findByGeoDocument(egd.id.get)) {
             <option value="@part.id">@egd.title - @part.title</option>
           }
         }
-      </select>
-      <input type="file" name="csv" id="csv" />  
-      <p>
-        <input type="submit">
-      </p>
-    }    
-    
-    <input type="button" value="Add EGD"/>
-  </body>
+      </select> -->
+
+   </body>
 </html>
     
 

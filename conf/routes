@@ -15,22 +15,22 @@ GET     /labs/grct/logout            controllers.Auth.logout
 # ~~~~
 
 # Annotation API
-POST    /labs/grct/annotations       controllers.AnnotationController.create
-PUT     /labs/grct/annotations/:id   controllers.AnnotationController.update(id: Int)
-DELETE  /labs/grct/annotations/:id   controllers.AnnotationController.delete(id: Int)
+POST    /labs/grct/annotations           controllers.AnnotationController.create
+PUT     /labs/grct/annotations/:id       controllers.AnnotationController.update(id: Int)
+DELETE  /labs/grct/annotations/:id       controllers.AnnotationController.delete(id: Int)
 
 # Toponym search API
-GET     /labs/grct/search            controllers.SearchController.index(query: String)
+GET     /labs/grct/search                controllers.SearchController.index(query: String)
 
 # Document API
-GET     /labs/grct/documents/:id     controllers.Documents.getDocument(id: Int)
-GET     /labs/grct/documents         controllers.Documents.listAll
+GET     /labs/grct/documents/:id         controllers.Documents.getDocument(id: Int)
+GET     /labs/grct/documents             controllers.Documents.listAll
 
 # Annotation Editing
-GET     /labs/grct/edit-history       controllers.EditHistoryController.showHistory
+GET     /labs/grct/edit-history          controllers.EditHistoryController.showHistory
 
 # Remote source preview snippet
-GET     /labs/grct/preview           controllers.Preview.index(url: String, term: String)
+GET     /labs/grct/preview               controllers.Preview.index(url: String, term: String)
 
 
 
@@ -38,12 +38,15 @@ GET     /labs/grct/preview           controllers.Preview.index(url: String, term
 # ~~~~
 
 # Admin area
-GET     /labs/grct/admin             controllers.AdminController.index
-POST    /labs/grct/admin             controllers.AdminController.uploadEGDPart
+GET     /labs/grct/admin                 controllers.AdminController.index
+GET     /labs/grct/admin/dump-part       controllers.AdminController.downloadPart(gdocPartId: Int)
+GET     /labs/grct/admin/dump-document   controllers.AdminController.downloadDocument(gdocId: Int)
+GET     /labs/grct/admin/drop-document   controllers.AdminController.dropDocument(gdocId: Int)
+POST    /labs/grct/admin/import          controllers.AdminController.importCSV(gdocId: Int)
 
 # Main application views 
-GET     /labs/grct/fulltext          controllers.ApplicationController.text(textId: Int)
-GET     /labs/grct/map               controllers.ApplicationController.map(docId: Int)
-GET     /labs/grct/csv               controllers.ApplicationController.csv(docId: Int)
-GET     /labs/grct/                  controllers.ApplicationController.index
-GET     /labs/grct                   controllers.ApplicationController.index
+GET     /labs/grct/fulltext              controllers.ApplicationController.text(textId: Int)
+GET     /labs/grct/map                   controllers.ApplicationController.map(docId: Int)
+GET     /labs/grct/csv                   controllers.ApplicationController.csv(docId: Int)
+GET     /labs/grct/                      controllers.ApplicationController.index
+GET     /labs/grct                       controllers.ApplicationController.index
