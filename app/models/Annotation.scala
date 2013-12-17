@@ -77,7 +77,7 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
   
   def findById(id: Int)(implicit s: Session): Option[Annotation] =
     Query(Annotations).where(_.id === id).firstOption
-  
+      
   def findByGeoDocumentPart(id: Int)(implicit s: Session): Seq[Annotation] = {
     Query(Annotations).where(_.gdocPartId === id).list.sortWith((a, b) => { 
       val offsetA = if (a.correctedOffset.isDefined) a.correctedOffset.get else a.offset.get
