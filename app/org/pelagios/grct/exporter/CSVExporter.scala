@@ -8,6 +8,8 @@ import play.api.db.slick._
 
 object CSVExporter {
   
+  private val SEPARATOR = ";"
+  
   /** Generates CSV for 'public consumption' **/
   def toCSV(annotations: Seq[Annotation]): String = {
     val header = "toponym,uri,lat,lng\n"
@@ -17,9 +19,9 @@ object CSVExporter {
       if (uri.isDefined && !uri.get.isEmpty) {
         val coord = Global.index.getPlace(uri.get).map(_.getCentroid).flatten
         csv + 
-        toponym.getOrElse("") + "," + 
-        GazetteerUtils.normalizeURI(uri.get) + "," + 
-        coord.map(_.y).getOrElse("") + "," +
+        toponym.getOrElse("") + SEPARATOR + 
+        GazetteerUtils.normalizeURI(uri.get) + SEPARATOR + 
+        coord.map(_.y).getOrElse("") + SEPARATOR +
         coord.map(_.x).getOrElse("") + "\n"
       } else {
         csv
@@ -29,20 +31,21 @@ object CSVExporter {
   
   /** Creates a full CSV dump, reflecting the DB table structure **/
   def toDump(annotations: Seq[Annotation])(implicit s: Session): String = {
-    val header = "gdoc_part,status,toponym,offset,gazetteer_uri,toponym_corrected,offset_corrected,gazetteer_uri_corrected,tags,comment\n"
+    val header = Seq("gdoc_part", "status", "toponym", "offset", "gazetteer_uri", "toponym_corrected", 
+                     "offset_corrected", "gazetteer_uri_corrected", "tags", "comment").mkString(SEPARATOR) + "\n"
       
     annotations.foldLeft(header)((csv, annotation) => {
       csv + 
-      annotation.gdocPartId.map(GeoDocumentParts.getTitle(_)).flatten.getOrElse("") + "," +
-      annotation.status + "," +
-      annotation.toponym.getOrElse("") + "," +
-      annotation.offset.getOrElse("") + "," +
-      annotation.gazetteerURI.map(GazetteerUtils.normalizeURI(_)).getOrElse("") + "," +
-      annotation.correctedToponym.getOrElse("") + "," +
-      annotation.correctedOffset.getOrElse("") + "," +
-      annotation.correctedGazetteerURI.map(GazetteerUtils.normalizeURI(_)).getOrElse("") + "," +
-      annotation.tags.getOrElse("") + "," +
-      annotation.comment.getOrElse("") + "," +
+      annotation.gdocPartId.map(GeoDocumentParts.getTitle(_)).flatten.getOrElse("") + SEPARATOR +
+      annotation.status + SEPARATOR +
+      annotation.toponym.getOrElse("") + SEPARATOR +
+      annotation.offset.getOrElse("") + SEPARATOR +
+      annotation.gazetteerURI.map(GazetteerUtils.normalizeURI(_)).getOrElse("") + SEPARATOR +
+      annotation.correctedToponym.getOrElse("") + SEPARATOR +
+      annotation.correctedOffset.getOrElse("") + SEPARATOR +
+      annotation.correctedGazetteerURI.map(GazetteerUtils.normalizeURI(_)).getOrElse("") + SEPARATOR +
+      annotation.tags.getOrElse("") + SEPARATOR +
+      annotation.comment.getOrElse("") + SEPARATOR +
       "\n"
     })
   }

@@ -6,11 +6,16 @@ import scala.io.Source
 
 object CSVImporter {
   
+  // TODO clean up
   private val IDX_URI = 1  
   private val IDX_TOPONYM = 2
   private val IDX_OFFSET = 3
   private val IDX_TAGS = 4 
+  
+  private val SEPARATOR = ";"
 
+  // TODO clean up
+  // Deprecated!
   def importAnnotations(file: String, gdocId: Int, gdocPartId: Int): Seq[Annotation] = {
     val data = Source.fromFile(file).getLines.drop(1).filter(!_.isEmpty)
     data.map(line => {
@@ -24,7 +29,7 @@ object CSVImporter {
   
   def importCSV(file: String, gdocId: Int)(implicit s: Session): Seq[Annotation] = {
     val data = Source.fromFile(file).getLines    
-    val header = data.take(1).toSeq.head.split(",", -1).toSeq 
+    val header = data.take(1).toSeq.head.split(SEPARATOR, -1).toSeq 
 
     def idx(label: String): Int = header.indexWhere(_.equalsIgnoreCase(label))
     
@@ -41,7 +46,7 @@ object CSVImporter {
     
     implicit def toOption(string: String) = if (string.trim.isEmpty) None else Some(string)
     
-    data.map(_.split(",", -1)).map(fields => {
+    data.map(_.split(SEPARATOR, -1)).map(fields => {
       Annotation(
           None,
           gdocId,
