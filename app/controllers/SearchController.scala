@@ -6,9 +6,12 @@ import org.pelagios.grct.Global
 
 /** Toponym search API controller **/
 object SearchController extends Controller {
+  
+  private val PLEIADES_PREFIX = "http://pleiades.stoa.org"
     
   def index(query: String) = Action {
-    val results = Global.index.query(query).map(place => Json.obj(
+    // For search, we're restricting to Pleiades URIs only
+    val results = Global.index.query(query).filter(_.uri.startsWith(PLEIADES_PREFIX)).map(place => Json.obj(
       "uri" -> place.uri,
       "title" -> place.title,
       "names" -> place.names.map(_.labels).flatten.map(_.label).mkString(", "),
