@@ -11,6 +11,8 @@ import play.api.libs.json.JsObject
 /** GeoDocument JSON API **/
 object Documents extends Controller {
   
+  private val DARE_PREFIX = "http://www.imperium.ahlfeldt.se/"
+  
   /** Returns the list of all geo documents in the database as JSON **/
   def listAll = DBAction { implicit session =>
     val documents = GeoDocuments.listAll().map(doc => Json.obj(
@@ -35,12 +37,23 @@ object Documents extends Controller {
   /** Renders a JSON object for the place with the specified gazetteer URI **/
   private def placeUriToJson(uri: String): Option[JsObject] = {
     val place = Global.index.findByURI(uri)
+    
+    // We use DARE coordinates if we have them
+    val coordinate = place.map(place => {
+      val dareEquivalent = Global.index.getNetwork(place).places.filter(_.uri.startsWith(DARE_PREFIX))
+      if (dareEquivalent.size > 0) {
+        dareEquivalent(0).getCentroid
+      } else {
+        place.getCentroid
+      }
+    }).flatten
+    
     if (place.isDefined) {
       Some(Json.obj(
         "uri" -> place.get.uri,
         "title" -> place.get.title,
         "names" -> place.get.names.map(_.labels).flatten.map(_.label).mkString(", "),
-        "coordinate" -> place.get.getCentroid.map(coords => Json.toJson(Seq(coords.y, coords.x)))
+        "coordinate" -> coordinate.map(coords => Json.toJson(Seq(coords.y, coords.x)))
       ))      
     } else {
       None
