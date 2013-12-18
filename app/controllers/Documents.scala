@@ -34,7 +34,7 @@ object Documents extends Controller {
   
   /** Renders a JSON object for the place with the specified gazetteer URI **/
   private def placeUriToJson(uri: String): Option[JsObject] = {
-    val place = Global.index.getPlace(uri)
+    val place = Global.index.findByURI(uri)
     if (place.isDefined) {
       Some(Json.obj(
         "uri" -> place.get.uri,

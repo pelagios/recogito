@@ -3,7 +3,6 @@ package org.pelagios.grct
 import models._
 import java.io.File
 import org.openrdf.rio.RDFFormat
-import org.pelagios.grct.index.PlaceIndex
 import play.api.{ Application, GlobalSettings, Logger }
 import play.api.db.DB
 import play.api.Play.current
@@ -12,26 +11,39 @@ import play.api.db.slick.Config.driver.simple._
 import scala.slick.jdbc.meta.MTable
 import org.pelagios.grct.importer.CSVImporter
 import scala.io.Source
+import org.pelagios.gazetteer.PlaceIndex
+import org.pelagios.Scalagios
+import java.util.zip.GZIPInputStream
+import java.io.FileInputStream
 
 /** Play Global object **/
 object Global extends GlobalSettings {
 
   import Database.threadLocalSession
   
-  private val INDEX_DATAFILE = "gazetteer/pleiades-20120826-migrated.ttl.gz"
+  private val DATA_PLEIADES = "gazetteer/pleiades-20120826-migrated.ttl.gz"
+  private val DATA_DARE = "gazetteer/dare-20131210.ttl.gz"
   
-  private val INDEX_DIR = new File("index")
+  private val INDEX_DIR = "index"
  
   lazy val index = {
-    if (INDEX_DIR.exists()) {
-      Logger.info("Loading existing index")
-      new PlaceIndex(INDEX_DIR)
-    } else {
-      Logger.info("Building new index... ")
-      val idx = PlaceIndex.initIndex(INDEX_DIR, "http://pelagios.org/dummy-gazetteer", INDEX_DATAFILE, RDFFormat.TURTLE)
-      Logger.info(" done.")
-      idx
+    val idx = PlaceIndex.open(INDEX_DIR)
+    if (idx.isEmpty) {
+      Logger.info("Building new index")
+      
+      Logger.info("Loading Pleiades data")
+      val pleiades = Scalagios.parseGazetteer(new GZIPInputStream(new FileInputStream(DATA_PLEIADES)), "http://pleiades.stoa.org/", RDFFormat.TURTLE)
+      Logger.info("Inserting Pleiades into index")
+      idx.addPlaces(pleiades)
+    
+      Logger.info("Loading DARE data")
+      val dare = Scalagios.parseGazetteer(new GZIPInputStream(new FileInputStream(DATA_DARE)), "http://imperium.ahlfeldt.se/", RDFFormat.TURTLE)
+      Logger.info("Inserting DARE into index") 
+      idx.addPlaces(dare)
+      
+      Logger.info("Index complete")      
     }
+    idx
   }
 
   lazy val database = Database.forDataSource(DB.getDataSource()) 

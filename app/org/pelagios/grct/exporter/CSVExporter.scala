@@ -17,7 +17,7 @@ object CSVExporter {
       val uri = if (annotation.correctedGazetteerURI.isDefined && !annotation.correctedGazetteerURI.get.isEmpty) annotation.correctedGazetteerURI else annotation.gazetteerURI
       val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
       if (uri.isDefined && !uri.get.isEmpty) {
-        val coord = Global.index.getPlace(uri.get).map(_.getCentroid).flatten
+        val coord = Global.index.findByURI(uri.get).map(_.getCentroid).flatten
         csv + 
         toponym.getOrElse("") + SEPARATOR + 
         GazetteerUtils.normalizeURI(uri.get) + SEPARATOR + 
