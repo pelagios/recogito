@@ -11,7 +11,7 @@ object SearchController extends Controller {
     
   def index(query: String) = Action {
     // For search, we're restricting to Pleiades URIs only
-    val results = Global.index.query(query).filter(_.uri.startsWith(PLEIADES_PREFIX)).map(place => Json.obj(
+    val results = Global.index.query(query, true).filter(_.uri.startsWith(PLEIADES_PREFIX)).map(place => Json.obj(
       "uri" -> place.uri,
       "title" -> place.title,
       "names" -> place.names.map(_.labels).flatten.map(_.label).mkString(", "),
