@@ -39,7 +39,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
         '          <p class="details-content-correction"></p>' +
         '        </div>' +
         '        <ul class="details-content-tags">' +
-        '          <li class="details-content-tag details-content-tag-add"><a title="Add Tag" class="icon">&#xf055;</a></li>' +
+        '          <li class="details-content-tag details-content-tag-add"><a title="Add Tag" id="add-tag" class="icon">&#xf055;</a></li>' +
         '        </ul>' +
         '        <div class="details-button details-button-verified"><span class="icon">&#xf14a;</span><span class="caption">VERIFIED</span></div>' +        
         '        <div class="details-button details-button-not-verified"><span class="icon">&#xf059;</span><span class="caption">NOT VERIFIED</span></div>' +   
@@ -58,11 +58,13 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
         '      </div>' + 
         '    </div>' +
         '  </div>' +
-        '</div>';
+        '</div>',
+      tagEditor = $('<div id="details-content-tag-editor"><input type="text" placeholder="Tags, separated by comma..."></input></div>');
     
   // Details Popup DOM element
   this.element = $(template);
-  $(this.element).appendTo(document.body);
+  this.element.appendTo(document.body);
+  tagEditor.appendTo(this.element.find('.details-content-inner'));
   
   // Leaflet map
   var map = this._initMap($('.details-content-sidebar'));
@@ -164,9 +166,41 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
   if (annotation.tags) {
     // var tags = [];
     $.each(annotation.tags, function(idx, tag) {
-      $('.details-content-tags').prepend('<li class="details-content-tag">' + tag + '<a title="Remove" class="details-content-tag-remove icon">&#xf00d;</a></li>');
+      if (tag.length > 0)
+        $('.details-content-tags').prepend('<li class="details-content-tag">' + tag + '<a title="Remove Tag" class="details-content-tag-remove icon">&#xf00d;</a></li>');
     });
-  }  
+  }
+  
+  var textField = tagEditor.find('input')[0];
+    
+  var addTagButton = $('#add-tag');
+  addTagButton.click(function() {
+    var offset = addTagButton.offset();
+    offset.top -= 8;
+    offset.left += 25;
+    var display = tagEditor.css('display');
+    if (display == 'none') {
+      tagEditor.css('display', 'block');
+      tagEditor.offset(offset);
+      textField.focus();
+    } else  {
+      tagEditor.css('display', 'none');
+    }
+  });
+  
+  tagEditor.keydown(function(e) {
+    if (e.keyCode == 13) {
+      // Enter
+      var tags = textField.value.split(",");
+      console.log(tags);
+      textField.value = '';
+      tagEditor.css('display', 'none');
+    } else if (e.keyCode == 27) {
+      // Escape
+      textField.value = '';
+      tagEditor.css('display', 'none');
+    }
+  });
   
   // Status info & buttons
   if (annotation.status == 'VERIFIED') {
