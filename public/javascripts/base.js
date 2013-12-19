@@ -79,6 +79,7 @@ pelagios.georesolution.CorrectionTool.prototype._storeToDB = function(annotation
   var payload = {
     'id': annotation.id,
     'status': annotation.status,
+    'tags': annotation.tags.join(",")
   };
   
   if (annotation.place_fixed)

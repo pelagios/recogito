@@ -165,19 +165,34 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
   
   // Tags
   var tagList = $('.details-content-tags').find('ul');
-  var addTag = function(tag) {
-    tagList.append('<li class="details-content-tag">' + tag + '<a title="Remove Tag" class="details-content-tag-remove icon">&#xf00d;</a></li>');  
+  var addTag = function(tag, idx) {
+    tagList.append('<li class="details-content-tag">' + tag + '<a title="Remove Tag" data-index="' + idx + '" class="details-content-tag-remove icon">&#xf00d;</a></li>');  
+  };
+  
+  var removeTag = function(idx) {
+    if (annotation.tags) {
+      annotation.tags.splice(idx, 1);
+      tagList.empty();
+      $.each(annotation.tags, function(idx, tag) {
+      if (tag.length > 0)
+        addTag(tag, idx);        
+      });
+    }
   };
   
   if (annotation.tags) {
     $.each(annotation.tags, function(idx, tag) {
       if (tag.length > 0)
-        addTag(tag);        
+        addTag(tag, idx);        
     });
   }
   
-  var textField = tagEditor.find('input')[0];
-    
+  $('.details-content-tags').on('click', '.details-content-tag-remove', function(e) {
+    var idx = parseInt($(e.target).data('index'));
+    removeTag(idx);
+  });
+  
+  var textField = tagEditor.find('input')[0];    
   var addTagButton = $('#add-tag');
   addTagButton.click(function() {
     var offset = addTagButton.offset();
@@ -197,7 +212,17 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
     if (e.keyCode == 13) {
       // Enter
       var tags = textField.value.split(",");
-      console.log(tags);
+      if (tags.length > 0) {
+        if (!annotation.tags)
+          annotation.tags = [];
+         
+        $.each(tags, function(idx, tag) { 
+          addTag(tag, annotation.tags.length); 
+          annotation.tags.push(tag);
+        });
+      
+        self.fireEvent('update', annotation);
+      }
       textField.value = '';
       tagEditor.css('display', 'none');
     } else if (e.keyCode == 27) {
