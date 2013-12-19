@@ -7,7 +7,6 @@ import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import play.api.libs.json.Json
 import play.api.mvc.Controller
-import play.api.Logger
 
 /** Annotation CRUD controller.
   *
@@ -132,7 +131,7 @@ object AnnotationController extends Controller with Secured {
   }
   
   /** Private helper method that creates an update diff event by comparing original and updated annotation **/
-  private def createDiffEvent(before: Annotation, after: Annotation, userId: Int): EditEvent = {
+  private def createDiffEvent(before: Annotation, after: Annotation, userId: Int): EditEvent = {    
     val updatedStatus = if (before.status.equals(after.status)) None else Some(after.status)
     val updatedToponym = if (before.correctedToponym.equals(after.correctedToponym)) None else after.correctedToponym
     val updatedOffset = if (before.correctedOffset.equals(after.correctedOffset)) None else after.correctedOffset

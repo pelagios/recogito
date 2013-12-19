@@ -190,6 +190,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
   $('.details-content-tags').on('click', '.details-content-tag-remove', function(e) {
     var idx = parseInt($(e.target).data('index'));
     removeTag(idx);
+    self.fireEvent('update', annotation);
   });
   
   var textField = tagEditor.find('input')[0];    
