@@ -38,9 +38,10 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
         '          <p class="details-content-automatch"></p>' +
         '          <p class="details-content-correction"></p>' +
         '        </div>' +
-        '        <ul class="details-content-tags">' +
-        '          <li class="details-content-tag details-content-tag-add"><a title="Add Tag" id="add-tag" class="icon">&#xf055;</a></li>' +
-        '        </ul>' +
+        '        <div class="details-content-tags">' +
+        '          <ul></ul>' +
+        '          <span class="details-content-tag details-content-tag-add"><a title="Add Tag" id="add-tag" class="icon">&#xf055;</a></span>' +
+        '        </div>' +
         '        <div class="details-button details-button-verified"><span class="icon">&#xf14a;</span><span class="caption">VERIFIED</span></div>' +        
         '        <div class="details-button details-button-not-verified"><span class="icon">&#xf059;</span><span class="caption">NOT VERIFIED</span></div>' +   
         '        <div class="details-button details-button-not-identifyable"><span class="icon">&#xf024;</span><span class="caption">NOT IDENTIFYABLE</span></div>' +   
@@ -163,11 +164,15 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
   }
   
   // Tags
+  var tagList = $('.details-content-tags').find('ul');
+  var addTag = function(tag) {
+    tagList.append('<li class="details-content-tag">' + tag + '<a title="Remove Tag" class="details-content-tag-remove icon">&#xf00d;</a></li>');  
+  };
+  
   if (annotation.tags) {
-    // var tags = [];
     $.each(annotation.tags, function(idx, tag) {
       if (tag.length > 0)
-        $('.details-content-tags').prepend('<li class="details-content-tag">' + tag + '<a title="Remove Tag" class="details-content-tag-remove icon">&#xf00d;</a></li>');
+        addTag(tag);        
     });
   }
   

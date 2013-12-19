@@ -349,6 +349,16 @@ a.footer-logout:hover {
   padding:0;
 }
 
+.details-content-tags ul {
+  list-style:none;
+  padding-left:0;
+  display:inline;
+}
+
+.details-content-tags li {
+  display:inline;
+}
+
 .details-content-tag {
   position:relative;
   display:inline-block;
