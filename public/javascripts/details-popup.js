@@ -39,7 +39,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
         '          <p class="details-content-correction"></p>' +
         '        </div>' +
         '        <ul class="details-content-tags">' +
-        '          <!-- span class="details-content-tags-add">ADD TAG</span -->' +
+        '          <li class="details-content-tag details-content-tag-add"><a title="Add Tag" class="icon">&#xf055;</a></li>' +
         '        </ul>' +
         '        <div class="details-button details-button-verified"><span class="icon">&#xf14a;</span><span class="caption">VERIFIED</span></div>' +        
         '        <div class="details-button details-button-not-verified"><span class="icon">&#xf059;</span><span class="caption">NOT VERIFIED</span></div>' +   
