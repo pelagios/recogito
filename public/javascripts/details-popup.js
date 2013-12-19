@@ -38,9 +38,9 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
         '          <p class="details-content-automatch"></p>' +
         '          <p class="details-content-correction"></p>' +
         '        </div>' +
-        '        <div class="details-content-tags">' +
+        '        <ul class="details-content-tags">' +
         '          <!-- span class="details-content-tags-add">ADD TAG</span -->' +
-        '        </div>' +
+        '        </ul>' +
         '        <div class="details-button details-button-verified"><span class="icon">&#xf14a;</span><span class="caption">VERIFIED</span></div>' +        
         '        <div class="details-button details-button-not-verified"><span class="icon">&#xf059;</span><span class="caption">NOT VERIFIED</span></div>' +   
         '        <div class="details-button details-button-not-identifyable"><span class="icon">&#xf024;</span><span class="caption">NOT IDENTIFYABLE</span></div>' +   
@@ -164,7 +164,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
   if (annotation.tags) {
     // var tags = [];
     $.each(annotation.tags, function(idx, tag) {
-      $('.details-content-tags').prepend('<span class="details-content-tag">' + tag + '</span>');
+      $('.details-content-tags').prepend('<li class="details-content-tag">' + tag + '<a title="Remove" class="details-content-tag-remove icon">&#xf00d;</a></li>');
     });
   }  
   
