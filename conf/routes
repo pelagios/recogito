@@ -33,7 +33,6 @@ GET     /labs/grct/edit-history          controllers.EditHistoryController.showH
 GET     /labs/grct/preview               controllers.Preview.index(url: String, term: String)
 
 
-
 # Application areas
 # ~~~~
 
@@ -44,7 +43,10 @@ GET     /labs/grct/admin/dump-document   controllers.AdminController.downloadDoc
 GET     /labs/grct/admin/drop-document   controllers.AdminController.dropDocument(gdocId: Int)
 POST    /labs/grct/admin/import          controllers.AdminController.importCSV(gdocId: Int)
 
-# Main application views 
+# Public application views
+GET     /labs/grct/public/egd/:id        controllers.PublicController.map(id: Int)
+
+# Private application views 
 GET     /labs/grct/fulltext              controllers.ApplicationController.text(textId: Int)
 GET     /labs/grct/map                   controllers.ApplicationController.map(docId: Int)
 GET     /labs/grct/csv                   controllers.ApplicationController.csv(docId: Int)
