@@ -90,9 +90,12 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
         
   def findByGeoDocumentPart(id: Int)(implicit s: Session): Seq[Annotation] = {
     Query(Annotations).where(_.gdocPartId === id).list.sortWith((a, b) => { 
-      val offsetA = if (a.correctedOffset.isDefined) a.correctedOffset.get else a.offset.get
-      val offsetB = if (b.correctedOffset.isDefined) b.correctedOffset.get else b.offset.get
-      offsetA < offsetB
+      val offsetA = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
+      val offsetB = if (b.correctedOffset.isDefined) b.correctedOffset else b.offset
+      if (offsetA.isDefined && offsetB.isDefined)
+        offsetA.get < offsetB.get
+      else
+        false
     })
   }
     

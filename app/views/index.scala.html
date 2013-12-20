@@ -29,12 +29,14 @@
       	    <a href="@routes.ApplicationController.csv(document.id.get)">CSV</a>
       	    <ul>
       	    @for(part <- models.GeoDocumentParts.findByGeoDocument(document.id.get)) {
-      	      @defining(GeoDocumentTexts.findByGeoDocumentPart(part.id.get).map(_.id).flatten) { textId =>
-      	        <li>
-      	          @part.title
-      	          <a href="@routes.ApplicationController.text(textId.get)" target="_blank">Text</a>
-      	        </li> 
-      	      }
+      	      <li>
+      	        @part.title
+      	        @defining(GeoDocumentTexts.findByGeoDocumentPart(part.id.get).map(_.id).flatten) { textId =>
+      	          @if(textId.isDefined) {
+      	           <a href="@routes.ApplicationController.text(textId.get)" target="_blank">Text</a>
+      	          }
+      	        }
+      	      </li> 
       	    }
       	    </ul>
       	  </li>      	  
