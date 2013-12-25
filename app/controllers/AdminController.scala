@@ -10,44 +10,65 @@ import play.api.mvc.{ Action, Controller }
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import play.api.Play.current
-import play.api.Logger
 
+/** Administration features.
+  * 
+  * @author Rainer Simon <rainer.simon@ait.ac.at>
+  */
 object AdminController extends Controller with Secured {
   
-  def index() = dbSessionWithAuth { username => implicit session => {
+  /** Admin index page **/
+  def index = protectedDBAction { username => implicit session => {
     Ok(views.html.admin())
   }}
   
-  def downloadPart(gdocPartId: Int) = dbSessionWithAuth { username => implicit session =>
-    val gdocPart = GeoDocumentParts.findById(gdocPartId)
+  /** Generates a CSV backup for the specified document or document part.
+    *
+    * Either a document ID or a document part ID must be provided. If neither is
+    * provided, the method will return HTTP 404. If both are provided, a backup will
+    * be created for the specified document. The part ID will be ignored.
+    * @param doc the document ID (optional)
+    * @param part the document part ID (optional)
+    */
+  def backupAnnotations(doc: Option[Int], part: Option[Int]) = protectedDBAction { username => implicit session =>
+    if (doc.isDefined)
+      backupAnnotations_forDoc(doc.get)
+    else if (part.isDefined)
+      backupAnnotations_forPart(part.get)
+    else
+      NotFound
+  }
+    
+  private def backupAnnotations_forDoc(doc: Int)(implicit session: Session) = {
+    val gdoc = GeoDocuments.findById(doc)
+    if (gdoc.isDefined) {
+      val filename = gdoc.get.title.replace(' ', '_').toLowerCase.trim
+      val annotations = Annotations.findByGeoDocument(doc)
+      Ok(CSVExporter.toDump(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + ".csv\""))
+    } else {
+      NotFound
+    }
+  } 
+  
+  private def backupAnnotations_forPart(part: Int)(implicit session: Session) = {
+    val gdocPart = GeoDocumentParts.findById(part)
     if (gdocPart.isDefined) {
       val gdoc = GeoDocuments.findById(gdocPart.get.gdocId)
       val filename = gdoc.get.title.replace(' ', '_').toLowerCase + "_" + gdocPart.get.title.replace(' ', '_').toLowerCase.trim
-      val annotations = Annotations.findByGeoDocumentPart(gdocPartId)
+      val annotations = Annotations.findByGeoDocumentPart(part)
       Ok(CSVExporter.toDump(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + "\".csv"))
     } else {
       NotFound 
     }
   }
-  
-  def downloadDocument(gdocId: Int) = dbSessionWithAuth { username => implicit session =>
-    val gdoc = GeoDocuments.findById(gdocId)
-    if (gdoc.isDefined) {
-      val filename = gdoc.get.title.replace(' ', '_').toLowerCase.trim
-      val annotations = Annotations.findByGeoDocument(gdocId)
-      Ok(CSVExporter.toDump(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + ".csv\""))
-    } else {
-      NotFound
-    }
-  }
-  
-  def dropDocument(gdocId: Int) = dbSessionWithAuth { username => implicit session =>
-    Annotations.deleteForGeoDocument(gdocId)
-    Redirect(routes.AdminController.index)
-  }
-  
-  def importCSV(gdocId: Int) = DBAction(parse.multipartFormData) { implicit session =>
-    val gdoc = GeoDocuments.findById(gdocId)
+        
+  /** Imports annotations into the document with the specified ID.
+    * 
+    * Annotations are to be delivered as a CSV file in the body of the POST request.
+    * @param doc the document ID
+    */
+  def importAnnotations(doc: Int) = DBAction(parse.multipartFormData) { implicit session =>
+    val gdoc = GeoDocuments.findById(doc)
     if (gdoc.isDefined) {
       session.request.body.file("csv").map(filePart => {
         val annotations = CSVImporter.importCSV(filePart.ref.file.getAbsolutePath, gdoc.get.id.get)
@@ -56,5 +77,14 @@ object AdminController extends Controller with Secured {
     }
     Redirect(routes.AdminController.index)
   }
-
+  
+  /** Drops annotations for the document with the specified ID.
+    * 
+    * @param doc the document ID 
+    */
+  def dropAnnotations(doc: Int) = protectedDBAction { username => implicit session =>
+    Annotations.deleteForGeoDocument(doc)
+    Redirect(routes.AdminController.index)
+  }
+  
 }

@@ -25,15 +25,15 @@
         @for(document <- models.GeoDocuments.listAll()) {
       	  <li class="geo-document">
       	    @document.title
-      	    <a href="@routes.ApplicationController.map(document.id.get)">Map</a>
-      	    <a href="@routes.ApplicationController.csv(document.id.get)">CSV</a>
+      	    <a href="@routes.ApplicationController.showMapCorrectionUI(document.id.get)">Map</a>
+      	    <a href="@routes.DocumentController.get(document.id.get, Some("csv"))">CSV</a>
       	    <ul>
       	    @for(part <- models.GeoDocumentParts.findByGeoDocument(document.id.get)) {
       	      <li>
       	        @part.title
       	        @defining(GeoDocumentTexts.findByGeoDocumentPart(part.id.get).map(_.id).flatten) { textId =>
       	          @if(textId.isDefined) {
-      	           <a href="@routes.ApplicationController.text(textId.get)" target="_blank">Text</a>
+      	           <a href="@routes.ApplicationController.showTextAnnotationUI(textId.get)" target="_blank">Text</a>
       	          }
       	        }
       	      </li> 

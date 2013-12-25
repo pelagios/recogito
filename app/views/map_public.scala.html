@@ -10,7 +10,7 @@
     <script type="text/javascript" src="@routes.Assets.at("javascripts/map-public.js")"></script>   
     <script>
       $(function() {
-        var map = new pelagios.georesolution.PublicMap(document.getElementById('map'), '@routes.Documents.getDocument(docId)');
+        var map = new pelagios.georesolution.PublicMap(document.getElementById('map'), '@routes.DocumentController.get(docId, Some("json"))');
       });
     </script>
   </head>

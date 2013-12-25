@@ -6,16 +6,16 @@ import models._
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import play.api.libs.json.Json
-import play.api.mvc.Controller
+import play.api.mvc.{ Action, Controller }
 
 /** Annotation CRUD controller.
   *
   * @author Rainer Simon <rainer.simon@ait.ac.at> 
   */
 object AnnotationController extends Controller with Secured {
-  
+
   /** Creates a new annotation with (corrected) toponym and offset values **/
-  def create = jsonWithAuth { username => implicit requestWithSession =>    
+  def create = protectedJSONAction { username => implicit requestWithSession =>    
     val user = Users.findByUsername(username)
     if (user.isDefined) {
       val body = requestWithSession.request.body
@@ -51,18 +51,41 @@ object AnnotationController extends Controller with Secured {
     }
   }
   
+  /** Checks if a newly created annotation conflicts with an existing one.
+   *  
+    * Text annotations cannot overlap each other. If they do, this is probably a consequence
+    * of identical - or contradictory - edits made concurrently by different users at the same
+    * time. Overlapping annotations would also break the rendering of the text view. This 
+    * sanity check method helps to ensure data integrity.
+    * @param gdocPartId the ID of the annotated EGD part
+    * @param toponym the annotated toponym
+    * @param the annotation offset
+    */
   private def isValid(gdocPartId: Int, toponym: String, offset: Int)(implicit s: Session): Boolean = {
     val intersectingAnnotations = Annotations.findByGeoDocumentPart(gdocPartId).filter(annotation => {
       val otherOffset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset
       otherOffset.isDefined && (otherOffset.get >= offset) && (otherOffset.get <= offset + toponym.size)
-    })
-    
-    // Intersections (or identical offsets) are not allowed! 
+    })    
     intersectingAnnotations.size == 0
   }
   
-  /** Updates the annotation with the specified ID **/
-  def update(id: Int) = jsonWithAuth { username => implicit requestWithSession =>
+  /** Get a specific annotation.
+    * 
+    * The response also includes the 'context', i.e. a snippet showing
+    * the toponym with surrounding source text (if the text is available
+    * in the database).
+    * @param id the annotation ID
+    */
+  def get(id: Int) = Action {
+    // TODO implement
+    Ok("")
+  }
+    
+  /** Updates the annotation with the specified ID.
+    *  
+    * @param id the annotation ID to update
+    */
+  def update(id: Int) = protectedJSONAction { username => implicit requestWithSession =>
     val user = Users.findByUsername(username)
     if (user.isDefined) {
       val annotation = Annotations.findById(id)
@@ -102,8 +125,14 @@ object AnnotationController extends Controller with Secured {
     }
   }
   
-  /** 'Deletes' an annotation by setting it's status to 'FALSE DETECTION' **/
-  def delete(id: Int) = dbSessionWithAuth { username => implicit requestWithSession =>
+  /** 'Deletes' an annotation by setting it's status to 'FALSE DETECTION'.
+    *  
+    * Note: we never actually delete an annotation from the system. We only mark
+    * them as 'FALSE DETECTION' in order to maintain a full audit trail and have
+    * an easy way to generate precision and recall metrics.
+    * @param id the annotation ID 
+    */
+  def delete(id: Int) = protectedDBAction { username => implicit requestWithSession =>
     val user = Users.findByUsername(username)
     if (user.isDefined) {
       val annotation = Annotations.findById(id)
@@ -130,7 +159,12 @@ object AnnotationController extends Controller with Secured {
     }
   }
   
-  /** Private helper method that creates an update diff event by comparing original and updated annotation **/
+  /** Private helper method that creates an update diff event by comparing original and updated annotation.
+    * 
+    * @param before the original annotation
+    * @param after the updated annotation
+    * @param userId the user who made the update
+    */
   private def createDiffEvent(before: Annotation, after: Annotation, userId: Int): EditEvent = {    
     val updatedStatus = if (before.status.equals(after.status)) None else Some(after.status)
     val updatedToponym = if (before.correctedToponym.equals(after.correctedToponym)) None else after.correctedToponym

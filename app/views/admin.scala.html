@@ -36,17 +36,17 @@
                   <td>@part.title</td>
                   <td><a href="@part.source" target="_blank">@part.source</a></td>
                   <td>@models.Annotations.countForGeoDocumentPart(part.id.get)</td>
-                  <td class="action"><button onclick="location.href='@routes.AdminController.downloadPart(part.id.get)'">CSV Backup</button></td>
-                </tr>	
+                  <td class="action"><button onclick="location.href='@routes.AdminController.backupAnnotations(None, part.id)'">CSV Backup</button></td>
+                </tr>
               }
             </tbody>
           </table>
-          <button onclick="location.href='@routes.AdminController.downloadDocument(egd.id.get)'">CSV Backup (Entire Document)</button>
-          <button onclick="if (confirm('Are you sure about that?')) location.href='@routes.AdminController.dropDocument(egd.id.get)'">Drop All Annotations</button>
+          <button onclick="location.href='@routes.AdminController.backupAnnotations(egd.id, None)'">CSV Backup (Entire Document)</button>
+          <button onclick="if (confirm('Are you sure about that?')) location.href='@routes.AdminController.dropAnnotations(egd.id.get)'">Drop All Annotations</button>
           <div class="import">
             <button onclick="toggleImportForm('@egd.id.get')">Import CSV</button>
             <div class="import-form" id="@egd.id.get">
-              @helper.form(action = routes.AdminController.importCSV(egd.id.get), 'enctype -> "multipart/form-data") {
+              @helper.form(action = routes.AdminController.importAnnotations(egd.id.get), 'enctype -> "multipart/form-data") {
                 <input type="file" name="csv" value="Import CSV" />
                 <input type="submit" value="IMPORT!" />
               }

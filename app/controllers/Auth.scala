@@ -8,9 +8,11 @@ import play.api.mvc._
 import play.api.Play.current
 import play.api.libs.json.JsValue
 import scala.slick.session.Session
-import play.api.db.slick.DBSessionRequest
 
-/** Authentication based on username & password **/
+/** Authentication based on username & password.
+  *
+  * @author Rainer Simon <rainer.simon@ait.ac.at>
+  */
 object Auth extends Controller {
 
   import play.api.data.Forms._
@@ -60,25 +62,27 @@ trait Secured {
 
   def username(request: RequestHeader) = request.session.get(Security.username)
 
-  def onUnauthorized(request: RequestHeader) = Results.Redirect(routes.Auth.login)
+  def redirectUnauthorized(request: RequestHeader) = Results.Redirect(routes.Auth.login)
 
-  /** For authenticated actions **/
-  def withAuth(f: => String => Request[AnyContent] => Result) = {
-    Security.Authenticated(username, onUnauthorized) { user =>
+  def rejectUnauthorized(request: RequestHeader) = Results.Forbidden
+  
+  /** For protected actions - will redirect to the Login form **/
+  def protectedAction(f: => String => Request[AnyContent] => Result) = {
+    Security.Authenticated(username, redirectUnauthorized) { user =>
       Action(request => f(user)(request))
     }
   }
-  
-  /** For authenticated actions with DB access **/
-  def dbSessionWithAuth(f: => String => DBSessionRequest[_] => SimpleResult) = {
-    Security.Authenticated(username, onUnauthorized) { user =>
+
+  /** For protected actions that require DB access - will redirect to the Login form **/
+  def protectedDBAction(f: => String => DBSessionRequest[_] => SimpleResult) = {
+    Security.Authenticated(username, redirectUnauthorized) { user =>
       DBAction(rs => f(user)(rs))
     }
   }
   
-  /** For authenticated JSON actions with DB access **/
-  def jsonWithAuth(f: => String => DBSessionRequest[JsValue] => SimpleResult) = {
-    Security.Authenticated(username, onUnauthorized) { user =>
+  /** For protected API actions - will reject with HTTP Forbidden **/
+  def protectedJSONAction(f: => String => DBSessionRequest[JsValue] => SimpleResult) = {
+    Security.Authenticated(username, rejectUnauthorized) { user =>
       DBAction(BodyParsers.parse.json)(rs => f(user)(rs))
     }
   }

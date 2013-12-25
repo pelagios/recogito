@@ -21,7 +21,7 @@
     <script>
       $(function() {
         var app = new pelagios.georesolution.CorrectionTool(
-          document.getElementById('table'), document.getElementById('map'), document.getElementById('footer'), '@routes.Documents.getDocument(docId)');
+          document.getElementById('table'), document.getElementById('map'), document.getElementById('footer'), '@routes.DocumentController.get(docId, Some("json"))');
       });
     </script>
   </head>

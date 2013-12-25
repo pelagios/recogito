@@ -4,13 +4,16 @@ import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.Json
 import org.pelagios.grct.Global
 
-/** Toponym search API controller **/
+/** Toponym search API controller.
+  *
+  * @author Rainer Simon <rainer.simon@ait.ac.at>
+  */
 object SearchController extends Controller {
   
   private val PLEIADES_PREFIX = "http://pleiades.stoa.org"
   private val DARE_PREFIX = "http://www.imperium.ahlfeldt.se/"
     
-  def index(query: String) = Action {
+  def search(query: String) = Action {
     // For search, we're restricting to Pleiades URIs only
     val results = Global.index.query(query, true).filter(_.uri.startsWith(PLEIADES_PREFIX)).map(place => { 
       // We use DARE coordinates if we have them

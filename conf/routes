@@ -1,54 +1,49 @@
 # Routes
 # ~~~~
 
+
 # Static resources
-GET     /labs/grct/assets/*file      controllers.Assets.at(path="/public", file)
+GET     /labs/grct/static/*file                controllers.Assets.at(path="/public", file)
 
 # Authentication
-GET     /labs/grct/login             controllers.Auth.login
-POST    /labs/grct/login             controllers.Auth.authenticate
-GET     /labs/grct/logout            controllers.Auth.logout
-
+GET     /labs/grct/login                       controllers.Auth.login
+POST    /labs/grct/login                       controllers.Auth.authenticate
+GET     /labs/grct/logout                      controllers.Auth.logout
 
 
 # API
 # ~~~~
 
-# Annotation API
-POST    /labs/grct/annotations           controllers.AnnotationController.create
-PUT     /labs/grct/annotations/:id       controllers.AnnotationController.update(id: Int)
-DELETE  /labs/grct/annotations/:id       controllers.AnnotationController.delete(id: Int)
+# Documents
+GET     /labs/grct/api/documents               controllers.DocumentController.listAll
+GET     /labs/grct/api/documents/:id           controllers.DocumentController.get(id: Int, format: Option[String])
 
-# Toponym search API
-GET     /labs/grct/search                controllers.SearchController.index(query: String)
+# Annotations
+POST    /labs/grct/api/annotations             controllers.AnnotationController.create
+GET     /labs/grct/api/annotations/:id         controllers.AnnotationController.get(id: Int)
+PUT     /labs/grct/api/annotations/:id         controllers.AnnotationController.update(id: Int)
+DELETE  /labs/grct/api/annotations/:id         controllers.AnnotationController.delete(id: Int)
 
-# Document API
-GET     /labs/grct/documents/:id         controllers.Documents.getDocument(id: Int)
-GET     /labs/grct/documents             controllers.Documents.listAll
-
-# Annotation Editing
-GET     /labs/grct/edit-history          controllers.EditHistoryController.showHistory
-
-# Remote source preview snippet
-GET     /labs/grct/preview               controllers.Preview.index(url: String, term: String)
+# Search
+GET     /labs/grct/api/search                  controllers.SearchController.search(query: String)
 
 
-# Application areas
+# Application
 # ~~~~
 
-# Admin area
-GET     /labs/grct/admin                 controllers.AdminController.index
-GET     /labs/grct/admin/dump-part       controllers.AdminController.downloadPart(gdocPartId: Int)
-GET     /labs/grct/admin/dump-document   controllers.AdminController.downloadDocument(gdocId: Int)
-GET     /labs/grct/admin/drop-document   controllers.AdminController.dropDocument(gdocId: Int)
-POST    /labs/grct/admin/import          controllers.AdminController.importCSV(gdocId: Int)
+# Public views
+GET     /labs/grct/map                         controllers.ApplicationController.showMap(doc: Int)
 
-# Public application views
-GET     /labs/grct/public/egd/:id        controllers.PublicController.map(id: Int)
+# Private views 
+GET     /labs/grct/edit/text                   controllers.ApplicationController.showTextAnnotationUI(text: Int)
+GET     /labs/grct/edit/map                    controllers.ApplicationController.showMapCorrectionUI(doc: Int)
+GET     /labs/grct/history                     controllers.ApplicationController.showHistory
 
-# Private application views 
-GET     /labs/grct/fulltext              controllers.ApplicationController.text(textId: Int)
-GET     /labs/grct/map                   controllers.ApplicationController.map(docId: Int)
-GET     /labs/grct/csv                   controllers.ApplicationController.csv(docId: Int)
-GET     /labs/grct/                      controllers.ApplicationController.index
-GET     /labs/grct                       controllers.ApplicationController.index
+GET     /labs/grct/admin/annotations           controllers.AdminController.backupAnnotations(doc: Option[Int], part: Option[Int]) 
+POST    /labs/grct/admin/annotations           controllers.AdminController.importAnnotations(doc: Int)
+DELETE  /labs/grct/admin/annotations           controllers.AdminController.dropAnnotations(doc: Int)
+GET     /labs/grct/admin                       controllers.AdminController.index
+
+# Index page (available in public and private version)
+GET     /labs/grct/                            controllers.ApplicationController.index
+GET     /labs/grct                             controllers.ApplicationController.index
