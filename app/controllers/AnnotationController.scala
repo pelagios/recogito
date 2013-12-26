@@ -15,33 +15,37 @@ import play.api.mvc.{ Action, Controller }
 object AnnotationController extends Controller with Secured {
 
   /** Creates a new annotation with (corrected) toponym and offset values **/
-  def create = protectedJSONAction { username => implicit requestWithSession =>    
+  def create = protectedDBAction(Secure.REJECT) { username => implicit requestWithSession =>    
     val user = Users.findByUsername(username)
     if (user.isDefined) {
-      val body = requestWithSession.request.body
-      val gdocId = (body \ "gdocId").as[Int]
-      val gdocPart = GeoDocumentParts.findById(gdocId)
-      if (gdocPart.isDefined) {
-        // Create new annotation
-        val correctedToponym = (body \ "corrected_toponym").as[String]
-        val correctedOffset = (body \ "corrected_offset").as[Int]
+      val body = requestWithSession.request.body.asJson
+      if (body.isDefined) {
+        val gdocId = (body.get \ "gdocId").as[Int]
+        val gdocPart = GeoDocumentParts.findById(gdocId)
+        if (gdocPart.isDefined) {
+          // Create new annotation
+          val correctedToponym = (body.get \ "corrected_toponym").as[String]
+          val correctedOffset = (body.get \ "corrected_offset").as[Int]
         
-        if (isValid(gdocPart.get.gdocId, correctedToponym, correctedOffset)) {
-          val annotation = 
-            Annotation(None, gdocPart.get.gdocId, gdocPart.get.id, 
-                       AnnotationStatus.NOT_VERIFIED, None, None, None, 
-                       Some(correctedToponym), Some(correctedOffset))
+          if (isValid(gdocPart.get.gdocId, correctedToponym, correctedOffset)) {
+            val annotation = 
+              Annotation(None, gdocPart.get.gdocId, gdocPart.get.id, 
+                         AnnotationStatus.NOT_VERIFIED, None, None, None, 
+                         Some(correctedToponym), Some(correctedOffset))
         
-          val id = Annotations returning Annotations.id insert(annotation)
+            val id = Annotations returning Annotations.id insert(annotation)
       
-          // Record edit event
-          val event = 
-            EditEvent(None, id, user.get.id.get, new Timestamp(new Date().getTime), 
-                      Some(correctedToponym), None, None, None, None)
+            // Record edit event
+            val event = 
+              EditEvent(None, id, user.get.id.get, new Timestamp(new Date().getTime), 
+                        Some(correctedToponym), None, None, None, None)
                               
-          Ok(Json.parse("{ \"success\": true }"))
+            Ok(Json.parse("{ \"success\": true }"))
+          } else {
+            BadRequest(Json.parse("{ \"success\": false, \"message\": \"Annotation did not validate\" }"))
+          }
         } else {
-          BadRequest(Json.parse("{ \"success\": false, \"message\": \"Annotation did not validate\" }"))
+          BadRequest(Json.parse("{ \"success\": false, \"message\": \"Missing JSON body\" }"))
         }
       } else {
         Ok(Json.parse("{ \"success\": false, \"message\": \"Invalid GDocPart ID\" }"))
@@ -85,38 +89,43 @@ object AnnotationController extends Controller with Secured {
     *  
     * @param id the annotation ID to update
     */
-  def update(id: Int) = protectedJSONAction { username => implicit requestWithSession =>
+  def update(id: Int) = protectedDBAction(Secure.REJECT) { username => implicit requestWithSession =>
     val user = Users.findByUsername(username)
     if (user.isDefined) {
       val annotation = Annotations.findById(id)
       if (annotation.isDefined) {
         // Update annotation
-        val body = requestWithSession.request.body
-        val correctedStatus = (body \ "status").as[Option[String]].map(AnnotationStatus.withName(_))
-        val correctedToponym = (body \ "corrected_toponym").as[Option[String]]
-        val correctedOffset = (body \ "corrected_offset").as[Option[Int]]
-        val correctedURI = (body \ "corrected_uri").as[Option[String]]
-        val correctedTags = (body \ "tags").as[Option[String]]
-        val correctedComment = (body \ "comment").as[Option[String]]
+        val body = requestWithSession.request.body.asJson
+        if (body.isDefined) {
+          val json = body.get
+          val correctedStatus = (json \ "status").as[Option[String]].map(AnnotationStatus.withName(_))
+          val correctedToponym = (json \ "corrected_toponym").as[Option[String]]
+          val correctedOffset = (json \ "corrected_offset").as[Option[Int]]
+          val correctedURI = (json \ "corrected_uri").as[Option[String]]
+          val correctedTags = (json \ "tags").as[Option[String]]
+          val correctedComment = (json \ "comment").as[Option[String]]
         
-        val updatedStatus = correctedStatus.getOrElse(annotation.get.status)
-        val updatedToponym = if (correctedToponym.isDefined) correctedToponym else annotation.get.correctedToponym
-        val updatedOffset = if (correctedOffset.isDefined) correctedOffset else annotation.get.correctedOffset
-        val updatedURI = if (correctedURI.isDefined) correctedURI else annotation.get.correctedGazetteerURI
-        val updatedTags = if (correctedTags.isDefined) correctedTags else annotation.get.tags
-        val updatedComment = if (correctedComment.isDefined) correctedComment else annotation.get.comment
+          val updatedStatus = correctedStatus.getOrElse(annotation.get.status)
+          val updatedToponym = if (correctedToponym.isDefined) correctedToponym else annotation.get.correctedToponym
+          val updatedOffset = if (correctedOffset.isDefined) correctedOffset else annotation.get.correctedOffset
+          val updatedURI = if (correctedURI.isDefined) correctedURI else annotation.get.correctedGazetteerURI
+          val updatedTags = if (correctedTags.isDefined) correctedTags else annotation.get.tags
+          val updatedComment = if (correctedComment.isDefined) correctedComment else annotation.get.comment
    
-        val updated = 
-          Annotation(Some(id), annotation.get.gdocId, annotation.get.gdocPartId, 
-                     updatedStatus,
-                     annotation.get.toponym, annotation.get.offset, annotation.get.gazetteerURI, 
-                     updatedToponym, updatedOffset, updatedURI, updatedTags, updatedComment)
+          val updated = 
+            Annotation(Some(id), annotation.get.gdocId, annotation.get.gdocPartId, 
+                       updatedStatus,
+                       annotation.get.toponym, annotation.get.offset, annotation.get.gazetteerURI, 
+                       updatedToponym, updatedOffset, updatedURI, updatedTags, updatedComment)
           
-        Annotations.update(updated)
+          Annotations.update(updated)
         
-        // Record edit event
-        EditHistory.insert(createDiffEvent(annotation.get, updated, user.get.id.get))
-        Ok(Json.parse("{ \"success\": true }"))
+          // Record edit event
+          EditHistory.insert(createDiffEvent(annotation.get, updated, user.get.id.get))
+          Ok(Json.parse("{ \"success\": true }"))
+        } else {
+          BadRequest(Json.parse("{ \"success\": false, \"message\": \"Missing JSON body\" }"))          
+        }
       } else {
         NotFound(Json.parse("{ \"success\": false, \"message\": \"Annotation not found\" }")) 
       } 
@@ -132,7 +141,7 @@ object AnnotationController extends Controller with Secured {
     * an easy way to generate precision and recall metrics.
     * @param id the annotation ID 
     */
-  def delete(id: Int) = protectedDBAction { username => implicit requestWithSession =>
+  def delete(id: Int) = protectedDBAction(Secure.REJECT) { username => implicit requestWithSession =>
     val user = Users.findByUsername(username)
     if (user.isDefined) {
       val annotation = Annotations.findById(id)

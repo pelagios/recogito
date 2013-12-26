@@ -8,6 +8,7 @@ import play.api.mvc._
 import play.api.Play.current
 import play.api.libs.json.JsValue
 import scala.slick.session.Session
+import play.api.db.slick.DBSessionRequest
 
 /** Authentication based on username & password.
   *
@@ -58,32 +59,39 @@ object Auth extends Controller {
 
 }
 
-trait Secured {
-
-  def username(request: RequestHeader) = request.session.get(Security.username)
-
-  def redirectUnauthorized(request: RequestHeader) = Results.Redirect(routes.Auth.login)
-
-  def rejectUnauthorized(request: RequestHeader) = Results.Forbidden
+object Secure extends Enumeration {
   
-  /** For protected actions - will redirect to the Login form **/
-  def protectedAction(f: => String => Request[AnyContent] => Result) = {
-    Security.Authenticated(username, redirectUnauthorized) { user =>
+  type Policy = Value
+  
+  val REDIRECT_TO_LOGIN = Value("redirect")
+  
+  val REJECT = Value("reject")
+  
+}
+
+trait Secured {
+  
+  private def username(request: RequestHeader) = request.session.get(Security.username)
+  
+  private def onUnauthorized(policy: Secure.Policy)(request: RequestHeader) = {
+    if (policy == Secure.REDIRECT_TO_LOGIN)
+      Results.Redirect(routes.Auth.login)
+    else
+      Results.Forbidden
+  }
+  
+  
+  /** For protected actions **/
+  def protectedAction(policy: Secure.Policy)(f: => String => Request[AnyContent] => Result) = {
+    Security.Authenticated(username, onUnauthorized(policy)) { user =>
       Action(request => f(user)(request))
     }
   }
 
-  /** For protected actions that require DB access - will redirect to the Login form **/
-  def protectedDBAction(f: => String => DBSessionRequest[_] => SimpleResult) = {
-    Security.Authenticated(username, redirectUnauthorized) { user =>
-      DBAction(rs => f(user)(rs))
-    }
-  }
-  
-  /** For protected API actions - will reject with HTTP Forbidden **/
-  def protectedJSONAction(f: => String => DBSessionRequest[JsValue] => SimpleResult) = {
-    Security.Authenticated(username, rejectUnauthorized) { user =>
-      DBAction(BodyParsers.parse.json)(rs => f(user)(rs))
+  /** For protected actions that require DB access **/
+  def protectedDBAction(policy: Secure.Policy)(f: => String => DBSessionRequest[AnyContent] => SimpleResult) = {
+    Security.Authenticated(username, onUnauthorized(policy)) { user =>
+      DBAction(BodyParsers.parse.anyContent)(rs => f(user)(rs))
     }
   }
   

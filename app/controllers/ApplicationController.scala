@@ -15,7 +15,7 @@ object ApplicationController extends Controller with Secured {
   private val UTF8 = "UTF-8"
     
   /** Returns the index page for logged-in users **/
-  def index = protectedDBAction { username => implicit request => 
+  def index = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit request => 
     Ok(views.html.index(username)) 
   }
    
@@ -31,7 +31,7 @@ object ApplicationController extends Controller with Secured {
     * 
     * @param text the internal ID of the text in the DB 
     */
-  def showTextAnnotationUI(text: Int) = protectedDBAction { username => implicit request => 
+  def showTextAnnotationUI(text: Int) = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit request => 
     val gdocText = GeoDocumentTexts.findById(text)
     if (gdocText.isDefined) {
       val annotations = Annotations.findByGeoDocumentPart(gdocText.get.gdocPartId.get)
@@ -74,7 +74,7 @@ object ApplicationController extends Controller with Secured {
     *
     * @param doc the document ID 
     */
-  def showMapCorrectionUI(doc: Int) = protectedAction { username => implicit request => 
+  def showMapCorrectionUI(doc: Int) = protectedAction(Secure.REDIRECT_TO_LOGIN) { username => implicit request => 
     Ok(views.html.map(username, doc))
   }
   

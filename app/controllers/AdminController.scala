@@ -18,7 +18,7 @@ import play.api.Play.current
 object AdminController extends Controller with Secured {
   
   /** Admin index page **/
-  def index = protectedDBAction { username => implicit session => {
+  def index = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit session => {
     Ok(views.html.admin())
   }}
   
@@ -30,7 +30,7 @@ object AdminController extends Controller with Secured {
     * @param doc the document ID (optional)
     * @param part the document part ID (optional)
     */
-  def backupAnnotations(doc: Option[Int], part: Option[Int]) = protectedDBAction { username => implicit session =>
+  def backupAnnotations(doc: Option[Int], part: Option[Int]) = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit session =>
     if (doc.isDefined)
       backupAnnotations_forDoc(doc.get)
     else if (part.isDefined)
@@ -82,7 +82,7 @@ object AdminController extends Controller with Secured {
     * 
     * @param doc the document ID 
     */
-  def dropAnnotations(doc: Int) = protectedDBAction { username => implicit session =>
+  def dropAnnotations(doc: Int) = protectedDBAction(Secure.REJECT) { username => implicit session =>
     Annotations.deleteForGeoDocument(doc)
     Redirect(routes.AdminController.index)
   }
