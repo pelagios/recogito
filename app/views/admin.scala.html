@@ -4,6 +4,7 @@
   <head>
     <title>PELAGIOS Geo-Resolution Correction Tool</title>
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/admin.css")" />
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
     <script>
       function toggleImportForm(id) {
         var el = document.getElementById(id);
@@ -11,6 +12,14 @@
             el.style.display = 'none';
         else
             el.style.display = 'block';
+      }
+
+      function dropAnnotations(doc) {
+        $.ajax({
+          type: 'DELETE',
+          url: '@routes.AdminController.index/annotations?doc=' + doc,
+          success: function() { location.href = '@routes.AdminController.index'; }
+        });
       }
     </script>
   </head>
@@ -42,7 +51,7 @@
             </tbody>
           </table>
           <button onclick="location.href='@routes.AdminController.backupAnnotations(egd.id, None)'">CSV Backup (Entire Document)</button>
-          <button onclick="if (confirm('Are you sure about that?')) location.href='@routes.AdminController.dropAnnotations(egd.id.get)'">Drop All Annotations</button>
+          <button onclick="if (confirm('Are you sure about that?')) dropAnnotations(@egd.id.get)">Drop All Annotations</button>
           <div class="import">
             <button onclick="toggleImportForm('@egd.id.get')">Import CSV</button>
             <div class="import-form" id="@egd.id.get">
