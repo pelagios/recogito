@@ -27,7 +27,11 @@ object Auth extends Controller {
     })
   )
 
-  /** Checks username and password against the database **/
+  /** Checks username and password against the database 
+    *
+    * @param username the username
+    * @param password the password
+    */
   def check(username: String, password: String) = {
     Global.database.withSession { implicit s: Session =>
       val user = Users.findByUsername(username)
@@ -59,12 +63,15 @@ object Auth extends Controller {
 
 }
 
+/** Security 'policy' enum **/
 object Secure extends Enumeration {
   
   type Policy = Value
   
+  /** Redirect unauthorized users to the login page **/
   val REDIRECT_TO_LOGIN = Value("redirect")
   
+  /** Reject unauthorized users with an HTTP Forbidden status **/
   val REJECT = Value("reject")
   
 }

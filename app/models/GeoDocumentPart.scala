@@ -5,7 +5,10 @@ import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import scala.collection.mutable.HashMap
 
-/** Geospatial Document Part case class **/
+/** Geospatial Document Part case class.
+  *
+  * @author Rainer Simon <rainer.simon@ait.ac.at>
+  */
 case class GeoDocumentPart(id: Option[Int] = None, gdocId: Int, title: String, source: Option[String] = None)
 
 /** Geospatial database table **/

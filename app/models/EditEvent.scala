@@ -5,7 +5,10 @@ import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import java.sql.Timestamp
 
-/** Edit event case class **/
+/** Edit event case class.
+  * 
+  * @author Rainer Simon <rainer.simon@ait.ac.at>
+  */
 case class EditEvent(
     
     /** ID **/

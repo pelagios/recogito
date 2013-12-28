@@ -4,7 +4,10 @@ import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 
-/** User case class **/ 
+/** User case class.
+  *
+  * @author Rainer Simon <rainer.simon@ait.ac.at>
+  */ 
 case class User(id: Option[Int] = None, username: String, password: String)
 
 /** User database table **/

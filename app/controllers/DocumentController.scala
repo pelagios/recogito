@@ -8,7 +8,10 @@ import play.api.Play.current
 import org.pelagios.grct.Global
 import org.pelagios.grct.exporter.CSVExporter
 
-/** GeoDocument JSON API **/
+/** GeoDocument JSON API.
+  *
+  * @author Rainer Simon <rainer.simon@ait.ac.at>  
+  */
 object DocumentController extends Controller {
   
   private val CSV = "csv"

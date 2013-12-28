@@ -2,7 +2,10 @@ package models
 
 import scala.slick.lifted.MappedTypeMapper
 
-/** Possible annotation status values **/
+/** Possible annotation status values.
+  * 
+  * @author Rainer Simon <rainer.simon@ait.ac.at>
+  */
 object AnnotationStatus extends Enumeration {
   
   val NOT_VERIFIED = Value("NOT_VERIFIED")

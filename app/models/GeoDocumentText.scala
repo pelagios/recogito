@@ -4,6 +4,10 @@ import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 
+/** Geospatial Document source text case class.
+  *
+  * @author Rainer Simon <rainer.simon@ait.ac.at>
+  */
 case class GeoDocumentText(id: Option[Int] = None, gdocId: Int, gdocPartId: Option[Int], text: Array[Byte])
 
 object GeoDocumentTexts extends Table[GeoDocumentText]("gdocument_texts") {

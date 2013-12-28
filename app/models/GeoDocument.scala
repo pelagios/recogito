@@ -4,7 +4,10 @@ import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 
-/** Geospatial Document case class **/
+/** Geospatial Document case class.
+  *
+  * @author Rainer Simon <rainer.simon@ait.ac.at>
+  */
 case class GeoDocument(id: Option[Int] = None, title: String, source: Option[String] = None)
 
 /** Geospatial Documents database table **/
