@@ -1,4 +1,4 @@
-package org.pelagios.grct.importer
+package org.pelagios.grct.io
 
 import models._
 import play.api.db.slick._
@@ -6,16 +6,17 @@ import scala.io.Source
 
 object CSVImporter {
   
-  // TODO clean up
+  /* TODO clean up
   private val IDX_URI = 1  
   private val IDX_TOPONYM = 2
   private val IDX_OFFSET = 3
   private val IDX_TAGS = 4 
+  */
   
   private val SEPARATOR = ";"
 
   // TODO clean up
-  // Deprecated!
+  /* Deprecated!
   def importAnnotations(file: String, gdocId: Int, gdocPartId: Int): Seq[Annotation] = {
     val data = Source.fromFile(file).getLines.drop(1).filter(!_.isEmpty)
     data.map(line => {
@@ -26,6 +27,7 @@ object CSVImporter {
           Some(fields(IDX_TOPONYM)), Some(fields(IDX_OFFSET).toInt), placeURI, tags = Some(fields(IDX_TAGS)))
     }).toSeq
   }
+  */
   
   def importCSV(file: String, gdocId: Int)(implicit s: Session): Seq[Annotation] = {
     val data = Source.fromFile(file).getLines    

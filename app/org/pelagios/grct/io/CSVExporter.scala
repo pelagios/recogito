@@ -1,7 +1,6 @@
-package org.pelagios.grct.exporter
+package org.pelagios.grct.io
 
 import models._
-import java.io.InputStream
 import org.pelagios.gazetteer.GazetteerUtils
 import org.pelagios.grct.Global
 import play.api.db.slick._
@@ -11,7 +10,7 @@ object CSVExporter {
   private val SEPARATOR = ";"
   
   /** Generates CSV for 'public consumption' **/
-  def toCSV(annotations: Seq[Annotation]): String = {
+  def asConsolidatedVerifiedResult(annotations: Seq[Annotation]): String = {
     val header = "toponym,uri,lat,lng\n"
     annotations.foldLeft(header)((csv, annotation) => {
       val uri = if (annotation.correctedGazetteerURI.isDefined && !annotation.correctedGazetteerURI.get.isEmpty) annotation.correctedGazetteerURI else annotation.gazetteerURI
@@ -30,7 +29,7 @@ object CSVExporter {
   }
   
   /** Creates a full CSV dump, reflecting the DB table structure **/
-  def toDump(annotations: Seq[Annotation])(implicit s: Session): String = {
+  def asDBBackup(annotations: Seq[Annotation])(implicit s: Session): String = {
     val header = Seq("gdoc_part", "status", "toponym", "offset", "gazetteer_uri", "toponym_corrected", 
                      "offset_corrected", "gazetteer_uri_corrected", "tags", "comment").mkString(SEPARATOR) + "\n"
       

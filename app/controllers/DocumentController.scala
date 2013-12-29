@@ -6,7 +6,8 @@ import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.{ Json, JsObject }
 import play.api.Play.current
 import org.pelagios.grct.Global
-import org.pelagios.grct.exporter.CSVExporter
+import org.pelagios.grct.io.CSVExporter
+import org.pelagios.grct.io.CSVExporter
 
 /** GeoDocument JSON API.
   *
@@ -45,7 +46,7 @@ object DocumentController extends Controller {
   private def get_CSV(id: Int)(implicit session: Session) = {
     val parts = GeoDocumentParts.findByGeoDocument(id)
     val annotations = parts.map(part => Annotations.findByGeoDocumentPart(part.id.get)).flatten
-    Ok(CSVExporter.toCSV(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=pelagios-egd-" + id.toString + ".csv"))
+    Ok(CSVExporter.asConsolidatedVerifiedResult(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=pelagios-egd-" + id.toString + ".csv"))
   }
       
   private def get_JSON(id: Int)(implicit session: Session) = {

@@ -9,12 +9,13 @@ import play.api.Play.current
 import scala.slick.session.Database
 import play.api.db.slick.Config.driver.simple._
 import scala.slick.jdbc.meta.MTable
-import org.pelagios.grct.importer.CSVImporter
+import org.pelagios.grct.io.CSVImporter
 import scala.io.Source
 import org.pelagios.gazetteer.PlaceIndex
 import org.pelagios.Scalagios
 import java.util.zip.GZIPInputStream
 import java.io.FileInputStream
+import org.pelagios.grct.io.CSVImporter
 
 /** Play Global object **/
 object Global extends GlobalSettings {
@@ -54,22 +55,24 @@ object Global extends GlobalSettings {
       if (MTable.getTables("users").list().isEmpty) {
         Users.ddl.create
       
-        // Dummy users (temporary)
+        /* Dummy users (temporary)
         Users.insertAll(
           User(Some(0), "pelagios", "pelagios"),
-          User(Some(1), "admin", "admin"))
+          User(Some(1), "admin", "admin")) */
       }
        
       if (MTable.getTables("gdocuments").list().isEmpty) {
         GeoDocuments.ddl.create
         
+        /*
         GeoDocuments.insert(
-          GeoDocument(Some(0), "Bordeaux Itinerary"))
+          GeoDocument(Some(0), "Bordeaux Itinerary")) */
       }
       
       if (MTable.getTables("gdocument_parts").list().isEmpty) {
         GeoDocumentParts.ddl.create
         
+        /*
         GeoDocumentParts.insertAll(
            GeoDocumentPart(Some(0), 0, "Part 1", Some("http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord01Bordeaux.html")),
            GeoDocumentPart(Some(1), 0, "Part 2", Some("http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord02Milan.html")),
@@ -84,11 +87,13 @@ object Global extends GlobalSettings {
            GeoDocumentPart(Some(10), 0, "Part 9", Some("http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord09Heraclea.html")),
            GeoDocumentPart(Some(11), 0, "Part 10", Some("http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord10Valona.html")),
            GeoDocumentPart(Some(12), 0, "Part 11", Some("http://www.christusrex.org/www1/ofm/pilgr/bord/10Bord11Rome.html")))
+         */
       }
       
       if (MTable.getTables("gdocument_texts").list().isEmpty) {
         GeoDocumentTexts.ddl.create
         
+        /*
         GeoDocumentTexts.insertAll(
             GeoDocumentText(Some(0), 0, Some(0), Source.fromFile("public/test/part1.txt").map(_.toByte).toArray),
             GeoDocumentText(Some(1), 0, Some(1), Source.fromFile("public/test/part2.txt").map(_.toByte).toArray),
@@ -103,11 +108,13 @@ object Global extends GlobalSettings {
             GeoDocumentText(Some(10), 0, Some(10), Source.fromFile("public/test/part9.txt").map(_.toByte).toArray),
             GeoDocumentText(Some(11), 0, Some(11), Source.fromFile("public/test/part10.txt").map(_.toByte).toArray),
             GeoDocumentText(Some(12), 0, Some(12), Source.fromFile("public/test/part11.txt").map(_.toByte).toArray))
+            */
       }
       
       if (MTable.getTables("annotations").list().isEmpty) {
         Annotations.ddl.create
         
+        /*
         val csv = Seq(
           "public/test/part1.csv",
           "public/test/part2.csv",
@@ -125,7 +132,7 @@ object Global extends GlobalSettings {
           
         csv.foreach { case (file, gdocPartId) => {
           CSVImporter.importAnnotations(file, 0, gdocPartId).foreach(annotation => Annotations.insert(annotation))
-        }}
+        }} */
       }
       
       if (MTable.getTables("edit_history").list().isEmpty) {
