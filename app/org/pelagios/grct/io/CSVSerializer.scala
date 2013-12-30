@@ -5,7 +5,7 @@ import org.pelagios.gazetteer.GazetteerUtils
 import org.pelagios.grct.Global
 import play.api.db.slick._
 
-object CSVExporter {
+object CSVSerializer {
   
   private val SEPARATOR = ";"
   

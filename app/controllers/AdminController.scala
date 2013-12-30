@@ -1,7 +1,7 @@
 package controllers
 
 import models._
-import org.pelagios.grct.io.{ CSVExporter, CSVImporter }
+import org.pelagios.grct.io.{ CSVParser, CSVSerializer }
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation._
@@ -9,8 +9,6 @@ import play.api.mvc.{ Action, Controller }
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import play.api.Play.current
-import org.pelagios.grct.io.CSVExporter
-import org.pelagios.grct.io.CSVImporter
 
 /** Administration features.
   * 
@@ -45,7 +43,7 @@ object AdminController extends Controller with Secured {
     if (gdoc.isDefined) {
       val filename = gdoc.get.title.replace(' ', '_').toLowerCase.trim
       val annotations = Annotations.findByGeoDocument(doc)
-      Ok(CSVExporter.asDBBackup(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + ".csv\""))
+      Ok(CSVSerializer.asDBBackup(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + ".csv\""))
     } else {
       NotFound
     }
@@ -57,7 +55,7 @@ object AdminController extends Controller with Secured {
       val gdoc = GeoDocuments.findById(gdocPart.get.gdocId)
       val filename = gdoc.get.title.replace(' ', '_').toLowerCase + "_" + gdocPart.get.title.replace(' ', '_').toLowerCase.trim
       val annotations = Annotations.findByGeoDocumentPart(part)
-      Ok(CSVExporter.asDBBackup(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + "\".csv"))
+      Ok(CSVSerializer.asDBBackup(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + "\".csv"))
     } else {
       NotFound 
     }
@@ -72,7 +70,7 @@ object AdminController extends Controller with Secured {
     val gdoc = GeoDocuments.findById(doc)
     if (gdoc.isDefined) {
       session.request.body.file("csv").map(filePart => {
-        val annotations = CSVImporter.importCSV(filePart.ref.file.getAbsolutePath, gdoc.get.id.get)
+        val annotations = CSVParser.parse(filePart.ref.file.getAbsolutePath, gdoc.get.id.get)
         annotations.foreach(annotation => Annotations.insert(annotation))
       })
     }
