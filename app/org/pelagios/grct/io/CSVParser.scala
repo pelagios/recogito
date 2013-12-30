@@ -4,14 +4,26 @@ import models._
 import play.api.db.slick._
 import scala.io.Source
 
+/** Utility object to convert CSV input data to Annotation objects.
+  * 
+  * @author Rainer Simon <rainer.simon@ait.ac.at> 
+  */
 object CSVParser {
   
   private val SEPARATOR = ";"
   
+  /** Parses an input CSV file and produces annotations.
+    * 
+    * Since in the data model, annotations cannot exist without a valid parent
+    * document, it is required to specify a GeoDocument ID on import.
+    * @param file the CSV file path
+    * @param gdocId the database ID of the GeoDocument to import to
+    */
   def parse(file: String, gdocId: Int)(implicit s: Session): Seq[Annotation] = {
     val data = Source.fromFile(file).getLines    
     val header = data.take(1).toSeq.head.split(SEPARATOR, -1).toSeq 
 
+    // Helper method to find the row index for a specific label
     def idx(label: String): Int = header.indexWhere(_.equalsIgnoreCase(label))
     
     val idxGdocPart = idx("gdoc_part")

@@ -5,11 +5,24 @@ import org.pelagios.gazetteer.GazetteerUtils
 import org.pelagios.grct.Global
 import play.api.db.slick._
 
+/** Utility object to serialize Annotation data to CSV.
+  * 
+  * @author Rainer Simon <rainer.simon@ait.ac.at> 
+  */
 object CSVSerializer {
   
   private val SEPARATOR = ";"
   
-  /** Generates CSV for 'public consumption' **/
+  /** Generates 'consolidated output' for public consumption.
+    *
+    * This version of the CSV data exposes *only* the verified annotations,
+    * with just the final, corrected toponyms and gazetteer IDs. Information about
+    * whether data was generated automatically or manually, what corrections
+    * were made, etc. is no longer included in this data. CSV files of this type 
+    * CANNOT be used to restore data in the DB!
+    * @param annotations the annotations
+    * @return the CSV
+    */
   def asConsolidatedVerifiedResult(annotations: Seq[Annotation]): String = {
     val header = "toponym,uri,lat,lng\n"
     annotations.foldLeft(header)((csv, annotation) => {
@@ -28,7 +41,13 @@ object CSVSerializer {
     })
   }
   
-  /** Creates a full CSV dump, reflecting the DB table structure **/
+  /** Generates a full backup annotationsf from the database.
+    * 
+    * This version of the CSV data exposes all original fields from the annotations table
+    * in the database. CSV files of this type can be used to restore data in the DB.
+    * @param annotations the annotations
+    * @return the CSV
+    */
   def asDBBackup(annotations: Seq[Annotation])(implicit s: Session): String = {
     val header = Seq("gdoc_part", "status", "toponym", "offset", "gazetteer_uri", "toponym_corrected", 
                      "offset_corrected", "gazetteer_uri_corrected", "tags", "comment").mkString(SEPARATOR) + "\n"
