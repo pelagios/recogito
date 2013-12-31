@@ -3,10 +3,13 @@ package controllers
 import java.sql.Timestamp
 import java.util.Date
 import models._
+import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import play.api.libs.json.Json
 import play.api.mvc.{ Action, Controller }
+import org.omg.CosNaming.NamingContextPackage.NotFound
+import org.pelagios.grct.io.JSONSerializer
 
 /** Annotation CRUD controller.
   *
@@ -80,9 +83,13 @@ object AnnotationController extends Controller with Secured {
     * in the database).
     * @param id the annotation ID
     */
-  def get(id: Int) = Action {
-    // TODO implement
-    Ok("")
+  def get(id: Int) = DBAction { implicit session =>
+    val annotation = Annotations.findById(id)
+    if (annotation.isDefined) {          
+      Ok(JSONSerializer.toJson(annotation.get, true))
+    } else {
+      NotFound
+    }
   }
     
   /** Updates the annotation with the specified ID.
