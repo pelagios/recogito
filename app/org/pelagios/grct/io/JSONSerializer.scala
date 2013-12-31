@@ -5,18 +5,59 @@ import org.pelagios.grct.Global
 import play.api.db.slick._
 import play.api.libs.json.{ Json, JsObject }
 
+/** Utility object to serialize Annotation data to JSON.
+  * 
+  * @author Rainer Simon <rainer.simon@ait.ac.at> 
+  */
 object JSONSerializer {
   
   private val DARE_PREFIX = "http://www.imperium.ahlfeldt.se/"
+    
+  private val UTF8 = "UTF-8"
+    
+  private val CONTEXT_SIZE = 40
 
-  def toJson(a: Annotation, includeContext: Boolean = false): JsObject = {
+  /** Serializes a single annotation, with optional fulltext context.
+    *  
+    * Fulltext context is pulled from the database, if available.  
+    * @param a the annotation
+    * @param includeContext whether to include fulltext context or not
+    */
+  def toJson(a: Annotation, includeContext: Boolean = false)(implicit session: Session): JsObject = {
+    val toponym = if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym
+    val offset = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
+    val context = if (includeContext) { 
+      if (toponym.isDefined && offset.isDefined) {
+        val gdocText = if (a.gdocPartId.isDefined) GeoDocumentTexts.findByGeoDocumentPart(a.gdocPartId.get) else None
+        if (gdocText.isDefined) {
+          val text = new String(gdocText.get.text, UTF8)
+        
+          val ctxStart = if (offset.get - CONTEXT_SIZE > -1) offset.get - CONTEXT_SIZE else 0
+          val ctxEnd = 
+            if (offset.get + toponym.get.size + CONTEXT_SIZE <= text.size) 
+              offset.get + toponym.get.size + CONTEXT_SIZE
+            else
+              text.size
+       
+          Some(text.substring(ctxStart, ctxEnd))
+        } else {
+          None
+        }
+      } else {
+        None
+      }
+    } else {
+      None
+    }
+       
     Json.obj(
       "id" -> a.id,
       "toponym" -> { if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym },
       "status" -> a.status.toString,
       "place" -> a.gazetteerURI.map(placeUriToJson(_)),
       "place_fixed" -> a.correctedGazetteerURI.map(placeUriToJson(_)),
-      "tags" -> a.tags.map(_.split(",")))
+      "tags" -> a.tags.map(_.split(",")),
+      "context" -> context)
   }
   
   def toJson(doc: GeoDocument)(implicit session: Session): JsObject = {
