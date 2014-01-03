@@ -15,7 +15,7 @@ object JSONSerializer {
     
   private val UTF8 = "UTF-8"
     
-  private val CONTEXT_SIZE = 40
+  private val CONTEXT_SIZE = 50
 
   /** Serializes a single annotation, with optional fulltext context.
     *  
@@ -39,7 +39,7 @@ object JSONSerializer {
             else
               text.size
        
-          Some(text.substring(ctxStart, ctxEnd))
+          Some(text.substring(ctxStart, ctxEnd).replaceAll("\n+", " ").trim)
         } else {
           None
         }
