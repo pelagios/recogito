@@ -3,13 +3,12 @@ package controllers
 import java.sql.Timestamp
 import java.util.Date
 import models._
+import org.pelagios.recogito.io.JSONSerializer
 import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import play.api.libs.json.Json
 import play.api.mvc.{ Action, Controller }
-import org.omg.CosNaming.NamingContextPackage.NotFound
-import org.pelagios.grct.io.JSONSerializer
 
 /** Annotation CRUD controller.
   *

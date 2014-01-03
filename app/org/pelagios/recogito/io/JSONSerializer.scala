@@ -1,7 +1,7 @@
-package org.pelagios.grct.io
+package org.pelagios.recogito.io
 
 import models._
-import org.pelagios.grct.Global
+import org.pelagios.recogito.Global
 import play.api.db.slick._
 import play.api.libs.json.{ Json, JsObject }
 

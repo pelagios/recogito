@@ -5,9 +5,8 @@ import play.api.db.slick._
 import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.{ Json, JsObject }
 import play.api.Play.current
-import org.pelagios.grct.Global
-import org.pelagios.grct.io.CSVSerializer
-import org.pelagios.grct.io.JSONSerializer
+import org.pelagios.recogito.Global
+import org.pelagios.recogito.io.{ CSVSerializer, JSONSerializer }
 
 /** GeoDocument JSON API.
   *

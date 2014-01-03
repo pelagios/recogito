@@ -1,4 +1,4 @@
-package org.pelagios.grct
+package org.pelagios.recogito
 
 import models._
 import java.io.File
@@ -9,13 +9,12 @@ import play.api.Play.current
 import scala.slick.session.Database
 import play.api.db.slick.Config.driver.simple._
 import scala.slick.jdbc.meta.MTable
-import org.pelagios.grct.io.CSVParser
+import org.pelagios.recogito.io.CSVParser
 import scala.io.Source
 import org.pelagios.gazetteer.PlaceIndex
 import org.pelagios.Scalagios
 import java.util.zip.GZIPInputStream
 import java.io.FileInputStream
-import org.pelagios.grct.io.CSVParser
 
 /** Play Global object **/
 object Global extends GlobalSettings {

@@ -1,8 +1,8 @@
-package org.pelagios.grct.io
+package org.pelagios.recogito.io
 
 import models._
 import org.pelagios.gazetteer.GazetteerUtils
-import org.pelagios.grct.Global
+import org.pelagios.recogito.Global
 import play.api.db.slick._
 
 /** Utility object to serialize Annotation data to CSV.

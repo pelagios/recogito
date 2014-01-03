@@ -1,7 +1,7 @@
 package controllers
 
 import models._
-import org.pelagios.grct.io.{ CSVParser, CSVSerializer }
+import org.pelagios.recogito.io.{ CSVParser, CSVSerializer }
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation._

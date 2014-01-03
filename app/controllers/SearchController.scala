@@ -2,7 +2,7 @@ package controllers
 
 import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.Json
-import org.pelagios.grct.Global
+import org.pelagios.recogito.Global
 
 /** Toponym search API controller.
   *

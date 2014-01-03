@@ -1,7 +1,7 @@
 package controllers
 
 import models.Users
-import org.pelagios.grct.Global
+import org.pelagios.recogito.Global
 import play.api.data.Form
 import play.api.db.slick.{ DBAction, DBSessionRequest }
 import play.api.mvc._

@@ -1,4 +1,4 @@
-package org.pelagios.grct.io
+package org.pelagios.recogito.io
 
 import models._
 import play.api.db.slick._
