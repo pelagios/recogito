@@ -89,7 +89,7 @@ pelagios.georesolution.CorrectionTool.prototype._storeToDB = function(annotation
   
   $.ajax({
     type: 'PUT',
-    url: 'annotations/' + annotation.id,
+    url: 'api/annotations/' + annotation.id,
     contentType: 'application/json',
     data: JSON.stringify(payload) 
   });

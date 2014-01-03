@@ -246,53 +246,24 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
     $('.details-button-ignore').addClass('active');
   }
   
-  // TODO remove code duplication!
+  // Status buttons
+  var changeStatus = function(button, status) {
+    button.click(function() {
+      if (annotation.status != status) {
+        annotation.status = status;
+        self.fireEvent('update', annotation);
+        self.destroy(); 
+      }
+    });
+  };
   
   // Button 'verified'
-  $('.details-button-verified').click(function() {
-    if (annotation.status != 'VERIFIED') {
-      annotation.status = 'VERIFIED';
-      self.fireEvent('update', annotation);
-      self.destroy();
-    }
-  }); 
-  
-  // Button 'not verified'
-  $('.details-button-not-verified').click(function() {
-    if (annotation.status != 'NOT_VERIFIED') {
-      annotation.status = 'NOT_VERIFIED';
-      self.fireEvent('update', annotation);
-      self.destroy();
-    }
-  }); 
-  
-  // Button 'not identifyable'
-  $('.details-button-not-identifyable').click(function() {
-    if (annotation.status != 'NOT_IDENTIFYABLE') {
-      annotation.status = 'NOT_IDENTIFYABLE';
-      self.fireEvent('update', annotation);
-      self.destroy();
-    }
-  }); 
-  
-  // Button 'false detection'
-  $('.details-button-false-detection').click(function() {
-    if (annotation.status != 'FALSE_DETECTION') {
-      annotation.status = 'FALSE_DETECTION';
-      self.fireEvent('update', annotation);
-      self.destroy();
-    }
-  });
-  
-  // Button 'ignore'
-  $('.details-button-ignore').click(function() {
-    if (annotation.status != 'IGNORE') {
-      annotation.status = 'IGNORE';
-      self.fireEvent('update', annotation);
-      self.destroy();
-    }
-  });
-  
+  changeStatus($('.details-button-verified'), 'VERIFIED');
+  changeStatus($('.details-button-not-verified'), 'NOT_VERIFIED');
+  changeStatus($('.details-button-not-identifyable'), 'NOT_IDENTIFYABLE');
+  changeStatus($('.details-button-false-detection'), 'FALSE_DETECTION');
+  changeStatus($('.details-button-ignore'), 'IGNORE');
+      
   // Popuplate the map
   if (annotation.marker) {
     // Marker for auto-match
@@ -355,7 +326,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
     }
   });
   
-  // Preview snippets
+  // Toponym context (i.e. fulltext preview snippet)
   $.getJSON('api/annotations/' + annotation.id, function(a) {
     if (a.context) {
       var startIdx = a.context.indexOf(annotation.toponym);
@@ -367,30 +338,6 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
       }
     }    
   });
-
-  /*
-  $.getJSON('preview?url=' + encodeURIComponent(annotation.source) + '&term=' + annotation.toponym, function(snippets) {
-    var highlight = function(snippet) {
-      var startIdx = snippet.indexOf(annotation.toponym);
-      var endIdx = startIdx + annotation.toponym.length;
-      if (startIdx > -1 && endIdx <= snippet.length) {
-        var pre = snippet.substring(0, startIdx);
-        var post = snippet.substring(endIdx);
-        return pre + '<em>' + annotation.toponym + '</em>' + post;
-      } else { 
-        return snippet;
-      }
-    }
-    
-    if (snippets.length > 0) {
-      var preview = '';
-      $.each(snippets, function(idx, snippet) {
-        preview += '<p>...' + highlight(snippet) + "...</p>";        
-      });
-      $('.details-content-preview').html(preview);
-    }
-  });
-  */
   
   // Text search
   var markers = [];
