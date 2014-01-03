@@ -1,4 +1,4 @@
-name := "pelagios-georesolution-correction-tool"
+name := "recogito"
 
 version := "0.0.2"
 
