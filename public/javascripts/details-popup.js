@@ -337,7 +337,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
   }
   
   // Other candidates list
-  $.getJSON('search?query=' + annotation.toponym.toLowerCase(), function(data) {
+  $.getJSON('api/search?query=' + annotation.toponym.toLowerCase(), function(data) {
     var html = [],
         automatchURI = (annotation.place) ? annotation.place.uri : undefined,
         relevantURI = (annotation.place_fixed) ? annotation.place_fixed.uri : automatchURI;
@@ -356,6 +356,19 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
   });
   
   // Preview snippets
+  $.getJSON('api/annotations/' + annotation.id, function(a) {
+    if (a.context) {
+      var startIdx = a.context.indexOf(annotation.toponym);
+      var endIdx = startIdx + annotation.toponym.length;
+      if (startIdx > -1 && endIdx <= a.context.length) {
+        var pre = a.context.substring(0, startIdx);
+        var post = a.context.substring(endIdx);
+        $('.details-content-preview').html(pre + '<em>' + annotation.toponym + '</em>' + post);
+      }
+    }    
+  });
+
+  /*
   $.getJSON('preview?url=' + encodeURIComponent(annotation.source) + '&term=' + annotation.toponym, function(snippets) {
     var highlight = function(snippet) {
       var startIdx = snippet.indexOf(annotation.toponym);
@@ -377,6 +390,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
       $('.details-content-preview').html(preview);
     }
   });
+  */
   
   // Text search
   var markers = [];
@@ -387,7 +401,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
       $.each(markers, function(idx, marker) { map.removeLayer(marker); });
       markers = [];
       
-      $.getJSON('search?query=' + e.target.value.toLowerCase(), function(response) {
+      $.getJSON('api/search?query=' + e.target.value.toLowerCase(), function(response) {
         var html = [];
         $.each(response.results, function(idx, result) {
           var displayedResult = displaySearchResult(result)
