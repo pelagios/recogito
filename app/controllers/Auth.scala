@@ -7,8 +7,8 @@ import play.api.db.slick.{ DBAction, DBSessionRequest }
 import play.api.mvc._
 import play.api.Play.current
 import play.api.libs.json.JsValue
-import scala.slick.session.Session
 import play.api.db.slick.DBSessionRequest
+import scala.slick.session.Session
 
 /** Authentication based on username & password.
   *

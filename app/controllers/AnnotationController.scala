@@ -16,7 +16,10 @@ import play.api.mvc.{ Action, Controller }
   */
 object AnnotationController extends Controller with Secured {
 
-  /** Creates a new annotation with (corrected) toponym and offset values **/
+  /** Creates a new annotation with (corrected) toponym and offset values.
+    *
+    * The annotation to create is delivered as JSON in the body of the request.
+    */
   def create = protectedDBAction(Secure.REJECT) { username => implicit requestWithSession =>    
     val user = Users.findByUsername(username)
     if (user.isDefined) {
