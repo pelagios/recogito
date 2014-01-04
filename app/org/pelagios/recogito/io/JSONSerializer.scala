@@ -19,7 +19,8 @@ object JSONSerializer {
 
   /** Serializes a single annotation, with optional fulltext context.
     *  
-    * Fulltext context is pulled from the database, if available.  
+    * Optionally, fulltext context is pulled from the database, if available. Note 
+    * that the addition of fulltext context is an expensive operation! 
     * @param a the annotation
     * @param includeContext whether to include fulltext context or not
     */
@@ -60,6 +61,13 @@ object JSONSerializer {
       "context" -> context)
   }
   
+  /** Serializes a single GeoDocument, optionally with annotations in-lined.
+    *  
+    * Note that the addition of in-lined annotations is an expensive operation and
+    * will result in large JSON files! 
+    * @param doc the GeoDocument
+    * @param includeAnnotations whether to include the annotations in the JSON
+    */  
   def toJson(doc: GeoDocument, includeAnnotations: Boolean)(implicit session: Session): JsObject = {        
     Json.obj(
       "id" -> doc.id,

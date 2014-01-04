@@ -6,7 +6,7 @@ A Web-based tool for validating &amp; correcting geo-resolution results.
 
 ## Installation
 
-...
+... 
 
 ## Importing Data
 

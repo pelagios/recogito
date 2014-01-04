@@ -1,20 +1,18 @@
 package org.pelagios.recogito
 
 import models._
-import java.io.File
+import java.io.{ File, FileInputStream }
+import java.util.zip.GZIPInputStream
 import org.openrdf.rio.RDFFormat
+import org.pelagios.Scalagios
+import org.pelagios.gazetteer.PlaceIndex
+import org.pelagios.recogito.io.CSVParser
 import play.api.{ Application, GlobalSettings, Logger }
 import play.api.db.DB
 import play.api.Play.current
-import scala.slick.session.Database
 import play.api.db.slick.Config.driver.simple._
+import scala.slick.session.Database
 import scala.slick.jdbc.meta.MTable
-import org.pelagios.recogito.io.CSVParser
-import scala.io.Source
-import org.pelagios.gazetteer.PlaceIndex
-import org.pelagios.Scalagios
-import java.util.zip.GZIPInputStream
-import java.io.FileInputStream
 
 /** Play Global object **/
 object Global extends GlobalSettings {
