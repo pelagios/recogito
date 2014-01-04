@@ -9,6 +9,8 @@ import play.api.mvc.{ Action, Controller }
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import play.api.Play.current
+import org.pelagios.recogito.io.JSONSerializer
+import play.api.libs.json.Json
 
 /** Administration features.
   * 
@@ -17,9 +19,14 @@ import play.api.Play.current
 object AdminController extends Controller with Secured {
   
   /** Admin index page **/
-  def index = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit session => {
+  def index = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit session =>
     Ok(views.html.admin())
-  }}
+  }
+  
+  def backupDocumentMeta = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit session =>
+    val json = GeoDocuments.listAll.map(JSONSerializer.toJson(_, false))
+    Ok(Json.toJson(json))
+  }
   
   /** Generates a CSV backup for the specified document or document part.
     *

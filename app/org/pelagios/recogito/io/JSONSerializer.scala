@@ -60,14 +60,22 @@ object JSONSerializer {
       "context" -> context)
   }
   
-  def toJson(doc: GeoDocument, includeAnnotations: Boolean)(implicit session: Session): JsObject = {
+  def toJson(doc: GeoDocument, includeAnnotations: Boolean)(implicit session: Session): JsObject = {        
     Json.obj(
       "id" -> doc.id,
       "title" -> doc.title,
       "parts" -> GeoDocumentParts.findByGeoDocument(doc.id.get).map(part => Json.obj(
         "title" -> part.title,
         "source" -> part.source,
-        "annotations" -> Annotations.findByGeoDocumentPart(part.id.get).map(toJson(_, false))
+        "annotations" -> { 
+          val annotations = 
+            if (includeAnnotations)
+              Some(Annotations.findByGeoDocumentPart(part.id.get).map(toJson(_, false)))
+            else
+              None
+           
+          annotations
+        }
       )
     ))       
   }

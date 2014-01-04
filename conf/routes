@@ -39,6 +39,7 @@ GET     /recogito/edit/text                   controllers.ApplicationController.
 GET     /recogito/edit/map                    controllers.ApplicationController.showMapCorrectionUI(doc: Int)
 GET     /recogito/history                     controllers.ApplicationController.showHistory
 
+GET     /recogito/admin/documents             controllers.AdminController.backupDocumentMeta
 GET     /recogito/admin/annotations           controllers.AdminController.backupAnnotations(doc: Option[Int], part: Option[Int]) 
 POST    /recogito/admin/annotations           controllers.AdminController.importAnnotations(doc: Int)
 DELETE  /recogito/admin/annotations           controllers.AdminController.dropAnnotations(doc: Int)
