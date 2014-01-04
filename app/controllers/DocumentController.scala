@@ -1,12 +1,12 @@
 package controllers
 
+import controllers.io.{ CSVSerializer, JSONSerializer }
 import models._
 import play.api.db.slick._
 import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.{ Json, JsObject }
 import play.api.Play.current
-import org.pelagios.recogito.Global
-import org.pelagios.recogito.io.{ CSVSerializer, JSONSerializer }
+import global.Global
 
 /** GeoDocument JSON API.
   *

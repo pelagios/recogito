@@ -1,7 +1,7 @@
 package controllers
 
+import controllers.io.{ CSVParser, CSVSerializer, JSONSerializer }
 import models._
-import org.pelagios.recogito.io.{ CSVParser, CSVSerializer }
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.data.validation._
@@ -9,7 +9,6 @@ import play.api.mvc.{ Action, Controller }
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import play.api.Play.current
-import org.pelagios.recogito.io.JSONSerializer
 import play.api.libs.json.Json
 
 /** Administration features.

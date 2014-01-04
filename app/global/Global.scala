@@ -1,4 +1,4 @@
-package org.pelagios.recogito
+package global
 
 import models._
 import java.io.{ File, FileInputStream }
@@ -6,7 +6,6 @@ import java.util.zip.GZIPInputStream
 import org.openrdf.rio.RDFFormat
 import org.pelagios.Scalagios
 import org.pelagios.gazetteer.PlaceIndex
-import org.pelagios.recogito.io.CSVParser
 import play.api.{ Application, GlobalSettings, Logger }
 import play.api.db.DB
 import play.api.Play.current

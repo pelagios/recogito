@@ -1,4 +1,4 @@
-package org.pelagios.recogito.io
+package controllers.io
 
 import models._
 import play.api.db.slick._
