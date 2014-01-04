@@ -23,7 +23,7 @@ object JSONSerializer {
     * @param a the annotation
     * @param includeContext whether to include fulltext context or not
     */
-  def toJson(a: Annotation, includeContext: Boolean = false)(implicit session: Session): JsObject = {
+  def toJson(a: Annotation, includeContext: Boolean)(implicit session: Session): JsObject = {
     val toponym = if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym
     val offset = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
     val context = if (includeContext) { 
@@ -60,14 +60,14 @@ object JSONSerializer {
       "context" -> context)
   }
   
-  def toJson(doc: GeoDocument)(implicit session: Session): JsObject = {
+  def toJson(doc: GeoDocument, includeAnnotations: Boolean)(implicit session: Session): JsObject = {
     Json.obj(
       "id" -> doc.id,
       "title" -> doc.title,
       "parts" -> GeoDocumentParts.findByGeoDocument(doc.id.get).map(part => Json.obj(
         "title" -> part.title,
         "source" -> part.source,
-        "annotations" -> Annotations.findByGeoDocumentPart(part.id.get).map(toJson(_))
+        "annotations" -> Annotations.findByGeoDocumentPart(part.id.get).map(toJson(_, false))
       )
     ))       
   }

@@ -51,7 +51,7 @@ object DocumentController extends Controller {
   private def get_JSON(id: Int)(implicit s: Session) = {
     val doc = GeoDocuments.findById(id)
     if (doc.isDefined) {      
-      Ok(JSONSerializer.toJson(doc.get))
+      Ok(JSONSerializer.toJson(doc.get, true))
     } else {
       val msg = "No document with ID " + id
       NotFound(Json.obj("error" -> msg))
