@@ -5,6 +5,7 @@ import play.api.db.slick._
 import play.api.Play.current
 import play.api.libs.json.Json
 import play.api.mvc.{ Action, Controller }
+import play.api.Logger
 
 /** Main application entrypoint.
   *
@@ -45,7 +46,12 @@ object ApplicationController extends Controller with Secured {
         } else {
           // Use corrections if they exist, or Geoparser results otherwise
           val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
-          val offset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset      
+          val offset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset 
+          
+          Logger.info(annotation.id.get + " - offset " + offset)
+          if (offset.isDefined && offset.get < beginIndex)
+            debugTextAnnotationUI(annotation)
+          
           val cssClass = if (annotation.correctedToponym.isDefined) 
                              "annotation corrected"
                          else if (annotation.status == AnnotationStatus.VERIFIED)
@@ -67,6 +73,27 @@ object ApplicationController extends Controller with Secured {
       Ok(views.html.text_annotation(html))
     } else {
       NotFound(Json.parse("{ \"success\": false, \"message\": \"Annotation not found\" }")) 
+    }
+  }
+  
+  /** Helper method that generates detailed debug output for overlapping annotations.
+    * 
+    * @param annotation the offending annotation
+    */
+  private def debugTextAnnotationUI(annotation: Annotation)(implicit s: Session) = {
+    val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
+    Logger.error("Offending annotation: #" + annotation.id.get + " - " + toponym.getOrElse(""))
+    if (annotation.gdocPartId.isDefined) {
+      val offsetA = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset
+      val all = Annotations.findByGeoDocumentPart(annotation.gdocPartId.get)
+      val overlapping = all.filter(a => { 
+        val offsetB = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
+        if (offsetA.isDefined && offsetB.isDefined)
+          offsetA.get == offsetB.get
+        else
+          false
+      }).filter(_.id != annotation.id)
+      overlapping.foreach(a => Logger.error("Overlaps with: #" + a.id.get))
     }
   }
 
