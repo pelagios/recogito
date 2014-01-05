@@ -47,8 +47,7 @@ object ApplicationController extends Controller with Secured {
           // Use corrections if they exist, or Geoparser results otherwise
           val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
           val offset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset 
-          
-          Logger.info(annotation.id.get + " - offset " + offset)
+
           if (offset.isDefined && offset.get < beginIndex)
             debugTextAnnotationUI(annotation)
           
