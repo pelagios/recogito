@@ -11,9 +11,8 @@ var recogito = (window.recogito) ? window.recogito : { };
  * @param {Element} mapDiv the DIV holding the annotated fulltext
  * @constructor
  */
-recogito.TextAnnotationUI = function(textDiv) { 
+recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) { 
   var self = this,
-      gdocId = parseInt(recogito.TextAnnotationUI.getQueryParam('text')[0]), 
       getId = function(span) { return parseInt($(span).data('id')); };
    
   this._EDITOR_TEMPLATE = 
@@ -102,10 +101,10 @@ recogito.TextAnnotationUI = function(textDiv) {
     $.ajax({
       url: '../api/annotations',
       type: 'POST',
-      data: '{ "gdocId": ' + gdocId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }',
+      data: '{ "gdocPartId": ' + gdocPartId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }',
       contentType : 'application/json',
       error: function(result) {
-        console.log('ERROR creating annotation!');
+        alert('Could not store annotation: ' + result.responseJSON.message);
       }
     });
   };
@@ -115,7 +114,7 @@ recogito.TextAnnotationUI = function(textDiv) {
     $.ajax({
       url: '../api/annotations/' + id,
       type: 'PUT',
-      data: '{ "gdocId": ' + gdocId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }',
+      data: '{ "gdocPartId": ' + gdocPartId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }',
       contentType : 'application/json',
       error: function(result) {
         console.log('ERROR updating annotation!');

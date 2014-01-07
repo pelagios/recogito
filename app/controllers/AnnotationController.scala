@@ -9,6 +9,7 @@ import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import play.api.libs.json.Json
 import play.api.mvc.{ Action, Controller }
+import play.api.Logger
 
 /** Annotation CRUD controller.
   *
@@ -25,8 +26,8 @@ object AnnotationController extends Controller with Secured {
     if (user.isDefined) {
       val body = requestWithSession.request.body.asJson
       if (body.isDefined) {
-        val gdocId = (body.get \ "gdocId").as[Int]
-        val gdocPart = GeoDocumentParts.findById(gdocId)
+        val gdocPartId = (body.get \ "gdocPartId").as[Int]
+        val gdocPart = GeoDocumentParts.findById(gdocPartId)
         if (gdocPart.isDefined) {
           // Create new annotation
           val correctedToponym = (body.get \ "corrected_toponym").as[String]
@@ -47,7 +48,7 @@ object AnnotationController extends Controller with Secured {
                               
             Ok(Json.parse("{ \"success\": true }"))
           } else {
-            BadRequest(Json.parse("{ \"success\": false, \"message\": \"Annotation did not validate\" }"))
+            BadRequest(Json.parse("{ \"success\": false, \"message\": \"Annotation overlaps with an existing one (details were logged).\" }"))
           }
         } else {
           BadRequest(Json.parse("{ \"success\": false, \"message\": \"Missing JSON body\" }"))
@@ -74,7 +75,11 @@ object AnnotationController extends Controller with Secured {
     val intersectingAnnotations = Annotations.findByGeoDocumentPart(gdocPartId).filter(annotation => {
       val otherOffset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset
       otherOffset.isDefined && (otherOffset.get >= offset) && (otherOffset.get <= offset + toponym.size)
-    })    
+    })
+    
+    if (intersectingAnnotations.size > 0)
+      Logger.warn("Annotation validation error: " + toponym + " (" + offset + ") intersects with " + intersectingAnnotations.map("#" + _.id.get).mkString(", "))      
+    
     intersectingAnnotations.size == 0
   }
   

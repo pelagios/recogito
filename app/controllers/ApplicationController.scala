@@ -69,7 +69,7 @@ object ApplicationController extends Controller with Secured {
       }}
       
       val html = (ranges._1 + plaintext.substring(ranges._2)).replace("\n", "<br/>")
-      Ok(views.html.text_annotation(html))
+      Ok(views.html.text_annotation(html, gdocText.get.gdocId, gdocText.get.gdocPartId))
     } else {
       NotFound(Json.parse("{ \"success\": false, \"message\": \"Annotation not found\" }")) 
     }
