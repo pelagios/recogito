@@ -8,10 +8,10 @@
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-ui-1.10.3.custom.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/rangy/rangy-core-1.2.3.js")"></script>
-    <script type="text/javascript" src="@routes.Assets.at("javascripts/text-annotation.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/textannotation/rcgt-textannotation.min.js")"></script>
     <script>
     $(document).ready(function() {
-      new pelagios.georesolution.FulltextAnnotationView(document.getElementById('fulltext')); 
+      new recogito.TextAnnotationUI(document.getElementById('fulltext')); 
     })
     </script>
   </head>

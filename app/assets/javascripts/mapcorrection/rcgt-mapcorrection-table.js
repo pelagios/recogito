@@ -1,3 +1,6 @@
+/** Namespaces **/
+var recogito = (window.recogito) ? window.recogito : { };
+
 /**
  * The table component of the UI.
  * 
@@ -9,9 +12,9 @@
  * @param {Element} tableDiv the DIV to hold the SlickGrid table
  * @constructor
  */
-pelagios.georesolution.TableView = function(tableDiv) {  
+recogito.TableView = function(tableDiv) {  
   // Inheritance - not the nicest pattern but works for our case
-  pelagios.georesolution.HasEvents.call(this);
+  recogito.HasEvents.call(this);
   
   var self = this,
       statusTemplate = 
@@ -39,7 +42,7 @@ pelagios.georesolution.TableView = function(tableDiv) {
         if (id.indexOf('#') > -1)
           id = id.substring(0, id.indexOf('#'));
         
-        var normalizedURI = pelagios.georesolution.Utils.normalizePleiadesURI(value.uri);
+        var normalizedURI = recogito.Utils.normalizePleiadesURI(value.uri);
         var formatted = '<a href="http://pelagios.org/api/places/' + encodeURIComponent(normalizedURI) + 
                         '" target="_blank" title="' + value.title + '">pleiades:' + id + '</a>';
         
@@ -188,18 +191,18 @@ pelagios.georesolution.TableView = function(tableDiv) {
 }
 
 // Inheritance - not the nicest pattern but works for our case
-pelagios.georesolution.TableView.prototype = new pelagios.georesolution.HasEvents();
+recogito.TableView.prototype = new recogito.HasEvents();
 
 /**
  * Opens the details popup
  * @private
  */
-pelagios.georesolution.TableView.prototype._openDetailsPopup = function(idx) {
+recogito.TableView.prototype._openDetailsPopup = function(idx) {
   var self = this,
       prev2 = this.getPrevN(idx, 2),
       next2 = this.getNextN(idx, 2);
     
-  var popup = new pelagios.georesolution.DetailsPopup(this._grid.getDataItem(idx), prev2, next2);
+  var popup = new recogito.DetailsPopup(this._grid.getDataItem(idx), prev2, next2);
   popup.on('update', function(annotation) {
     self._grid.invalidate();
     self.fireEvent('update', annotation);
@@ -210,7 +213,7 @@ pelagios.georesolution.TableView.prototype._openDetailsPopup = function(idx) {
  * Removes a specific row from the table.
  * @param {Number} idx the index of the row to remove
  */
-pelagios.georesolution.TableView.prototype.removeRow = function(idx) {
+recogito.TableView.prototype.removeRow = function(idx) {
   var data = this._grid.getData();
   data.splice(idx, 1);
   this._grid.invalidate();
@@ -221,7 +224,7 @@ pelagios.georesolution.TableView.prototype.removeRow = function(idx) {
  * Selects table rows for a specific gazetteer URI.
  * @param {string} uri the gazetteer URI
  */
-pelagios.georesolution.TableView.prototype.selectByPlaceURI = function(uri) {
+recogito.TableView.prototype.selectByPlaceURI = function(uri) {
   // Note: we could optimize with an index, but individual EGDs should be small enough
   var size = this._grid.getDataLength();
   var rows = [];
@@ -244,7 +247,7 @@ pelagios.georesolution.TableView.prototype.selectByPlaceURI = function(uri) {
  * Sets data on the backing SlickGrid.
  * @param {Object} data the data
  */
-pelagios.georesolution.TableView.prototype.setData = function(data) {
+recogito.TableView.prototype.setData = function(data) {
   this._grid.setData(data);
   
   // Check if there's a '#{rownumber}' URL fragment - and open the popup if so
@@ -257,7 +260,7 @@ pelagios.georesolution.TableView.prototype.setData = function(data) {
 /**
  * Refreshes the backing SlickGrid.
  */
-pelagios.georesolution.TableView.prototype.render = function() {
+recogito.TableView.prototype.render = function() {
   this._grid.render();
 }
 
@@ -270,7 +273,7 @@ pelagios.georesolution.TableView.prototype.render = function() {
  * @return the neighbours
  * @private
  */
-pelagios.georesolution.TableView.prototype._getNeighbours = function(idx, n, step) {
+recogito.TableView.prototype._getNeighbours = function(idx, n, step) {
   var length = this._grid.getData().length;
   
   if (!n)
@@ -308,7 +311,7 @@ pelagios.georesolution.TableView.prototype._getNeighbours = function(idx, n, ste
  * @param {Number} n the number of neighbours to return
  * @return the next N annotations in the list
  */
-pelagios.georesolution.TableView.prototype.getNextN = function(idx, n)  {
+recogito.TableView.prototype.getNextN = function(idx, n)  {
   return this._getNeighbours(idx, n, 1);
 }
 
@@ -318,6 +321,6 @@ pelagios.georesolution.TableView.prototype.getNextN = function(idx, n)  {
  * @param {Number} n the number of neighbours to return
  * @return the previous N annotations in the list
  */
-pelagios.georesolution.TableView.prototype.getPrevN = function(idx, n)  {
+recogito.TableView.prototype.getPrevN = function(idx, n)  {
   return this._getNeighbours(idx, n, -1);
 }

@@ -1,3 +1,6 @@
+/** Namespaces **/
+var recogito = (window.recogito) ? window.recogito : { };
+
 /**
  * A popup showing all details about a single annotation, with extra functionality
  * to make manual corrections to it.
@@ -10,9 +13,9 @@
  * @param {Array.<Object>} next_annotations next annotations in the list (if any)
  * @constructor
  */
-pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, next_annotations) {
+recogito.DetailsPopup = function(annotation, prev_annotations, next_annotations) {
   // Inheritance - not the nicest pattern but works for our case
-  pelagios.georesolution.HasEvents.call(this);
+  recogito.HasEvents.call(this);
     
   var self = this,
       template = 
@@ -136,7 +139,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
     var meta = annotation.place.title + '<br/>' +
                annotation.place.names + '<br/>' +
                '<a href="http://pelagios.org/api/places/' + 
-               encodeURIComponent(pelagios.georesolution.Utils.normalizePleiadesURI(annotation.place.uri)) +
+               encodeURIComponent(recogito.Utils.normalizePleiadesURI(annotation.place.uri)) +
                '" target="_blank">' + annotation.place.uri + '</a>'; 
                               
     if (!annotation.place.coordinate)
@@ -152,7 +155,7 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
     var meta = annotation.place_fixed.title + '<br/>' +
                annotation.place_fixed.names + '<br/>' +
                '<a href="http://pelagios.org/api/places/' + 
-               encodeURIComponent(pelagios.georesolution.Utils.normalizePleiadesURI(annotation.place_fixed.uri)) +
+               encodeURIComponent(recogito.Utils.normalizePleiadesURI(annotation.place_fixed.uri)) +
                '" target="_blank">' + annotation.place_fixed.uri + '</a>'; 
                
     if (!annotation.place_fixed.coordinate)
@@ -371,14 +374,14 @@ pelagios.georesolution.DetailsPopup = function(annotation, prev_annotations, nex
 }
 
 // Inheritance - not the nicest pattern but works for our case
-pelagios.georesolution.DetailsPopup.prototype = new pelagios.georesolution.HasEvents();
+recogito.DetailsPopup.prototype = new recogito.HasEvents();
 
 /**
  * Initializes the Leaflet map
  * @param {Element} parentEl the DOM element to attach to 
  * @private
  */
-pelagios.georesolution.DetailsPopup.prototype._initMap = function(parentEl) {
+recogito.DetailsPopup.prototype._initMap = function(parentEl) {
   var mapDiv = document.createElement('div');
   mapDiv.className = 'details-map';
   $(parentEl).prepend(mapDiv);
@@ -399,6 +402,6 @@ pelagios.georesolution.DetailsPopup.prototype._initMap = function(parentEl) {
 /**
  * Destroys the popup.
  */
-pelagios.georesolution.DetailsPopup.prototype.destroy = function() {
+recogito.DetailsPopup.prototype.destroy = function() {
   $(this.element).remove();
 }

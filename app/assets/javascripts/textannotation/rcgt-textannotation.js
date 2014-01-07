@@ -1,6 +1,5 @@
 /** Namespaces **/
-var pelagios = (window.pelagios) ? window.pelagios : { };
-pelagios.georesolution = (pelagios.georesolution) ? pelagios.georesolution : { };
+var recogito = (window.recogito) ? window.recogito : { };
 
 /**
  * Fulltext annotation view.
@@ -12,9 +11,9 @@ pelagios.georesolution = (pelagios.georesolution) ? pelagios.georesolution : { }
  * @param {Element} mapDiv the DIV holding the annotated fulltext
  * @constructor
  */
-pelagios.georesolution.FulltextAnnotationView = function(textDiv) { 
+recogito.TextAnnotationUI = function(textDiv) { 
   var self = this,
-      gdocId = parseInt(pelagios.georesolution.FulltextAnnotationView.getQueryParam('textId')[0]), 
+      gdocId = parseInt(recogito.TextAnnotationUI.getQueryParam('textId')[0]), 
       getId = function(span) { return parseInt($(span).data('id')); };
    
   this._EDITOR_TEMPLATE = 
@@ -216,7 +215,7 @@ pelagios.georesolution.FulltextAnnotationView = function(textDiv) {
   });
 }
 
-pelagios.georesolution.FulltextAnnotationView.prototype.openEditor = function(title, selection, msg, x, y, ok_callback) {  
+recogito.TextAnnotationUI.prototype.openEditor = function(title, selection, msg, x, y, ok_callback) {  
   this._editor = $(this._EDITOR_TEMPLATE);
   
   var self = this,
@@ -233,14 +232,14 @@ pelagios.georesolution.FulltextAnnotationView.prototype.openEditor = function(ti
   e.draggable({ handle: header });
 }
 
-pelagios.georesolution.FulltextAnnotationView.prototype.closeEditor = function() { 
+recogito.TextAnnotationUI.prototype.closeEditor = function() { 
   if (this._editor) {
     $(this._editor).remove();
     delete this._editor;
   }
 }
 
-pelagios.georesolution.FulltextAnnotationView.getQueryParam = function(key) {
+recogito.TextAnnotationUI.getQueryParam = function(key) {
   var re = new RegExp('(?:\\?|&)'+key+'=(.*?)(?=&|$)','gi');
   var r = [], m;
   while ((m = re.exec(document.location.search)) != null) r.push(m[1]);

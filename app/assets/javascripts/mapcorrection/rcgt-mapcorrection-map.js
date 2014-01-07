@@ -1,3 +1,6 @@
+/** Namespaces **/
+var recogito = (window.recogito) ? window.recogito : { };
+
 /**
  * The map component of the UI.
  * 
@@ -7,9 +10,9 @@
  * @param {Element} mapDiv the DIV to hold the Leaflet map
  * @constructor
  */
-pelagios.georesolution.MapView = function(mapDiv) {
+recogito.MapView = function(mapDiv) {
   // Inheritance - not the nicest pattern but works for our case
-  pelagios.georesolution.HasEvents.call(this);
+  recogito.HasEvents.call(this);
   
   var self = this,
       baseLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
@@ -61,9 +64,9 @@ pelagios.georesolution.MapView = function(mapDiv) {
 }
 
 // Inheritance - not the nicest pattern but works for our case
-pelagios.georesolution.MapView.prototype = new pelagios.georesolution.HasEvents();
+recogito.MapView.prototype = new recogito.HasEvents();
 
-pelagios.georesolution.MapView.prototype._isVisible = function(annotation) {
+recogito.MapView.prototype._isVisible = function(annotation) {
   var part_settings = this._parts[annotation.part];
   if (part_settings) {
     // TODO take visibility of tags into account
@@ -75,7 +78,7 @@ pelagios.georesolution.MapView.prototype._isVisible = function(annotation) {
  * Places a marker for the specified place.
  * @param {Object} annotation the place annotation
  */
-pelagios.georesolution.MapView.prototype.addPlaceMarker = function(annotation) {
+recogito.MapView.prototype.addPlaceMarker = function(annotation) {
   var self = this;
 
   // Update parts & tags list
@@ -123,14 +126,14 @@ pelagios.georesolution.MapView.prototype.addPlaceMarker = function(annotation) {
   }
 }
 
-pelagios.georesolution.MapView.prototype.removePlaceMarker = function(annotation) {
+recogito.MapView.prototype.removePlaceMarker = function(annotation) {
   if (annotation.marker) {
     this._map.removeLayer(annotation.marker);
     annotation.marker = false;
   }
 }
 
-pelagios.georesolution.MapView.prototype.emphasizePlace = function(annotation, prevN, nextN) {
+recogito.MapView.prototype.emphasizePlace = function(annotation, prevN, nextN) {
   if (annotation.marker && this._isVisible(annotation)) {      
     var style = annotation.marker.options;
     style.radius = this._MARKER_SIZE_HOVER;
@@ -139,7 +142,7 @@ pelagios.georesolution.MapView.prototype.emphasizePlace = function(annotation, p
   }
 }
 
-pelagios.georesolution.MapView.prototype.deemphasizePlace = function(annotation, prevN, nextN) {
+recogito.MapView.prototype.deemphasizePlace = function(annotation, prevN, nextN) {
   if (annotation.marker && this._isVisible(annotation)) {
     var style = annotation.marker.options;
     style.radius = this._MARKER_SIZE;
@@ -153,7 +156,7 @@ pelagios.georesolution.MapView.prototype.deemphasizePlace = function(annotation,
  * @param {Array.<Object>} prevN the previous annotations in the list (if any)
  * @param {Array.<Object>} nextN the next annotations in the list (if any)
  */
-pelagios.georesolution.MapView.prototype.selectPlace = function(annotation, prevN, nextN) {
+recogito.MapView.prototype.selectPlace = function(annotation, prevN, nextN) {
   var self = this;
 
   // Utility function to draw the sequence line
@@ -204,7 +207,7 @@ pelagios.georesolution.MapView.prototype.selectPlace = function(annotation, prev
   }
 }
 
-pelagios.georesolution.MapView.prototype.redraw = function() {
+recogito.MapView.prototype.redraw = function() {
   this.clear();
   
   var self = this;
@@ -217,7 +220,7 @@ pelagios.georesolution.MapView.prototype.redraw = function() {
 /**
  * Clears the map.
  */
-pelagios.georesolution.MapView.prototype.clear = function() {
+recogito.MapView.prototype.clear = function() {
   var self = this;
   $.each(this._allAnnotations, function(idx, annotation) { self._map.removeLayer(annotation.marker); });
   $.each(this._currentSequence, function(idx, marker) { self._map.removeLayer(marker) });

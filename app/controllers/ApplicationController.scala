@@ -25,7 +25,7 @@ object ApplicationController extends Controller with Secured {
     * @param doc the document ID 
     */  
   def showMap(doc: Int) = Action {
-    Ok(views.html.map_public(doc))
+    Ok(views.html.public_map(doc))
   }
     
   /** Shows the text annotation UI for the specified text.

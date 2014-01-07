@@ -1,8 +1,7 @@
 /** Namespaces **/
-var pelagios = (window.pelagios) ? window.pelagios : { };
-pelagios.georesolution = (pelagios.georesolution) ? pelagios.georesolution : { };
+var recogito = (window.recogito) ? window.recogito : { };
 
-pelagios.georesolution.PublicMap = function(mapDiv, dataURL) {
+recogito.PublicMap = function(mapDiv, dataURL) {
   var self = this,
       baseLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
         attribution: 'Tiles: <a href="http://pelagios.org/maps/greco-roman/about.html">Pelagios</a>, 2012; Data: NASA, OSM, Pleiades, DARMC'
@@ -33,7 +32,7 @@ pelagios.georesolution.PublicMap = function(mapDiv, dataURL) {
   
 }
 
-pelagios.georesolution.PublicMap.prototype.addPlaceMarker = function(annotation) {
+recogito.PublicMap.prototype.addPlaceMarker = function(annotation) {
   if (annotation.status == 'VERIFIED') {
     var place = (annotation.place_fixed) ? annotation.place_fixed : annotation.place;
     if (place && place.coordinate) {

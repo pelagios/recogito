@@ -12,15 +12,14 @@
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/slickgrid/slick.rowselectionmodel.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/leaflet/leaflet.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/leaflet/leaflet.textpath.js")"></script>
-    <script type="text/javascript" src="@routes.Assets.at("javascripts/base.js")"></script> 
-    <script type="text/javascript" src="@routes.Assets.at("javascripts/table-view.js")"></script>    
-    <script type="text/javascript" src="@routes.Assets.at("javascripts/map-correction.js")"></script>   
-    <script type="text/javascript" src="@routes.Assets.at("javascripts/footer.js")"></script>    
-    <script type="text/javascript" src="@routes.Assets.at("javascripts/details-popup.js")"></script>    
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/mapcorrection/rcgt-mapcorrection-base.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/mapcorrection/rcgt-mapcorrection-table.js")"></script>    
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/mapcorrection/rcgt-mapcorrection-map.js")"></script>     
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/mapcorrection/rcgt-mapcorrection-details.js")"></script>
     <base href="@routes.ApplicationController.index()">
     <script>
       $(function() {
-        var app = new pelagios.georesolution.CorrectionTool(
+        var app = new recogito.MapCorrectionUI(
           document.getElementById('table'), document.getElementById('map'), document.getElementById('footer'), '@routes.DocumentController.get(docId, Some("json"))');
       });
     </script>

@@ -1,6 +1,5 @@
 /** Namespaces **/
-var pelagios = (window.pelagios) ? window.pelagios : { };
-pelagios.georesolution = (pelagios.georesolution) ? pelagios.georesolution : { };
+var recogito = (window.recogito) ? window.recogito : { };
 
 /**
  * The application entry point.
@@ -9,11 +8,11 @@ pelagios.georesolution = (pelagios.georesolution) ? pelagios.georesolution : { }
  * @param {String} dataURL the URL from where to retrieve the JSON data
  * @constructor
  */
-pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv, footerDiv, dataURL) {  
+recogito.MapCorrectionUI = function(tableDiv, mapDiv, footerDiv, dataURL) {  
   var self = this,
-      map = new pelagios.georesolution.MapView(mapDiv),
-      table = new pelagios.georesolution.TableView(tableDiv),
-      footer = new pelagios.georesolution.Footer(footerDiv);
+      map = new recogito.MapView(mapDiv),
+      table = new recogito.TableView(tableDiv),
+      footer = new recogito.Footer(footerDiv);
   
   // Set up inter-component eventing
   map.on('select', function(annotation) { 
@@ -75,7 +74,7 @@ pelagios.georesolution.CorrectionTool = function(tableDiv, mapDiv, footerDiv, da
  * Stores an updated annotation to the database.
  * @private
  */
-pelagios.georesolution.CorrectionTool.prototype._storeToDB = function(annotation) {
+recogito.MapCorrectionUI.prototype._storeToDB = function(annotation) {
   var payload = {
     'id': annotation.id,
     'status': annotation.status
@@ -96,10 +95,45 @@ pelagios.georesolution.CorrectionTool.prototype._storeToDB = function(annotation
 };
 
 /**
+ * A footer element for the UI that displays basic document metadata.
+ * @param {Element} footerDiv the DIV to hold the footer
+ */
+recogito.Footer = function(footerDiv) {
+  this.element = $(footerDiv).find('#footer-info');
+}
+
+/**
+ * Sets the document metadata on the footer.
+ * @param {Object} the annotation data
+ */
+recogito.Footer.prototype.setData = function(data) {
+  var count = function(status) {
+    var list = $.grep(data, function(annotation, idx) { return annotation.status == status; });
+    return list.length;
+  }
+  
+  var total = data.length;
+  var verified = count('VERIFIED');
+  var not_identifyable = count('NOT_IDENTIFYABLE');
+  var false_detection = count('FALSE_DETECTION');
+  var ignore = count('IGNORE');
+  var complete = verified / (total - not_identifyable - false_detection - ignore);
+  
+  $(this.element).html(
+    data.length + ' Annotations &nbsp; ' + 
+    '<span class="icon">&#xf14a;</span> ' + verified + ' &nbsp; ' + 
+    '<span class="icon">&#xf024;</span> ' + not_identifyable + ' &nbsp; ' + 
+    '<span class="icon">&#xf057;</span> ' + false_detection + ' &nbsp;' +
+    '<span class="icon">&#xf05e;</span> ' + ignore + ' &nbsp; - &nbsp; ' + 
+
+    (complete * 100).toFixed(1) + '% Complete');
+}
+
+/**
  * A simple base class that takes care of event subcription.
  * @contructor
  */
-pelagios.georesolution.HasEvents = function() { 
+recogito.HasEvents = function() { 
   this.handlers = {}
 }
 
@@ -109,7 +143,7 @@ pelagios.georesolution.HasEvents = function() {
  * @param {String} event the event name
  * @param {Function} handler the handler function
  */
-pelagios.georesolution.HasEvents.prototype.on = function(event, handler) {  
+recogito.HasEvents.prototype.on = function(event, handler) {  
   this.handlers[event] = handler;
 }
 
@@ -119,7 +153,7 @@ pelagios.georesolution.HasEvents.prototype.on = function(event, handler) {
  * @param {Object} e the event object
  * @param {Object} args the event arguments
  */
-pelagios.georesolution.HasEvents.prototype.fireEvent = function(event, e, args) {
+recogito.HasEvents.prototype.fireEvent = function(event, e, args) {
   if (this.handlers[event])
     this.handlers[event](e, args);     
 }
@@ -127,7 +161,7 @@ pelagios.georesolution.HasEvents.prototype.fireEvent = function(event, e, args) 
 /**
  * Helpers and utility methods.
  */
-pelagios.georesolution.Utils = {
+recogito.Utils = {
   
   /** Normalizes Pleiades URIs by stripping the trailing '#this' (if any) **/
   normalizePleiadesURI: function(uri) {
