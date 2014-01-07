@@ -47,12 +47,12 @@ object ApplicationController extends Controller with Secured {
         if (offset.isDefined && offset.get < beginIndex)
           debugTextAnnotationUI(annotation)
           
-        val cssClass = if (annotation.correctedToponym.isDefined) 
+        val cssClass = if (annotation.status == AnnotationStatus.FALSE_DETECTION)
+                         "annotation false-detection"
+                       else if (annotation.correctedToponym.isDefined) 
                          "annotation corrected"
                        else if (annotation.status == AnnotationStatus.VERIFIED)
                          "annotation verified"
-                       else if (annotation.status == AnnotationStatus.FALSE_DETECTION)
-                         "annotation false-detection"
                        else "annotation"
    
         if (toponym.isDefined && offset.isDefined) {

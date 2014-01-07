@@ -139,6 +139,9 @@ object AnnotationController extends Controller with Secured {
     * Note: we never actually delete an annotation from the system. We only mark
     * them as 'FALSE DETECTION' in order to maintain a full audit trail and have
     * an easy way to generate precision and recall metrics.
+    * 
+    * TODO we should actually delete annotations that were not originally computer-generated!
+    * 
     * @param id the annotation ID 
     */
   def delete(id: Int) = protectedDBAction(Secure.REJECT) { username => implicit requestWithSession =>
