@@ -40,32 +40,29 @@ object ApplicationController extends Controller with Secured {
       
       // Build HTML
       val ranges = annotations.foldLeft(("", 0)) { case ((markup, beginIndex), annotation) => {
-        if (annotation.status == AnnotationStatus.FALSE_DETECTION) {
-          // Not shown in text annotation UI at all
-          (markup, beginIndex)
-        } else {
-          // Use corrections if they exist, or Geoparser results otherwise
-          val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
-          val offset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset 
+        // Use corrections if they exist, or Geoparser results otherwise
+        val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
+        val offset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset 
 
-          if (offset.isDefined && offset.get < beginIndex)
-            debugTextAnnotationUI(annotation)
+        if (offset.isDefined && offset.get < beginIndex)
+          debugTextAnnotationUI(annotation)
           
-          val cssClass = if (annotation.correctedToponym.isDefined) 
-                             "annotation corrected"
-                         else if (annotation.status == AnnotationStatus.VERIFIED)
-                             "annotation verified"
-                         else "annotation"
+        val cssClass = if (annotation.correctedToponym.isDefined) 
+                         "annotation corrected"
+                       else if (annotation.status == AnnotationStatus.VERIFIED)
+                         "annotation verified"
+                       else if (annotation.status == AnnotationStatus.FALSE_DETECTION)
+                         "annotation false-detection"
+                       else "annotation"
    
-          if (toponym.isDefined && offset.isDefined) {
-            val nextSegment = plaintext.substring(beginIndex, offset.get) +
-              "<span data-id=\"" + annotation.id.get + "\" class=\"" + cssClass + "\">" + toponym.get + "</span>"
+        if (toponym.isDefined && offset.isDefined) {
+          val nextSegment = plaintext.substring(beginIndex, offset.get) +
+            "<span data-id=\"" + annotation.id.get + "\" class=\"" + cssClass + "\">" + toponym.get + "</span>"
               
-            (markup + nextSegment, offset.get + toponym.get.size)
-          } else {
-            (markup, beginIndex)
-          }
-        }
+          (markup + nextSegment, offset.get + toponym.get.size)
+        } else {
+          (markup, beginIndex)
+        }        
       }}
       
       val html = (ranges._1 + plaintext.substring(ranges._2)).replace("\n", "<br/>")
@@ -80,17 +77,21 @@ object ApplicationController extends Controller with Secured {
     * @param annotation the offending annotation
     */
   private def debugTextAnnotationUI(annotation: Annotation)(implicit s: Session) = {
-    val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
-    Logger.error("Offending annotation: #" + annotation.id.get + " - " + toponym.getOrElse(""))
+    val toponymA = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
+    Logger.error("Offending annotation: #" + annotation.id.get + " - " + toponymA.getOrElse(""))
     if (annotation.gdocPartId.isDefined) {
       val offsetA = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset
       val all = Annotations.findByGeoDocumentPart(annotation.gdocPartId.get)
       val overlapping = all.filter(a => { 
+        val toponymB = if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym
         val offsetB = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
-        if (offsetA.isDefined && offsetB.isDefined)
-          offsetA.get == offsetB.get
-        else
+        if (offsetA.isDefined && offsetB.isDefined) {
+          val overlapStart = scala.math.max(offsetA.get, offsetB.get)
+          val overlapEnd = scala.math.min(offsetA.get + toponymA.get.size, offsetB.get + toponymB.get.size)
+          overlapEnd > overlapStart
+        } else {
           false
+        }
       }).filter(_.id != annotation.id)
       overlapping.foreach(a => Logger.error("Overlaps with: #" + a.id.get))
     }

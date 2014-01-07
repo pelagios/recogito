@@ -33,7 +33,7 @@ object AnnotationController extends Controller with Secured {
           val correctedToponym = (body.get \ "corrected_toponym").as[String]
           val correctedOffset = (body.get \ "corrected_offset").as[Int]
         
-          if (isValid(gdocPart.get.gdocId, correctedToponym, correctedOffset)) {
+          if (isValid(gdocPart.get.id.get, correctedToponym, Some(correctedOffset))) {
             val annotation = 
               Annotation(None, gdocPart.get.gdocId, gdocPart.get.id, 
                          AnnotationStatus.NOT_VERIFIED, None, None, None, 
@@ -59,28 +59,6 @@ object AnnotationController extends Controller with Secured {
     } else {
       Forbidden(Json.parse("{ \"success\": false, \"message\": \"Not authorized\" }"))
     }
-  }
-  
-  /** Checks if a newly created annotation conflicts with an existing one.
-   *  
-    * Text annotations cannot overlap each other. If they do, this is probably a consequence
-    * of identical - or contradictory - edits made concurrently by different users at the same
-    * time. Overlapping annotations would also break the rendering of the text view. This 
-    * sanity check method helps to ensure data integrity.
-    * @param gdocPartId the ID of the annotated EGD part
-    * @param toponym the annotated toponym
-    * @param the annotation offset
-    */
-  private def isValid(gdocPartId: Int, toponym: String, offset: Int)(implicit s: Session): Boolean = {
-    val intersectingAnnotations = Annotations.findByGeoDocumentPart(gdocPartId).filter(annotation => {
-      val otherOffset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset
-      otherOffset.isDefined && (otherOffset.get >= offset) && (otherOffset.get <= offset + toponym.size)
-    })
-    
-    if (intersectingAnnotations.size > 0)
-      Logger.warn("Annotation validation error: " + toponym + " (" + offset + ") intersects with " + intersectingAnnotations.map("#" + _.id.get).mkString(", "))      
-    
-    intersectingAnnotations.size == 0
   }
   
   /** Get a specific annotation.
@@ -126,17 +104,25 @@ object AnnotationController extends Controller with Secured {
           val updatedTags = if (correctedTags.isDefined) correctedTags else annotation.get.tags
           val updatedComment = if (correctedComment.isDefined) correctedComment else annotation.get.comment
    
-          val updated = 
-            Annotation(Some(id), annotation.get.gdocId, annotation.get.gdocPartId, 
-                       updatedStatus,
-                       annotation.get.toponym, annotation.get.offset, annotation.get.gazetteerURI, 
-                       updatedToponym, updatedOffset, updatedURI, updatedTags, updatedComment)
+          val toponym = if (updatedToponym.isDefined) updatedToponym else annotation.get.toponym
+          val offset = if (updatedOffset.isDefined) updatedOffset else annotation.get.offset
+                      
+          val valid = if (toponym.isDefined) isValid(annotation.get.gdocPartId.get, toponym.get, offset) else true
+          if (valid) {
+            val updated = 
+              Annotation(Some(id), annotation.get.gdocId, annotation.get.gdocPartId, 
+                         updatedStatus,
+                         annotation.get.toponym, annotation.get.offset, annotation.get.gazetteerURI, 
+                         updatedToponym, updatedOffset, updatedURI, updatedTags, updatedComment)
           
-          Annotations.update(updated)
+            Annotations.update(updated)
         
-          // Record edit event
-          EditHistory.insert(createDiffEvent(annotation.get, updated, user.get.id.get))
-          Ok(Json.parse("{ \"success\": true }"))
+            // Record edit event
+            EditHistory.insert(createDiffEvent(annotation.get, updated, user.get.id.get))
+            Ok(Json.parse("{ \"success\": true }"))
+          } else {
+            BadRequest(Json.parse("{ \"success\": false, \"message\": \"Annotation overlaps with an existing one (details were logged).\" }"))
+          }
         } else {
           BadRequest(Json.parse("{ \"success\": false, \"message\": \"Missing JSON body\" }"))          
         }
@@ -179,6 +165,33 @@ object AnnotationController extends Controller with Secured {
       }
     } else {
       Forbidden(Json.parse("{ \"success\": false, \"message\": \"Not authorized\" }"))
+    }
+  }
+  
+  /** Checks if a newly created annotation conflicts with an existing one.
+   *  
+    * Text annotations cannot overlap each other. If they do, this is probably a consequence
+    * of identical - or contradictory - edits made concurrently by different users at the same
+    * time. Overlapping annotations would also break the rendering of the text view. This 
+    * sanity check method helps to ensure data integrity.
+    * @param gdocPartId the ID of the annotated EGD part
+    * @param toponym the annotated toponym
+    * @param the annotation offset
+    */
+  private def isValid(gdocPartId: Int, toponym: String, offset: Option[Int])(implicit s: Session): Boolean = {
+    if (offset.isDefined) {
+      val intersectingAnnotations = Annotations.findByGeoDocumentPart(gdocPartId).filter(annotation => {
+        val otherOffset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset
+        otherOffset.isDefined && (otherOffset.get >= offset.get) && (otherOffset.get <= offset.get + toponym.size)
+      })
+    
+      if (intersectingAnnotations.size > 0)
+        Logger.warn("Annotation validation error: " + toponym + " (" + offset + ") intersects with " + intersectingAnnotations.map("#" + _.id.get).mkString(", "))      
+    
+      intersectingAnnotations.size == 0
+    } else {
+      // No overlaps possible
+      true
     }
   }
   

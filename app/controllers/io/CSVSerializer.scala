@@ -49,11 +49,12 @@ object CSVSerializer {
     * @return the CSV
     */
   def asDBBackup(annotations: Seq[Annotation])(implicit s: Session): String = {
-    val header = Seq("gdoc_part", "status", "toponym", "offset", "gazetteer_uri", "toponym_corrected", 
+    val header = Seq("id", "gdoc_part", "status", "toponym", "offset", "gazetteer_uri", "toponym_corrected", 
                      "offset_corrected", "gazetteer_uri_corrected", "tags", "comment").mkString(SEPARATOR) + "\n"
       
     annotations.foldLeft(header)((csv, annotation) => {
       csv + 
+      annotation.id.get + SEPARATOR +
       annotation.gdocPartId.map(GeoDocumentParts.getTitle(_)).flatten.getOrElse("") + SEPARATOR +
       annotation.status + SEPARATOR +
       annotation.toponym.getOrElse("") + SEPARATOR +

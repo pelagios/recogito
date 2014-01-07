@@ -20,6 +20,11 @@
   border-bottom:1px dotted #99940b;
 }
 
+.false-detection {
+  background-color:#fdd;
+  border-bottom:1px dotted #a00;
+}
+
 .annotation-editor {
   position:absolute;
   background-color:#fff;
