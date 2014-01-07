@@ -33,12 +33,13 @@ object AnnotationController extends Controller with Secured {
           val correctedToponym = (body.get \ "corrected_toponym").as[String]
           val correctedOffset = (body.get \ "corrected_offset").as[Int]
         
-          if (isValid(gdocPart.get.id.get, correctedToponym, Some(correctedOffset))) {
-            val annotation = 
-              Annotation(None, gdocPart.get.gdocId, gdocPart.get.id, 
-                         AnnotationStatus.NOT_VERIFIED, None, None, None, 
-                         Some(correctedToponym), Some(correctedOffset))
-        
+
+          val annotation = 
+            Annotation(None, gdocPart.get.gdocId, gdocPart.get.id, 
+                       AnnotationStatus.NOT_VERIFIED, None, None, None, 
+                       Some(correctedToponym), Some(correctedOffset))
+                       
+          if (Annotations.getOverlappingAnnotations(annotation).size == 0) {
             val id = Annotations returning Annotations.id insert(annotation)
       
             // Record edit event
@@ -106,23 +107,21 @@ object AnnotationController extends Controller with Secured {
    
           val toponym = if (updatedToponym.isDefined) updatedToponym else annotation.get.toponym
           val offset = if (updatedOffset.isDefined) updatedOffset else annotation.get.offset
-                      
-          val valid = if (toponym.isDefined) isValid(annotation.get.gdocPartId.get, toponym.get, offset) else true
-          if (valid) {
-            val updated = 
-              Annotation(Some(id), annotation.get.gdocId, annotation.get.gdocPartId, 
-                         updatedStatus,
-                         annotation.get.toponym, annotation.get.offset, annotation.get.gazetteerURI, 
-                         updatedToponym, updatedOffset, updatedURI, updatedTags, updatedComment)
+                     
+          val updated = 
+            Annotation(Some(id), annotation.get.gdocId, annotation.get.gdocPartId, 
+                       updatedStatus,
+                       annotation.get.toponym, annotation.get.offset, annotation.get.gazetteerURI, 
+                       updatedToponym, updatedOffset, updatedURI, updatedTags, updatedComment)
           
-            Annotations.update(updated)
+          Annotations.update(updated)
+          
+          // Remove all overlapping annotations
+          Annotations.getOverlappingAnnotations(updated).foreach(_delete(_))
         
-            // Record edit event
-            EditHistory.insert(createDiffEvent(annotation.get, updated, user.get.id.get))
-            Ok(Json.parse("{ \"success\": true }"))
-          } else {
-            BadRequest(Json.parse("{ \"success\": false, \"message\": \"Annotation overlaps with an existing one (details were logged).\" }"))
-          }
+          // Record edit event
+          EditHistory.insert(createDiffEvent(annotation.get, updated, user.get.id.get))
+          Ok(Json.parse("{ \"success\": true }"))
         } else {
           BadRequest(Json.parse("{ \"success\": false, \"message\": \"Missing JSON body\" }"))          
         }
@@ -134,13 +133,9 @@ object AnnotationController extends Controller with Secured {
     }
   }
   
-  /** 'Deletes' an annotation by setting it's status to 'FALSE DETECTION'.
+  /** Deletes an annotation.
     *  
-    * Note: we never actually delete an annotation from the system. We only mark
-    * them as 'FALSE DETECTION' in order to maintain a full audit trail and have
-    * an easy way to generate precision and recall metrics.
-    * 
-    * TODO we should actually delete annotations that were not originally computer-generated!
+    * Note: we don't actually delete annotations, but just set their status to 'FALSE DETECTION'.
     * 
     * @param id the annotation ID 
     */
@@ -150,14 +145,7 @@ object AnnotationController extends Controller with Secured {
       val annotation = Annotations.findById(id)
       if (annotation.isDefined) {
         // Just update status to false detection, keep the rest as is
-        val a = annotation.get
-        val updated = Annotation(a.id, a.gdocId, a.gdocPartId,
-                                 AnnotationStatus.FALSE_DETECTION, 
-                                 a.toponym, a.offset,
-                                 a.gazetteerURI, a.correctedToponym, a.correctedOffset, a.correctedGazetteerURI,
-                                 a.tags, a.comment)
-                                 
-        Annotations.update(updated)
+        val updated = _delete(annotation.get)
         
         // Record edit event
         EditHistory.insert(createDiffEvent(annotation.get, updated, user.get.id.get))
@@ -171,31 +159,16 @@ object AnnotationController extends Controller with Secured {
     }
   }
   
-  /** Checks if a newly created annotation conflicts with an existing one.
-   *  
-    * Text annotations cannot overlap each other. If they do, this is probably a consequence
-    * of identical - or contradictory - edits made concurrently by different users at the same
-    * time. Overlapping annotations would also break the rendering of the text view. This 
-    * sanity check method helps to ensure data integrity.
-    * @param gdocPartId the ID of the annotated EGD part
-    * @param toponym the annotated toponym
-    * @param the annotation offset
-    */
-  private def isValid(gdocPartId: Int, toponym: String, offset: Option[Int])(implicit s: Session): Boolean = {
-    if (offset.isDefined) {
-      val intersectingAnnotations = Annotations.findByGeoDocumentPart(gdocPartId).filter(annotation => {
-        val otherOffset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset
-        otherOffset.isDefined && (otherOffset.get >= offset.get) && (otherOffset.get <= offset.get + toponym.size)
-      })
-    
-      if (intersectingAnnotations.size > 0)
-        Logger.warn("Annotation validation error: " + toponym + " (" + offset + ") intersects with " + intersectingAnnotations.map("#" + _.id.get).mkString(", "))      
-    
-      intersectingAnnotations.size == 0
-    } else {
-      // No overlaps possible
-      true
-    }
+  private def _delete(a: Annotation)(implicit s: Session) = {
+    // TODO if the annotation was not originally NER-generated, do a real delete!
+    val updated = Annotation(a.id, a.gdocId, a.gdocPartId,
+                             AnnotationStatus.FALSE_DETECTION, 
+                             a.toponym, a.offset,
+                             a.gazetteerURI, a.correctedToponym, a.correctedOffset, a.correctedGazetteerURI,
+                             a.tags, a.comment)
+                                 
+    Annotations.update(updated)    
+    updated
   }
   
   /** Private helper method that creates an update diff event by comparing original and updated annotation.

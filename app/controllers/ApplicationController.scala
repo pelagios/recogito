@@ -40,29 +40,33 @@ object ApplicationController extends Controller with Secured {
       
       // Build HTML
       val ranges = annotations.foldLeft(("", 0)) { case ((markup, beginIndex), annotation) => {
-        // Use corrections if they exist, or Geoparser results otherwise
-        val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
-        val offset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset 
-
-        if (offset.isDefined && offset.get < beginIndex)
-          debugTextAnnotationUI(annotation)
-          
-        val cssClass = if (annotation.status == AnnotationStatus.FALSE_DETECTION)
-                         "annotation false-detection"
-                       else if (annotation.correctedToponym.isDefined) 
-                         "annotation corrected"
-                       else if (annotation.status == AnnotationStatus.VERIFIED)
-                         "annotation verified"
-                       else "annotation"
-   
-        if (toponym.isDefined && offset.isDefined) {
-          val nextSegment = plaintext.substring(beginIndex, offset.get) +
-            "<span data-id=\"" + annotation.id.get + "\" class=\"" + cssClass + "\">" + toponym.get + "</span>"
-              
-          (markup + nextSegment, offset.get + toponym.get.size)
-        } else {
+        if (annotation.status == AnnotationStatus.FALSE_DETECTION) {
           (markup, beginIndex)
-        }        
+        } else {
+          // Use corrections if they exist, or Geoparser results otherwise
+          val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
+          val offset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset 
+
+          if (offset.isDefined && offset.get < beginIndex)
+            debugTextAnnotationUI(annotation)
+          
+          val cssClass = if (annotation.status == AnnotationStatus.FALSE_DETECTION)
+                           "annotation false-detection"
+                         else if (annotation.correctedToponym.isDefined) 
+                           "annotation corrected"
+                         else if (annotation.status == AnnotationStatus.VERIFIED)
+                           "annotation verified"
+                         else "annotation"
+   
+          if (toponym.isDefined && offset.isDefined) {
+            val nextSegment = plaintext.substring(beginIndex, offset.get) +
+              "<span data-id=\"" + annotation.id.get + "\" class=\"" + cssClass + "\">" + toponym.get + "</span>"
+              
+            (markup + nextSegment, offset.get + toponym.get.size)
+          } else {
+            (markup, beginIndex)
+          }
+        }
       }}
       
       val html = (ranges._1 + plaintext.substring(ranges._2)).replace("\n", "<br/>")

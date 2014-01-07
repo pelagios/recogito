@@ -86,7 +86,7 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
   }
   
   // API call - delete annotation
-  var deleteAnnotation = function(id) {
+  var deleteAnnotation = function(id, opt_callback) {
     $.ajax({
       url: '../api/annotations/' + id,
       type: 'DELETE',
@@ -194,14 +194,7 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
         // More than one span crossed - merge
         var ids = $.map(spans, function(span) { return getId(span); });
         self.openEditor("MERGE ANNOTATIONS", toponym, "Merge to one toponym?", x, y, function() {
-          // Update first annotation
           updateAnnotation(ids[0], toponym, offset);
-          
-          // Delete the rest
-          for (var i=1, j=ids.length; i<j; i++) {
-            deleteAnnotation(ids[i]);
-          }
-          
           rewrapToponym(selectedRange);
           selection.removeAllRanges();
         });
