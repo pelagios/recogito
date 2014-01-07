@@ -13,7 +13,7 @@ var recogito = (window.recogito) ? window.recogito : { };
  */
 recogito.TextAnnotationUI = function(textDiv) { 
   var self = this,
-      gdocId = parseInt(recogito.TextAnnotationUI.getQueryParam('textId')[0]), 
+      gdocId = parseInt(recogito.TextAnnotationUI.getQueryParam('text')[0]), 
       getId = function(span) { return parseInt($(span).data('id')); };
    
   this._EDITOR_TEMPLATE = 
@@ -89,7 +89,7 @@ recogito.TextAnnotationUI = function(textDiv) {
   // API call - delete annotation
   var deleteAnnotation = function(id) {
     $.ajax({
-      url: 'annotations/' + id,
+      url: '../api/annotations/' + id,
       type: 'DELETE',
       error: function(result) {
         console.log('ERROR deleting annotation!');
@@ -100,7 +100,7 @@ recogito.TextAnnotationUI = function(textDiv) {
   // API call - create new annotation
   var createAnnotation = function(toponym, offset) {
     $.ajax({
-      url: 'annotations',
+      url: '../api/annotations',
       type: 'POST',
       data: '{ "gdocId": ' + gdocId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }',
       contentType : 'application/json',
@@ -113,7 +113,7 @@ recogito.TextAnnotationUI = function(textDiv) {
   // API call - update annotation
   var updateAnnotation = function(id, toponym, offset) {
     $.ajax({
-      url: 'annotations/' + id,
+      url: '../api/annotations/' + id,
       type: 'PUT',
       data: '{ "gdocId": ' + gdocId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }',
       contentType : 'application/json',
