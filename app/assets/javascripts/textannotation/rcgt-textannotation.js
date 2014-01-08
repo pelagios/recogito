@@ -208,20 +208,22 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
 }
 
 recogito.TextAnnotationUI.prototype.openEditor = function(title, selection, msg, x, y, ok_callback) {  
-  this._editor = $(this._EDITOR_TEMPLATE);
+  if (!this._editor) {
+    this._editor = $(this._EDITOR_TEMPLATE);
   
-  var self = this,
-      e = $(this._editor),
-      header = e.find('.annotation-editor-header');
+    var self = this,
+        e = $(this._editor),
+        header = e.find('.annotation-editor-header');
       
-  header.html(title);
-  e.find('.annotation-editor-selection').html(selection);
-  e.find('.annotation-editor-message').html(msg);
-  e.appendTo(document.body);
-  e.css({ position: 'absolute', top: y + 'px', left: x + 'px' });
-  e.find('.button-ok').focus().click(function() { ok_callback(); self.closeEditor(); });
-  e.find('.button-cancel').click(function() { self.closeEditor(); });
-  e.draggable({ handle: header });
+    header.html(title);
+    e.find('.annotation-editor-selection').html(selection);
+    e.find('.annotation-editor-message').html(msg);
+    e.appendTo(document.body);
+    e.css({ position: 'absolute', top: y + 'px', left: x + 'px' });
+    e.find('.button-ok').focus().click(function() { ok_callback(); self.closeEditor(); });
+    e.find('.button-cancel').click(function() { self.closeEditor(); });
+    e.draggable({ handle: header });
+  }
 }
 
 recogito.TextAnnotationUI.prototype.closeEditor = function() { 
