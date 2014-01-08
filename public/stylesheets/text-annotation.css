@@ -15,14 +15,13 @@
   border-bottom:1px dotted #339933;
 }
 
-.annotation.corrected {
-  background-color:#f2ee00;
-  border-bottom:1px dotted #99940b;
+.annotation.ignore {
+  background-color:transparent;
 }
 
-.false-detection {
-  background-color:#fdd;
-  border-bottom:1px dotted #a00;
+.annotation.not-identifyable {
+  background-color:#f2ee00;
+  border-bottom:1px dotted #99940b;
 }
 
 .annotation-editor {

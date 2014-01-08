@@ -18,6 +18,16 @@ object AnnotationStatus extends Enumeration {
   
   val IGNORE = Value("IGNORE")
   
+  def screenName(status: AnnotationStatus.Value) = {
+    status match {
+      case NOT_VERIFIED => "Unverified"
+      case VERIFIED => "Verified"
+      case NOT_IDENTIFYABLE => "Unknown, Not Identifyable"
+      case FALSE_DETECTION => "False Detection, Deleted"
+      case IGNORE => "Ignore"
+    }
+  }
+  
 }
 
 trait HasStatusColumn {

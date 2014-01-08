@@ -50,17 +50,20 @@ object ApplicationController extends Controller with Secured {
           if (offset.isDefined && offset.get < beginIndex)
             debugTextAnnotationUI(annotation)
           
-          val cssClass = if (annotation.status == AnnotationStatus.FALSE_DETECTION)
-                           "annotation false-detection"
-                         else if (annotation.correctedToponym.isDefined) 
-                           "annotation corrected"
-                         else if (annotation.status == AnnotationStatus.VERIFIED)
-                           "annotation verified"
-                         else "annotation"
+          val cssClass = annotation.status match {
+            case AnnotationStatus.VERIFIED => "annotation verified"
+            case AnnotationStatus.IGNORE => "annotation ignore"
+            case AnnotationStatus.NOT_IDENTIFYABLE => "annotation not-identifyable"
+            case _ => "annotation" 
+          }
    
+          val title = AnnotationStatus.screenName(annotation.status) + " (" +
+                      { if (annotation.correctedToponym.isDefined) "Manual Correction" else "Automatic Match" } +
+                      ")"
+            
           if (toponym.isDefined && offset.isDefined) {
             val nextSegment = plaintext.substring(beginIndex, offset.get) +
-              "<span data-id=\"" + annotation.id.get + "\" class=\"" + cssClass + "\">" + toponym.get + "</span>"
+              "<span data-id=\"" + annotation.id.get + "\" class=\"" + cssClass + "\" title=\"" + title + "\">" + toponym.get + "</span>"
               
             (markup + nextSegment, offset.get + toponym.get.size)
           } else {
