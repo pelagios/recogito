@@ -13,7 +13,7 @@ var recogito = (window.recogito) ? window.recogito : { };
  */
 recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) { 
   var self = this,
-      getId = function(span) { return parseInt($(span).data('id')); };
+      getId = function(a) { return parseInt($(a).data('id')); };
    
   this._EDITOR_TEMPLATE = 
     '<div class="annotation-editor">' + 
@@ -33,7 +33,7 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
   rangy.init();
   
   var wrapToponym = function(selectedRange) { 
-    var span = document.createElement('span');
+    var span = document.createElement('a');
     span.className = 'annotation corrected';
     span.appendChild(document.createTextNode(selectedRange.toString()));
     selectedRange.deleteContents();
@@ -50,7 +50,7 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
     var nodes = selectedRange.getNodes();
     
     // If the selected text ends in an annotation, well' remove that as well
-    if (nodes.length > 1 && nodes[nodes.length-1].parentNode.nodeName == 'SPAN')
+    if (nodes.length > 1 && nodes[nodes.length-1].parentNode.nodeName == 'A')
       nodes.push(nodes[nodes.length-1].parentNode);
 
     // The plaintext within all nodes in the range   
@@ -71,7 +71,7 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
 
     // Get the correct anchor node to replace
     var nodeToReplace;
-    if (nodes[0].parentNode.nodeName == 'SPAN') {
+    if (nodes[0].parentNode.nodeName == 'A') {
       nodeToReplace = nodes[0].parentNode;
       $.each(nodes, function(idx, node) { $(node).remove(); });
     } else { 
@@ -82,7 +82,7 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
       });
     }
     
-    $(nodeToReplace).replaceWith(head + '<span class="annotation corrected">' + toponym + '</span>' + tail);
+    $(nodeToReplace).replaceWith(head + '<a class="annotation corrected">' + toponym + '</a>' + tail);
   }
   
   // API call - delete annotation
@@ -153,10 +153,10 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
       var offset = offsetRange.toString().length + newLines.length - 1;
       
       // The <span>s crossed by the selection 
-      var spans = selectedRange.getNodes([1], function(e) { return e.nodeName.toLowerCase() == 'span' })
+      var spans = selectedRange.getNodes([1], function(e) { return e.nodeName.toLowerCase() == 'a' })
       if (spans.length == 0) {
         // No span boundaries crossed
-        var parent = $(selectedRange.getNodes([3])).parent().filter('span');
+        var parent = $(selectedRange.getNodes([3])).parent().filter('a');
         if (parent.length > 0) {
           var id = getId(parent[0]);
           
