@@ -3,14 +3,14 @@
   <head>
     <title>PELAGIOS Geo-Resolution Correction Tool</title>
     <link rel="stylesheet" href="@routes.Assets.at("javascripts/lib/leaflet/leaflet.css")" />
-    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/public.css")" />
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/public-map.css")" />
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/leaflet/leaflet.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/leaflet/leaflet.textpath.js")"></script>
-    <script type="text/javascript" src="@routes.Assets.at("javascripts/map-public.js")"></script>   
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/publicmap/rcgt-publicmap.min.js")"></script>   
     <script>
       $(function() {
-        var map = new pelagios.georesolution.PublicMap(document.getElementById('map'), '@routes.DocumentController.get(docId, Some("json"))');
+        var map = new recogito.PublicMap(document.getElementById('map'), '@routes.DocumentController.get(docId, Some("json"))');
       });
     </script>
   </head>

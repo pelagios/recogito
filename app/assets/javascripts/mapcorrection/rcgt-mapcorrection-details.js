@@ -22,7 +22,7 @@ recogito.DetailsPopup = function(annotation, prev_annotations, next_annotations)
         '<div class="clicktrap">' +
         '  <div class="details">' +
         '    <div class="details-header">' +
-        '      »<span class="details-header-toponym"></span>« ' +
+        '      »<span class="details-header-toponym"></span>«' +
         '      <span class="details-header-source">in <span class="details-header-source-label"></span></span>' + 
         '      <a class="details-header-exit">&#xf00d;</a>' +
         '    </div>' +

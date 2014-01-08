@@ -50,6 +50,18 @@ object JSONSerializer {
     } else {
       None
     }
+    
+    val source = if (includeContext) {
+                   if (a.gdocPartId.isDefined) {
+                     val part = GeoDocumentParts.findById(a.gdocPartId.get)
+                     part.map(_.source).flatten
+                   } else {
+                     val doc = GeoDocuments.findById(a.gdocId)
+                     doc.map(_.source).flatten
+                   }
+                 } else {
+                   None
+                 } 
        
     Json.obj(
       "id" -> a.id,
@@ -58,7 +70,8 @@ object JSONSerializer {
       "place" -> a.gazetteerURI.map(placeUriToJson(_)),
       "place_fixed" -> a.correctedGazetteerURI.map(placeUriToJson(_)),
       "tags" -> a.tags.map(_.split(",")),
-      "context" -> context)
+      "context" -> context,
+      "source" -> source)
   }
   
   /** Serializes a single GeoDocument, optionally with annotations in-lined.
