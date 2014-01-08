@@ -13,7 +13,7 @@ var recogito = (window.recogito) ? window.recogito : { };
  */
 recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) { 
   var self = this,
-      getId = function(a) { return parseInt($(a).data('id')); };
+      getId = function(node) { return parseInt($(node).data('id')); };
    
   this._EDITOR_TEMPLATE = 
     '<div class="annotation-editor">' + 
@@ -33,16 +33,16 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
   rangy.init();
   
   var wrapToponym = function(selectedRange) { 
-    var span = document.createElement('a');
-    span.className = 'annotation corrected';
-    span.appendChild(document.createTextNode(selectedRange.toString()));
+    var anchor = document.createElement('a');
+    anchor.className = 'annotation corrected';
+    anchor.appendChild(document.createTextNode(selectedRange.toString()));
     selectedRange.deleteContents();
-    selectedRange.insertNode(span);
+    selectedRange.insertNode(anchor);
   };
   
-  var unwrapToponym = function(span) {
-    var text = span.text();
-    span.replaceWith(text);
+  var unwrapToponym = function(anchor) {
+    var text = anchor.text();
+    anchor.replaceWith(text);
   };
   
   var rewrapToponym = function(selectedRange) {
@@ -153,8 +153,8 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
       var offset = offsetRange.toString().length + newLines.length - 1;
       
       // The <span>s crossed by the selection 
-      var spans = selectedRange.getNodes([1], function(e) { return e.nodeName.toLowerCase() == 'a' })
-      if (spans.length == 0) {
+      var nodes = selectedRange.getNodes([1], function(e) { return e.nodeName.toLowerCase() == 'a' })
+      if (nodes.length == 0) {
         // No span boundaries crossed
         var parent = $(selectedRange.getNodes([3])).parent().filter('a');
         if (parent.length > 0) {
@@ -182,9 +182,9 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
             wrapToponym(selectedRange);
           });
         }        
-      } else if (spans.length == 1) {
+      } else if (nodes.length == 1) {
         // One span crossed - resize/reanchoring of an existing annotation
-        var id = getId(spans[0]);
+        var id = getId(nodes[0]);
         self.openEditor("MODIFY ANNOTATION", toponym, "Update toponym?", x, y, function() {
           updateAnnotation(id, toponym, offset);
           rewrapToponym(selectedRange);
@@ -192,7 +192,7 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
         });
       } else {
         // More than one span crossed - merge
-        var ids = $.map(spans, function(span) { return getId(span); });
+        var ids = $.map(nodes, function(node) { return getId(node); });
         self.openEditor("MERGE ANNOTATIONS", toponym, "Merge to one toponym?", x, y, function() {
           updateAnnotation(ids[0], toponym, offset);
           rewrapToponym(selectedRange);
