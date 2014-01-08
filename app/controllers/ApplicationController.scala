@@ -6,6 +6,7 @@ import play.api.Play.current
 import play.api.libs.json.Json
 import play.api.mvc.{ Action, Controller }
 import play.api.Logger
+import org.pelagios.gazetteer.GazetteerUtils
 
 /** Main application entrypoint.
   *
@@ -46,6 +47,9 @@ object ApplicationController extends Controller with Secured {
           // Use corrections if they exist, or Geoparser results otherwise
           val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
           val offset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset 
+          val url = if (annotation.correctedGazetteerURI.isDefined && !annotation.correctedGazetteerURI.get.trim.isEmpty) 
+                      annotation.correctedGazetteerURI
+                    else annotation.gazetteerURI
 
           if (offset.isDefined && offset.get < beginIndex)
             debugTextAnnotationUI(annotation)
@@ -63,7 +67,7 @@ object ApplicationController extends Controller with Secured {
             
           if (toponym.isDefined && offset.isDefined) {
             val nextSegment = plaintext.substring(beginIndex, offset.get) +
-              "<span data-id=\"" + annotation.id.get + "\" class=\"" + cssClass + "\" title=\"" + title + "\">" + toponym.get + "</span>"
+              "<a href=\"" + url.map(GazetteerUtils.normalizeURI(_)).getOrElse("#") + "\" data-id=\"" + annotation.id.get + "\" class=\"" + cssClass + "\" title=\"" + title + "\">" + toponym.get + "</a>"
               
             (markup + nextSegment, offset.get + toponym.get.size)
           } else {

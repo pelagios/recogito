@@ -8,6 +8,8 @@
 .annotation {
   background-color:#bbb;
   border-bottom:1px dotted #333;
+  text-decoration:none;
+  color:#000;
 }
 
 .annotation.verified {
