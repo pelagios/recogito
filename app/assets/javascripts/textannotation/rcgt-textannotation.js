@@ -140,6 +140,7 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
       // Remove leading & trailing spaces
       if (toponym.indexOf(" ") == 0) {
         selectedRange.setStart(selectedRange.startContainer, selectedRange.startOffset + 1);
+        offsetRange.setEnd(selectedRange.startContainer, selectedRange.startOffset);
         toponym = selectedRange.toString();
       }
       
