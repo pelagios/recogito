@@ -3,6 +3,7 @@ package models
 import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
+import play.api.Logger
 
 /** Annotation case class.
   *  
@@ -114,7 +115,7 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
                   
       all.filter(a => {
         val otherOffset = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
-        otherOffset.isDefined && (otherOffset.get >= offset.get) && (otherOffset.get <= offset.get + toponym.size)
+        otherOffset.isDefined && (otherOffset.get >= offset.get) && (otherOffset.get <= offset.get + toponym.get.size)
       }).filter(_.id != annotation.id)
     } else {
       Seq.empty[Annotation]
