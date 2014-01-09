@@ -52,21 +52,22 @@ recogito.PublicMap.prototype.addPlaceMarker = function(annotation) {
   };
   
   var loadDetails = function(annotationID, marker) {
-    $.getJSON('/recogito/api/annotations/' + annotationID, function(a) {
-      console.log(a);
-      
+    $.getJSON('/recogito/api/annotations/' + annotationID, function(a) {            
       var place = (a.place_fixed) ? a.place_fixed : a.place;
       var html = popupTemplate
                    .replace('{{toponym}}', a.toponym)
                    .replace('{{title}}', place.title)
-                   .replace('{{context}}', '...' + highlightToponym(a.context, a.toponym) + '...')
-                   .replace('{{pelagios-link}}', '<a target="_blank" href="http://pelagios.org/api/places/' + encodeURIComponent(place.uri) + '">' + place.title + ' in Pelagios</a>');
+                   .replace('{{pelagios-link}}', '<a target="_blank" href="http://pelagios.org/api/places/' + encodeURIComponent(place.uri) + '">Further resources about ' + place.title + '</a>');
                    
-      if (a.source) {
+      if (a.source)
         html = html.replace('{{source}}', '<p class="link"><a href="' + a.source + '" target="_blank">Source Text</a></p>');
-      } else {
+      else
         html = html.replace('{{source}}', '');
-      }
+    
+      if (a.context)
+        html = html.replace('{{context}}', '...' + highlightToponym(a.context, a.toponym) + '...')
+      else
+        html = html.replace('{{context}}', '');
       
       marker.bindPopup(html).openPopup();
     });
