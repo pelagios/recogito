@@ -61,9 +61,10 @@ object ApplicationController extends Controller with Secured {
             case _ => "annotation" 
           }
    
-          val title = AnnotationStatus.screenName(annotation.status) + " (" +
-                      { if (annotation.correctedToponym.isDefined) "Manual Correction" else "Automatic Match" } +
-                      ")"
+          val title = "#" + annotation.id.get + " " +
+            AnnotationStatus.screenName(annotation.status) + " (" +
+            { if (annotation.correctedToponym.isDefined) "Manual Correction" else "Automatic Match" } +
+            ")"
             
           if (toponym.isDefined && offset.isDefined) {
             val nextSegment = plaintext.substring(beginIndex, offset.get) +
