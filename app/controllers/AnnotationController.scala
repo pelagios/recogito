@@ -148,7 +148,8 @@ object AnnotationController extends Controller with Secured {
         val updated = _delete(annotation.get)
         
         // Record edit event
-        EditHistory.insert(createDiffEvent(annotation.get, updated, user.get.id.get))
+        if (updated.isDefined)
+          EditHistory.insert(createDiffEvent(annotation.get, updated.get, user.get.id.get))
         
         Ok(Json.parse("{ \"success\": true }"))
       } else {
@@ -160,15 +161,20 @@ object AnnotationController extends Controller with Secured {
   }
   
   private def _delete(a: Annotation)(implicit s: Session) = {
-    // TODO if the annotation was not originally NER-generated, do a real delete!
-    val updated = Annotation(a.id, a.gdocId, a.gdocPartId,
-                             AnnotationStatus.FALSE_DETECTION, 
-                             a.toponym, a.offset,
-                             a.gazetteerURI, a.correctedToponym, a.correctedOffset, a.correctedGazetteerURI,
-                             a.tags, a.comment)
+    if (!a.toponym.isDefined) {
+      Annotations.delete(a.id.get)
+      None
+    } else {
+      // If the annotation was originally NER-generated, don't delete - just set status to FALSE DETECTION
+      val updated = Annotation(a.id, a.gdocId, a.gdocPartId,
+                               AnnotationStatus.FALSE_DETECTION, 
+                               a.toponym, a.offset,
+                               a.gazetteerURI, a.correctedToponym, a.correctedOffset, a.correctedGazetteerURI,
+                               a.tags, a.comment)
                                  
-    Annotations.update(updated)    
-    updated
+      Annotations.update(updated)    
+      Some(updated)
+    }
   }
   
   /** Private helper method that creates an update diff event by comparing original and updated annotation.

@@ -90,6 +90,9 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
     
   def deleteForGeoDocument(id: Int)(implicit s: Session) =
     Query(Annotations).where(_.gdocId === id).delete
+    
+  def delete(id: Int)(implicit s: Session) = 
+    Query(Annotations).where(_.id === id).delete
         
   def findByGeoDocumentPart(id: Int)(implicit s: Session): Seq[Annotation] = {
     Query(Annotations).where(_.gdocPartId === id).list.sortWith((a, b) => { 
