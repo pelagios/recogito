@@ -89,24 +89,9 @@ object ApplicationController extends Controller with Secured {
     * @param annotation the offending annotation
     */
   private def debugTextAnnotationUI(annotation: Annotation)(implicit s: Session) = {
-    val toponymA = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
-    Logger.error("Offending annotation: #" + annotation.id.get + " - " + toponymA.getOrElse(""))
-    if (annotation.gdocPartId.isDefined) {
-      val offsetA = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset
-      val all = Annotations.findByGeoDocumentPart(annotation.gdocPartId.get)
-      val overlapping = all.filter(a => { 
-        val toponymB = if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym
-        val offsetB = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
-        if (offsetA.isDefined && offsetB.isDefined) {
-          val overlapStart = scala.math.max(offsetA.get, offsetB.get)
-          val overlapEnd = scala.math.min(offsetA.get + toponymA.get.size, offsetB.get + toponymB.get.size)
-          overlapEnd > overlapStart
-        } else {
-          false
-        }
-      }).filter(_.id != annotation.id)
-      overlapping.foreach(a => Logger.error("Overlaps with: #" + a.id.get))
-    }
+    val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
+    Logger.error("Offending annotation: #" + annotation.id.get + " - " + toponym.getOrElse(""))
+    Annotations.getOverlappingAnnotations(annotation).foreach(a => Logger.error("Overlaps with: #" + a.id.get))
   }
 
   /** Shows the map-based georesolution correction UI for the specified document.

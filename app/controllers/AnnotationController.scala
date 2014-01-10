@@ -16,6 +16,8 @@ import play.api.Logger
   * @author Rainer Simon <rainer.simon@ait.ac.at> 
   */
 object AnnotationController extends Controller with Secured {
+  
+  private val UTF8 = "UTF-8"
 
   /** Creates a new annotation with (corrected) toponym and offset values.
     *
@@ -38,8 +40,12 @@ object AnnotationController extends Controller with Secured {
             Annotation(None, gdocPart.get.gdocId, gdocPart.get.id, 
                        AnnotationStatus.NOT_VERIFIED, None, None, None, 
                        Some(correctedToponym), Some(correctedOffset))
-                       
-          if (Annotations.getOverlappingAnnotations(annotation).size == 0) {
+          
+          if (!hasValidOffset(annotation)) {
+            BadRequest(Json.parse("{ \"success\": false, \"message\": \"Shifted toponym alert: annotation reports invalid offset value.\" }"))  
+          } else if (Annotations.getOverlappingAnnotations(annotation).size > 0) {
+            BadRequest(Json.parse("{ \"success\": false, \"message\": \"Annotation overlaps with an existing one (details were logged).\" }"))
+          } else {
             val id = Annotations returning Annotations.id insert(annotation)
       
             // Record edit event
@@ -48,8 +54,6 @@ object AnnotationController extends Controller with Secured {
                         Some(correctedToponym), None, None, None, None)
                               
             Ok(Json.parse("{ \"success\": true }"))
-          } else {
-            BadRequest(Json.parse("{ \"success\": false, \"message\": \"Annotation overlaps with an existing one (details were logged).\" }"))
           }
         } else {
           BadRequest(Json.parse("{ \"success\": false, \"message\": \"Missing JSON body\" }"))
@@ -59,6 +63,27 @@ object AnnotationController extends Controller with Secured {
       }      
     } else {
       Forbidden(Json.parse("{ \"success\": false, \"message\": \"Not authorized\" }"))
+    }
+  }
+  
+  private def hasValidOffset(a: Annotation)(implicit s: Session): Boolean = {
+    val offset = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
+    val toponym = if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym
+
+    if (offset.isDefined && toponym.isDefined) {
+      // Cross check against the source text, if available
+      val text = GeoDocumentTexts.getForAnnotation(a).map(gdt => new String(gdt.text, UTF8))
+      if (text.isDefined) {
+        // Compare with the source text
+        val referenceToponym = text.get.substring(offset.get, offset.get + toponym.get.size)
+        referenceToponym.equals(toponym.get)
+      } else {
+        // We don't have a text for the annotation - so we'll just have to accept the offset
+        true
+      }
+    } else {
+      // Annotation has no offset and/or toponym - so isn't tied to a text, and we're cool
+      true
     }
   }
   

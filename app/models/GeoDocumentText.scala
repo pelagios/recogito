@@ -27,5 +27,13 @@ object GeoDocumentTexts extends Table[GeoDocumentText]("gdocument_texts") {
     
   def findByGeoDocumentPart(gdocPartId: Int)(implicit s: Session): Option[GeoDocumentText] =
     Query(GeoDocumentTexts).where(_.gdocPartId === gdocPartId).firstOption
+    
+  def getForAnnotation(annotation: Annotation)(implicit s: Session): Option[GeoDocumentText] = {    
+    if (annotation.gdocPartId.isDefined) {
+      Query(GeoDocumentTexts).where(_.gdocPartId === annotation.gdocPartId.get).firstOption
+    } else {
+      Query(GeoDocumentTexts).where(_.gdocId === annotation.gdocId).filter(_.gdocPartId.isNull).firstOption
+    }
+  }
   
 }

@@ -29,7 +29,7 @@ object JSONSerializer {
     val offset = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
     val context = if (includeContext) { 
       if (toponym.isDefined && offset.isDefined) {
-        val gdocText = if (a.gdocPartId.isDefined) GeoDocumentTexts.findByGeoDocumentPart(a.gdocPartId.get) else None
+        val gdocText = GeoDocumentTexts.getForAnnotation(a)
         if (gdocText.isDefined) {
           val text = new String(gdocText.get.text, UTF8)
         
