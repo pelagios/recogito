@@ -8,8 +8,8 @@ import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import play.api.libs.json.Json
-import play.api.mvc.{ Action, Controller }
 import play.api.Logger
+import play.api.mvc.{ Action, Controller }
 
 /** Annotation CRUD controller.
   *
@@ -42,6 +42,7 @@ object AnnotationController extends Controller with Secured {
                        Some(correctedToponym), Some(correctedOffset))
           
           if (!hasValidOffset(annotation)) {
+            Logger.info("Invalid offset warning: " + correctedToponym + " - " + correctedOffset + " GDoc Part: " + gdocPart.get.id)
             BadRequest(Json.parse("{ \"success\": false, \"message\": \"Shifted toponym alert: annotation reports invalid offset value.\" }"))  
           } else if (Annotations.getOverlappingAnnotations(annotation).size > 0) {
             BadRequest(Json.parse("{ \"success\": false, \"message\": \"Annotation overlaps with an existing one (details were logged).\" }"))

@@ -8,7 +8,7 @@ import play.api.db.slick.Config.driver.simple._
   *
   * @author Rainer Simon <rainer.simon@ait.ac.at>
   */
-case class GeoDocument(id: Option[Int] = None, title: String, source: Option[String] = None)
+case class GeoDocument(id: Option[Int] = None, title: String, description: Option[String] = None, source: Option[String] = None)
 
 /** Geospatial Documents database table **/
 object GeoDocuments extends Table[GeoDocument]("gdocuments") {
@@ -17,9 +17,11 @@ object GeoDocuments extends Table[GeoDocument]("gdocuments") {
   
   def title = column[String]("title")
   
+  def description = column[String]("description", O.Nullable)
+  
   def source = column[String]("source", O.Nullable)
   
-  def * = id.? ~ title ~ source.? <> (GeoDocument.apply _, GeoDocument.unapply _)
+  def * = id.? ~ title ~ description.? ~ source.? <> (GeoDocument.apply _, GeoDocument.unapply _)
   
   def listAll()(implicit s: Session): Seq[GeoDocument] = Query(GeoDocuments).list
   

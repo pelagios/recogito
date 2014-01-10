@@ -25,8 +25,12 @@ object ApplicationController extends Controller with Secured {
     *  
     * @param doc the document ID 
     */  
-  def showMap(doc: Int) = Action {
-    Ok(views.html.public_map(doc))
+  def showMap(doc: Int) = DBAction { implicit rs =>
+    val document = GeoDocuments.findById(doc)
+    if (document.isDefined)
+      Ok(views.html.public_map(document.get))
+    else
+      NotFound
   }
     
   /** Shows the text annotation UI for the specified text.
