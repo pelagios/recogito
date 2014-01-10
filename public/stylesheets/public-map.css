@@ -18,16 +18,26 @@ html, body, #map {
   -moz-box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
   -webkit-box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
   box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
-  border-width:1px;
-  border-style:solid;
-  border-color:#595959;
+  border:1px solid #595959;
 }
       
 #meta h1 {
   font-size:14px;
   padding:0;
   margin:0;
-}     
+}   
+
+.publicmap-layerswitcher {
+  position:absolute;
+  top:20px;
+  right:20px;
+  padding:12px 14px;
+  background-color:#fff;  
+  -moz-box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
+  -webkit-box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
+  box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
+  border:1px solid #595959;
+}
 
 .publicmap-popup {
   font-family:"Times New Roman", Times, serif;

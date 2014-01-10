@@ -42,9 +42,11 @@ object AnnotationController extends Controller with Secured {
                        Some(correctedToponym), Some(correctedOffset))
           
           if (!hasValidOffset(annotation)) {
-            Logger.info("Invalid offset warning: " + correctedToponym + " - " + correctedOffset + " GDoc Part: " + gdocPart.get.id)
+            Logger.info("Invalid offset error: " + correctedToponym + " - " + correctedOffset + " GDoc Part: " + gdocPart.get.id)
             BadRequest(Json.parse("{ \"success\": false, \"message\": \"Shifted toponym alert: annotation reports invalid offset value.\" }"))  
           } else if (Annotations.getOverlappingAnnotations(annotation).size > 0) {
+            Logger.info("Overlap error: " + correctedToponym + " - " + correctedOffset + " GDoc Part: " + gdocPart.get.id)
+            Annotations.getOverlappingAnnotations(annotation).foreach(a => Logger.warn("Overlaps with " + a.id.get))
             BadRequest(Json.parse("{ \"success\": false, \"message\": \"Annotation overlaps with an existing one (details were logged).\" }"))
           } else {
             val id = Annotations returning Annotations.id insert(annotation)
