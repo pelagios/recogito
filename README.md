@@ -8,6 +8,9 @@ A Web-based tool for validating &amp; correcting geo-resolution results.
 
 ... 
 
+* To create an Eclipse project, type `play eclipse` 
+* To create an Eclipse project with dependency's sources attached, type `play` to enter the Play console, and then `eclipse with-source=true`
+
 ## Importing Data
 
 The recogito database will be empty when you first start it. Data is imported in two steps:
