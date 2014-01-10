@@ -22,16 +22,33 @@ recogito.PublicMap = function(mapDiv, dataURL) {
   $.getJSON(dataURL, function(data) {
     var layers = '';
     var palette = new recogito.ColorPalette();
+    var layerGroups = [];
+    
     $.each(data.parts, function(partIdx, part) {
-      layers += '<input type="checkbox" checked="true" data-part="' + part.title + '">' + part.title + '</input><br/>';
+      layers += '<input type="checkbox" checked="true" data-part="' + partIdx + '" class="switch">' + part.title + '</input><br/>';
+    
+      var layerGroup = L.layerGroup();
+      layerGroup.addTo(self._map);
+      layerGroups.push(layerGroup);
+      
       $.each(part.annotations, function(annotationIdx, annotation) {
-        self.addPlaceMarker(annotation, palette.getDarkColor(partIdx), palette.getLightColor(partIdx));
+        self.addPlaceMarker(annotation, layerGroup, palette.getDarkColor(partIdx), palette.getLightColor(partIdx));
       });
+      
     });
     
     var layer_switcher = $(layer_switcher_template);
     layer_switcher.html(layers);
     layer_switcher.appendTo(mapDiv);
+    
+    layer_switcher.on('click', '.switch', function(e) {
+      var part = parseInt($(e.target).data('part'), 10);
+      var checked = $(e.target).prop('checked');
+      if (checked)
+        self._map.addLayer(layerGroups[part]);
+      else
+        self._map.removeLayer(layerGroups[part]);
+    });
   });
   
   this._styles = { 
@@ -42,7 +59,7 @@ recogito.PublicMap = function(mapDiv, dataURL) {
   
 }
 
-recogito.PublicMap.prototype.addPlaceMarker = function(annotation, stroke, fill) {
+recogito.PublicMap.prototype.addPlaceMarker = function(annotation, layerGroup, stroke, fill) {
   var popupTemplate = 
     '<div class="publicmap-popup">' + 
     '  <span class="toponym">»{{toponym}}«</span> ({{title}})' +
@@ -87,8 +104,9 @@ recogito.PublicMap.prototype.addPlaceMarker = function(annotation, stroke, fill)
     var place = (annotation.place_fixed) ? annotation.place_fixed : annotation.place;
     if (place && place.coordinate) {
       var style = { color: stroke, fillColor:fill, radius: 4, weight:2, opacity:1, fillOpacity: 1 }
-      var marker = L.circleMarker(place.coordinate, style).addTo(this._map);
+      var marker = L.circleMarker(place.coordinate, style);
       marker.on('click', function() { loadDetails(annotation.id, marker); });
+      layerGroup.addLayer(marker);
     }
   }
 }
