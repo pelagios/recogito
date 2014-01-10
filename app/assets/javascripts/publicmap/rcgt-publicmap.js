@@ -8,6 +8,14 @@ recogito.PublicMap = function(mapDiv, dataURL) {
       }),
       layer_switcher_template = 
         '<div class="publicmap-layerswitcher">' +
+        '  <div class="publicmap-layerswitcher-all">' +
+        '    <table>' +
+        '      <tr>' + 
+        '        <td><input type="checkbox" checked="true" class="switch-all"></input></td>' +
+        '        <td>All</td>'
+        '      </tr>' +
+        '    </table>' +
+        '  </div>' +
         '</div>';
         
   this._map = new L.Map(mapDiv, {
@@ -20,12 +28,20 @@ recogito.PublicMap = function(mapDiv, dataURL) {
   
   // Fetch JSON data
   $.getJSON(dataURL, function(data) {
-    var layers = '';
+    var layers = '<table>' +
+                 '  <tr class="table-header"><td></td><td>Title</td><td># Toponyms</td><td></td>';
     var palette = new recogito.ColorPalette();
     var layerGroups = [];
     
     $.each(data.parts, function(partIdx, part) {
-      layers += '<input type="checkbox" checked="true" data-part="' + partIdx + '" class="switch">' + part.title + '</input><br/>';
+      layers += '<tr>' +
+                  '<td><input type="checkbox" checked="true" data-part="' + partIdx + '" class="switch"></input></td>' +
+                  '<td class="part-title" style="background-color:' + palette.getDarkColor(partIdx) + '">' + part.title + '</td>' +
+                  '<td class="centered">' + part.annotations.length + '</td>';
+      if (part.source)
+        layers += '<td><a href="' + part.source + '" target="_blank">Text Online</a></td>';
+        
+      layers += '</tr>';
     
       var layerGroup = L.layerGroup();
       layerGroup.addTo(self._map);
@@ -34,20 +50,25 @@ recogito.PublicMap = function(mapDiv, dataURL) {
       $.each(part.annotations, function(annotationIdx, annotation) {
         self.addPlaceMarker(annotation, layerGroup, palette.getDarkColor(partIdx), palette.getLightColor(partIdx));
       });
-      
     });
+    layers += '</table>';
     
     var layer_switcher = $(layer_switcher_template);
-    layer_switcher.html(layers);
+    layer_switcher.prepend(layers);
     layer_switcher.appendTo(mapDiv);
     
-    layer_switcher.on('click', '.switch', function(e) {
+    layer_switcher.on('change', '.switch', function(e) {
       var part = parseInt($(e.target).data('part'), 10);
       var checked = $(e.target).prop('checked');
       if (checked)
         self._map.addLayer(layerGroups[part]);
       else
         self._map.removeLayer(layerGroups[part]);
+    });
+    
+    layer_switcher.on('change', '.switch-all', function(e) {
+      var checked = $(e.target).prop('checked');
+      $('.switch').prop('checked', checked).trigger('change');
     });
   });
   

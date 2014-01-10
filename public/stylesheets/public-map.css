@@ -31,12 +31,52 @@ html, body, #map {
   position:absolute;
   top:20px;
   right:20px;
-  padding:12px 14px;
+  padding:0;
+  margin:0;
   background-color:#fff;  
   -moz-box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
   -webkit-box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
   box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
   border:1px solid #595959;
+}
+
+.publicmap-layerswitcher table {
+  margin:0px 14px;
+  padding:12px 0px;
+}
+
+.publicmap-layerswitcher .table-header td {
+  font-weight:bold;
+  padding-bottom:5px;
+}
+
+.publicmap-layerswitcher td {
+  font-size:12px;
+  padding-right:4px;
+}
+
+.publicmap-layerswitcher td a {
+  color:#555;
+}
+
+.publicmap-layerswitcher .part-title {
+  color:#fff;
+  padding:2px 8px 0px 8px; 
+  margin:2px 0px 4px 0px;
+  display:inline-block;
+  -moz-border-radius:3px;
+  -webkit-border-radius:3px;
+  -khtml-border-radius:3px;
+  border-radius:3px;
+}
+
+.publicmap-layerswitcher .centered {
+  text-align:center;
+}
+
+.publicmap-layerswitcher-all {
+  background-color:#ddd;
+  border-top:1px solid #ccc;
 }
 
 .publicmap-popup {
