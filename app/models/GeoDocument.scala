@@ -3,12 +3,14 @@ package models
 import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
+import models.stats.GeoDocumentStats
 
 /** Geospatial Document case class.
   *
   * @author Rainer Simon <rainer.simon@ait.ac.at>
   */
 case class GeoDocument(id: Option[Int] = None, title: String, description: Option[String] = None, source: Option[String] = None)
+  extends GeoDocumentStats
 
 /** Geospatial Documents database table **/
 object GeoDocuments extends Table[GeoDocument]("gdocuments") {
