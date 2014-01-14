@@ -44,7 +44,10 @@ case class Annotation(
     tags: Option[String] = None,
     
     /** A comment **/
-    comment: Option[String] = None
+    comment: Option[String] = None,
+    
+    /** Source URL for the toponym **/
+    source: Option[String] = None
     
 )
    
@@ -75,8 +78,10 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
   
   def comment = column[String]("comment", O.Nullable)
   
+  def source = column[String]("source", O.Nullable)
+  
   def * = id.? ~ gdocId ~ gdocPartId.? ~ status ~ toponym.? ~ offset.? ~ gazetteerURI.? ~ correctedToponym.? ~ 
-    correctedOffset.? ~ correctedGazetteerURI.? ~ tags.? ~ comment.?  <> (Annotation.apply _, Annotation.unapply _)
+    correctedOffset.? ~ correctedGazetteerURI.? ~ tags.? ~ comment.?  ~ source.? <> (Annotation.apply _, Annotation.unapply _)
     
   private val sortByOffset = { a: Annotation =>
     val offset = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
