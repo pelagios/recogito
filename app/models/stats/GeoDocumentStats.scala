@@ -3,6 +3,7 @@ package models.stats
 import models.Annotations
 import play.api.db.slick._
 import models.AnnotationStatus
+import play.api.Logger
 
 trait GeoDocumentStats {
   
@@ -34,6 +35,13 @@ trait GeoDocumentStats {
     val allNER = Annotations.findByGeoDocument(id.get).filter(_.toponym.isDefined)
     val validNER = allNER.filter(a => a.status != AnnotationStatus.FALSE_DETECTION && a.correctedToponym.isEmpty)
     validNER.size.toDouble / allNER.size.toDouble
+  }
+  
+  def resolutionCorrectness()(implicit s: Session) = {
+    // Sort of dirty - but we only count the verified anntations for now
+    val all = Annotations.findByGeoDocument(id.get).filter(a => a.status != AnnotationStatus.FALSE_DETECTION && a.status != AnnotationStatus.IGNORE)
+    val correct = all.filter(a => a.gazetteerURI.isDefined && (a.correctedGazetteerURI.isEmpty || a.correctedGazetteerURI.get.trim.isEmpty))
+    correct.size.toDouble / all.size.toDouble
   }
   
 }

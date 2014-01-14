@@ -17,173 +17,77 @@ recogito.TableView = function(tableDiv) {
   recogito.HasEvents.call(this);
   
   var self = this,
-      statusTemplate = 
-        '<div class="table-status">' + 
-          '<span class="icon {{current-status-css}}" title="{{current-status-title}}">{{current-status-icon}}</span>' +
-            '<span class="table-status-selectors">' +
-              '<span class="icon status-btn {{status-1-css}}" title="{{status-1-title}}" data-row="{{row}}" data-status="{{status-1-value}}">{{status-1-icon}}</span>' +
-              '<span class="icon status-btn {{status-2-css}}" title="{{status-2-title}}" data-row="{{row}}" data-status="{{status-2-value}}">{{status-2-icon}}</span>' +
-              '<span class="icon edit" title="More..." data-row="{{row}}">&#xf040;</span>' +
-            '<span>' +
-          '</span>' +
-        '</div>';
-    
-  var tagsFormatter = function (row, cell, value, columnDef, dataContext) {
-    if (value) {
-      return value.join(", ");
-    } 
-  };
-    
-  // A custom table cell formatter for Pleiades URIs
-  var pleiadesFormatter = function (row, cell, value, columnDef, dataContext) {
-    if (value) {
-      if (value.uri.indexOf('http://pleiades.stoa.org') == 0) {
-        var id =  value.uri.substring(32);
-        if (id.indexOf('#') > -1)
-          id = id.substring(0, id.indexOf('#'));
-        
-        var normalizedURI = recogito.Utils.normalizePleiadesURI(value.uri);
-        var formatted = '<a href="http://pelagios.org/api/places/' + encodeURIComponent(normalizedURI) + 
-                        '" target="_blank" title="' + value.title + '">pleiades:' + id + '</a>';
-        
-        if (value.coordinate) 
-          return '<span class="icon empty"></span>' + formatted;
-        else
-          return '<span title="Place has no coordinates" class="icon no-coords">&#xf041;</span>' + formatted;
-      } else {
-        return value;
-      }
-    }
-  };
-  
-  // The table cell formatter for the status column
-  var statusFormatter = function (row, cell, value, columnDef, dataContext) {
-    if (value) {
-      var html = statusTemplate;
-      
-      if (value == 'VERIFIED') {
-        html = html.replace('{{current-status-css}}', 'verified');
-        html = html.replace('{{current-status-title}}', 'Verified');
-        html = html.replace('{{current-status-icon}}', '&#xf14a;');
-        html = html.replace('{{status-1-css}}', 'not-verified');
-        html = html.replace('{{status-1-title}}', 'Set to Not Verified');
-        html = html.replace('{{status-1-value}}', 'NOT_VERIFIED');
-        html = html.replace('{{status-1-icon}}', '&#xf059;');
-        html = html.replace('{{status-2-css}}', 'false-detection');
-        html = html.replace('{{status-2-title}}', 'Set to False Detection');
-        html = html.replace('{{status-2-value}}', 'FALSE_DETECTION');
-        html = html.replace('{{status-2-icon}}', '&#xf057;');
-        html = html.replace(/{{row}}/g, row);
-      } else if (value == 'NOT_IDENTIFYABLE') {
-        html = html.replace('{{current-status-css}}', 'not-identifyable');
-        html = html.replace('{{current-status-title}}', 'Not Identifyable');
-        html = html.replace('{{current-status-icon}}', '&#xf024;');
-        html = html.replace('{{status-1-css}}', 'not-verified');
-        html = html.replace('{{status-1-title}}', 'Set to Not Verified');
-        html = html.replace('{{status-1-value}}', 'NOT_VERIFIED');
-        html = html.replace('{{status-1-icon}}', '&#xf059;'); 
-        html = html.replace('{{status-2-css}}', 'false-detection');
-        html = html.replace('{{status-2-title}}', 'Set to False Detection');
-        html = html.replace('{{status-2-value}}', 'FALSE_DETECTION');
-        html = html.replace('{{status-2-icon}}', '&#xf057;');
-        html = html.replace(/{{row}}/g, row);
-      } else if (value == 'FALSE_DETECTION') { 
-        html = html.replace('{{current-status-css}}', 'false-detection');
-        html = html.replace('{{current-status-title}}', 'False Detection');
-        html = html.replace('{{current-status-icon}}', '&#xf057;');
-        html = html.replace('{{status-1-css}}', 'verified');
-        html = html.replace('{{status-1-title}}', 'Set to Verified');
-        html = html.replace('{{status-1-value}}', 'VERIFIED');
-        html = html.replace('{{status-1-icon}}', '&#xf14a;');
-        html = html.replace('{{status-2-css}}', 'not-verified');
-        html = html.replace('{{status-2-title}}', 'Set to Not Verified');
-        html = html.replace('{{status-2-value}}', 'NOT_VERIFIED');
-        html = html.replace('{{status-2-icon}}', '&#xf059;');
-        html = html.replace(/{{row}}/g, row);
-      } else if (value == 'IGNORE') { 
-        html = html.replace('{{current-status-css}}', 'ignore');
-        html = html.replace('{{current-status-title}}', 'Ignore');
-        html = html.replace('{{current-status-icon}}', '&#xf05e;');
-        html = html.replace('{{status-1-css}}', 'not-verified');
-        html = html.replace('{{status-1-title}}', 'Set to Not Verified');
-        html = html.replace('{{status-1-value}}', 'NOT_VERIFIED');
-        html = html.replace('{{status-1-icon}}', '&#xf059;');
-        html = html.replace('{{status-2-css}}', 'verified');
-        html = html.replace('{{status-2-title}}', 'Set to Verified');
-        html = html.replace('{{status-2-value}}', 'VERIFIED');
-        html = html.replace('{{status-2-icon}}', '&#xf14a;');
-        html = html.replace(/{{row}}/g, row);
-      } else {
-        // 'NOT_VERIFIED'
-        html = html.replace('{{current-status-css}}', 'not-verified');
-        html = html.replace('{{current-status-title}}', 'Not Verified');
-        html = html.replace('{{current-status-icon}}', '&#xf059;');
-        html = html.replace('{{status-1-css}}', 'verified');
-        html = html.replace('{{status-1-title}}', 'Set to Verified');
-        html = html.replace('{{status-1-value}}', 'VERIFIED');
-        html = html.replace('{{status-1-icon}}', '&#xf14a;');
-        html = html.replace('{{status-2-css}}', 'false-detection');
-        html = html.replace('{{status-2-title}}', 'Set to False Detection');
-        html = html.replace('{{status-2-value}}', 'FALSE_DETECTION');
-        html = html.replace('{{status-2-icon}}', '&#xf057;');
-        html = html.replace(/{{row}}/g, row);
-      }
-      
-      return html;
-    }
-  };
-
-  var columns = [{ name: '#', field: 'idx', id: 'idx', width:25 },
-                 { name: 'Toponym', field: 'toponym', id: 'toponym' },
+      options = { enableCellNavigation: true, enableColumnReorder: false, forceFitColumns: true, autoEdit: false },
+      columns = [{ name: '#', field: 'idx', id: 'idx', width:25, sortable:true },
+                 { name: 'Toponym', field: 'toponym', id: 'toponym', sortable:true },
                  { name: 'EGD Part', field: 'part', id: 'part' },
-                 { name: 'Tags', field: 'tags', id: 'tags', formatter: tagsFormatter },
-                 { name: 'Auto Match', field: 'place', id: 'place' , formatter: pleiadesFormatter },
-                 { name: 'Corrected', field: 'place_fixed', id: 'place_fixed', formatter: pleiadesFormatter },
-                 { name: 'Status', field: 'status', id: 'status', width:70, formatter: statusFormatter }];
-
-  var options = { enableCellNavigation: true, enableColumnReorder: false, forceFitColumns: true, autoEdit: false };
-    
-  this._grid = new Slick.Grid('#table', {}, columns, options);
+                 { name: 'Tags', field: 'tags', id: 'tags', formatter: recogito.TableView.Formatters.TagsFormatter },
+                 { name: 'Auto Match', field: 'place', id: 'place' , formatter: recogito.TableView.Formatters.PleiadesFormatter },
+                 { name: 'Corrected', field: 'place_fixed', id: 'place_fixed', formatter: recogito.TableView.Formatters.PleiadesFormatter },
+                 { name: 'Status', field: 'status', id: 'status', sortable:true, width:70, formatter: recogito.TableView.Formatters.StatusFormatter }];
+   
+  // Initialize dataView and grid
+  this._dataView = new Slick.Data.DataView();
+  this._grid = new Slick.Grid('#table', this._dataView, columns, options);
   this._grid.setSelectionModel(new Slick.RowSelectionModel());
-  this._grid.onDblClick.subscribe(function(e, args) { self._openDetailsPopup(args.row); });  
-  this._grid.onKeyDown.subscribe(function(e, args) {
-    if (e.which == 13) {
-      self._openDetailsPopup(args.row);
-    }
+  this._dataView.onRowsChanged.subscribe(function(e, args) {
+    self._grid.invalidateRows(args.rows);
+    self._grid.render();
   });
+  $(window).resize(function() { self._grid.resizeCanvas(); });
+  
+  // Double click -> Details popup
+  this._grid.onDblClick.subscribe(function(e, args) { 
+    self._openDetailsPopup(args.row); 
+  });  
+  
+  // Enter key -> Details popup
+  this._grid.onKeyDown.subscribe(function(e, args) {
+    if (e.which == 13)
+      self._openDetailsPopup(args.row);
+  });
+  
+  // Sorting
+  this._grid.onSort.subscribe(function(e, args) {
+    var comparator = function(a, b) { 
+      var x = a[args.sortCol.field], y = b[args.sortCol.field];
+      return (x == y ? 0 : (x > y ? 1 : -1));
+    }
+    self._dataView.sort(comparator, args.sortAsc);
+  });
+  
+  // Mouseover, mouseout and select -> forward to event listeners
   this._grid.onMouseEnter.subscribe(function(e, args, foo) {
     var row = args.grid.getCellFromEvent(e).row;
     var dataItem = args.grid.getDataItem(row);
     self.fireEvent('mouseover', dataItem);
   });
+  
   this._grid.onMouseLeave.subscribe(function(e, args, foo) {
     var row = args.grid.getCellFromEvent(e).row;
     var dataItem = args.grid.getDataItem(row);
     self.fireEvent('mouseout', dataItem);
   });
 
-  // Selection in the table is forwarded to event listener
   this._grid.onSelectedRowsChanged.subscribe(function(e, args) { 
     if (args.rows.length > 0) {
       var place = self._grid.getDataItem(args.rows[0]);
       self.fireEvent('selectionChanged', args, place);
     }
   });
-
-  // Redraw grid in case of window resize
-  $(window).resize(function() { self._grid.resizeCanvas(); })
   
-  // Add status column button handlers
+  // Delegated event handler for status column buttons
   $(document).on('click', '.status-btn', function(e) { 
     var row = parseInt(e.target.getAttribute('data-row'));
-    var status = e.target.getAttribute('data-status');
-    
+    var status = e.target.getAttribute('data-status');    
     var annotation = self._grid.getDataItem(row);
+    
     annotation.status = status;
     self._grid.invalidate();
     self.fireEvent('update', annotation);
   });
     
+  // Delegated event handler for 'edit' icon -> Details popup
   $(document).on('click', '.edit', function(e) {
     var idx = parseInt(e.target.getAttribute('data-row'));
     self._openDetailsPopup(idx);
@@ -244,11 +148,14 @@ recogito.TableView.prototype.selectByPlaceURI = function(uri) {
 }
 
 /**
- * Sets data on the backing SlickGrid.
+ * Sets data on the backing SlickGrid DataView.
  * @param {Object} data the data
  */
 recogito.TableView.prototype.setData = function(data) {
-  this._grid.setData(data);
+  this._dataView.beginUpdate();
+  this._dataView.setItems(data);
+  this._dataView.setFilter(recogito.TableView.Filters.StatusFilter);
+  this._dataView.endUpdate();
   
   // Check if there's a '#{rownumber}' URL fragment - and open the popup if so
   if (window.location.hash) {
@@ -323,4 +230,134 @@ recogito.TableView.prototype.getNextN = function(idx, n)  {
  */
 recogito.TableView.prototype.getPrevN = function(idx, n)  {
   return this._getNeighbours(idx, n, -1);
+}
+
+/** Table filter functions **/
+recogito.TableView.Filters = {}
+
+recogito.TableView.Filters.StatusFilter = function(item, args) {
+  // var status = args['status'];
+  // if (item.status == 'NOT_VERIFIED')
+    return true;
+  // else
+    //return false;
+}
+
+/** Custom table cell formatters **/
+recogito.TableView.Formatters = {}
+
+/** Custom table cell formatter for Pleiades URIs **/
+recogito.TableView.Formatters.PleiadesFormatter = function(row, cell, value, columnDef, dataContext) {
+  if (value) {
+    if (value.uri.indexOf('http://pleiades.stoa.org') == 0) {
+      var id =  value.uri.substring(32);
+      if (id.indexOf('#') > -1)
+        id = id.substring(0, id.indexOf('#'));
+      
+      var normalizedURI = recogito.Utils.normalizePleiadesURI(value.uri);
+      var formatted = '<a href="http://pelagios.org/api/places/' + encodeURIComponent(normalizedURI) + 
+                      '" target="_blank" title="' + value.title + '">pleiades:' + id + '</a>';
+        
+      if (value.coordinate) 
+        return '<span class="icon empty"></span>' + formatted;
+      else
+        return '<span title="Place has no coordinates" class="icon no-coords">&#xf041;</span>' + formatted;
+    } else {
+      return value;
+    }
+  }
+}
+
+/** Custom table cell formatter for the tags colum **/
+recogito.TableView.Formatters.TagsFormatter = function (row, cell, value, columnDef, dataContext) {
+  if (value)
+    return value.join(", ");
+}
+  
+/** Custom table cell formatter for the status column **/
+recogito.TableView.Formatters.StatusFormatter = function (row, cell, value, columnDef, dataContext) {
+  var statusTemplate = 
+        '<div class="table-status">' + 
+          '<span class="icon {{current-status-css}}" title="{{current-status-title}}">{{current-status-icon}}</span>' +
+            '<span class="table-status-selectors">' +
+              '<span class="icon status-btn {{status-1-css}}" title="{{status-1-title}}" data-row="{{row}}" data-status="{{status-1-value}}">{{status-1-icon}}</span>' +
+              '<span class="icon status-btn {{status-2-css}}" title="{{status-2-title}}" data-row="{{row}}" data-status="{{status-2-value}}">{{status-2-icon}}</span>' +
+              '<span class="icon edit" title="More..." data-row="{{row}}">&#xf040;</span>' +
+            '<span>' +
+          '</span>' +
+        '</div>';
+        
+  if (value) {
+    var html = statusTemplate;
+      
+    if (value == 'VERIFIED') {
+      html = html.replace('{{current-status-css}}', 'verified');
+      html = html.replace('{{current-status-title}}', 'Verified');
+      html = html.replace('{{current-status-icon}}', '&#xf14a;');
+      html = html.replace('{{status-1-css}}', 'not-verified');
+      html = html.replace('{{status-1-title}}', 'Set to Not Verified');
+      html = html.replace('{{status-1-value}}', 'NOT_VERIFIED');
+      html = html.replace('{{status-1-icon}}', '&#xf059;');
+      html = html.replace('{{status-2-css}}', 'false-detection');
+      html = html.replace('{{status-2-title}}', 'Set to False Detection');
+      html = html.replace('{{status-2-value}}', 'FALSE_DETECTION');
+      html = html.replace('{{status-2-icon}}', '&#xf057;');
+      html = html.replace(/{{row}}/g, row);
+    } else if (value == 'NOT_IDENTIFYABLE') {
+      html = html.replace('{{current-status-css}}', 'not-identifyable');
+      html = html.replace('{{current-status-title}}', 'Not Identifyable');
+      html = html.replace('{{current-status-icon}}', '&#xf024;');
+      html = html.replace('{{status-1-css}}', 'not-verified');
+      html = html.replace('{{status-1-title}}', 'Set to Not Verified');
+      html = html.replace('{{status-1-value}}', 'NOT_VERIFIED');
+      html = html.replace('{{status-1-icon}}', '&#xf059;'); 
+      html = html.replace('{{status-2-css}}', 'false-detection');
+      html = html.replace('{{status-2-title}}', 'Set to False Detection');
+      html = html.replace('{{status-2-value}}', 'FALSE_DETECTION');
+      html = html.replace('{{status-2-icon}}', '&#xf057;');
+      html = html.replace(/{{row}}/g, row);
+    } else if (value == 'FALSE_DETECTION') { 
+      html = html.replace('{{current-status-css}}', 'false-detection');
+      html = html.replace('{{current-status-title}}', 'False Detection');
+      html = html.replace('{{current-status-icon}}', '&#xf057;');
+      html = html.replace('{{status-1-css}}', 'verified');
+      html = html.replace('{{status-1-title}}', 'Set to Verified');
+      html = html.replace('{{status-1-value}}', 'VERIFIED');
+      html = html.replace('{{status-1-icon}}', '&#xf14a;');
+      html = html.replace('{{status-2-css}}', 'not-verified');
+      html = html.replace('{{status-2-title}}', 'Set to Not Verified');
+      html = html.replace('{{status-2-value}}', 'NOT_VERIFIED');
+      html = html.replace('{{status-2-icon}}', '&#xf059;');
+      html = html.replace(/{{row}}/g, row);
+    } else if (value == 'IGNORE') { 
+      html = html.replace('{{current-status-css}}', 'ignore');
+      html = html.replace('{{current-status-title}}', 'Ignore');
+      html = html.replace('{{current-status-icon}}', '&#xf05e;');
+      html = html.replace('{{status-1-css}}', 'not-verified');
+      html = html.replace('{{status-1-title}}', 'Set to Not Verified');
+      html = html.replace('{{status-1-value}}', 'NOT_VERIFIED');
+      html = html.replace('{{status-1-icon}}', '&#xf059;');
+      html = html.replace('{{status-2-css}}', 'verified');
+      html = html.replace('{{status-2-title}}', 'Set to Verified');
+      html = html.replace('{{status-2-value}}', 'VERIFIED');
+      html = html.replace('{{status-2-icon}}', '&#xf14a;');
+      html = html.replace(/{{row}}/g, row);
+    } else {
+      // 'NOT_VERIFIED'
+      html = html.replace('{{current-status-css}}', 'not-verified');
+      html = html.replace('{{current-status-title}}', 'Not Verified');
+      html = html.replace('{{current-status-icon}}', '&#xf059;');
+      html = html.replace('{{status-1-css}}', 'verified');
+      html = html.replace('{{status-1-title}}', 'Set to Verified');
+      html = html.replace('{{status-1-value}}', 'VERIFIED');
+      html = html.replace('{{status-1-icon}}', '&#xf14a;');
+      html = html.replace('{{status-2-css}}', 'false-detection');
+      html = html.replace('{{status-2-title}}', 'Set to False Detection');
+      html = html.replace('{{status-2-value}}', 'FALSE_DETECTION');
+      html = html.replace('{{status-2-icon}}', '&#xf057;');
+      html = html.replace(/{{row}}/g, row);
+    }
+      
+    return html;
+  }
 }

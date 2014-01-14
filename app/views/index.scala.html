@@ -18,6 +18,7 @@
       	      @{ document.completionRatio * 100 } % Complete 
       	      NER recall: @{ document.nerRecall * 100 } %
       	      NER precision: @{ document.nerPrecision * 100 } % 
+      	      Resolution correctness: @{ document.resolutionCorrectness * 100 } % 
       	    </div>
       	    <ul>
       	    @for(part <- models.GeoDocumentParts.findByGeoDocument(document.id.get)) {
