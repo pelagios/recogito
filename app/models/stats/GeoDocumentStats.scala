@@ -27,6 +27,13 @@ trait GeoDocumentStats {
     (valid.size - unvisited.size).toDouble / valid.size.toDouble
   }
   
+  /** Returns the ratio of verified vs. unidentifyable places in the document **/
+  def identificiationRatio()(implicit s: Session): Double = {
+    val verified = Annotations.findByGeoDocumentAndStatus(id.get, AnnotationStatus.VERIFIED).size
+    val unidentifyable = Annotations.findByGeoDocumentAndStatus(id.get, AnnotationStatus.NOT_IDENTIFYABLE).size
+    verified.toDouble / (verified.toDouble + unidentifyable.toDouble)
+  }
+  
   /** Returns the NER recall metric for the document.
     *
     * Recall is the total number of toponyms the NER found (including those marked as false 
