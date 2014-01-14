@@ -5,13 +5,20 @@ import play.api.db.slick._
 import models.AnnotationStatus
 import play.api.Logger
 
+/**
+ * TODO lots of room for optimization (memoization?)
+ */
 trait GeoDocumentStats {
   
   val id: Option[Int]
 
   /** Returns the total # of toponyms in the document, i.e. all that were not marked as 'false detection' **/
   def totalToponymCount()(implicit s: Session): Int = 
-    Annotations.findByGeoDocument(id.get).filter(_.status != AnnotationStatus.FALSE_DETECTION).size
+    Annotations.findByGeoDocument(id.get).filter(a => a.status != AnnotationStatus.FALSE_DETECTION && a.status != AnnotationStatus.IGNORE).size
+    
+  /** Returns the # of verified annotations in the document **/
+  def unverifiedToponymCount()(implicit s: Session): Int =
+    Annotations.findByGeoDocumentAndStatus(id.get, AnnotationStatus.NOT_VERIFIED).size
   
   /** Returns the ratio of manually processed vs. total toponyms in the document **/
   def completionRatio()(implicit s: Session): Double = {

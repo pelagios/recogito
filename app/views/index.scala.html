@@ -3,6 +3,7 @@
   <head>
     <title>PELAGIOS Geo-Resolution Correction Tool</title>
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/main.css")" />
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/index.css")" />
   </head>
   
   <body>
@@ -14,11 +15,12 @@
       	    <a href="@routes.ApplicationController.showMapCorrectionUI(document.id.get)">Map</a>
       	    <a href="@routes.DocumentController.get(document.id.get, Some("csv"))">CSV</a>
       	    <div class="stats">
-      	      @document.totalToponymCount Toponyms Total
-      	      @{ document.completionRatio * 100 } % Complete 
-      	      NER recall: @{ document.nerRecall * 100 } %
-      	      NER precision: @{ document.nerPrecision * 100 } % 
-      	      Resolution correctness: @{ document.resolutionCorrectness * 100 } % 
+      	      @document.totalToponymCount Toponyms Total<br/>
+      	      @{document.totalToponymCount - document.unverifiedToponymCount} Toponyms Controlled</br>
+      	      @{ "%.2f" format (document.completionRatio * 100) } % Complete</br>
+      	      NER recall: @{ "%.2f" format (document.nerRecall * 100) } %<br/>
+      	      NER precision: @{ "%.2f" format (document.nerPrecision * 100) } %</br> 
+      	      Resolution correctness: @{ "%.2f" format (document.resolutionCorrectness * 100) } % 
       	    </div>
       	    <ul>
       	    @for(part <- models.GeoDocumentParts.findByGeoDocument(document.id.get)) {

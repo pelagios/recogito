@@ -77,18 +77,24 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
   
   def * = id.? ~ gdocId ~ gdocPartId.? ~ status ~ toponym.? ~ offset.? ~ gazetteerURI.? ~ correctedToponym.? ~ 
     correctedOffset.? ~ correctedGazetteerURI.? ~ tags.? ~ comment.?  <> (Annotation.apply _, Annotation.unapply _)
+    
+  private val sortByOffset = { a: Annotation =>
+    val offset = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
+    if (offset.isDefined)
+      (a.gdocPartId, offset.get)
+    else
+      (a.gdocPartId, 0)
+  }
   
   def findById(id: Int)(implicit s: Session): Option[Annotation] =
     Query(Annotations).where(_.id === id).firstOption
     
   def findByGeoDocument(id: Int)(implicit s: Session): Seq[Annotation] = {
-    Query(Annotations).where(_.gdocId === id).list.sortBy(a => { 
-      val offset = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
-      if (offset.isDefined)
-        (a.gdocPartId, offset.get)
-      else
-        (a.gdocPartId, 0)
-    })      
+    Query(Annotations).where(_.gdocId === id).list.sortBy(sortByOffset)      
+  }
+    
+  def findByGeoDocumentAndStatus(id: Int, status: AnnotationStatus.Value)(implicit s: Session): Seq[Annotation] = {
+    Query(Annotations).where(_.gdocId === id).filter(_.status === status).list.sortBy(sortByOffset)    
   }
     
   def deleteForGeoDocument(id: Int)(implicit s: Session) =
@@ -98,14 +104,7 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
     Query(Annotations).where(_.id === id).delete
         
   def findByGeoDocumentPart(id: Int)(implicit s: Session): Seq[Annotation] = {
-    Query(Annotations).where(_.gdocPartId === id).list.sortWith((a, b) => { 
-      val offsetA = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
-      val offsetB = if (b.correctedOffset.isDefined) b.correctedOffset else b.offset
-      if (offsetA.isDefined && offsetB.isDefined)
-        offsetA.get < offsetB.get
-      else
-        false
-    })
+    Query(Annotations).where(_.gdocPartId === id).list.sortBy(sortByOffset)
   }
   
   def getOverlappingAnnotations(annotation: Annotation)(implicit s: Session) = {
