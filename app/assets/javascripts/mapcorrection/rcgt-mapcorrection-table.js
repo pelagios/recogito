@@ -17,6 +17,8 @@ recogito.TableView = function(tableDiv) {
   recogito.HasEvents.call(this);
   
   var self = this,
+      statusValues = [ false, 'VERIFIED', 'NOT_VERIFIED', 'IGNORE', 'FALSE_DETECTION', 'NOT_IDENTIFYABLE' ],
+      currentStatusFilterVal = 0,
       options = { enableCellNavigation: true, enableColumnReorder: false, forceFitColumns: true, autoEdit: false },
       columns = [{ name: '#', field: 'idx', id: 'idx', width:25, sortable:true },
                  { name: 'Toponym', field: 'toponym', id: 'toponym', sortable:true },
@@ -49,11 +51,21 @@ recogito.TableView = function(tableDiv) {
   
   // Sorting
   this._grid.onSort.subscribe(function(e, args) {
-    var comparator = function(a, b) { 
-      var x = a[args.sortCol.field], y = b[args.sortCol.field];
-      return (x == y ? 0 : (x > y ? 1 : -1));
+    if (args.sortCol.field == 'status') {
+      // Don't sort the status column, but cycle through filter stages
+      currentStatusFilterVal = (currentStatusFilterVal + 1) % statusValues.length;      
+      self._dataView.beginUpdate();
+      // this._dataView.setItems(data);
+      self._dataView.setFilterArgs({ status: statusValues[currentStatusFilterVal] });
+      self._dataView.endUpdate();
+      // this._grid.resizeCanvas();
+    } else {
+      var comparator = function(a, b) { 
+        var x = a[args.sortCol.field], y = b[args.sortCol.field];
+        return (x == y ? 0 : (x > y ? 1 : -1));
+      }
+      self._dataView.sort(comparator, args.sortAsc);
     }
-    self._dataView.sort(comparator, args.sortAsc);
   });
   
   // Mouseover, mouseout and select -> forward to event listeners
@@ -147,6 +159,18 @@ recogito.TableView.prototype.selectByPlaceURI = function(uri) {
     this._grid.scrollRowIntoView(rows[0], true);
 }
 
+recogito.TableView.Filters = { }
+
+recogito.TableView.Filters.StatusFilter = function(item, args) {
+  if (!args)
+    return true;
+   
+  if (!args['status'])
+    return true;
+    
+  return (item.status == args['status'])
+}
+
 /**
  * Sets data on the backing SlickGrid DataView.
  * @param {Object} data the data
@@ -231,17 +255,6 @@ recogito.TableView.prototype.getNextN = function(idx, n)  {
  */
 recogito.TableView.prototype.getPrevN = function(idx, n)  {
   return this._getNeighbours(idx, n, -1);
-}
-
-/** Table filter functions **/
-recogito.TableView.Filters = {}
-
-recogito.TableView.Filters.StatusFilter = function(item, args) {
-  // var status = args['status'];
-  // if (item.status == 'NOT_VERIFIED')
-    return true;
-  // else
-    //return false;
 }
 
 /** Custom table cell formatters **/
