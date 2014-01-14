@@ -118,8 +118,15 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
                   findByGeoDocument(annotation.gdocId)
                   
       all.filter(a => {
+        val otherToponym = if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym
         val otherOffset = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
-        otherOffset.isDefined && (otherOffset.get >= offset.get) && (otherOffset.get <= offset.get + toponym.get.size)
+        if (otherToponym.isDefined && otherOffset.isDefined) {
+          val start = scala.math.max(otherOffset.get, offset.get)
+          val end = scala.math.min(otherOffset.get + otherToponym.get.size, offset.get + toponym.get.size)
+          (end - start) > 0
+        } else {
+          false
+        }
       }).filter(_.id != annotation.id)
     } else {
       Seq.empty[Annotation]
