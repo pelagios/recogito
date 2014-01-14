@@ -15,8 +15,8 @@
       	    <a href="@routes.ApplicationController.showMapCorrectionUI(document.id.get)">Map</a>
       	    <a href="@routes.DocumentController.get(document.id.get, Some("csv"))">CSV</a>
       	    <div class="stats">
-      	      @document.totalToponymCount Toponyms Total<br/>
-      	      @{document.totalToponymCount - document.unverifiedToponymCount} Toponyms Controlled</br>
+      	      @document.totalToponymCount Toponyms Total (not counting ignored and false matches)<br/>
+      	      @{document.totalToponymCount - document.unverifiedToponymCount} Toponyms Controlled (Verified + Unidentifyable)</br>
       	      @{ "%.2f" format (document.completionRatio * 100) } % Complete</br>
       	      NER recall: @{ "%.2f" format (document.nerRecall * 100) } %<br/>
       	      NER precision: @{ "%.2f" format (document.nerPrecision * 100) } %</br> 
