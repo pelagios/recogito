@@ -156,6 +156,7 @@ recogito.TableView.prototype.setData = function(data) {
   this._dataView.setItems(data);
   this._dataView.setFilter(recogito.TableView.Filters.StatusFilter);
   this._dataView.endUpdate();
+  this._grid.resizeCanvas();
   
   // Check if there's a '#{rownumber}' URL fragment - and open the popup if so
   if (window.location.hash) {
