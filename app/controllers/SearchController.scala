@@ -1,8 +1,11 @@
 package controllers
 
 import global.Global
+import play.api.db.slick._
 import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.Json
+import play.api.Play.current
+import models.GeoDocumentTexts
 
 /** Toponym search API controller.
   *
@@ -13,7 +16,7 @@ object SearchController extends Controller {
   private val PLEIADES_PREFIX = "http://pleiades.stoa.org"
   private val DARE_PREFIX = "http://www.imperium.ahlfeldt.se/"
     
-  def search(query: String) = Action {
+  def placeSearch(query: String) = Action {
     // For search, we're restricting to Pleiades URIs only
     val results = Global.index.query(query, true).filter(_.uri.startsWith(PLEIADES_PREFIX)).map(place => { 
       // We use DARE coordinates if we have them
@@ -34,8 +37,18 @@ object SearchController extends Controller {
     )})
     
     Ok(Json.obj(
-      "query" -> query,      "results" -> Json.toJson(results))
+      "query" -> query,     "results" -> Json.toJson(results))
     )
+  }
+  
+  def textSearch(textId: Int, query: String) = DBAction { implicit session =>
+    val text = GeoDocumentTexts.findById(textId)
+    if (text.isDefined) {
+      // TODO 
+      Ok(Json.parse("[]"))    
+    } else {
+      NotFound
+    }
   }
 
 }

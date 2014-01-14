@@ -25,7 +25,8 @@ PUT     /recogito/api/annotations/:id         controllers.AnnotationController.u
 DELETE  /recogito/api/annotations/:id         controllers.AnnotationController.delete(id: Int)
 
 # Search
-GET     /recogito/api/search                  controllers.SearchController.search(query: String)
+GET     /recogito/api/search/place            controllers.SearchController.placeSearch(query: String)
+GET     /recogito/api/search/text             controllers.SearchController.textSearch(textId: Int, query: String)
 
 
 # Application

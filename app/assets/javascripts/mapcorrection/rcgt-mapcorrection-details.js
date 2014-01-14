@@ -311,7 +311,7 @@ recogito.DetailsPopup = function(annotation, prev_annotations, next_annotations)
   }
   
   // Other candidates list
-  $.getJSON('api/search?query=' + annotation.toponym.toLowerCase(), function(data) {
+  $.getJSON('api/search/place?query=' + annotation.toponym.toLowerCase(), function(data) {
     var html = [],
         automatchURI = (annotation.place) ? annotation.place.uri : undefined,
         relevantURI = (annotation.place_fixed) ? annotation.place_fixed.uri : automatchURI;
@@ -351,7 +351,7 @@ recogito.DetailsPopup = function(annotation, prev_annotations, next_annotations)
       $.each(markers, function(idx, marker) { map.removeLayer(marker); });
       markers = [];
       
-      $.getJSON('api/search?query=' + e.target.value.toLowerCase(), function(response) {
+      $.getJSON('api/search/place?query=' + e.target.value.toLowerCase(), function(response) {
         var html = [];
         $.each(response.results, function(idx, result) {
           var displayedResult = displaySearchResult(result)
