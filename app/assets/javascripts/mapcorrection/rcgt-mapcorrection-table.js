@@ -224,6 +224,9 @@ recogito.TableView.prototype._getNeighbours = function(idx, n, step) {
       break;
              
     var dataItem = this._grid.getDataItem(idx + ctr * step);
+    if (!dataItem)
+      break;
+      
     if (dataItem.marker) {
       if (step > 0)
         neighbours.push(dataItem);
