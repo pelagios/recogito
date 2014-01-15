@@ -33,16 +33,11 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
         selection = rangy.getSelection();
         
     if (!selection.isCollapsed && selection.rangeCount == 1) {
-      var annotationRanges = self.computeAnnotationRanges(textDiv, selection.getRangeAt(0));
+      var normalizedSelection = self.normalizeSelection(textDiv, selection.getRangeAt(0));
 
-      // The selected text          
-      var toponym = annotationRanges.toponym;
-      
-      // The offset, measured from text start
-      var offset = annotationRanges.offset;
-      
-      // The normalized selected range
-      var selectedRange = annotationRanges.normalizedSelectedRange;
+      var toponym = normalizedSelection.toponym; // Selected text          
+      var offset = normalizedSelection.offset; // Offset, measured from text start
+      var selectedRange = normalizedSelection.selectedRange; // Normalized selected range
       
       // Determine if the selection crosses existing annotations 
       var nodes = selectedRange.getNodes([1], function(e) { return e.nodeName.toLowerCase() == 'a' })
@@ -107,7 +102,12 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
   });
 }
 
-recogito.TextAnnotationUI.prototype.computeAnnotationRanges = function(textDiv, selectedRange) {
+/**
+ * Normalizes a selection range and computes absolute offset.
+ * @param {Element} textDiv the text container DIV
+ * @param {Object} selectedRange the selection range
+ */
+recogito.TextAnnotationUI.prototype.normalizeSelection = function(textDiv, selectedRange) {
   // The toponym (= annotation text)
   var toponym = selectedRange.toString();
   
@@ -132,7 +132,7 @@ recogito.TextAnnotationUI.prototype.computeAnnotationRanges = function(textDiv, 
   var newLines = offsetRange.getNodes([1], function(node) { return node.nodeName == 'BR'; });
   var offset = offsetRange.toString().length + newLines.length - 1;
   
-  return { toponym: toponym, offset: offset, normalizedSelectedRange: selectedRange };
+  return { toponym: toponym, offset: offset, selectedRange: selectedRange };
 }
 
 /**
@@ -141,6 +141,7 @@ recogito.TextAnnotationUI.prototype.computeAnnotationRanges = function(textDiv, 
 recogito.TextAnnotationUI.prototype.createAnnotation = function(msgTitle, msgDetails, toponym, x, y, offset, gdocPartId, selectedRange) {
   var self = this;
   
+  // If silentMode == true, the popup dialog won't open (used for batch annotation)
   var create = function(silentMode) {
     // Store on server
     recogito.TextAnnotationUI.REST.createAnnotation(toponym, offset, gdocPartId);
@@ -154,7 +155,7 @@ recogito.TextAnnotationUI.prototype.createAnnotation = function(msgTitle, msgDet
     
     // Check for other occurrences of the same toponym in the text and batch-annotate
     if (!silentMode)
-      self.batchAnnotate(toponym, offset, recogito.TextAnnotationUI.getQueryParam('text'), gdocPartId); 
+      self.batchAnnotate(toponym, gdocPartId); 
   };
   
   if (msgTitle && msgDetails) {
@@ -168,9 +169,10 @@ recogito.TextAnnotationUI.prototype.createAnnotation = function(msgTitle, msgDet
  * Updates an existing annotation.
  */
 recogito.TextAnnotationUI.prototype.updateAnnotation = function(msgTitle, msgDetails, toponym, x, y, offset, gdocPartId, selectedRange, selection, annotationId) {
+  // Some weird variable shadowin seems to go on without this - any thoughts appreciated!
   var t = toponym,
       id = annotationId;
-      
+  
   this.openEditor(msgTitle, toponym, msgDetails, x, y, function() {
     // Store on server
     recogito.TextAnnotationUI.REST.updateAnnotation(id, t, offset, gdocPartId);
@@ -231,9 +233,11 @@ recogito.TextAnnotationUI.prototype.deleteAnnotation = function(msgTitle, msgDet
 }
 
 /**
- * Productivity feature that queries for other occurences of the toponym in the text and batch-annotates.
+ * Productivity feature: queries for untagged occurences of the toponym and automatically annotates.
+ * @param {String} toponym the toponym
+ * @param {Number} offset
  */
-recogito.TextAnnotationUI.prototype.batchAnnotate = function(toponym, offset, textId, gdocPartId) {
+recogito.TextAnnotationUI.prototype.batchAnnotate = function(toponym, gdocPartId) {
   var self = this,
       textDiv = document.getElementById('text');
   
@@ -258,8 +262,8 @@ recogito.TextAnnotationUI.prototype.batchAnnotate = function(toponym, offset, te
         selectedRange.setStart(textNode, text.indexOf(toponym));
         selectedRange.setEnd(textNode, text.indexOf(toponym) + toponym.length);
 
-        var ranges = self.computeAnnotationRanges(textDiv, selectedRange)        
-        self.createAnnotation(false, false, toponym, 0, 0, ranges.offset, gdocPartId, ranges.normalizedSelectedRange); 
+        var ranges = self.normalizeSelection(textDiv, selectedRange)        
+        self.createAnnotation(false, false, toponym, 0, 0, ranges.offset, gdocPartId, ranges.selectedRange); 
       });
     }
   }
@@ -307,7 +311,7 @@ recogito.TextAnnotationUI.getQueryParam = function(key) {
   return r;
 }
 
-/** REST implementations **/
+/** REST calls **/
 recogito.TextAnnotationUI.REST = { }
 
 recogito.TextAnnotationUI.REST.createAnnotation = function(toponym, offset, gdocPartId) {
@@ -343,6 +347,3 @@ recogito.TextAnnotationUI.REST.deleteAnnotation = function(id, opt_callback) {
     }
   });    
 }
-
-
-
