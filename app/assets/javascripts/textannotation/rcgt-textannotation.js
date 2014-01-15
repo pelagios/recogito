@@ -33,32 +33,16 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
         selection = rangy.getSelection();
         
     if (!selection.isCollapsed && selection.rangeCount == 1) {
-      // The selected range
-      var selectedRange = selection.getRangeAt(0);
+      var annotationRanges = self.computeAnnotationRanges(textDiv, selection.getRangeAt(0));
+
+      // The selected text          
+      var toponym = annotationRanges.toponym;
       
-      // A range from the start of the text to the start of the selection (= offset!)
-      var offsetRange = rangy.createRange();
-      offsetRange.setStart(textDiv, 0);
-      offsetRange.setEnd(selectedRange.startContainer, selectedRange.startOffset);
- 
-      // The selected text     
-      var toponym = selectedRange.toString();
+      // The offset, measured from text start
+      var offset = annotationRanges.offset;
       
-      // Normalize selected and offset range by removing leading & trailing spaces
-      if (toponym.indexOf(" ") == 0) {
-        selectedRange.setStart(selectedRange.startContainer, selectedRange.startOffset + 1);
-        offsetRange.setEnd(selectedRange.startContainer, selectedRange.startOffset);
-        toponym = selectedRange.toString();
-      }
-      
-      if (toponym.indexOf(" ", toponym.length - 1) !== -1) {
-        selectedRange.setEnd(selectedRange.endContainer, selectedRange.endOffset - 1);
-        toponym = selectedRange.toString();
-      }
-      
-      // Compute the character offset in the original plaintext source
-      var newLines = offsetRange.getNodes([1], function(node) { return node.nodeName == 'BR'; });
-      var offset = offsetRange.toString().length + newLines.length - 1;
+      // The normalized selected range
+      var selectedRange = annotationRanges.normalizedSelectedRange;
       
       // Determine if the selection crosses existing annotations 
       var nodes = selectedRange.getNodes([1], function(e) { return e.nodeName.toLowerCase() == 'a' })
@@ -123,11 +107,41 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
   });
 }
 
+recogito.TextAnnotationUI.prototype.computeAnnotationRanges = function(textDiv, selectedRange) {
+  // The toponym (= annotation text)
+  var toponym = selectedRange.toString();
+  
+  // A range from the start of the text to the start of the selection (= offset!)
+  var offsetRange = rangy.createRange();
+  offsetRange.setStart(textDiv, 0);
+  offsetRange.setEnd(selectedRange.startContainer, selectedRange.startOffset);
+      
+  // Normalize selected and offset range by removing leading & trailing spaces
+  if (toponym.indexOf(" ") == 0) {
+    selectedRange.setStart(selectedRange.startContainer, selectedRange.startOffset + 1);
+    offsetRange.setEnd(selectedRange.startContainer, selectedRange.startOffset);
+    toponym = selectedRange.toString();
+  }
+      
+  if (toponym.indexOf(" ", toponym.length - 1) !== -1) {
+    selectedRange.setEnd(selectedRange.endContainer, selectedRange.endOffset - 1);
+    toponym = selectedRange.toString();
+  }
+  
+  // Compute the character offset in the original plaintext source
+  var newLines = offsetRange.getNodes([1], function(node) { return node.nodeName == 'BR'; });
+  var offset = offsetRange.toString().length + newLines.length - 1;
+  
+  return { toponym: toponym, offset: offset, normalizedSelectedRange: selectedRange };
+}
+
 /**
  * Creates a new annotation.
  */
 recogito.TextAnnotationUI.prototype.createAnnotation = function(msgTitle, msgDetails, toponym, x, y, offset, gdocPartId, selectedRange) {
-  this.openEditor(msgTitle, toponym, msgDetails, x, y, function() {
+  var self = this;
+  
+  var create = function(silentMode) {
     // Store on server
     recogito.TextAnnotationUI.REST.createAnnotation(toponym, offset, gdocPartId);
     
@@ -137,7 +151,17 @@ recogito.TextAnnotationUI.prototype.createAnnotation = function(msgTitle, msgDet
     anchor.appendChild(document.createTextNode(selectedRange.toString()));
     selectedRange.deleteContents();
     selectedRange.insertNode(anchor);
-  });
+    
+    // Check for other occurrences of the same toponym in the text and batch-annotate
+    if (!silentMode)
+      self.batchAnnotate(toponym, offset, recogito.TextAnnotationUI.getQueryParam('text'), gdocPartId); 
+  };
+  
+  if (msgTitle && msgDetails) {
+    this.openEditor(msgTitle, toponym, msgDetails, x, y, create);
+  } else {
+    create(true);
+  }
 }
 
 /**
@@ -206,18 +230,39 @@ recogito.TextAnnotationUI.prototype.deleteAnnotation = function(msgTitle, msgDet
   });  
 }
 
-recogito.TextAnnotationUI.prototype.findOtherOccurrences = function(toponym, offset, textId, callback) {
-  $.ajax({
-    dataType: "json",
-    url: '../api/search/text?textId=' + textId + '&query=' + toponym,
-    type: 'GET',
-    success: function(result) {
-      var foo = confirm('There are ' + (result.length - 1) + ' other un-annotated occurrences of "' + toponym + '" in the text. Do you want to mark those up automatically?');
-      if (foo) {
-        callback();
-      }
+/**
+ * Productivity feature that queries for other occurences of the toponym in the text and batch-annotates.
+ */
+recogito.TextAnnotationUI.prototype.batchAnnotate = function(toponym, offset, textId, gdocPartId) {
+  var self = this,
+      textDiv = document.getElementById('text');
+  
+  // Loop through all nodes in the #text DIV...
+  var untagged = $.grep($(textDiv).contents(), function(node) {
+    // ...and count direct text children that contain the toponym
+    if (node.nodeType == 3)
+      if ($(node).text().indexOf(' ' + toponym + ' ') > -1)
+        return true
+  });
+  
+  if (untagged.length > 0) {
+    var doBatch = confirm(
+      'There are at least ' + untagged.length + ' ' +
+      'more un-tagged occurrences of "' + toponym + '". ' +
+      'Do you want me to tag them too?');
+      
+    if (doBatch) {
+      $.each(untagged, function(idx, textNode) {
+        var text = $(textNode).text();
+        var selectedRange = rangy.createRange();
+        selectedRange.setStart(textNode, text.indexOf(toponym));
+        selectedRange.setEnd(textNode, text.indexOf(toponym) + toponym.length);
+
+        var ranges = self.computeAnnotationRanges(textDiv, selectedRange)        
+        self.createAnnotation(false, false, toponym, 0, 0, ranges.offset, gdocPartId, ranges.normalizedSelectedRange); 
+      });
     }
-  }); 
+  }
 }
 
 /**
