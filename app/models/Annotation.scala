@@ -29,7 +29,7 @@ case class Annotation(
     offset: Option[Int],
     
     /** Gazetteer URI identified by the georesolver **/
-    gazetteerURI: Option[String], 
+    gazetteerURI: Option[String] = None, 
     
     /** Toponym/correction identified by human expert **/
     correctedToponym: Option[String] = None,

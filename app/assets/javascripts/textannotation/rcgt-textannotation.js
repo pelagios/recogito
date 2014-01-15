@@ -3,13 +3,7 @@ var recogito = (window.recogito) ? window.recogito : { };
 
 /**
  * Fulltext annotation view.
- * 
- * Emits the following events:
- * 
- * TODO
- * 
  * @param {Element} mapDiv the DIV holding the annotated fulltext
- * @constructor
  */
 recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) { 
   var self = this,
@@ -28,25 +22,136 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
     '  </div>' +
     '<div>';
     
-  this._editor;
-    
-  rangy.init();
+  this._editor; // To keep track of the current open editor & prevent opening of multipe editors
   
-  var wrapToponym = function(selectedRange) { 
+  rangy.init();
+ 
+  // Main event handler
+  var handleSelection = function(e) {  
+    var x = (e.offsetX) ? e.offsetX : e.pageX,
+        y = (e.offsetY) ? e.offsetY : e.pageY,
+        selection = rangy.getSelection();
+        
+    if (!selection.isCollapsed && selection.rangeCount == 1) {
+      // The selected range
+      var selectedRange = selection.getRangeAt(0);
+      
+      // A range from the start of the text to the start of the selection (= offset!)
+      var offsetRange = rangy.createRange();
+      offsetRange.setStart(textDiv, 0);
+      offsetRange.setEnd(selectedRange.startContainer, selectedRange.startOffset);
+ 
+      // The selected text     
+      var toponym = selectedRange.toString();
+      
+      // Normalize selected and offset range by removing leading & trailing spaces
+      if (toponym.indexOf(" ") == 0) {
+        selectedRange.setStart(selectedRange.startContainer, selectedRange.startOffset + 1);
+        offsetRange.setEnd(selectedRange.startContainer, selectedRange.startOffset);
+        toponym = selectedRange.toString();
+      }
+      
+      if (toponym.indexOf(" ", toponym.length - 1) !== -1) {
+        selectedRange.setEnd(selectedRange.endContainer, selectedRange.endOffset - 1);
+        toponym = selectedRange.toString();
+      }
+      
+      // Compute the character offset in the original plaintext source
+      var newLines = offsetRange.getNodes([1], function(node) { return node.nodeName == 'BR'; });
+      var offset = offsetRange.toString().length + newLines.length - 1;
+      
+      // Determine if the selection crosses existing annotations 
+      var nodes = selectedRange.getNodes([1], function(e) { return e.nodeName.toLowerCase() == 'a' })
+      if (nodes.length == 0) {
+        // No span boundaries crossed
+        var parent = $(selectedRange.getNodes([3])).parent().filter('a');
+        if (parent.length > 0) {
+          var id = getId(parent[0]);
+          
+          if ($(parent).text() == toponym) {
+            // Selection identical with existing annotation - ask if delete?
+            self.deleteAnnotation(
+              'DELETE ANNOTATION', 
+              'Already marked as a toponym. Do you want to delete annotation instead?',
+              toponym, x, y,
+              getId(parent),
+              parent);
+          } else {            
+            self.updateAnnotation(
+              'MODIFY ANNOTATION',
+              'Update toponym?',
+              toponym, x, y,
+              offset, gdocPartId,
+              selectedRange, selection,
+              getId(parent));
+          }
+        } else {
+          // A new annotation          
+          self.createAnnotation(
+            'NEW ANNOTATION', 
+            'Mark as toponym?',
+            toponym, x, y,
+            offset, gdocPartId,
+            selectedRange);
+        }        
+      } else if (nodes.length == 1) {
+        // One span crossed - resize/reanchoring of an existing annotation
+        var id = getId(nodes[0]);
+        self.updateAnnotation(
+          'MODIFY ANNOTATION',
+          'Update toponym?',
+          toponym, x, y,
+          offset, gdocPartId,
+          selectedRange, selection,
+          id);
+      } else {
+        // More than one span crossed - merge
+        var ids = $.map(nodes, function(node) { return getId(node); });        
+        self.updateAnnotation(
+          'MERGE ANNOTATIONS',
+          'Merge to one toponym?',
+          toponym, x, y,
+          offset, gdocPartId,
+          selectedRange, selection,
+          ids[0]);
+      }
+    }
+  };
+    
+  $(textDiv).mouseup(function(e) {
+    window.setTimeout(function() { handleSelection(e) }, 1);    
+  });
+}
+
+/**
+ * Creates a new annotation.
+ */
+recogito.TextAnnotationUI.prototype.createAnnotation = function(msgTitle, msgDetails, toponym, x, y, offset, gdocPartId, selectedRange) {
+  this.openEditor(msgTitle, toponym, msgDetails, x, y, function() {
+    // Store on server
+    recogito.TextAnnotationUI.REST.createAnnotation(toponym, offset, gdocPartId);
+    
+    // Create markup
     var anchor = document.createElement('a');
     anchor.className = 'annotation corrected';
     anchor.appendChild(document.createTextNode(selectedRange.toString()));
     selectedRange.deleteContents();
     selectedRange.insertNode(anchor);
-  };
-  
-  var unwrapToponym = function(anchor) {
-    var text = anchor.text();
-    anchor.replaceWith(text);
-  };
-  
-  var rewrapToponym = function(selectedRange) {
-    // We'll need to replace all nodes that are fully or partially in the range
+  });
+}
+
+/**
+ * Updates an existing annotation.
+ */
+recogito.TextAnnotationUI.prototype.updateAnnotation = function(msgTitle, msgDetails, toponym, x, y, offset, gdocPartId, selectedRange, selection, annotationId) {
+  var t = toponym,
+      id = annotationId;
+      
+  this.openEditor(msgTitle, toponym, msgDetails, x, y, function() {
+    // Store on server
+    recogito.TextAnnotationUI.REST.updateAnnotation(id, t, offset, gdocPartId);
+    
+    // We'll need to replace all nodes in the markup that are fully or partially in the range
     var nodes = selectedRange.getNodes();
     
     // If the selected text ends in an annotation, well' remove that as well
@@ -62,7 +167,7 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
 
     // Head - all text up to the selected toponym
     var head = text.substr(0, selectedRange.startOffset);
-    
+  
     // Toponym
     var toponym = selectedRange.toString();
     
@@ -83,131 +188,41 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
     }
     
     $(nodeToReplace).replaceWith(head + '<a class="annotation corrected">' + toponym + '</a>' + tail);
-  }
-  
-  // API call - delete annotation
-  var deleteAnnotation = function(id, opt_callback) {
-    $.ajax({
-      url: '../api/annotations/' + id,
-      type: 'DELETE',
-      error: function(result) {
-        console.log('ERROR deleting annotation!');
-      }
-    });    
-  };
-  
-  // API call - create new annotation
-  var createAnnotation = function(toponym, offset) {
-    $.ajax({
-      url: '../api/annotations',
-      type: 'POST',
-      data: '{ "gdocPartId": ' + gdocPartId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }',
-      contentType : 'application/json',
-      error: function(result) {
-        alert('Could not store annotation: ' + result.responseJSON.message);
-      }
-    });
-  };
-  
-  // API call - update annotation
-  var updateAnnotation = function(id, toponym, offset) {
-    $.ajax({
-      url: '../api/annotations/' + id,
-      type: 'PUT',
-      data: '{ "gdocPartId": ' + gdocPartId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }',
-      contentType : 'application/json',
-      error: function(result) {
-        console.log('ERROR updating annotation!');
-      }
-    });    
-  };
- 
-  var handleSelection = function(e) {  
-    var x = (e.offsetX) ? e.offsetX : e.pageX,
-        y = (e.offsetY) ? e.offsetY : e.pageY,
-        selection = rangy.getSelection();
-        
-    if (!selection.isCollapsed && selection.rangeCount == 1) {
-      var selectedRange = selection.getRangeAt(0);
-         
-      var offsetRange = rangy.createRange();
-      offsetRange.setStart(textDiv, 0);
-      offsetRange.setEnd(selectedRange.startContainer, selectedRange.startOffset);
- 
-      // The selected text     
-      var toponym = selectedRange.toString();
-      
-      // Remove leading & trailing spaces
-      if (toponym.indexOf(" ") == 0) {
-        selectedRange.setStart(selectedRange.startContainer, selectedRange.startOffset + 1);
-        offsetRange.setEnd(selectedRange.startContainer, selectedRange.startOffset);
-        toponym = selectedRange.toString();
-      }
-      
-      if (toponym.indexOf(" ", toponym.length - 1) !== -1) {
-        selectedRange.setEnd(selectedRange.endContainer, selectedRange.endOffset - 1);
-        toponym = selectedRange.toString();
-      }
-      
-      // The character offset in the source text
-      var newLines = offsetRange.getNodes([1], function(node) { return node.nodeName == 'BR'; });
-      var offset = offsetRange.toString().length + newLines.length - 1;
-      
-      // The <span>s crossed by the selection 
-      var nodes = selectedRange.getNodes([1], function(e) { return e.nodeName.toLowerCase() == 'a' })
-      if (nodes.length == 0) {
-        // No span boundaries crossed
-        var parent = $(selectedRange.getNodes([3])).parent().filter('a');
-        if (parent.length > 0) {
-          var id = getId(parent[0]);
-          
-          if ($(parent).text() == toponym) {
-            // Selection identical with existing annotation - ask if delete?
-            self.openEditor("DELETE ANNOTATION", toponym, "Already marked as a toponym. Do you want to delete annotation instead?", x, y,
-              function() {
-                deleteAnnotation(getId(parent));
-                unwrapToponym(parent);
-              }
-            );
-          } else {
-            self.openEditor("MODIFY ANNOTATION", toponym, "Update toponym?", x, y, function() {
-              updateAnnotation(getId(parent), toponym, offset);
-              rewrapToponym(selectedRange);
-              selection.removeAllRanges();
-            });
-          }
-        } else {
-          // A new annotation
-          self.openEditor("NEW ANNOTATION", toponym, "Mark as toponym?", x, y, function() {
-            createAnnotation(toponym, offset);
-            wrapToponym(selectedRange);
-          });
-        }        
-      } else if (nodes.length == 1) {
-        // One span crossed - resize/reanchoring of an existing annotation
-        var id = getId(nodes[0]);
-        self.openEditor("MODIFY ANNOTATION", toponym, "Update toponym?", x, y, function() {
-          updateAnnotation(id, toponym, offset);
-          rewrapToponym(selectedRange);
-          selection.removeAllRanges();
-        });
-      } else {
-        // More than one span crossed - merge
-        var ids = $.map(nodes, function(node) { return getId(node); });
-        self.openEditor("MERGE ANNOTATIONS", toponym, "Merge to one toponym?", x, y, function() {
-          updateAnnotation(ids[0], toponym, offset);
-          rewrapToponym(selectedRange);
-          selection.removeAllRanges();
-        });
-      }
-    }
-  };
-    
-  $(textDiv).mouseup(function(e) {
-    window.setTimeout(function() { handleSelection(e) }, 1);    
-  });
+    selection.removeAllRanges();
+  });  
 }
 
+/**
+ * Deletes an existing annotation.
+ */
+recogito.TextAnnotationUI.prototype.deleteAnnotation = function(msgTitle, msgDetails, toponym, x, y, annotationId, domNode) {
+  this.openEditor(msgTitle, toponym, msgDetails, x, y, function() {
+    // Store on server
+    recogito.TextAnnotationUI.REST.deleteAnnotation(annotationId);
+      
+    // Remove markup
+    var text = domNode.text();
+    domNode.replaceWith(text);
+  });  
+}
+
+recogito.TextAnnotationUI.prototype.findOtherOccurrences = function(toponym, offset, textId, callback) {
+  $.ajax({
+    dataType: "json",
+    url: '../api/search/text?textId=' + textId + '&query=' + toponym,
+    type: 'GET',
+    success: function(result) {
+      var foo = confirm('There are ' + (result.length - 1) + ' other un-annotated occurrences of "' + toponym + '" in the text. Do you want to mark those up automatically?');
+      if (foo) {
+        callback();
+      }
+    }
+  }); 
+}
+
+/**
+ * Opens the editor, unless it is already open.
+ */
 recogito.TextAnnotationUI.prototype.openEditor = function(title, selection, msg, x, y, ok_callback) {  
   if (!this._editor) {
     this._editor = $(this._EDITOR_TEMPLATE);
@@ -227,6 +242,9 @@ recogito.TextAnnotationUI.prototype.openEditor = function(title, selection, msg,
   }
 }
 
+/**
+ * Closes the editor.
+ */
 recogito.TextAnnotationUI.prototype.closeEditor = function() { 
   if (this._editor) {
     $(this._editor).remove();
@@ -234,11 +252,51 @@ recogito.TextAnnotationUI.prototype.closeEditor = function() {
   }
 }
 
+/**
+ * Helper function for accessing query string params.
+ */
 recogito.TextAnnotationUI.getQueryParam = function(key) {
   var re = new RegExp('(?:\\?|&)'+key+'=(.*?)(?=&|$)','gi');
   var r = [], m;
   while ((m = re.exec(document.location.search)) != null) r.push(m[1]);
   return r;
+}
+
+/** REST implementations **/
+recogito.TextAnnotationUI.REST = { }
+
+recogito.TextAnnotationUI.REST.createAnnotation = function(toponym, offset, gdocPartId) {
+  $.ajax({
+    url: '../api/annotations',
+    type: 'POST',
+    data: '{ "gdocPartId": ' + gdocPartId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }',
+    contentType : 'application/json',
+    error: function(result) {
+      alert('Could not store annotation: ' + result.responseJSON.message);
+    }
+  });
+}
+
+recogito.TextAnnotationUI.REST.updateAnnotation = function(id, toponym, offset, gdocPartId) { 
+  $.ajax({
+    url: '../api/annotations/' + id,
+    type: 'PUT',
+    data: '{ "gdocPartId": ' + gdocPartId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }',
+    contentType : 'application/json',
+    error: function(result) {
+      console.log('ERROR updating annotation!');
+    }
+  });    
+}
+
+recogito.TextAnnotationUI.REST.deleteAnnotation = function(id, opt_callback) {
+  $.ajax({
+    url: '../api/annotations/' + id,
+    type: 'DELETE',
+    error: function(result) {
+      console.log('ERROR deleting annotation!');
+    }
+  });    
 }
 
 

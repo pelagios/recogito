@@ -7,6 +7,7 @@ import play.api.libs.json.Json
 import play.api.Play.current
 import models.GeoDocumentTexts
 import play.api.Logger
+import models.{ Annotation, Annotations, AnnotationStatus }
 
 /** Toponym search API controller.
   *
@@ -47,12 +48,21 @@ object SearchController extends Controller {
   def textSearch(textId: Int, query: String) = DBAction { implicit session =>
     val geoDocText = GeoDocumentTexts.findById(textId)
     if (geoDocText.isDefined) {      
-      def next(text: String, occurrences: Seq[Int] = Seq.empty[Int]): Seq[Int] = {
+      def next(text: String, offset: Int = 0): Seq[Int] = {
         val idx = text.indexOf(query.toLowerCase)
         if (idx > -1) {
-          idx +: next(text.substring(idx + query.size))
+          val totalOffset = offset + idx
+          
+          // TODO check for existing anntotations
+          val dummy = Annotation(None, geoDocText.get.gdocId, geoDocText.get.gdocPartId, 
+            AnnotationStatus.NOT_VERIFIED, Some(query), Some(totalOffset))
+
+          if (Annotations.getOverlappingAnnotations(dummy).size == 0)
+            totalOffset +: next(text.substring(idx + query.size), totalOffset + query.size)
+          else
+            next(text.substring(idx + query.size), totalOffset + query.size)
         } else {
-          occurrences
+          Seq.empty[Int]
         }
       }
       
