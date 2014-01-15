@@ -6,12 +6,15 @@ import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.Json
 import play.api.Play.current
 import models.GeoDocumentTexts
+import play.api.Logger
 
 /** Toponym search API controller.
   *
   * @author Rainer Simon <rainer.simon@ait.ac.at>
   */
 object SearchController extends Controller {
+  
+  private val UTF8 = "UTF-8"
   
   private val PLEIADES_PREFIX = "http://pleiades.stoa.org"
   private val DARE_PREFIX = "http://www.imperium.ahlfeldt.se/"
@@ -42,10 +45,19 @@ object SearchController extends Controller {
   }
   
   def textSearch(textId: Int, query: String) = DBAction { implicit session =>
-    val text = GeoDocumentTexts.findById(textId)
-    if (text.isDefined) {
-      // TODO 
-      Ok(Json.parse("[]"))    
+    val geoDocText = GeoDocumentTexts.findById(textId)
+    if (geoDocText.isDefined) {      
+      def next(text: String, occurrences: Seq[Int] = Seq.empty[Int]): Seq[Int] = {
+        val idx = text.indexOf(query.toLowerCase)
+        if (idx > -1) {
+          idx +: next(text.substring(idx + query.size))
+        } else {
+          occurrences
+        }
+      }
+      
+      val occurrences = next(new String(geoDocText.get.text, UTF8).toLowerCase)
+      Ok(Json.toJson(occurrences))    
     } else {
       NotFound
     }

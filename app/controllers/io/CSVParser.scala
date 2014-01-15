@@ -11,7 +11,7 @@ import play.api.Logger
   */
 object CSVParser {
   
-  private val SEPARATOR = "\t"
+  private val SEPARATOR = ";"
   
   /** Parses an input CSV file and produces annotations.
     * 
@@ -23,8 +23,6 @@ object CSVParser {
   def parse(file: String, gdocId: Int)(implicit s: Session): Seq[Annotation] = {
     val data = Source.fromFile(file).getLines    
     val header = data.take(1).toSeq.head.split(SEPARATOR, -1).toSeq 
-    
-    header.foreach(println(_))
     
     // Helper method to find the row index for a specific label
     def idx(label: String): Option[Int] = header.indexWhere(_.equalsIgnoreCase(label)) match {
