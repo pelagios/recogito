@@ -112,6 +112,15 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
     Query(Annotations).where(_.gdocPartId === id).list.sortBy(sortByOffset)
   }
   
+  def countForGeoDocument(id: Int)(implicit s: Session): Int = 
+    Query(Annotations).where(_.gdocId === id).list.size
+  
+  def countForGeoDocumentPart(id: Int)(implicit s: Session): Int =
+    Query(Annotations).where(_.gdocPartId === id).list.size
+    
+  def update(annotation: Annotation)(implicit s: Session) =
+    Query(Annotations).where(_.id === annotation.id).update(annotation)
+  
   def getOverlappingAnnotations(annotation: Annotation)(implicit s: Session) = {
     val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
     val offset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset
@@ -137,11 +146,5 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
       Seq.empty[Annotation]
     }
   }
-    
-  def countForGeoDocumentPart(id: Int)(implicit s: Session): Int =
-    Query(Annotations).where(_.gdocPartId === id).list.size
-    
-  def update(annotation: Annotation)(implicit s: Session) =
-    Query(Annotations).where(_.id === annotation.id).update(annotation)
   
 }

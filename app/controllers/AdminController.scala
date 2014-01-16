@@ -1,6 +1,7 @@
 package controllers
 
-import controllers.io.{ CSVParser, CSVSerializer, JSONSerializer }
+import controllers.io.{ CSVParser, CSVSerializer, JSONSerializer, ZipImporter }
+import java.util.zip.ZipFile
 import models._
 import play.api.data.Form
 import play.api.data.Forms._
@@ -10,6 +11,7 @@ import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import play.api.Play.current
 import play.api.libs.json.Json
+import play.api.Logger
 
 /** Administration features.
   * 
@@ -25,6 +27,16 @@ object AdminController extends Controller with Secured {
   def backupDocumentMeta = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit session =>
     val json = GeoDocuments.listAll.map(JSONSerializer.toJson(_, false))
     Ok(Json.toJson(json))
+  }
+  
+  def uploadDocuments = protectedDBAction(Secure.REJECT) { username => implicit session =>
+    val formData = session.request.body.asMultipartFormData
+    if (formData.isDefined) {
+      formData.get.file("zip").map(filePart => ZipImporter.importZip(new ZipFile(filePart.ref.file)))
+      Redirect(routes.AdminController.index)
+    } else {
+      BadRequest
+    }
   }
   
   /** Generates a CSV backup for the specified document or document part.

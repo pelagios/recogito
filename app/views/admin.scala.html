@@ -25,36 +25,51 @@
   </head>
   
   <body>
+    <div class="upload-documents">
+      <button class="big" onclick="toggleImportForm('upload-documents')">Upload Documents</button> 
+      (ZIP with JSON metadata + text as UTF-8 plaintext files) 
+      
+      <div class="upload-documents-form" id="upload-documents">
+        @helper.form(action = routes.AdminController.uploadDocuments(), 'enctype -> "multipart/form-data") {
+          <input type="file" name="zip" value="Upload ZIP" />
+          <input type="submit" value="Upload!" />
+        }
+      </div>
+    </div>
     @for(egd <- models.GeoDocuments.listAll) {
       <div class="egd-container">
         <h1>@egd.title</h1>
         @defining(models.GeoDocumentParts.findByGeoDocument(egd.id.get)) { parts =>
-          <table>
-            <thead>
-      	      <tr>
-      	        <td>ID</td>
-      	        <td>Title</td>
-      	        <td>Source</td>
-      	        <td># Annotations</td>
-      	      </tr>
-      	    </thead>
-      	    <tbody>
-              @for(part <- parts) {
-                <tr>
-                  <td>@part.id</td>
-                  <td>@part.title</td>
-                  <td><a href="@part.source" target="_blank">@part.source</a></td>
-                  <td>@models.Annotations.countForGeoDocumentPart(part.id.get)</td>
-                  <td class="action"><button onclick="location.href='@routes.AdminController.backupAnnotations(None, part.id)'">CSV Backup</button></td>
-                </tr>
-              }
-            </tbody>
-          </table>
+          @if(parts.size > 0) {
+            <table>
+              <thead>
+        	    <tr>
+        	      <td>ID</td>
+      	          <td>Title</td>
+      	          <td>Source</td>
+      	          <td># Annotations</td>
+      	        </tr>
+      	      </thead>
+      	      <tbody>
+                @for(part <- parts) {
+                  <tr>
+                    <td>@part.id</td>
+                    <td>@part.title</td>
+                    <td><a href="@part.source" target="_blank">@part.source</a></td>
+                    <td>@models.Annotations.countForGeoDocumentPart(part.id.get)</td>
+                    <td class="action"><button onclick="location.href='@routes.AdminController.backupAnnotations(None, part.id)'">CSV Backup</button></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          } else {
+            <p>@models.Annotations.countForGeoDocument(egd.id.get) Annotations</p>
+          }
           <button onclick="location.href='@routes.AdminController.backupAnnotations(egd.id, None)'">CSV Backup (Entire Document)</button>
           <button onclick="if (confirm('Are you sure about that?')) dropAnnotations(@egd.id.get)">Drop All Annotations</button>
-          <div class="import">
+          <div class="import-annotations">
             <button onclick="toggleImportForm('@egd.id.get')">Import CSV</button>
-            <div class="import-form" id="@egd.id.get">
+            <div class="import-annotations-form" id="@egd.id.get">
               @helper.form(action = routes.AdminController.importAnnotations(egd.id.get), 'enctype -> "multipart/form-data") {
                 <input type="file" name="csv" value="Import CSV" />
                 <input type="submit" value="IMPORT!" />

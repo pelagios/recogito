@@ -28,6 +28,8 @@ object GeoDocumentParts extends Table[GeoDocumentPart]("gdocument_parts") {
   
   def * = id.? ~ gdocId ~ title ~ source.? <> (GeoDocumentPart.apply _, GeoDocumentPart.unapply _)
   
+  def autoInc = id.? ~ gdocId ~ title ~ source.? <> (GeoDocumentPart.apply _, GeoDocumentPart.unapply _) returning id
+  
   def getTitle(id: Int)(implicit s: Session): Option[String] = {
     val title = titleCache.get(id)
     if (title.isDefined) {
