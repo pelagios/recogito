@@ -28,16 +28,20 @@ object AnnotationController extends Controller with Secured {
     if (user.isDefined) {
       val body = requestWithSession.request.body.asJson
       if (body.isDefined) {
-        val gdocPartId = (body.get \ "gdocPartId").as[Int]
-        val gdocPart = GeoDocumentParts.findById(gdocPartId)
-        if (gdocPart.isDefined) {
+        // Attach to either document part or document
+        val gdocId = (body.get \ "gdocId").as[Option[Int]]
+        val gdocPartId = (body.get \ "gdocPartId").as[Option[Int]]
+        
+        val gdocPart = gdocPartId.map(id => GeoDocumentParts.findById(id)).flatten
+        val verifiedDocId = if (gdocPart.isDefined) Some(gdocPart.get.gdocId) else gdocId.map(id => GeoDocumentParts.findById(id)).flatten.map(_.id).flatten
+        
+        if (gdocPart.isDefined || (gdocId.isDefined && verifiedDocId.isDefined)) {
           // Create new annotation
           val correctedToponym = (body.get \ "corrected_toponym").as[String]
-          val correctedOffset = (body.get \ "corrected_offset").as[Int]
-        
+          val correctedOffset = (body.get \ "corrected_offset").as[Int]        
 
           val annotation = 
-            Annotation(None, gdocPart.get.gdocId, gdocPart.get.id, 
+            Annotation(None, verifiedDocId.get, gdocPart.map(_.id).flatten, 
                        AnnotationStatus.NOT_VERIFIED, None, None, None, 
                        Some(correctedToponym), Some(correctedOffset))
           
