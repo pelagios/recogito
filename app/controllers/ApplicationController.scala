@@ -40,8 +40,12 @@ object ApplicationController extends Controller with Secured {
   def showTextAnnotationUI(text: Int) = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit request => 
     val gdocText = GeoDocumentTexts.findById(text)
     if (gdocText.isDefined) {
-      val annotations = Annotations.findByGeoDocumentPart(gdocText.get.gdocPartId.get)
       val plaintext = new String(gdocText.get.text, UTF8)
+      val annotations = if (gdocText.get.gdocPartId.isDefined) {
+          Annotations.findByGeoDocumentPart(gdocText.get.gdocPartId.get)
+        } else {
+          Annotations.findByGeoDocument(gdocText.get.gdocId)
+        }
       
       // Build HTML
       val ranges = annotations.foldLeft(("", 0)) { case ((markup, beginIndex), annotation) => {

@@ -13,6 +13,11 @@
       	    @document.title
       	    <a href="@routes.ApplicationController.showMapCorrectionUI(document.id.get)">Map</a>
       	    <a href="@routes.DocumentController.get(document.id.get, Some("csv"))">CSV</a>
+      	    @defining(GeoDocumentTexts.getTextForGeoDocument(document.id.get)) { text =>
+      	      @if(text.isDefined) {
+      	        <a href="@routes.ApplicationController.showTextAnnotationUI(text.get.id.get)" target="_blank">Text</a>
+      	      }
+      	    }
       	    <div class="stats">
       	      @document.totalToponymCount Toponyms Total (not counting ignored and false matches)<br/>
       	      @{document.totalToponymCount - document.unverifiedToponymCount} Toponyms Controlled (Verified + Not identifyable)</br>
@@ -26,7 +31,7 @@
       	    @for(part <- models.GeoDocumentParts.findByGeoDocument(document.id.get)) {
       	      <li>
       	        @part.title
-      	        @defining(GeoDocumentTexts.findByGeoDocumentPart(part.id.get).map(_.id).flatten) { textId =>
+      	        @defining(GeoDocumentTexts.getTextForGeoDocumentPart(part.id.get).map(_.id).flatten) { textId =>
       	          @if(textId.isDefined) {
       	           <a href="@routes.ApplicationController.showTextAnnotationUI(textId.get)" target="_blank">Text</a>
       	          }
