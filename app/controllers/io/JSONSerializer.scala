@@ -81,24 +81,41 @@ object JSONSerializer {
     * @param doc the GeoDocument
     * @param includeAnnotations whether to include the annotations in the JSON
     */  
-  def toJson(doc: GeoDocument, includeAnnotations: Boolean)(implicit session: Session): JsObject = {        
-    Json.obj(
-      "id" -> doc.id,
-      "title" -> doc.title,
-      "parts" -> GeoDocumentParts.findByGeoDocument(doc.id.get).map(part => Json.obj(
-        "title" -> part.title,
-        "source" -> part.source,
+  def toJson(doc: GeoDocument, includeAnnotations: Boolean)(implicit session: Session): JsObject = {
+    val parts = GeoDocumentParts.findByGeoDocument(doc.id.get)
+    if (parts.size == 0) {
+      Json.obj(
+        "id" -> doc.id,
+        "title" -> doc.title,
         "annotations" -> { 
           val annotations = 
             if (includeAnnotations)
-              Some(Annotations.findByGeoDocumentPart(part.id.get).map(toJson(_, false)))
+              Some(Annotations.findByGeoDocument(doc.id.get).map(toJson(_, false)))
             else
               None
            
           annotations
         }
       )
-    ))       
+    } else {
+      Json.obj(
+        "id" -> doc.id,
+        "title" -> doc.title,
+        "parts" -> GeoDocumentParts.findByGeoDocument(doc.id.get).map(part => Json.obj(
+          "title" -> part.title,
+          "source" -> part.source,
+          "annotations" -> { 
+            val annotations = 
+              if (includeAnnotations)
+                Some(Annotations.findByGeoDocumentPart(part.id.get).map(toJson(_, false)))
+              else
+                None
+           
+            annotations
+          }
+        )
+      ))
+    }
   }
     
   /** Renders a JSON object for the place with the specified gazetteer URI **/

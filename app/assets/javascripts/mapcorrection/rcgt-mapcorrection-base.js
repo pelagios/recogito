@@ -46,15 +46,26 @@ recogito.MapCorrectionUI = function(tableDiv, mapDiv, footerDiv, dataURL) {
     // Flatten & repackage response
     var annotations = [];
     var runningIdx = 0;
-    $.each(data.parts, function(idx, part) {
-      $.each(part.annotations, function(idx, annotation) {
+        
+    if (data.annotations) {
+      $.each(data.annotations, function(idx, annotation) {
         annotation.idx = runningIdx;
-        annotation.source = part.source;
-        annotation.part = part.title;
+        annotation.source = data.source;
+        annotation.part = "";
         annotations.push(annotation);
         runningIdx++;
       });
-    });
+    } else if (data.parts) {
+      $.each(data.parts, function(idx, part) {
+        $.each(part.annotations, function(idx, annotation) {
+          annotation.idx = runningIdx;
+          annotation.source = part.source;
+          annotation.part = part.title;
+          annotations.push(annotation);
+          runningIdx++;
+        });
+      });
+    }
     
     // Set data on table
     table.setData(annotations, true);
