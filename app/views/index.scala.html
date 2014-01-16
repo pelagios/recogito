@@ -11,7 +11,8 @@
         @for(document <- models.GeoDocuments.listAll()) {
       	  <li class="geo-document">
       	    @document.title
-      	    <a href="@routes.ApplicationController.showMapCorrectionUI(document.id.get)">Map</a>
+      	    <a href="@routes.ApplicationController.showMapCorrectionUI(document.id.get)">Map (Gazetteer Correction)</a>
+      	    <a href="@routes.ApplicationController.showMap(document.id.get)">Map (Public)</a>
       	    <a href="@routes.DocumentController.get(document.id.get, Some("csv"))">CSV</a>
       	    @defining(GeoDocumentTexts.getTextForGeoDocument(document.id.get)) { text =>
       	      @if(text.isDefined) {
