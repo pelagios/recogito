@@ -96,6 +96,9 @@ recogito.MapCorrectionUI.prototype._storeToDB = function(annotation) {
   
   if (annotation.place_fixed)
     payload.corrected_uri = annotation.place_fixed.uri;
+    
+  if (annotation.comment)
+    payload.comment = annotation.comment;
   
   $.ajax({
     type: 'PUT',

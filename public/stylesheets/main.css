@@ -292,6 +292,10 @@ a.footer-logout:hover {
   line-height:20px;
 }
 
+.details-content h3 {
+  margin-bottom: 5px;
+}
+
 .details-content-inner {
   padding:20px;
   color:#424242;
@@ -449,6 +453,27 @@ a.details-content-tag-remove {
   width:200px;
 }
 
+.details-comment {
+  margin-right:430px;
+}
+
+.details-comment-textarea {
+  display:block;
+  width:100%;
+  background-color:#fff;
+  margin-top:0px;
+  margin-bottom:0px;
+  border-style:dotted;
+  border-color:#bbb;
+  border-width:1px 1px 0px 1px;  
+  resize:vertical;
+  outline:none;
+}
+
+.details-comment-button {
+  margin-top:5px;
+}
+
 .details-content-sidebar {
   width:400px;
   float:right;
@@ -456,6 +481,8 @@ a.details-content-tag-remove {
 }
 
 .details-map {
+  position:fixed;
+  top:90px;
   width:398px;
   height:300px;
   border:1px dotted #bbb;
@@ -464,7 +491,7 @@ a.details-content-tag-remove {
 .details-button {
   position:relative;
   display:inline-block;
-  padding:15px 15px 20px 0px;
+  padding:15px 15px 0px 0px;
   text-align:center;
 }
 
@@ -545,20 +572,6 @@ a.details-content-tag-remove {
   padding:0;
 }
 
-.details-comment {
-  display:inline-block;
-  margin:0px;
-  padding:9px 15px 20px 0px;
-}
-
-.details-comment-textfield {
-  height:40px;
-  border:1px solid black;
-  margin:0px;
-  line-height:100%;
-  display:inline;
-}
-
 .details-content td {
   vertical-align:top;
   font-size:14px;
@@ -566,6 +579,9 @@ a.details-content-tag-remove {
 }
 
 .details-content-search-container {
+  position:fixed;
+  top:395px;
+  width:380px;
   background-color:#fcfcfc;
   margin:10px 0px;
   padding:10px;
@@ -582,6 +598,10 @@ a.details-content-tag-remove {
   margin:0px 20px;
   width:260px;
   padding:2px 3px;
+}
+
+.details-content-search-results {
+  margin-top:370px;
 }
 
 .details-content-candidates tr.hilighted {

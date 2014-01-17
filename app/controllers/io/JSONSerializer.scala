@@ -71,6 +71,7 @@ object JSONSerializer {
       "place_fixed" -> a.correctedGazetteerURI.map(placeUriToJson(_)),
       "tags" -> a.tags.map(_.split(",")),
       "context" -> context,
+      "comment" -> a.comment,
       "source" -> source)
   }
   

@@ -50,9 +50,11 @@ recogito.DetailsPopup = function(annotation, prev_annotations, next_annotations)
         '        <div class="details-button details-button-not-identifyable"><span class="icon">&#xf024;</span><span class="caption">NOT IDENTIFYABLE</span></div>' +   
         '        <div class="details-button details-button-false-detection"><span class="icon">&#xf057;</span><span class="caption">FALSE DETECTION</span></div>' +   
         '        <div class="details-button details-button-ignore"><span class="icon">&#xf05e;</span><span class="caption">IGNORE/DUPLICATE</span></div>' + 
-        '        <!-- div class="details-comment">' +
-        '          <input class="details-comment-textfield"></input><input class="details-button-edit-comment" type="button" value="EDIT"></input>' +
-        '        </div -->' +
+        '        <h3>Comment</h3>' +
+        '        <div class="details-comment">' +
+        '          <textarea class="details-comment-textarea"></textarea>' + 
+        '          <input class="details-comment-button" type="button" value="SAVE"></input>' +
+        '        </div>' +
         '        <h3>Source Text Snippets</h3>' + 
         '        <div class="details-content-preview">' +
         '        </div>' +
@@ -266,6 +268,22 @@ recogito.DetailsPopup = function(annotation, prev_annotations, next_annotations)
   changeStatus($('.details-button-not-identifyable'), 'NOT_IDENTIFYABLE');
   changeStatus($('.details-button-false-detection'), 'FALSE_DETECTION');
   changeStatus($('.details-button-ignore'), 'IGNORE');
+  
+  // Comment
+  console.log(annotation);
+  var commentTextArea = $('.details-comment-textarea');
+  if (annotation.comment)
+    commentTextArea.val(annotation.comment);
+  
+  $('.details-comment-button').click(function(e) {
+    var comment = commentTextArea.val();
+    if (annotation.comment != comment) {
+      annotation.comment = comment;
+      self.fireEvent('update', annotation);
+      // self.destroy(); 
+    }
+  });
+  
       
   // Popuplate the map
   if (annotation.marker) {
