@@ -4,11 +4,11 @@
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <title>PELAGIOS Geo-Resolution Correction Tool</title>
-    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/textannotation/style.css")" />
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/annotation/style.css")" />
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-ui-1.10.3.custom.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/rangy/rangy-core-1.2.3.js")"></script>
-    <script type="text/javascript" src="@routes.Assets.at("javascripts/textannotation/rcgt-textannotation.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/annotation/rcgt-annotation.min.js")"></script>
     <script>
     $(document).ready(function() {
       new recogito.TextAnnotationUI(document.getElementById('text'), @docId,  @partId.map(_.toString).getOrElse("false")); 

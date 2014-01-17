@@ -93,7 +93,7 @@ object ApplicationController extends Controller with Secured {
       val gdocPart = gdocText.get.gdocPartId.map(id => GeoDocumentParts.findById(id)).flatten
       
       val title = gdoc.get.title + gdocPart.map(" - " + _.title).getOrElse("")
-      Ok(views.html.text_annotation(title, html, gdoc.get.id.get, gdocPart.map(_.id.get)))
+      Ok(views.html.annotation(title, html, gdoc.get.id.get, gdocPart.map(_.id.get)))
     } else {
       NotFound(Json.parse("{ \"success\": false, \"message\": \"Annotation not found\" }")) 
     }
