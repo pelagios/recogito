@@ -1,0 +1,83 @@
+#header {
+  position:fixed;
+  width:100%;
+  height:80px;
+  background-color:@header_bg_color;
+  border-bottom:1px solid @header_border_color;
+  box-shadow:0 0 12px rgba(0,0,0,0.6);
+
+  div {
+    position:absolute;
+    top:0;
+    color:@header_color;
+    font-family: Verdana, Geneva, sans-serif;
+  }
+
+  .title {
+    font-size:16px;
+    vertical-align:center;
+    padding:30px 15px;  
+  }
+
+  .annotation-mode, .home-link {
+    padding:24px 0;
+    margin:0;
+    display:inline-block;
+    text-align:center;
+    width:100px;
+    height:32px;
+    overflow:hidden;
+    border-left:1px solid @header_separator_color;
+  }
+
+  .annotation-mode {
+    padding:0;
+    height:80px;
+    right:100px;
+    font-size:11px;
+    text-shadow:rgba(0,0,0,0.5) 0 -1px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+    .mode-indicator {   
+      position:absolute;
+      top:7px;
+      width:100%;
+      
+      .icon {
+        display:block;
+        padding:6px 0;
+        cursor:hand;
+        height:26px;
+      }
+      
+    }
+    
+    .indicator-poweruser {
+      visibility:hidden;
+    }
+    
+  }
+  
+  .annotation-mode.poweruser .indicator-poweruser {
+    visibility:visible;
+  }
+  
+  .annotation-mode.poweruser .indicator-normal {
+    visibility:hidden;
+  }
+
+  .home-link {
+    right:0;
+  }
+
+  .home-link a {
+    text-decoration:none;
+    color:@header_color;
+  }
+  
+}

@@ -1,10 +1,10 @@
-@(html: String, docId: Int, partId: Option[Int])
+@(title: String, textHTML: String, docId: Int, partId: Option[Int])
 
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <title>PELAGIOS Geo-Resolution Correction Tool</title>
-    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/text-annotation.css")" />
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/textannotation/style.css")" />
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-ui-1.10.3.custom.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/rangy/rangy-core-1.2.3.js")"></script>
@@ -17,8 +17,27 @@
   </head>
   
   <body>
+    <div id="header">
+      <div class="title">@title</div>
+      <div class="annotation-mode">
+        
+        <div class="mode-indicator indicator-normal">
+          MODE
+          <span class="icon icon-normal">&#xf040;</span>
+          NORMAL
+        </div>
+        
+        <div class="mode-indicator indicator-poweruser">
+          MODE
+          <span class="icon">&#xf135;</span>
+          ADVANCED
+        </div>
+        
+      </div>
+      <div class="home-link"><a class="icon" href="@routes.ApplicationController.index()">&#xf015;</a></div>
+    </div>
     <div id="text">
-@Html(html)
+@Html(textHTML)
     </div>
   </body>
 </html>

@@ -1,0 +1,39 @@
+@font-face { 
+  font-family: 'Font Awesome';
+  src: url('../fontawesome-webfont.woff'); 
+}
+
+@header_color:#c2c2c2;
+@header_bg_color:#484848;
+@header_border_color:#7f7f7f;
+@header_separator_color:#6f6f6f;
+
+@text_bg_color: #ffffff;
+
+html, body {
+  margin:0;
+  padding:0;
+}
+
+.icon {
+  font-family:'Font Awesome' !important;
+  font-size:26px;
+  text-shadow:rgba(0,0,0,0.5) -1px 0, rgba(0,0,0,0.3) 0 -1px, rgba(255,255,255,0.5) 0 1px, rgba(0,0,0,0.3) -1px -1px;
+}
+
+#text {
+  background-color: @text_bg_color;
+  padding:110px 20px 20px 20px;
+  line-height: 140%;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 17px;
+}
+
+@import "_header.less";
+@import "_annotations.less";
+@import "_editor.less";
+
+
+
+
+

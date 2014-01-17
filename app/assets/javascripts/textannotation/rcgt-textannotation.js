@@ -25,6 +25,14 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
   this._gdocId = gdocId;
   this._gdocPartId = gdocPartId;  
   this._editor; // To keep track of the current open editor & prevent opening of multipe editors
+  this._powerUserMode = false;
+  
+  // Annotation mode switch
+  var annotationModeSwitch = $('.annotation-mode');
+  annotationModeSwitch.click(function() {
+    self._powerUserMode = !self._powerUserMode;
+    annotationModeSwitch.toggleClass('poweruser');
+  });
   
   rangy.init();
  
@@ -160,7 +168,7 @@ recogito.TextAnnotationUI.prototype.createAnnotation = function(msgTitle, msgDet
       self.batchAnnotate(toponym); 
   };
   
-  if (msgTitle && msgDetails) {
+  if (msgTitle && msgDetails && !this._powerUserMode) {
     this.openEditor(msgTitle, toponym, msgDetails, x, y, create);
   } else {
     create(true);
@@ -171,14 +179,11 @@ recogito.TextAnnotationUI.prototype.createAnnotation = function(msgTitle, msgDet
  * Updates an existing annotation.
  */
 recogito.TextAnnotationUI.prototype.updateAnnotation = function(msgTitle, msgDetails, toponym, x, y, offset, selectedRange, selection, annotationId) {
-  // TODO the hoisted 'toponym' variable shadows the argument - clean up!
-  var self = this,
-      t = toponym,
-      id = annotationId;
+  var self = this;
   
-  this.openEditor(msgTitle, toponym, msgDetails, x, y, function() {
+  var update = function() {
     // Store on server
-    recogito.TextAnnotationUI.REST.updateAnnotation(id, t, offset, self._gdocId, self._gdocPartId);
+    recogito.TextAnnotationUI.REST.updateAnnotation(annotationId, toponym, offset, self._gdocId, self._gdocPartId);
     
     // We'll need to replace all nodes in the markup that are fully or partially in the range
     var nodes = selectedRange.getNodes();
@@ -196,9 +201,6 @@ recogito.TextAnnotationUI.prototype.updateAnnotation = function(msgTitle, msgDet
 
     // Head - all text up to the selected toponym
     var head = text.substr(0, selectedRange.startOffset);
-  
-    // Toponym
-    var toponym = selectedRange.toString();
     
     // Tail - everything after the toponym
     var tail = text.substr(selectedRange.startOffset + toponym.length);
@@ -218,7 +220,12 @@ recogito.TextAnnotationUI.prototype.updateAnnotation = function(msgTitle, msgDet
     
     $(nodeToReplace).replaceWith(head + '<a class="annotation corrected">' + toponym + '</a>' + tail);
     selection.removeAllRanges();
-  });  
+  };
+  
+  if (this._powerUserMode)
+    update();
+  else 
+    this.openEditor(msgTitle, toponym, msgDetails, x, y, update);  
 }
 
 /**
@@ -226,14 +233,20 @@ recogito.TextAnnotationUI.prototype.updateAnnotation = function(msgTitle, msgDet
  */
 recogito.TextAnnotationUI.prototype.deleteAnnotation = function(msgTitle, msgDetails, toponym, x, y, annotationId, domNode) {
   var self = this;
-  this.openEditor(msgTitle, toponym, msgDetails, x, y, function() {
+  
+  var del = function() {
     // Store on server
     recogito.TextAnnotationUI.REST.deleteAnnotation(annotationId);
       
     // Remove markup
     var text = domNode.text();
     domNode.replaceWith(text);
-  });  
+  };
+  
+  if (this._powerUserMode)
+    del();
+  else
+    this.openEditor(msgTitle, toponym, msgDetails, x, y, del);  
 }
 
 /**
