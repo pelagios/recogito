@@ -56,10 +56,9 @@ object AnnotationController extends Controller with Secured {
             val id = Annotations returning Annotations.id insert(annotation)
       
             // Record edit event
-            val event = 
-              EditEvent(None, id, user.get.id.get, new Timestamp(new Date().getTime), 
-                        Some(correctedToponym), None, None, None, None)
-                              
+            EditHistory.insert(EditEvent(None, id, user.get.id.get, new Timestamp(new Date().getTime), 
+              Some(correctedToponym), None, None, None, None))
+                                                      
             Ok(Json.parse("{ \"success\": true }"))
           }
         } else {
