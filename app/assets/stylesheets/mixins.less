@@ -1,0 +1,8 @@
+/* Mixin */
+.gradient (@start: #5a5a5a, @stop: #494949) {
+  background-color: @start;
+  background: -webkit-gradient(linear, left top, left bottom, from(@start), to(@stop));
+  background: -moz-linear-gradient(top, @start, @stop);
+  background: linear-gradient(@start, @stop);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='@start',endColorstr='@stop');
+}
