@@ -1,8 +1,6 @@
-# recogito
+# Recogito
 
 A Web-based tool for validating &amp; correcting geo-resolution results.
-
-[TODO: how to use]
 
 ## Installation
 
@@ -18,7 +16,7 @@ accompanying UTF-8 plaintext files.
 
 Document metadata must be provided as a JSON file. The name of the file can be chosen arbitrarily. The only requirement is that it has a
 `.json` extension. The JSON structure defines the document's __title__, __description__ and __source__ properties, as well as the __parts__
-the document consists of, and where in the ZIP file the text for the document (or it's parts) are located.
+the document consists of, and where in the ZIP file the text for the document (or its parts) are located.
 
 A possible ZIP folder structure is e.g.:
 
@@ -28,7 +26,7 @@ texts/Isidore_Book IX.txt
 texts/Isidore_Book XIII.txt
 texts/Isidore_Book XIV.txt
 ``` 
-The corresponding JSON should look like this:
+The contents of the file `isidore.json` should look like this:
 
 ```javascript
 {
@@ -46,17 +44,17 @@ The corresponding JSON should look like this:
 }
 ```
 
-The ZIP file can also contain data for multiple documents. In this case, each document must be defined in a separate JSON file.
+The ZIP file can also contain data for multiple documents. In this case, each document must be defined in its own JSON file.
 
 ## Importing Annotations
 
-You can also import annotations as CSV files. E.g. if you want to upload automatically generated annotations before you start 
+You can import annotations as CSV files. E.g. if you want to upload automatically generated annotations before you start 
 manual annotation, or to restore the results of previous work. In general the order of the columns is irrelevant, it is only
 necessary to use the correct pre-defined column labels.
 
 An example CSV file is shown below:
 
-```
+```csv
 gdoc_part;status;toponym;offset;gazetteer_uri;
 Book IX;NOT_VERIFIED;Greek;1647;http://pleiades.stoa.org/places/59649;
 Book IX;NOT_VERIFIED;Athens;1795;http://pleiades.stoa.org/places/579885;
