@@ -26,7 +26,7 @@ object ZipImporter {
       val docTitle = (json \ "title").as[String]
       val docDescription = (json \ "description").as[Option[String]]
       val docSource = (json \ "source").as[Option[String]]
-      val docParts = (json \ "parts").as[List[JsObject]]
+      val docParts = (json \ "parts").as[Option[List[JsObject]]]
       val text = (json \ "text").as[Option[String]]
       
       // Insert the document
@@ -36,17 +36,19 @@ object ZipImporter {
       if (text.isDefined)
         importText(zipFile, text.get, gdocId, None)
       
-      docParts.foreach(docPart => {
-        val partTitle = (docPart \ "title").as[String]
-        val partSource = (docPart \ "source").as[Option[String]]
-        val partText = (docPart \ "text").as[Option[String]]
+      if (docParts.isDefined) {
+        docParts.get.foreach(docPart => {
+          val partTitle = (docPart \ "title").as[String]
+          val partSource = (docPart \ "source").as[Option[String]]
+          val partText = (docPart \ "text").as[Option[String]]
         
-        // Insert the document part
-        val gdocPartId = GeoDocumentParts.autoInc.insert(GeoDocumentPart(None, gdocId, partTitle, partSource))
+          // Insert the document part
+          val gdocPartId = GeoDocumentParts.autoInc.insert(GeoDocumentPart(None, gdocId, partTitle, partSource))
         
-        if (partText.isDefined)
-          importText(zipFile, partText.get, gdocId, Some(gdocPartId))
-      })
+          if (partText.isDefined)
+            importText(zipFile, partText.get, gdocId, Some(gdocPartId))
+        })
+      }
     })
   }
   
