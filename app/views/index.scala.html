@@ -61,13 +61,23 @@
           	@for(part <- models.GeoDocumentParts.findByGeoDocument(doc.id.get)) {
               <tr class="document-part" id="part-@doc.id.get-@part.id.get">
                 <td class="title">@part.title</td>
-                <td colspan="3"></td>
+                
+                <td colspan="2"></td>
+                
+          	    <td> <!-- completion ratio -->
+          	      @defining(part.completionRatio * 100) { completionRatio =>
+          	        <div class="meter meter-part" title="@{ "%.2f" format (completionRatio) } %">
+	                  <span style="width: @completionRatio%"></span>
+                    </div>
+                  }
+          	    </td>
+          	    
                 <td>
       	          @defining(GeoDocumentTexts.getTextForGeoDocumentPart(part.id.get)) { text =>
       	            @if(text.isDefined) {
       	              <span class="icon"></span>
       	              <span class="icon"></span>
-      	              <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(text.get.id.get) title="Text">&#xf0f6;</a>
+      	              <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(text.get.id.get)" title="Text">&#xf0f6;</a>
       	            }
       	          }
                 </td>

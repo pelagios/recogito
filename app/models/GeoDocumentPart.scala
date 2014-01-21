@@ -4,12 +4,14 @@ import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import scala.collection.mutable.HashMap
+import models.stats.GeoDocumentPartStats
 
 /** Geospatial Document Part case class.
   *
   * @author Rainer Simon <rainer.simon@ait.ac.at>
   */
 case class GeoDocumentPart(id: Option[Int] = None, gdocId: Int, title: String, source: Option[String] = None)
+  extends GeoDocumentPartStats
 
 /** Geospatial database table **/
 object GeoDocumentParts extends Table[GeoDocumentPart]("gdocument_parts") {
