@@ -73,7 +73,7 @@
               <tr class="document-part document-@doc.id.get">
                 <td class="title">@part.title</td>
                 
-                <td colspan="3"></td>
+                <td colspan="2"></td>
                 
           	    <td> <!-- completion ratio -->
           	      @defining(part.completionRatio * 100) { completionRatio =>
@@ -82,6 +82,7 @@
                     </div>
                   }
           	    </td>
+          	    <td></td>
           	    
                 <td>
       	          @defining(GeoDocumentTexts.getTextForGeoDocumentPart(part.id.get)) { text =>
