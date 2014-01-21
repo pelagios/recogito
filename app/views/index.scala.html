@@ -3,9 +3,19 @@
   <head>
     <title>PELAGIOS Geo-Resolution Correction Tool</title>
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/index/index.css")" />
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
     <script>
-    function unfold(docId) {
-      console.log(docId);
+    function toggleDetails(docId) {
+      var toggle = $('.toggle-' + docId),
+          rows = $('.document-' + docId),
+          display = rows.css('display');
+
+      toggle.toggleClass('less');
+      if (display == 'none') {
+        rows.css('display', 'table-row');
+      } else {
+        rows.css('display', 'none');
+      }
     }
     </script>
   </head>
@@ -31,7 +41,7 @@
                 @if(parts == 0) { 
           	      <td colspan="2" class="center">-</td>
           	    } else {
-          	      <td class="right">@parts</td><td><a class="icon" href="#" onclick="unfold(@doc.id.get); return false;">&#xf0d7;</a></td>
+          	      <td class="right">@parts</td><td><a class="icon toggle toggle-@doc.id.get" href="#" onclick="toggleDetails(@doc.id.get); return false;"></a></td>
           	    }         	      
           	  }
           	  
@@ -59,7 +69,7 @@
           	</tr>
           	
           	@for(part <- models.GeoDocumentParts.findByGeoDocument(doc.id.get)) {
-              <tr class="document-part" id="part-@doc.id.get-@part.id.get">
+              <tr class="document-part document-@doc.id.get">
                 <td class="title">@part.title</td>
                 
                 <td colspan="2"></td>

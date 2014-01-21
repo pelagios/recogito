@@ -1,6 +1,8 @@
 @import "../globals.less";
 @import "../footer.less";
 
+@tr-hover-color:#f2f2f2;
+
 html, body {
   font-family:Arial, Verdana, Helvetica, sans-serif;
   padding:0;
@@ -28,13 +30,17 @@ tr {
   border-bottom:1px solid #e2e2e2;
 }
 
-tr:hover {
-  background-color:#f2f2f2;
+tbody tr:hover {
+  background-color:@tr-hover-color;
 }
 
 td.center { text-align:center; }
 
 td.right { text-align:right; }
+
+.document-part {
+  display:none;
+}
 
 .document-part td {
   padding-top:3px; 
@@ -71,7 +77,15 @@ td.right { text-align:right; }
   width:25px;
 }
 
-.icon.unlocked {
+.icon.toggle:after {
+  content: '\f0d7';
+}
+
+.icon.toggle.less:after {
+  content: '\f0d8';
+}
+
+tr .icon.unlocked {
   position:absolute;
   top:6px;
   left:9px;
@@ -79,14 +93,6 @@ td.right { text-align:right; }
   text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;  
 }
 
-
-
-.geo-document .stats {
-  background-color:#ddd;
-  color:#333;
-  font-size:14px;
-  padding:5px;
-  margin:5px 20px 5px 0px;
-  line-height:18px;
+tr:hover .icon.unlocked {
+  text-shadow: -1px -1px 0 @tr-hover-color, 1px -1px 0 @tr-hover-color, -1px 1px 0 @tr-hover-color, 1px 1px 0 @tr-hover-color;
 }
-
