@@ -2,11 +2,82 @@
 <html>
   <head>
     <title>PELAGIOS Geo-Resolution Correction Tool</title>
-    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/index.css")" />
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/index/index.css")" />
+    <script>
+    function unfold(docId) {
+      console.log(docId);
+    }
+    </script>
   </head>
   
   <body>
-    <div id="container">
+    <div id="container">    
+      <table>
+        <thead>
+          <tr>
+            <th>Document</th>
+            <th colspan="2"># of Parts</th>
+            <th>Complete</th>
+            <th></th>
+          </tr>
+        </thead>     
+        <tbody>
+          @for(doc <- models.GeoDocuments.listAll().sortBy(_.title)) {
+          	<tr>
+          	  <td>@doc.title</td> <!-- document title -->
+          	  
+          	  @defining(models.GeoDocumentParts.countForGeoDocument(doc.id.get)) { parts =>
+          	  	<!-- number of parts -->
+                @if(parts == 0) { 
+          	      <td colspan="2" class="center">-</td>
+          	    } else {
+          	      <td class="right">@parts</td><td><a class="icon" href="#" onclick="unfold(@doc.id.get); return false;">&#xf0d7;</a></td>
+          	    }         	      
+          	  }
+          	  
+          	  <td> <!-- completion ratio -->
+          	    @defining(doc.completionRatio * 100) { completionRatio =>
+          	      <div class="meter" title="@{ "%.2f" format (completionRatio) } %">
+	                <span style="width: @completionRatio%"></span>
+                  </div>
+                }
+          	  </td>
+          	  
+          	  <td class="icons"> <!-- icons: map, public map, text -->
+          	    <a class="icon" href="@routes.ApplicationController.showMapCorrectionUI(doc.id.get)" title="Geo-Resolution">
+          	      &#xf0ac;
+          	      <span class="icon unlocked">&#xf023;</span>
+          	    </a>
+          	    <a class="icon" href="@routes.ApplicationController.showMap(doc.id.get)" title="Public Map">&#xf0ac;</a>
+          	    
+          	    @defining(GeoDocumentTexts.getTextForGeoDocument(doc.id.get)) { text =>
+      	          @if(text.isDefined) {
+      	            <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(text.get.id.get)" title="Text">&#xf0f6;</a>
+      	          }
+      	        }
+          	  </td>
+          	</tr>
+          	
+          	@for(part <- models.GeoDocumentParts.findByGeoDocument(doc.id.get)) {
+              <tr class="document-part" id="part-@doc.id.get-@part.id.get">
+                <td class="title">@part.title</td>
+                <td colspan="3"></td>
+                <td>
+      	          @defining(GeoDocumentTexts.getTextForGeoDocumentPart(part.id.get)) { text =>
+      	            @if(text.isDefined) {
+      	              <span class="icon"></span>
+      	              <span class="icon"></span>
+      	              <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(text.get.id.get) title="Text">&#xf0f6;</a>
+      	            }
+      	          }
+                </td>
+          	  </tr>
+            }
+          }
+        </tbody> 
+      </table>
+    
+      @*
       <ul>
         @for(document <- models.GeoDocuments.listAll()) {
       	  <li class="geo-document">
@@ -43,6 +114,8 @@
       	  </li>      	  
         }
       </ul>
+      *@
+      
     </div>
     <div id="footer">
       <span id="footer-info"></span>

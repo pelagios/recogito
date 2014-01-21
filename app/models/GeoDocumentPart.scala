@@ -69,5 +69,8 @@ object GeoDocumentParts extends Table[GeoDocumentPart]("gdocument_parts") {
   
   def findByGeoDocument(id: Int)(implicit s: Session): Seq[GeoDocumentPart] =
     Query(GeoDocumentParts).where(_.gdocId === id).list
+    
+  def countForGeoDocument(id: Int)(implicit s: Session): Int =
+    Query(GeoDocumentParts).where(_.gdocId === id).list.size
   
 }

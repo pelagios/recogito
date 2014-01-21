@@ -23,8 +23,8 @@ trait GeoDocumentStats {
   /** Returns the ratio of manually processed vs. total toponyms in the document **/
   def completionRatio()(implicit s: Session): Double = {
     val valid = Annotations.findByGeoDocument(id.get).filter(_.status != AnnotationStatus.FALSE_DETECTION)
-    val unvisited = valid.filter(_.status == AnnotationStatus.NOT_VERIFIED)
-    (valid.size - unvisited.size).toDouble / valid.size.toDouble
+    val unprocessed = valid.filter(_.status == AnnotationStatus.NOT_VERIFIED)
+    (valid.size - unprocessed.size).toDouble / valid.size.toDouble
   }
   
   /** Returns the ratio of verified vs. unidentifyable places in the document **/

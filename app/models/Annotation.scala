@@ -97,10 +97,15 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
   def findByGeoDocument(id: Int)(implicit s: Session): Seq[Annotation] = {
     Query(Annotations).where(_.gdocId === id).list.sortBy(sortByOffset)      
   }
+  
+  def countForGeoDocument(id: Int)(implicit s: Session): Int = 
+    Query(Annotations).where(_.gdocId === id).list.size
     
-  def findByGeoDocumentAndStatus(id: Int, status: AnnotationStatus.Value)(implicit s: Session): Seq[Annotation] = {
+  def findByGeoDocumentAndStatus(id: Int, status: AnnotationStatus.Value)(implicit s: Session): Seq[Annotation] =
     Query(Annotations).where(_.gdocId === id).filter(_.status === status).list.sortBy(sortByOffset)    
-  }
+  
+  def countForGeoDocumentAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Int =
+    Query(Annotations).where(_.gdocId === id).filter(a => status.contains(a.status)).list.size
     
   def deleteForGeoDocument(id: Int)(implicit s: Session) =
     Query(Annotations).where(_.gdocId === id).delete
@@ -108,12 +113,8 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
   def delete(id: Int)(implicit s: Session) = 
     Query(Annotations).where(_.id === id).delete
         
-  def findByGeoDocumentPart(id: Int)(implicit s: Session): Seq[Annotation] = {
+  def findByGeoDocumentPart(id: Int)(implicit s: Session): Seq[Annotation] =
     Query(Annotations).where(_.gdocPartId === id).list.sortBy(sortByOffset)
-  }
-  
-  def countForGeoDocument(id: Int)(implicit s: Session): Int = 
-    Query(Annotations).where(_.gdocId === id).list.size
   
   def countForGeoDocumentPart(id: Int)(implicit s: Session): Int =
     Query(Annotations).where(_.gdocPartId === id).list.size

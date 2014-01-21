@@ -17,7 +17,7 @@ object AnnotationStatus extends Enumeration {
   val FALSE_DETECTION = Value ("FALSE_DETECTION")
   
   val IGNORE = Value("IGNORE")
-  
+    
   def screenName(status: AnnotationStatus.Value) = {
     status match {
       case NOT_VERIFIED => "Unverified"

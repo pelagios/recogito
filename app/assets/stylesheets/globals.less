@@ -6,3 +6,20 @@
   background: linear-gradient(@start, @stop);
   filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='@start',endColorstr='@stop');
 }
+
+.rounded-corners (@radius) {
+  -moz-border-radius: @radius;
+  -webkit-border-radius: @radius;
+  -khtml-border-radius: @radius;
+  border-radius: @radius;
+}
+
+@font-face { 
+  font-family: "Font Awesome"; 
+  src: url("/recogito/static/stylesheets/fontawesome-webfont.woff"); 
+}
+
+.icon {
+  font-family:'Font Awesome' !important;
+  text-decoration:none;
+}
