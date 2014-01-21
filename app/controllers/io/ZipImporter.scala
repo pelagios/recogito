@@ -27,11 +27,14 @@ object ZipImporter {
       val docDescription = (json \ "description").as[Option[String]]
       val docSource = (json \ "source").as[Option[String]]
       val docParts = (json \ "parts").as[List[JsObject]]
+      val text = (json \ "text").as[Option[String]]
       
       // Insert the document
       val gdocId = GeoDocuments.autoInc.insert(GeoDocument(None, docTitle, docDescription, docSource))
       
-      // TODO support part-less documents with text!
+      // Insert text (if any)
+      if (text.isDefined)
+        importText(zipFile, text.get, gdocId, None)
       
       docParts.foreach(docPart => {
         val partTitle = (docPart \ "title").as[String]
@@ -41,21 +44,24 @@ object ZipImporter {
         // Insert the document part
         val gdocPartId = GeoDocumentParts.autoInc.insert(GeoDocumentPart(None, gdocId, partTitle, partSource))
         
-        if (partText.isDefined) {
-          val partTextEntry = zipFile.getEntry(partText.get)
-          val is = 
-            if (partTextEntry == null) 
-              None 
-            else
-              Some(zipFile.getInputStream(partTextEntry))
-           
-          if (is.isDefined) {
-            val plainText = Source.fromInputStream(is.get, UTF8).getLines.mkString("\n")
-            GeoDocumentTexts.insert(GeoDocumentText(None, gdocId, Some(gdocPartId), plainText.getBytes(UTF8)))
-          }
-        }
+        if (partText.isDefined)
+          importText(zipFile, partText.get, gdocId, Some(gdocPartId))
       })
     })
+  }
+  
+  private def importText(zipFile: ZipFile, entryName: String, gdocId: Int, gdocPartId: Option[Int])(implicit s: Session) {
+    val textEntry = zipFile.getEntry(entryName)
+    val is = 
+      if (textEntry == null) 
+        None 
+      else
+        Some(zipFile.getInputStream(textEntry))
+           
+    if (is.isDefined) {
+      val plainText = Source.fromInputStream(is.get, UTF8).getLines.mkString("\n")
+      GeoDocumentTexts.insert(GeoDocumentText(None, gdocId, gdocPartId, plainText.getBytes(UTF8)))
+    }
   }
 
 }
