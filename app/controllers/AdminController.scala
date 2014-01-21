@@ -89,7 +89,7 @@ object AdminController extends Controller with Secured {
     if (gdoc.isDefined) {
       session.request.body.file("csv").map(filePart => {
         val annotations = CSVParser.parse(filePart.ref.file.getAbsolutePath, gdoc.get.id.get)
-        annotations.foreach(annotation => Annotations.insert(annotation))
+        Annotations.insertAll(annotations:_*)
       })
     }
     Redirect(routes.AdminController.index)

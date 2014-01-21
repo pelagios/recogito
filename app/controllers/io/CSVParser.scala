@@ -59,7 +59,7 @@ object CSVParser {
       Annotation(
           None,
           gdocId,
-          GeoDocumentParts.getId(fields(idxGdocPart.get)), // Note: we strictly require gdoc_part to be set by convention!
+          GeoDocumentParts.getId(gdocId, fields(idxGdocPart.get)),
           parseOptCol(idxStatus).map(AnnotationStatus.withName(_)).getOrElse(AnnotationStatus.NOT_VERIFIED),
           parseOptCol(idxToponym),
           parseOptCol(idxOffset).map(_.toInt),

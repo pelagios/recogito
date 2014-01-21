@@ -49,7 +49,7 @@ object GeoDocumentParts extends Table[GeoDocumentPart]("gdocument_parts") {
     }
   }
   
-  def getId(title: String)(implicit s: Session): Option[Int] = {
+  def getId(gdocId: Int, title: String)(implicit s: Session): Option[Int] = {
     // Somewhat clunky, but we won't be dealing with huge number of documents
     val id = titleCache.find { case(id, t) => t.equals(title) } map (_._1)
     if (id.isDefined) {
@@ -58,7 +58,7 @@ object GeoDocumentParts extends Table[GeoDocumentPart]("gdocument_parts") {
       if (titleCache.size > MAX_CACHE_SIZE)
         titleCache.clear()
         
-      val part = Query(GeoDocumentParts).where(_.title === title).firstOption
+      val part = Query(GeoDocumentParts).where(_.gdocId === gdocId).filter(_.title === title).firstOption
       if (part.isDefined)
         titleCache.put(part.get.id.get, title)
         
