@@ -27,7 +27,7 @@
           <tr>
             <th>Document</th>
             <th colspan="2"># of Parts</th>
-            <th>Complete</th>
+            <th colspan="2">Complete</th>
             <th></th>
           </tr>
         </thead>     
@@ -45,13 +45,14 @@
           	    }         	      
           	  }
           	  
-          	  <td> <!-- completion ratio -->
+          	  <td class="stats"> <!-- completion ratio -->
           	    @defining(doc.completionRatio * 100) { completionRatio =>
           	      <div class="meter" title="@{ "%.2f" format (completionRatio) } %">
 	                <span style="width: @completionRatio%"></span>
                   </div>
                 }
           	  </td>
+          	  <td class="more-stats"><a href="#" onclick="return false;" class="icon" title="Detailed Stats">&#xf080;</a></td>
           	  
           	  <td class="icons"> <!-- icons: map, public map, text -->
           	    <a class="icon" href="@routes.ApplicationController.showMapCorrectionUI(doc.id.get)" title="Geo-Resolution">
