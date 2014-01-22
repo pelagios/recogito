@@ -1,8 +1,12 @@
 package models.stats
 
-import models._
 import play.api.db.slick._
+import models.{ Annotations, AnnotationStatus }
 
+/** A helper trait that provides basic stats & metrics for a GeoDocumentPart.
+  *
+  * @author Rainer Simon <rainer.simon@ait.ac.at> 
+  */
 trait GeoDocumentPartStats {
   
   val id: Option[Int]

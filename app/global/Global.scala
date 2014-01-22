@@ -48,29 +48,23 @@ object Global extends GlobalSettings {
   override def onStart(app: Application): Unit = {
     // Create DB tables if they don't exist
     database.withSession {
-      if (MTable.getTables("users").list().isEmpty) {
+      if (MTable.getTables("users").list().isEmpty)
         Users.ddl.create
-      }
        
-      if (MTable.getTables("gdocuments").list().isEmpty) {
+      if (MTable.getTables("gdocuments").list().isEmpty)
         GeoDocuments.ddl.create
-      }
       
-      if (MTable.getTables("gdocument_parts").list().isEmpty) {
+      if (MTable.getTables("gdocument_parts").list().isEmpty)
         GeoDocumentParts.ddl.create
-      }
       
-      if (MTable.getTables("gdocument_texts").list().isEmpty) {
+      if (MTable.getTables("gdocument_texts").list().isEmpty)
         GeoDocumentTexts.ddl.create
-      }
       
-      if (MTable.getTables("annotations").list().isEmpty) {
+      if (MTable.getTables("annotations").list().isEmpty)
         Annotations.ddl.create
-      }
       
-      if (MTable.getTables("edit_history").list().isEmpty) {
+      if (MTable.getTables("edit_history").list().isEmpty)
         EditHistory.ddl.create        
-      }
     }
   }  
 
