@@ -22,21 +22,27 @@ object GeoDocumentTexts extends Table[GeoDocumentText]("gdocument_texts") {
   
   def * = id.? ~ gdocId ~ gdocPartId.? ~ text <> (GeoDocumentText.apply _, GeoDocumentText.unapply _)
   
+  /** Retrieve a text with the specified ID (= primary key) **/
   def findById(id: Int)(implicit s: Session): Option[GeoDocumentText] =
     Query(GeoDocumentTexts).where(_.id === id).firstOption
     
+  /** Retrieves the text that is **directly** associated with the specified GeoDocument.
+    * 
+    * Note that this method will **not** retrieve texts that are associated with parts of
+    * the specified GeoDocument.  
+    */
   def getTextForGeoDocument(gdocId: Int)(implicit s: Session): Option[GeoDocumentText] =
     Query(GeoDocumentTexts).where(_.gdocId === gdocId).filter(_.gdocPartId.isNull).firstOption
     
+  /** Retrieves the text that is associated with the specified GeoDocument part **/
   def getTextForGeoDocumentPart(gdocPartId: Int)(implicit s: Session): Option[GeoDocumentText] =
     Query(GeoDocumentTexts).where(_.gdocPartId === gdocPartId).firstOption
     
-  def getForAnnotation(annotation: Annotation)(implicit s: Session): Option[GeoDocumentText] = {    
-    if (annotation.gdocPartId.isDefined) {
+  /** Retrieves the text that is associated with the specified annotation **/
+  def getTextForAnnotation(annotation: Annotation)(implicit s: Session): Option[GeoDocumentText] =    
+    if (annotation.gdocPartId.isDefined)
       Query(GeoDocumentTexts).where(_.gdocPartId === annotation.gdocPartId.get).firstOption
-    } else {
+    else
       Query(GeoDocumentTexts).where(_.gdocId === annotation.gdocId).filter(_.gdocPartId.isNull).firstOption
-    }
-  }
   
 }

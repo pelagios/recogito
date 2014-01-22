@@ -84,7 +84,7 @@ object AnnotationController extends Controller with Secured {
 
     if (offset.isDefined && toponym.isDefined) {
       // Cross check against the source text, if available
-      val text = GeoDocumentTexts.getForAnnotation(a).map(gdt => new String(gdt.text, UTF8))
+      val text = GeoDocumentTexts.getTextForAnnotation(a).map(gdt => new String(gdt.text, UTF8))
       if (text.isDefined) {
         // Compare with the source text
         val referenceToponym = text.get.substring(offset.get, offset.get + toponym.get.size)

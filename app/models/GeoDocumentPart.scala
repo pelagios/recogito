@@ -44,23 +44,4 @@ object GeoDocumentParts extends Table[GeoDocumentPart]("gdocument_parts") {
   def findByGeoDocumentAndTitle(id: Int, title: String)(implicit s: Session): Option[GeoDocumentPart] =
     Query(GeoDocumentParts).where(_.gdocId === id).filter(_.title === title).firstOption
   
-  /*
-  def getTitle(id: Int)(implicit s: Session): Option[String] = {
-    val title = titleCache.get(id)
-    if (title.isDefined) {
-      title
-    } else {
-      // Poor mans cache - we'll just flush completely if things get too big
-      if (titleCache.size > MAX_CACHE_SIZE)
-        titleCache.clear()
-
-      val title = findById(id).map(_.title)
-      if (title.isDefined)
-        titleCache.put(id, title.get)
-        
-      title
-    }
-  }
-  */
-  
 }
