@@ -11,7 +11,6 @@ import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import play.api.Play.current
 import play.api.libs.json.Json
-import play.api.Logger
 
 /** Administration features.
   * 
@@ -24,11 +23,7 @@ object AdminController extends Controller with Secured {
     Ok(views.html.admin())
   }
   
-  def backupDocumentMeta = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit session =>
-    val json = GeoDocuments.listAll.map(JSONSerializer.toJson(_, false))
-    Ok(Json.toJson(json))
-  }
-  
+  /** Upload document (metadata + text) as a ZIP **/
   def uploadDocuments = protectedDBAction(Secure.REJECT) { username => implicit session =>
     val formData = session.request.body.asMultipartFormData
     if (formData.isDefined) {
@@ -56,6 +51,10 @@ object AdminController extends Controller with Secured {
       NotFound
   }
     
+  /** Download annotations for a specific document as CSV.
+    * 
+    * @param doc the document ID
+    */
   private def backupAnnotations_forDoc(doc: Int)(implicit session: Session) = {
     val gdoc = GeoDocuments.findById(doc)
     if (gdoc.isDefined) {
@@ -67,6 +66,10 @@ object AdminController extends Controller with Secured {
     }
   } 
   
+  /** Download annotations for a specific document part as CSV.
+    * 
+    * @param part the document part ID
+    */
   private def backupAnnotations_forPart(part: Int)(implicit session: Session) = {
     val gdocPart = GeoDocumentParts.findById(part)
     if (gdocPart.isDefined) {
@@ -79,7 +82,7 @@ object AdminController extends Controller with Secured {
     }
   }
         
-  /** Imports annotations into the document with the specified ID.
+  /** Import annotations into the document with the specified ID.
     * 
     * Annotations are to be delivered as a CSV file in the body of the POST request.
     * @param doc the document ID
