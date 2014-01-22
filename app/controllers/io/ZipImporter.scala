@@ -30,7 +30,7 @@ object ZipImporter {
       val text = (json \ "text").as[Option[String]]
       
       // Insert the document
-      val gdocId = GeoDocuments.autoInc.insert(GeoDocument(None, docTitle, docDescription, docSource))
+      val gdocId = GeoDocuments returning GeoDocuments.id insert(GeoDocument(None, docTitle, docDescription, docSource))
       
       // Insert text (if any)
       if (text.isDefined)
@@ -42,8 +42,8 @@ object ZipImporter {
           val partSource = (docPart \ "source").as[Option[String]]
           val partText = (docPart \ "text").as[Option[String]]
         
-          // Insert the document part
-          val gdocPartId = GeoDocumentParts.autoInc.insert(GeoDocumentPart(None, gdocId, partTitle, partSource))
+          // Insert the document part          
+          val gdocPartId = GeoDocumentParts returning GeoDocumentParts.id insert(GeoDocumentPart(None, gdocId, partTitle, partSource))
         
           if (partText.isDefined)
             importText(zipFile, partText.get, gdocId, Some(gdocPartId))

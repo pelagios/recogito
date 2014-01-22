@@ -92,38 +92,55 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
       (a.gdocPartId, 0)
   }
   
+  /** Retrieve an annotation with the specified ID (= primary key) **/
   def findById(id: Int)(implicit s: Session): Option[Annotation] =
     Query(Annotations).where(_.id === id).firstOption
+
+  /** Delete an annotation with the specified ID (= primary key) **/
+  def delete(id: Int)(implicit s: Session) = 
+    Query(Annotations).where(_.id === id).delete
     
-  def findByGeoDocument(id: Int)(implicit s: Session): Seq[Annotation] = {
+    
+    
+  /** Retrieve all annotations on a specific GeoDocument **/
+  def findByGeoDocument(id: Int)(implicit s: Session): Seq[Annotation] =
     Query(Annotations).where(_.gdocId === id).list.sortBy(sortByOffset)      
-  }
   
+  /** Count all annotations on a specific GeoDocument **/
   def countForGeoDocument(id: Int)(implicit s: Session): Int = 
     Query(Annotations).where(_.gdocId === id).list.size
     
-  def findByGeoDocumentAndStatus(id: Int, status: AnnotationStatus.Value)(implicit s: Session): Seq[Annotation] =
-    Query(Annotations).where(_.gdocId === id).filter(_.status === status).list.sortBy(sortByOffset)    
-  
-  def countForGeoDocumentAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Int = {
-    Query(Annotations).where(_.gdocId === id).filter(_.status inSet status).list.size
-  }
-    
-  def deleteForGeoDocument(id: Int)(implicit s: Session) =
-    Query(Annotations).where(_.gdocId === id).delete
-    
-  def delete(id: Int)(implicit s: Session) = 
-    Query(Annotations).where(_.id === id).delete
-        
-  def findByGeoDocumentPart(id: Int)(implicit s: Session): Seq[Annotation] =
-    Query(Annotations).where(_.gdocPartId === id).list.sortBy(sortByOffset)
-  
-  def countForGeoDocumentPart(id: Int)(implicit s: Session): Int =
-    Query(Annotations).where(_.gdocPartId === id).list.size
-    
+  /** Update an annotation **/
   def update(annotation: Annotation)(implicit s: Session) =
     Query(Annotations).where(_.id === annotation.id).update(annotation)
   
+  /** Delete all annotations on a specific GeoDocument **/
+  def deleteForGeoDocument(id: Int)(implicit s: Session) =
+    Query(Annotations).where(_.gdocId === id).delete
+    
+    
+     
+  /** Retrieve all annotations on a specific GeoDocument that have (a) specific status(es) **/
+  def findByGeoDocumentAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Seq[Annotation] =
+    Query(Annotations).where(_.gdocId === id).filter(_.status inSet status).list.sortBy(sortByOffset)    
+  
+  /** Count all annotations on a specific GeoDocument that have (a) specific status(es) **/
+  def countForGeoDocumentAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Int =
+    Query(Annotations).where(_.gdocId === id).filter(_.status inSet status).list.size
+    
+    
+    
+  /** Retrieve all annotations on a specific GeoDocumentPart **/    
+  def findByGeoDocumentPart(id: Int)(implicit s: Session): Seq[Annotation] =
+    Query(Annotations).where(_.gdocPartId === id).list.sortBy(sortByOffset)
+  
+  /** Count all annotations on a specific GeoDocumentPart **/
+  def countForGeoDocumentPart(id: Int)(implicit s: Session): Int =
+    Query(Annotations).where(_.gdocPartId === id).list.size
+    
+    
+    
+  /** Helper method to retrieve annotations that overlap the specified annotation **/
   def getOverlappingAnnotations(annotation: Annotation)(implicit s: Session) = {
     val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
     val offset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset

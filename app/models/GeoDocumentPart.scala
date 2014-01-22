@@ -16,10 +16,6 @@ case class GeoDocumentPart(id: Option[Int] = None, gdocId: Int, title: String, s
 /** Geospatial database table **/
 object GeoDocumentParts extends Table[GeoDocumentPart]("gdocument_parts") {
   
-  private val titleCache = HashMap.empty[Int, String]
-  
-  private val MAX_CACHE_SIZE = 10000
-  
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   
   def gdocId = column[Int]("gdoc")
@@ -29,9 +25,26 @@ object GeoDocumentParts extends Table[GeoDocumentPart]("gdocument_parts") {
   def source = column[String]("source", O.Nullable)
   
   def * = id.? ~ gdocId ~ title ~ source.? <> (GeoDocumentPart.apply _, GeoDocumentPart.unapply _)
+
+  /** Retrieve a GeoDocumentPart with the specified ID (= primary key) **/
+  def findById(id: Int)(implicit s: Session): Option[GeoDocumentPart] = {
+    Query(GeoDocumentParts).where(_.id === id).firstOption
+  } 
+    
+  /** Retrieve all GeoDocumentParts for the specified GeoDocument **/
+  def findByGeoDocument(id: Int)(implicit s: Session): Seq[GeoDocumentPart] =
+    Query(GeoDocumentParts).where(_.gdocId === id).list
+    
+  /** Count all GeoDocumentParts for the specified GeoDocument **/
+  def countForGeoDocument(id: Int)(implicit s: Session): Int =
+    Query(GeoDocumentParts).where(_.gdocId === id).list.size
+    
+    
+  /** Retrieve a GeoDocumentPart on a specific GeoDocument that has the specified title **/
+  def findByGeoDocumentAndTitle(id: Int, title: String)(implicit s: Session): Option[GeoDocumentPart] =
+    Query(GeoDocumentParts).where(_.gdocId === id).filter(_.title === title).firstOption
   
-  def autoInc = id.? ~ gdocId ~ title ~ source.? <> (GeoDocumentPart.apply _, GeoDocumentPart.unapply _) returning id
-  
+  /*
   def getTitle(id: Int)(implicit s: Session): Option[String] = {
     val title = titleCache.get(id)
     if (title.isDefined) {
@@ -48,31 +61,6 @@ object GeoDocumentParts extends Table[GeoDocumentPart]("gdocument_parts") {
       title
     }
   }
-  
-  def getId(gdocId: Int, title: String)(implicit s: Session): Option[Int] = {
-    // Somewhat clunky, but we won't be dealing with huge number of documents
-    val id = titleCache.find { case(id, t) => t.equals(title) } map (_._1)
-    if (id.isDefined) {
-      id
-    } else {
-      if (titleCache.size > MAX_CACHE_SIZE)
-        titleCache.clear()
-        
-      val part = Query(GeoDocumentParts).where(_.gdocId === gdocId).filter(_.title === title).firstOption
-      if (part.isDefined)
-        titleCache.put(part.get.id.get, title)
-        
-      part.map(_.id).flatten
-    }
-  }
-  
-  def findById(id: Int)(implicit s: Session): Option[GeoDocumentPart] =
-    Query(GeoDocumentParts).where(_.id === id).firstOption
-  
-  def findByGeoDocument(id: Int)(implicit s: Session): Seq[GeoDocumentPart] =
-    Query(GeoDocumentParts).where(_.gdocId === id).list
-    
-  def countForGeoDocument(id: Int)(implicit s: Session): Int =
-    Query(GeoDocumentParts).where(_.gdocId === id).list.size
+  */
   
 }

@@ -7,6 +7,7 @@ import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.{ Json, JsObject }
 import play.api.Play.current
 import global.Global
+import controllers.io.CSVSerializer
 
 /** GeoDocument JSON API.
   *
@@ -45,7 +46,8 @@ object DocumentController extends Controller {
   private def get_CSV(id: Int)(implicit session: Session) = {
     val parts = GeoDocumentParts.findByGeoDocument(id)
     val annotations = parts.map(part => Annotations.findByGeoDocumentPart(part.id.get)).flatten
-    Ok(CSVSerializer.asConsolidatedVerifiedResult(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=pelagios-egd-" + id.toString + ".csv"))
+    val serializer = new CSVSerializer()
+    Ok(serializer.asConsolidatedVerifiedResult(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=pelagios-egd-" + id.toString + ".csv"))
   }
       
   private def get_JSON(id: Int)(implicit s: Session) = {

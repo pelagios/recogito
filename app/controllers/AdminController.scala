@@ -11,6 +11,7 @@ import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import play.api.Play.current
 import play.api.libs.json.Json
+import controllers.io.CSVSerializer
 
 /** Administration features.
   * 
@@ -60,7 +61,8 @@ object AdminController extends Controller with Secured {
     if (gdoc.isDefined) {
       val filename = gdoc.get.title.replace(' ', '_').toLowerCase.trim
       val annotations = Annotations.findByGeoDocument(doc)
-      Ok(CSVSerializer.asDBBackup(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + ".csv\""))
+      val serializer = new CSVSerializer()
+      Ok(serializer.asDBBackup(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + ".csv\""))
     } else {
       NotFound
     }
@@ -76,7 +78,8 @@ object AdminController extends Controller with Secured {
       val gdoc = GeoDocuments.findById(gdocPart.get.gdocId)
       val filename = gdoc.get.title.replace(' ', '_').toLowerCase + "_" + gdocPart.get.title.replace(' ', '_').toLowerCase.trim
       val annotations = Annotations.findByGeoDocumentPart(part)
-      Ok(CSVSerializer.asDBBackup(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + "\".csv"))
+      val serializer = new CSVSerializer()
+      Ok(serializer.asDBBackup(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + "\".csv"))
     } else {
       NotFound 
     }
@@ -91,7 +94,8 @@ object AdminController extends Controller with Secured {
     val gdoc = GeoDocuments.findById(doc)
     if (gdoc.isDefined) {
       session.request.body.file("csv").map(filePart => {
-        val annotations = CSVParser.parse(filePart.ref.file.getAbsolutePath, gdoc.get.id.get)
+        val parser = new CSVParser()
+        val annotations = parser.parse(filePart.ref.file.getAbsolutePath, gdoc.get.id.get)
         Annotations.insertAll(annotations:_*)
       })
     }

@@ -4,14 +4,34 @@ import global.Global
 import models._
 import org.pelagios.gazetteer.GazetteerUtils
 import play.api.db.slick._
+import scala.collection.mutable.HashMap
 
 /** Utility object to serialize Annotation data to CSV.
   * 
   * @author Rainer Simon <rainer.simon@ait.ac.at> 
   */
-object CSVSerializer {
+class CSVSerializer {
   
   private val SEPARATOR = ";"
+    
+  private val partTitleCache = HashMap.empty[Int, Option[String]]
+  
+  /** Helper method that returns the title for the specified GeoDocument part.
+    *
+    * Since this method is called for every annotation that is exported, the result is
+    * cached to avoid excessive DB accesses.
+    * @param partId the ID of the document part
+    */
+  private def getTitleForPart(partId: Int)(implicit s: Session): Option[String] = {
+    val partTitle = partTitleCache.get(partId)
+    if (partTitle.isDefined) {
+      partTitle.get
+    } else {
+      val title = GeoDocumentParts.findById(partId).map(_.title)
+      partTitleCache.put(partId, title)
+      title
+    }
+  }
   
   /** Generates 'consolidated output' for public consumption.
     *
@@ -55,7 +75,7 @@ object CSVSerializer {
     annotations.foldLeft(header)((csv, annotation) => {
       csv + 
       annotation.id.get + SEPARATOR +
-      annotation.gdocPartId.map(GeoDocumentParts.getTitle(_)).flatten.getOrElse("") + SEPARATOR +
+      annotation.gdocPartId.map(getTitleForPart(_)).flatten.getOrElse("") + SEPARATOR +
       annotation.status + SEPARATOR +
       annotation.toponym.getOrElse("") + SEPARATOR +
       annotation.offset.getOrElse("") + SEPARATOR +

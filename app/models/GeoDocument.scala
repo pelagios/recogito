@@ -25,8 +25,6 @@ object GeoDocuments extends Table[GeoDocument]("gdocuments") {
   
   def * = id.? ~ title ~ description.? ~ source.? <> (GeoDocument.apply _, GeoDocument.unapply _)
   
-  def autoInc = id.? ~ title ~ description.? ~ source.? <> (GeoDocument.apply _, GeoDocument.unapply _) returning id
-  
   def listAll()(implicit s: Session): Seq[GeoDocument] = Query(GeoDocuments).list
   
   def findById(id: Int)(implicit s: Session): Option[GeoDocument] =
