@@ -264,9 +264,19 @@ recogito.TextAnnotationUI.prototype.batchAnnotate = function(toponym) {
   // Loop through all nodes in the #text DIV...
   var untagged = $.grep($(textDiv).contents(), function(node) {
     // ...and count direct text children that contain the toponym
-    if (node.nodeType == 3)
-      if ($(node).text().indexOf(' ' + toponym + ' ') > -1)
-        return true
+    if (node.nodeType == 3) {
+      var line = $(node).text();
+      var startIdx = line.indexOf(' ' + toponym);
+      if (startIdx > -1) {
+        if (startIdx + toponym.length == line.length) {
+          // Toponym at end of line -> Ok
+          return true;
+        } else {
+          var nextChar = line.substr(startIdx + toponym.length + 1, 1);
+          return ([' ', '.', ',', ';'].indexOf(nextChar) > -1)
+        }
+      }
+    }
   });
   
   if (untagged.length > 0) {
