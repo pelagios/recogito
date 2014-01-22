@@ -44,33 +44,5 @@ object SearchController extends Controller {
       "query" -> query,     "results" -> Json.toJson(results))
     )
   }
-  
-  def textSearch(textId: Int, query: String) = DBAction { implicit session =>
-    val geoDocText = GeoDocumentTexts.findById(textId)
-    if (geoDocText.isDefined) {      
-      def next(text: String, offset: Int = 0): Seq[Int] = {
-        val idx = text.indexOf(query.toLowerCase)
-        if (idx > -1) {
-          val totalOffset = offset + idx
-          
-          /** TODO check for existing anntotations
-          val dummy = Annotation(None, geoDocText.get.gdocId, geoDocText.get.gdocPartId, 
-            AnnotationStatus.NOT_VERIFIED, Some(query), Some(totalOffset))
-
-          if (Annotations.getOverlappingAnnotations(dummy).size == 0)
-            totalOffset +: next(text.substring(idx + query.size), totalOffset + query.size)
-          else **/
-          totalOffset +: next(text.substring(idx + query.size), totalOffset + query.size)
-        } else {
-          Seq.empty[Int]
-        }
-      }
-      
-      val occurrences = next(new String(geoDocText.get.text, UTF8).toLowerCase)
-      Ok(Json.toJson(occurrences))    
-    } else {
-      NotFound
-    }
-  }
 
 }
