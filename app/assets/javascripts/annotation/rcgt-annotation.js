@@ -2,10 +2,12 @@
 var recogito = (window.recogito) ? window.recogito : { };
 
 /**
- * Fulltext annotation view.
- * @param {Element} mapDiv the DIV holding the annotated fulltext
+ * Text annotation interface logic.
+ * @param {Element} textDiv the DIV holding the annotatable text
+ * @param {Number} gdocId the DB id of the document the text belongs to
+ * @param {Number} opt_gdocPartId the DB id of the document part the text belongs to (if any)
  */
-recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) { 
+recogito.TextAnnotationUI = function(textDiv, gdocId, opt_gdocPartId) { 
   var self = this,
       getId = function(node) { return parseInt($(node).data('id')); };
    
@@ -21,9 +23,10 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
     '    <button class="annotation-editor-button button-cancel">Cancel</button>' +
     '  </div>' +
     '<div>';
-  
+
+  this._nodeType = 'span'; // So we can quickly replace with 'a' should it be needed
   this._gdocId = gdocId;
-  this._gdocPartId = gdocPartId;  
+  this._gdocPartId = opt_gdocPartId;  
   this._editor; // To keep track of the current open editor & prevent opening of multipe editors
   this._powerUserMode = false;
   
@@ -50,10 +53,10 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, gdocPartId) {
       var selectedRange = normalizedSelection.selectedRange; // Normalized selected range
       
       // Determine if the selection crosses existing annotations 
-      var nodes = selectedRange.getNodes([1], function(e) { return e.nodeName.toLowerCase() == 'a' })
+      var nodes = selectedRange.getNodes([1], function(e) { return e.nodeName.toLowerCase() == self._nodeType })
       if (nodes.length == 0) {
         // No span boundaries crossed
-        var parent = $(selectedRange.getNodes([3])).parent().filter('a');
+        var parent = $(selectedRange.getNodes([3])).parent().filter(self._nodeType);
         if (parent.length > 0) {
           var id = getId(parent[0]);
           
@@ -148,30 +151,30 @@ recogito.TextAnnotationUI.prototype.normalizeSelection = function(textDiv, selec
 /**
  * Creates a new annotation.
  */
-recogito.TextAnnotationUI.prototype.createAnnotation = function(msgTitle, msgDetails, toponym, x, y, offset, selectedRange) {
+recogito.TextAnnotationUI.prototype.createAnnotation = function(msgTitle, msgDetails, toponym, x, y, offset, selectedRange, skipBatchAnnotation) {  
   var self = this;
   
   // If silentMode == true, the popup dialog won't open (used for batch annotation)
-  var create = function(silentMode) {
+  var create = function(skipBatch) {    
     // Store on server
     recogito.TextAnnotationUI.REST.createAnnotation(toponym, offset, self._gdocId, self._gdocPartId);
     
     // Create markup
-    var anchor = document.createElement('a');
+    var anchor = document.createElement(self._nodeType);
     anchor.className = 'annotation corrected';
     anchor.appendChild(document.createTextNode(selectedRange.toString()));
     selectedRange.deleteContents();
     selectedRange.insertNode(anchor);
     
     // Check for other occurrences of the same toponym in the text and batch-annotate
-    if (!silentMode)
+    if (!skipBatch)
       self.batchAnnotate(toponym); 
   };
   
   if (msgTitle && msgDetails && !this._powerUserMode) {
     this.openEditor(msgTitle, toponym, msgDetails, x, y, create);
   } else {
-    create(true);
+    create(skipBatchAnnotation);
   }
 }
 
@@ -189,7 +192,7 @@ recogito.TextAnnotationUI.prototype.updateAnnotation = function(msgTitle, msgDet
     var nodes = selectedRange.getNodes();
     
     // If the selected text ends in an annotation, well' remove that as well
-    if (nodes.length > 1 && nodes[nodes.length-1].parentNode.nodeName == 'A')
+    if (nodes.length > 1 && nodes[nodes.length-1].parentNode.nodeName.toLowerCase()  == self._nodeType)
       nodes.push(nodes[nodes.length-1].parentNode);
 
     // The plaintext within all nodes in the range   
@@ -207,7 +210,7 @@ recogito.TextAnnotationUI.prototype.updateAnnotation = function(msgTitle, msgDet
 
     // Get the correct anchor node to replace
     var nodeToReplace;
-    if (nodes[0].parentNode.nodeName == 'A') {
+    if (nodes[0].parentNode.nodeName.toLowerCase() == self._nodeType) {
       nodeToReplace = nodes[0].parentNode;
       $.each(nodes, function(idx, node) { $(node).remove(); });
     } else { 
@@ -218,7 +221,7 @@ recogito.TextAnnotationUI.prototype.updateAnnotation = function(msgTitle, msgDet
       });
     }
     
-    $(nodeToReplace).replaceWith(head + '<a class="annotation corrected">' + toponym + '</a>' + tail);
+    $(nodeToReplace).replaceWith(head + '<' + self._nodeType + ' class="annotation corrected">' + toponym + '</' + self._nodeType + '>' + tail);
     selection.removeAllRanges();
   };
   
@@ -254,7 +257,7 @@ recogito.TextAnnotationUI.prototype.deleteAnnotation = function(msgTitle, msgDet
  * @param {String} toponym the toponym
  * @param {Number} offset
  */
-recogito.TextAnnotationUI.prototype.batchAnnotate = function(toponym) {
+recogito.TextAnnotationUI.prototype.batchAnnotate = function(toponym) {  
   var self = this,
       textDiv = document.getElementById('text');
   
@@ -279,8 +282,8 @@ recogito.TextAnnotationUI.prototype.batchAnnotate = function(toponym) {
         selectedRange.setStart(textNode, text.indexOf(toponym));
         selectedRange.setEnd(textNode, text.indexOf(toponym) + toponym.length);
 
-        var ranges = self.normalizeSelection(textDiv, selectedRange)        
-        self.createAnnotation(false, false, toponym, 0, 0, ranges.offset, ranges.selectedRange); 
+        var ranges = self.normalizeSelection(textDiv, selectedRange)      
+        self.createAnnotation(false, false, toponym, 0, 0, ranges.offset, ranges.selectedRange, true); 
       });
     }
   }
@@ -335,8 +338,6 @@ recogito.TextAnnotationUI.REST.createAnnotation = function(toponym, offset, gdoc
   var data = (gdocPartId) ? 
     '{ "gdocPartId": ' + gdocPartId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }' :
     '{ "gdocId": ' + gdocId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }';
-    
-  console.log(data);
   
   $.ajax({
     url: '../api/annotations',

@@ -78,7 +78,7 @@ object ApplicationController extends Controller with Secured {
             
           if (toponym.isDefined && offset.isDefined) {
             val nextSegment = plaintext.substring(beginIndex, offset.get) +
-              "<a href=\"" + url.map(GazetteerUtils.normalizeURI(_)).getOrElse("#") + "\" data-id=\"" + annotation.id.get + "\" class=\"" + cssClassA + cssClassB + "\" title=\"" + title + "\">" + toponym.get + "</a>"
+              "<span data-id=\"" + annotation.id.get + "\" class=\"" + cssClassA + cssClassB + "\" title=\"" + title + "\">" + toponym.get + "</span>"
               
             (markup + nextSegment, offset.get + toponym.get.size)
           } else {
