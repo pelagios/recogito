@@ -20,7 +20,7 @@ recogito.TableView = function(tableDiv) {
       statusValues = [ false, 'VERIFIED', 'NOT_VERIFIED', 'IGNORE', 'FALSE_DETECTION', 'NOT_IDENTIFYABLE' ],
       currentStatusFilterVal = 0,
       options = { enableCellNavigation: true, enableColumnReorder: false, forceFitColumns: true, autoEdit: false },
-      columns = [{ name: '#', field: 'idx', id: 'idx', width:25, sortable:true },
+      columns = [{ name: '#', field: 'idx', id: 'idx', width:34, sortable:true },
                  { name: 'Toponym', field: 'toponym', id: 'toponym', sortable:true },
                  { name: 'EGD Part', field: 'part', id: 'part' },
                  { name: 'Tags', field: 'tags', id: 'tags', formatter: recogito.TableView.Formatters.TagsFormatter },
