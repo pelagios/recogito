@@ -18,6 +18,7 @@ recogito.TableView = function(tableDiv) {
   
   var self = this,
       statusValues = [ false, 'VERIFIED', 'NOT_VERIFIED', 'IGNORE', 'FALSE_DETECTION', 'NOT_IDENTIFYABLE' ],
+      statusIcons = [ '', '&#xf14a;', '&#xf059;', '&#xf05e;', '&#xf057;', '&#xf024;'],
       currentStatusFilterVal = 0,
       options = { enableCellNavigation: true, enableColumnReorder: false, forceFitColumns: true, autoEdit: false },
       columns = [{ name: '#', field: 'idx', id: 'idx', width:34, sortable:true },
@@ -26,7 +27,7 @@ recogito.TableView = function(tableDiv) {
                  { name: 'Tags', field: 'tags', id: 'tags', formatter: recogito.TableView.Formatters.TagsFormatter },
                  { name: 'Auto Match', field: 'place', id: 'place' , formatter: recogito.TableView.Formatters.PleiadesFormatter },
                  { name: 'Corrected', field: 'place_fixed', id: 'place_fixed', formatter: recogito.TableView.Formatters.PleiadesFormatter },
-                 { name: 'Status', field: 'status', id: 'status', sortable:true, width:70, formatter: recogito.TableView.Formatters.StatusFormatter }];
+                 { name: 'Status', field: 'status', id: 'status', headerCssClass: 'table-status-header', width:80, formatter: recogito.TableView.Formatters.StatusFormatter }];
    
   // Initialize dataView and grid
   this._dataView = new Slick.Data.DataView();
@@ -50,21 +51,25 @@ recogito.TableView = function(tableDiv) {
   });
   
   // Sorting
-  this._grid.onSort.subscribe(function(e, args) {
-    if (args.sortCol.field == 'status') {
-      // Don't sort the status column, but cycle through filter stages
-      currentStatusFilterVal = (currentStatusFilterVal + 1) % statusValues.length;      
+  this._grid.onSort.subscribe(function(e, args) {    
+    var comparator = function(a, b) { 
+      var x = a[args.sortCol.field], y = b[args.sortCol.field];
+      return (x == y ? 0 : (x > y ? 1 : -1));
+    }
+    self._dataView.sort(comparator, args.sortAsc);
+  });
+  
+  // Filtering based on status
+  var headerDiv = $('.table-status-header');
+  headerDiv.append('<span class="icon"></span>');
+  this._grid.onHeaderClick.subscribe(function(e, args) {
+    if (args.column.field == 'status') {
+      currentStatusFilterVal = (currentStatusFilterVal + 1) % statusValues.length;  
       self._dataView.beginUpdate();
-      // this._dataView.setItems(data);
       self._dataView.setFilterArgs({ status: statusValues[currentStatusFilterVal] });
       self._dataView.endUpdate();
-      // this._grid.resizeCanvas();
-    } else {
-      var comparator = function(a, b) { 
-        var x = a[args.sortCol.field], y = b[args.sortCol.field];
-        return (x == y ? 0 : (x > y ? 1 : -1));
-      }
-      self._dataView.sort(comparator, args.sortAsc);
+      
+      headerDiv.find(':last-child').replaceWith('<span class="icon">' + statusIcons[currentStatusFilterVal] + '</span>');
     }
   });
   
