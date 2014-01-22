@@ -113,8 +113,8 @@ object ApplicationController extends Controller with Secured {
     *
     * @param doc the document ID 
     */
-  def showMapCorrectionUI(doc: Int) = protectedAction(Secure.REDIRECT_TO_LOGIN) { username => implicit request => 
-    Ok(views.html.map_correction(username, doc))
+  def showGeoResolutionUI(doc: Int) = protectedAction(Secure.REDIRECT_TO_LOGIN) { username => implicit request => 
+    Ok(views.html.georesolution(username, doc))
   }
   
   /** Shows the edit history overview page **/

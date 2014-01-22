@@ -3,6 +3,7 @@ package models
 import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
+import play.api.Logger
 
 /** Annotation case class.
   *  
@@ -104,8 +105,9 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
   def findByGeoDocumentAndStatus(id: Int, status: AnnotationStatus.Value)(implicit s: Session): Seq[Annotation] =
     Query(Annotations).where(_.gdocId === id).filter(_.status === status).list.sortBy(sortByOffset)    
   
-  def countForGeoDocumentAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Int =
-    Query(Annotations).where(_.gdocId === id).filter(a => status.contains(a.status)).list.size
+  def countForGeoDocumentAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Int = {
+    Query(Annotations).where(_.gdocId === id).filter(_.status inSet status).list.size
+  }
     
   def deleteForGeoDocument(id: Int)(implicit s: Session) =
     Query(Annotations).where(_.gdocId === id).delete
