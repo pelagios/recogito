@@ -19,14 +19,14 @@ recogito.DetailsPopup = function(annotation, prev_annotations, next_annotations)
   var self = this,
       template = 
         '<div class="clicktrap">' +
-        '  <div class="details">' +
-        '    <div class="details-header">' +
+        '  <div class="popup details">' +
+        '    <div class="popup-header">' +
         '      »<span class="details-header-toponym"></span>«' +
         '      <span class="details-header-source">in <span class="details-header-source-label"></span></span>' + 
-        '      <a class="details-header-exit">&#xf00d;</a>' +
+        '      <a class="popup-exit">&#xf00d;</a>' +
         '    </div>' +
-        '    <div class="details-content">' +
-        '      <div class="details-content-inner">' +
+        '    <div class="popup-content">' +
+        '      <div class="popup-content-inner">' +
         '        <div class="details-content-sidebar">' +
         '          <div class="details-content-search">' +
         '            <div class="details-content-search-container">' +
@@ -131,7 +131,7 @@ recogito.DetailsPopup = function(annotation, prev_annotations, next_annotations)
   };
     
   // Populate the template
-  $('.details-header-exit').click(function() { self.destroy(); });
+  $('.popup-exit').click(function() { self.destroy(); });
   $('.details-header-toponym').html(annotation.toponym);
   $('.details-header-source-label').html(annotation.part + ' <a href="' + annotation.source + '" target="_blank" title="Visit External Source">&#xf08e;</a>');
   
