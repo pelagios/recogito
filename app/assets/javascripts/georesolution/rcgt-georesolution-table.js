@@ -39,6 +39,16 @@ recogito.TableView = function(tableDiv) {
   });
   $(window).resize(function() { self._grid.resizeCanvas(); });
   
+  // Selection
+  this._grid.onSelectedRowsChanged.subscribe(function(e, args) { 
+    if (args.rows.length == 1) {
+      var place = self._grid.getDataItem(args.rows[0]);
+      self.fireEvent('selectionChanged', args, place);
+    } else if (args.rows.length > 1) {
+      self._openBatchPopup(args.rows);
+    }
+  });
+  
   // Double click -> Details popup
   this._grid.onDblClick.subscribe(function(e, args) { 
     self._openDetailsPopup(args.row); 
@@ -68,6 +78,7 @@ recogito.TableView = function(tableDiv) {
       self._dataView.beginUpdate();
       self._dataView.setFilterArgs({ status: statusValues[currentStatusFilterVal] });
       self._dataView.endUpdate();
+      self._grid.invalidate();
       
       headerDiv.find(':last-child').replaceWith('<span class="icon">' + statusIcons[currentStatusFilterVal] + '</span>');
     }
@@ -84,13 +95,6 @@ recogito.TableView = function(tableDiv) {
     var row = args.grid.getCellFromEvent(e).row;
     var dataItem = args.grid.getDataItem(row);
     self.fireEvent('mouseout', dataItem);
-  });
-
-  this._grid.onSelectedRowsChanged.subscribe(function(e, args) { 
-    if (args.rows.length > 0) {
-      var place = self._grid.getDataItem(args.rows[0]);
-      self.fireEvent('selectionChanged', args, place);
-    }
   });
   
   // Delegated event handler for status column buttons
@@ -115,7 +119,8 @@ recogito.TableView = function(tableDiv) {
 recogito.TableView.prototype = new recogito.HasEvents();
 
 /**
- * Opens the details popup
+ * Opens the details popup.
+ * @param idx the table row index
  * @private
  */
 recogito.TableView.prototype._openDetailsPopup = function(idx) {
@@ -127,6 +132,22 @@ recogito.TableView.prototype._openDetailsPopup = function(idx) {
   popup.on('update', function(annotation) {
     self._grid.invalidate();
     self.fireEvent('update', annotation);
+  });
+}
+
+/**
+ * Opens the batch operations popup.
+ * @param {Array.<Number>} indexes the table row indexes
+ * @private
+ */
+recogito.TableView.prototype._openBatchPopup = function(indexes) {
+  var self = this,
+      annotations = $.map(indexes, function(idx) { return self._grid.getDataItem(idx); }),  
+      popup = new recogito.BatchPopup(annotations);
+      
+  popup.on('update', function(annotations) {
+    self._grid.invalidate();
+    // TODO fire event to base.js
   });
 }
 
