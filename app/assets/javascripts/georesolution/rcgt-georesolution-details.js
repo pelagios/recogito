@@ -40,9 +40,9 @@ recogito.DetailsPopup = function(annotation, prev_annotations, next_annotations)
         '          <p class="details-content-automatch"></p>' +
         '          <p class="details-content-correction"></p>' +
         '        </div>' +
-        '        <div class="details-content-tags">' +
+        '        <div class="popup-tags">' +
         '          <ul></ul>' +
-        '          <span class="details-content-tag details-content-tag-add"><a title="Add Tag" id="add-tag" class="icon">&#xf055;</a></span>' +
+        '          <span id="add-tag" class="popup-tag popup-add-tag" title="Add Tag" ><a class="icon">&#xf055;</a></span>' +
         '        </div>' +
         '        <div class="details-button details-button-verified"><span class="icon">&#xf14a;</span><span class="caption">VERIFIED</span></div>' +        
         '        <div class="details-button details-button-not-verified"><span class="icon">&#xf059;</span><span class="caption">NOT VERIFIED</span></div>' +   
@@ -63,13 +63,11 @@ recogito.DetailsPopup = function(annotation, prev_annotations, next_annotations)
         '      </div>' + 
         '    </div>' +
         '  </div>' +
-        '</div>',
-      tagEditor = $('<div id="details-content-tag-editor"><input type="text" placeholder="Tags, separated by comma..."></input></div>');
+        '</div>';
     
   // Details Popup DOM element
   this.element = $(template);
   this.element.appendTo(document.body);
-  tagEditor.appendTo(this.element.find('.details-content-inner'));
   
   // Leaflet map
   var map = this._initMap($('.details-content-sidebar'));
@@ -168,9 +166,9 @@ recogito.DetailsPopup = function(annotation, prev_annotations, next_annotations)
   }
   
   // Tags
-  var tagList = $('.details-content-tags').find('ul');
+  var tagList = $('.popup-tags').find('ul');
   var addTag = function(tag, idx) {
-    tagList.append('<li class="details-content-tag">' + tag + '<a title="Remove Tag" data-index="' + idx + '" class="details-content-tag-remove icon">&#xf00d;</a></li>');  
+    tagList.append('<li class="popup-tag">' + tag + '<a title="Remove Tag" data-index="' + idx + '" class="popup-tag-remove icon">&#xf00d;</a></li>');  
   };
   
   var removeTag = function(idx) {
@@ -191,49 +189,42 @@ recogito.DetailsPopup = function(annotation, prev_annotations, next_annotations)
     });
   }
   
-  $('.details-content-tags').on('click', '.details-content-tag-remove', function(e) {
+  $('.popup-tags').on('click', '.popup-tag-remove', function(e) {
     var idx = parseInt($(e.target).data('index'));
     removeTag(idx);
     self.fireEvent('update', annotation);
   });
   
-  var textField = tagEditor.find('input')[0];    
-  var addTagButton = $('#add-tag');
-  addTagButton.click(function() {
-    var offset = addTagButton.offset();
-    offset.top -= 8;
-    offset.left += 25;
-    var display = tagEditor.css('display');
-    if (display == 'none') {
-      tagEditor.css('display', 'block');
-      tagEditor.offset(offset);
-      textField.focus();
-    } else  {
-      tagEditor.css('display', 'none');
-    }
-  });
-  
-  tagEditor.keydown(function(e) {
-    if (e.keyCode == 13) {
-      // Enter
-      var tags = textField.value.split(",");
-      if (tags.length > 0) {
-        if (!annotation.tags)
-          annotation.tags = [];
-         
-        $.each(tags, function(idx, tag) { 
-          addTag(tag, annotation.tags.length); 
-          annotation.tags.push(tag);
-        });
+  var addTagButton = $('#add-tag'),
+      tagEditor = false;
       
-        self.fireEvent('update', annotation);
-      }
-      textField.value = '';
-      tagEditor.css('display', 'none');
-    } else if (e.keyCode == 27) {
-      // Escape
-      textField.value = '';
-      tagEditor.css('display', 'none');
+  addTagButton.click(function(e) {
+    if (tagEditor) {
+      tagEditor.destroy();
+      tagEditor = false;
+    } else {
+      var offset = addTagButton.offset();
+      
+      var onEnter = function(tags) {
+        if (tags.length > 0) {
+          if (!annotation.tags)
+            annotation.tags = [];
+         
+          $.each(tags, function(idx, tag) { 
+            addTag(tag, annotation.tags.length); 
+            annotation.tags.push(tag);
+          });
+      
+          self.fireEvent('update', annotation);
+        }
+      };
+      
+      var onEscape = function(editor) { 
+        editor.destroy(); 
+        tagEditor = false; 
+      };
+      
+      tagEditor = new recogito.TagEditor(e.target.offsetParent, -8, 28, onEnter, onEscape);
     }
   });
   
@@ -269,7 +260,6 @@ recogito.DetailsPopup = function(annotation, prev_annotations, next_annotations)
   changeStatus($('.details-button-ignore'), 'IGNORE');
   
   // Comment
-  console.log(annotation);
   var commentTextArea = $('.details-comment-textarea');
   if (annotation.comment)
     commentTextArea.val(annotation.comment);
@@ -279,10 +269,8 @@ recogito.DetailsPopup = function(annotation, prev_annotations, next_annotations)
     if (annotation.comment != comment) {
       annotation.comment = comment;
       self.fireEvent('update', annotation);
-      // self.destroy(); 
     }
   });
-  
       
   // Popuplate the map
   if (annotation.marker) {

@@ -27,6 +27,7 @@ recogito.BatchPopup = function(annotations) {
         '        <p><strong>Unique toponyms:</strong> <span id="batch-unique-toponyms"></span></p>' + 
         '        <p><strong>Unique gazetteer IDs:</strong> <span id="batch-unique-uris"></span></p>' + 
         '        <p><strong>Unique tags:</strong> <span id="batch-unique-tags"></span></p>' +         
+        '        <span class="popup-tag popup-add-tag" title="Add Tag"><a class="icon">&#xf055;</a></span>' +
         '      </div>' +
         '    </div>' +
         '  </div>' +
@@ -42,6 +43,19 @@ recogito.BatchPopup = function(annotations) {
   $('#batch-unique-toponyms').html(recogito.BatchPopup.uniqueToponyms(annotations).join(', '));
   $('#batch-unique-uris').html(recogito.BatchPopup.uniqueGazetteerURIs(annotations).join(', '));
   $('#batch-unique-tags').html(recogito.BatchPopup.uniqueTags(annotations).join(', '));
+  
+  var tagEditor = false;
+  $('.popup-add-tag').click(function(e) {
+    var el = e.target,
+        parent = el.offsetParent;
+    
+    if (tagEditor) {
+      tagEditor.destroy();
+      tagEditor = false;
+    } else {
+      tagEditor = new recogito.TagEditor(parent, el.offsetTop - (parent.offsetHeight / 2), el.offsetLeft + parent.offsetWidth);
+    }
+  });
 }
 
 // Inheritance - not the nicest pattern but works for our case
@@ -100,5 +114,4 @@ recogito.BatchPopup.uniqueTags = function(annotations) {
   });
   return unique;
 }
-
 
