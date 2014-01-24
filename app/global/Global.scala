@@ -29,13 +29,13 @@ object Global extends GlobalSettings {
       Logger.info("Building new index")
       
       Logger.info("Loading Pleiades data")
-      val pleiades = Scalagios.parseGazetteer(new GZIPInputStream(new FileInputStream(DATA_PLEIADES)), "http://pleiades.stoa.org/", RDFFormat.TURTLE)
-      Logger.info("Inserting Pleiades into index")
+      val pleiades = Scalagios.readPlaces(new GZIPInputStream(new FileInputStream(DATA_PLEIADES)), "http://pleiades.stoa.org/", RDFFormat.TURTLE)
+      Logger.info("Inserting " + pleiades.size + " Pleiades places into index")
       idx.addPlaces(pleiades)
     
       Logger.info("Loading DARE data")
-      val dare = Scalagios.parseGazetteer(new GZIPInputStream(new FileInputStream(DATA_DARE)), "http://imperium.ahlfeldt.se/", RDFFormat.TURTLE)
-      Logger.info("Inserting DARE into index") 
+      val dare = Scalagios.readPlaces(new GZIPInputStream(new FileInputStream(DATA_DARE)), "http://imperium.ahlfeldt.se/", RDFFormat.TURTLE)
+      Logger.info("Inserting " + dare.size +" DARE places into index") 
       idx.addPlaces(dare)
       
       Logger.info("Index complete")      
