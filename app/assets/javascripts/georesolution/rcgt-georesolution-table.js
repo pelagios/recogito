@@ -290,7 +290,7 @@ recogito.TableView.prototype.getPrevN = function(idx, n)  {
 recogito.TableView.Formatters = {}
 
 /** Custom table cell formatter for Pleiades URIs **/
-recogito.TableView.Formatters.PleiadesFormatter = function(row, cell, value, columnDef, dataContext) {
+recogito.TableView.Formatters.PleiadesFormatter = function(row, cell, value, columnDef, dataContext) {  
   if (value) {
     if (value.uri.indexOf('http://pleiades.stoa.org') == 0) {
       var id =  value.uri.substring(32);
@@ -299,7 +299,9 @@ recogito.TableView.Formatters.PleiadesFormatter = function(row, cell, value, col
       
       var normalizedURI = recogito.Utils.normalizePleiadesURI(value.uri);
       var formatted = '<a href="http://pelagios.org/api/places/' + encodeURIComponent(normalizedURI) + 
-                      '" target="_blank" title="' + value.title + '">pleiades:' + id + '</a>';
+                      '" target="_blank" title="' + value.title + 
+                      recogito.Utils.formatCategory(value.category, ' ({{category}})') +
+                      '">pleiades:' + id + '</a>';
         
       if (value.coordinate) 
         return '<span class="icon empty"></span>' + formatted;

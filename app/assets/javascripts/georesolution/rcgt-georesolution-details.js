@@ -135,7 +135,8 @@ recogito.DetailsPopup = function(annotation, prev_annotations, next_annotations)
   
   // Automatch info
   if (annotation.place) {
-    var meta = annotation.place.title + '<br/>' +
+    var meta = annotation.place.title + 
+               recogito.Utils.formatCategory(annotation.place.category, ' ({{category}})') + '<br/>' +
                annotation.place.names + '<br/>' +
                '<a href="http://pelagios.org/api/places/' + 
                encodeURIComponent(recogito.Utils.normalizePleiadesURI(annotation.place.uri)) +
@@ -151,7 +152,8 @@ recogito.DetailsPopup = function(annotation, prev_annotations, next_annotations)
   
   // Expert correction info
   if (annotation.place_fixed) {
-    var meta = annotation.place_fixed.title + '<br/>' +
+    var meta = annotation.place_fixed.title + 
+               recogito.Utils.formatCategory(annotation.place_fixed.category, ' ({{category}})') + '<br/>' +
                annotation.place_fixed.names + '<br/>' +
                '<a href="http://pelagios.org/api/places/' + 
                encodeURIComponent(recogito.Utils.normalizePleiadesURI(annotation.place_fixed.uri)) +

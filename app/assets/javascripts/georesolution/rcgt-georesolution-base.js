@@ -224,6 +224,31 @@ recogito.Utils = {
     } else {
       return uri.substring(0, uri.indexOf('#this'));
     }
+  },
+  
+  formatCategory: function(category, opt_template) {
+    if (!category)
+      return '';
+      
+    var screenName;
+    
+    if (category == 'SETTLEMENT')
+      screenName = 'Settlement';
+    else if (category == 'REGION')
+      screenName = 'Region';
+    else if (category == 'NATURAL_FEATURE')
+      screenName = 'Natural Feature'
+    else if (category == 'ETHNOS')
+      screenName = 'Ethnos';
+    else if (category == 'MAN_MADE_STRUCTURE')
+      screenName = 'Built Structure';
+    else
+      screenName = category;
+      
+    if (opt_template)
+      return opt_template.replace('{{category}}', screenName);
+    else
+      return screenName
   }
   
 }
