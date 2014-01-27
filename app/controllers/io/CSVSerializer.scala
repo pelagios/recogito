@@ -46,17 +46,21 @@ class CSVSerializer {
     * @return the CSV
     */
   def asConsolidatedVerifiedResult(annotations: Seq[Annotation]): String = {
-    val header = Seq("toponym","uri","lat","lng").mkString(SEPARATOR) + "\n"
+    val header = Seq("toponym","uri","lat","lng", "place_category").mkString(SEPARATOR) + "\n"
     annotations.foldLeft(header)((csv, annotation) => {
       val uri = if (annotation.correctedGazetteerURI.isDefined && !annotation.correctedGazetteerURI.get.isEmpty) annotation.correctedGazetteerURI else annotation.gazetteerURI
       val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
       if (uri.isDefined && !uri.get.isEmpty) {
-        val coord = CrossGazetteerUtils.getPlace(uri.get).map(_._2).flatten
+        val queryResult = CrossGazetteerUtils.getPlace(uri.get)
+        val category = queryResult.map(_._1.category).flatten
+        val coord = queryResult.map(_._2).flatten
+        
         csv + 
         toponym.getOrElse("") + SEPARATOR + 
         GazetteerUtils.normalizeURI(uri.get) + SEPARATOR + 
         coord.map(_.y).getOrElse("") + SEPARATOR +
-        coord.map(_.x).getOrElse("") + SEPARATOR + "\n"
+        coord.map(_.x).getOrElse("") + SEPARATOR +
+        category.map(_.toString).getOrElse("") + SEPARATOR + "\n"
       } else {
         csv
       }
@@ -71,12 +75,18 @@ class CSVSerializer {
     * @return the CSV
     */
   def asDBBackup(annotations: Seq[Annotation])(implicit s: Session): String = {
-    val header = Seq("id", "gdoc_part", "status", "toponym", "offset", "gazetteer_uri", "latlon", "toponym_corrected", 
-                     "offset_corrected", "gazetteer_uri_corrected", "latlon_corrected", "tags", "comment").mkString(SEPARATOR) + "\n"
+    val header = Seq("id", "gdoc_part", "status", "toponym", "offset", "gazetteer_uri", "latlon", "place_category", "toponym_corrected", 
+                     "offset_corrected", "gazetteer_uri_corrected", "latlon_corrected", "place_category_corrected", "tags", "comment").mkString(SEPARATOR) + "\n"
       
     annotations.foldLeft(header)((csv, annotation) => {
-      val coordinate = annotation.gazetteerURI.map(uri => CrossGazetteerUtils.getPlace(uri).map(_._2)).flatten.flatten
-      val correctedCoordinate = annotation.correctedGazetteerURI.map(uri => CrossGazetteerUtils.getPlace(uri).map(_._2)).flatten.flatten
+      val queryResultForURI = annotation.gazetteerURI.map(uri => CrossGazetteerUtils.getPlace(uri)).flatten
+      val queryResultForCorrectedURI = annotation.correctedGazetteerURI.map(uri => CrossGazetteerUtils.getPlace(uri)).flatten
+          
+      val placeCategory = queryResultForURI.map(_._1.category).flatten
+      val coordinate = queryResultForURI.map(_._2).flatten
+      
+      val correctedPlaceCategory = queryResultForCorrectedURI.map(_._1.category).flatten
+      val correctedCoordinate = queryResultForCorrectedURI.map(_._2).flatten
       
       csv + 
       annotation.id.get + SEPARATOR +
@@ -86,10 +96,12 @@ class CSVSerializer {
       annotation.offset.getOrElse("") + SEPARATOR +
       annotation.gazetteerURI.map(GazetteerUtils.normalizeURI(_)).getOrElse("") + SEPARATOR +
       coordinate.map(c => c.x + "," + c.y).getOrElse("") + SEPARATOR +
+      placeCategory.map(_.toString).getOrElse("") + SEPARATOR +
       annotation.correctedToponym.getOrElse("") + SEPARATOR +
       annotation.correctedOffset.getOrElse("") + SEPARATOR +
       annotation.correctedGazetteerURI.map(GazetteerUtils.normalizeURI(_)).getOrElse("") + SEPARATOR +
       correctedCoordinate.map(c => c.x + "," + c.y).getOrElse("") + SEPARATOR +
+      correctedPlaceCategory.map(_.toString).getOrElse("") + SEPARATOR +
       annotation.tags.getOrElse("") + SEPARATOR +
       annotation.comment.getOrElse("") + SEPARATOR +
       "\n"
