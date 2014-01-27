@@ -17,6 +17,7 @@ GET     /recogito/logout                      controllers.Auth.logout
 # Documents
 GET     /recogito/api/documents               controllers.DocumentController.listAll
 GET     /recogito/api/documents/:id           controllers.DocumentController.get(id: Int, format: Option[String])
+DELETE  /recogito/api/documents/:id           controllers.DocumentController.delete(id: Int)
 
 # Annotations
 POST    /recogito/api/annotations             controllers.AnnotationController.create

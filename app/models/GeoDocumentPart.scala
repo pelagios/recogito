@@ -39,6 +39,10 @@ object GeoDocumentParts extends Table[GeoDocumentPart]("gdocument_parts") {
   def countForGeoDocument(id: Int)(implicit s: Session): Int =
     Query(GeoDocumentParts).where(_.gdocId === id).list.size
     
+  def deleteForGeoDocument(id: Int)(implicit s: Session) =
+    Query(GeoDocumentParts).where(_.gdocId === id).delete
+    
+    
     
   /** Retrieve a GeoDocumentPart on a specific GeoDocument that has the specified title **/
   def findByGeoDocumentAndTitle(id: Int, title: String)(implicit s: Session): Option[GeoDocumentPart] =

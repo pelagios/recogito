@@ -29,5 +29,8 @@ object GeoDocuments extends Table[GeoDocument]("gdocuments") {
   
   def findById(id: Int)(implicit s: Session): Option[GeoDocument] =
     Query(GeoDocuments).where(_.id === id).firstOption
+    
+  def delete(id: Int)(implicit s: Session) =
+    Query(GeoDocuments).where(_.id === id).delete
   
 }

@@ -26,6 +26,14 @@ object GeoDocumentTexts extends Table[GeoDocumentText]("gdocument_texts") {
   def findById(id: Int)(implicit s: Session): Option[GeoDocumentText] =
     Query(GeoDocumentTexts).where(_.id === id).firstOption
     
+    
+    
+  /** Deletes texts associated with a GeoDocument **/  
+  def deleteForGeoDocument(id: Int)(implicit s: Session) =
+    Query(GeoDocumentTexts).where(_.gdocId === id).delete
+    
+    
+    
   /** Retrieves the text that is **directly** associated with the specified GeoDocument.
     * 
     * Note that this method will **not** retrieve texts that are associated with parts of

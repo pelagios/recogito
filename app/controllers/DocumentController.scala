@@ -66,4 +66,13 @@ object DocumentController extends Controller {
     }
   }
   
+  /** Deletes a document (and associated data) from the database **/
+  def delete(id: Int) = DBAction { implicit session =>
+    Annotations.deleteForGeoDocument(id)
+    GeoDocumentTexts.deleteForGeoDocument(id)
+    GeoDocumentParts.deleteForGeoDocument(id)    
+    GeoDocuments.delete(id)
+    Ok("")
+  }
+  
 }

@@ -63,7 +63,7 @@ class CSVSerializer {
     })
   }
   
-  /** Generates a full backup annotationsf from the database.
+  /** Generates a full backup annotations from the database.
     * 
     * This version of the CSV data exposes all original fields from the annotations table
     * in the database. CSV files of this type can be used to restore data in the DB.
