@@ -56,7 +56,7 @@ class CSVSerializer {
         toponym.getOrElse("") + SEPARATOR + 
         GazetteerUtils.normalizeURI(uri.get) + SEPARATOR + 
         coord.map(_.y).getOrElse("") + SEPARATOR +
-        coord.map(_.x).getOrElse("") + "\n"
+        coord.map(_.x).getOrElse("") + SEPARATOR + "\n"
       } else {
         csv
       }
