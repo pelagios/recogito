@@ -27,7 +27,7 @@ require(["georesolution/map", "georesolution/table", "georesolution/footer"], fu
   });
   
   table.on('update', function(annotation) {
-  	self._storeToDB(annotation);
+  	storeToDB(annotation);
     
 	  if (annotation.marker)
 	    map.removePlaceMarker(annotation);

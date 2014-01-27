@@ -41,7 +41,7 @@ define(['georesolution/common'], function(common) {
           '        </div>' +
           '        <div class="popup-tags">' +
           '          <ul></ul>' +
-          '          <span id="add-tag" class="popup-tag popup-add-tag" title="Add Tag" ><a class="icon">&#xf055;</a></span>' +
+          '          <span class="popup-tag popup-add-tag" title="Add Tag" ><a id="add-tag"  class="icon">&#xf055;</a></span>' +
           '        </div>' +
           '        <div class="details-button details-button-verified"><span class="icon">&#xf14a;</span><span class="caption">VERIFIED</span></div>' +        
           '        <div class="details-button details-button-not-verified"><span class="icon">&#xf059;</span><span class="caption">NOT VERIFIED</span></div>' +   
@@ -225,7 +225,7 @@ define(['georesolution/common'], function(common) {
           tagEditor = false; 
         };
       
-        tagEditor = new recogito.TagEditor(e.target.offsetParent, -8, 28, onEnter, onEscape);
+        tagEditor = new common.TagEditor(e.target.offsetParent, -8, 28, onEnter, onEscape);
       }
     });
   
