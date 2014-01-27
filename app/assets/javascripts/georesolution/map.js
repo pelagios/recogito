@@ -48,18 +48,6 @@ define(['georesolution/common'], function(common) {
     this._currentSelection;
   
     this._allAnnotations = [];
-  
-    this._MARKER_SIZE = 4;
-      
-    this._MARKER_SIZE_HOVER = 8;
-  
-    this._styles = { 
-    
-      NOT_VERIFIED: { color: '#808080', fillColor:'#aaa', radius: self._MARKER_SIZE, weight:2, opacity:1, fillOpacity: 1 },
-    
-      VERIFIED: { color: '#118128', fillColor:'#1bcc3f', radius: self._MARKER_SIZE, weight:2, opacity:1, fillOpacity: 1 }
-    
-    }
   }
 
   // Inheritance - not the nicest pattern but works for our case
@@ -108,20 +96,8 @@ define(['georesolution/common'], function(common) {
 
     var place = (annotation.place_fixed) ? annotation.place_fixed : annotation.place;
     if (place && place.coordinate) {
-      var style = undefined;
-      switch(annotation.status) {
-        case 'VERIFIED': 
-          style = this._styles.VERIFIED;
-          break;
-        
-        case 'NOT_VERIFIED':
-          style = this._styles.NOT_VERIFIED;
-          break;
-      }
-    
-      if (style) {
-        createMarker(place, style);
-      }
+      if (annotation.status == 'VERIFIED' || annotation.status == 'NOT_VERIFIED')
+        createMarker(place, getStyle(annotation.status, place.category));
     }
   }
 
@@ -135,7 +111,7 @@ define(['georesolution/common'], function(common) {
   MapView.prototype.emphasizePlace = function(annotation, prevN, nextN) {
     if (annotation.marker && this._isVisible(annotation)) {      
       var style = annotation.marker.options;
-      style.radius = this._MARKER_SIZE_HOVER;
+      style.radius = style.radius * 2;
       annotation.marker.setStyle(style);
       annotation.marker.bringToFront();
     }
@@ -144,7 +120,7 @@ define(['georesolution/common'], function(common) {
   MapView.prototype.deemphasizePlace = function(annotation, prevN, nextN) {
     if (annotation.marker && this._isVisible(annotation)) {
       var style = annotation.marker.options;
-      style.radius = this._MARKER_SIZE;
+      style.radius = style.radius * 0.5;
       annotation.marker.setStyle(style);
     }
   }
@@ -223,6 +199,26 @@ define(['georesolution/common'], function(common) {
     var self = this;
     $.each(this._allAnnotations, function(idx, annotation) { self._map.removeLayer(annotation.marker); });
     $.each(this._currentSequence, function(idx, marker) { self._map.removeLayer(marker) });
+  }
+  
+  function getStyle(status, category) {
+    var color, fillColor, opacity = 1, fillOpacity = 1, radius = 4;
+    
+    if (status == 'VERIFIED') {
+      color = '#118128';
+      fillColor ='#1bcc3f';
+    } else {
+      color = '#808080';
+      fillColor ='#aaa';
+    }
+    
+    if (category == 'REGION') {
+      opacity = 0.5;
+      fillOpacity = 0.2;
+      radius = 20;
+    }
+    
+    return { color: color, fillColor: fillColor, radius: radius, opacity: opacity, fillOpacity: fillOpacity };
   }
 
   return MapView;
