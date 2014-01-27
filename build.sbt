@@ -30,3 +30,5 @@ libraryDependencies ++= Seq(
 )
 
 requireJs += "georesolution.js"
+
+requireJsShim += "build.js"
