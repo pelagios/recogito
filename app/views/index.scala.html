@@ -4,7 +4,7 @@
     <title>RECOGITO</title>
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/index/main.css")" />
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
-    <script>
+    <script> 
     function toggleDetails(docId) {
       var toggle = $('.toggle-' + docId),
           rows = $('.document-' + docId),
@@ -104,6 +104,27 @@
           	  </tr>
             }
           }
+          
+          @* We need to do some optimization here to avoid redundant DB access! *@
+          <tr class="totals">
+            @defining(models.GeoDocuments.listAll().map(doc => (doc.totalToponymCount, doc.unverifiedToponymCount))) { totals =>
+              @defining(totals.map(_._1).foldLeft(0)(_ + _)) { totalToponyms =>
+                <td colspan="3"></td>
+                <td class="center">@totalToponyms</td> <!-- Toponyms -->
+                <td>
+                  @defining(totals.map(_._2).foldLeft(0)(_ + _)) { totalUnverified =>
+                    <div class="meter">
+                      @defining(100 * (totalToponyms - totalUnverified).toDouble / totalToponyms) { ratio =>
+                        <span style="width:@{ratio}%" title="@{"%.2f" format (ratio)} % - @totalUnverified Toponyms left!"></span>
+                      }
+                    </div>
+                  }
+                </td>
+                <td></td>
+                <td></td>  
+              }         
+            }
+          </tr>
         </tbody> 
       </table>
     
