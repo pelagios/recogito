@@ -28,3 +28,5 @@ libraryDependencies ++= Seq(
   "com.vividsolutions" % "jts" % "1.13",
   "org.geotools" % "gt-geojson" % "10.0"
 )
+
+requireJs += "georesolution.js"
