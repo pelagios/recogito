@@ -6,6 +6,7 @@ import org.pelagios.gazetteer.GazetteerUtils
 import play.api.db.slick._
 import scala.collection.mutable.HashMap
 import global.CrossGazetteerUtils
+import play.api.Logger
 
 /** Utility object to serialize Annotation data to CSV.
   * 

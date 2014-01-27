@@ -44,10 +44,16 @@ object DocumentController extends Controller {
   }
   
   private def get_CSV(id: Int)(implicit session: Session) = {
-    val parts = GeoDocumentParts.findByGeoDocument(id)
-    val annotations = parts.map(part => Annotations.findByGeoDocumentPart(part.id.get)).flatten
-    val serializer = new CSVSerializer()
-    Ok(serializer.asConsolidatedVerifiedResult(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=pelagios-egd-" + id.toString + ".csv"))
+    val doc = GeoDocuments.findById(id)
+    if (doc.isDefined) {
+      val annotations = Annotations.findByGeoDocument(id)
+      val serializer = new CSVSerializer()
+      Ok(serializer.asConsolidatedVerifiedResult(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=pelagios-egd-" + id.toString + ".csv"))
+    } else {
+      val msg = "No document with ID " + id
+      NotFound(Json.obj("error" -> msg))      
+    }
+       
   }
       
   private def get_JSON(id: Int)(implicit s: Session) = {
