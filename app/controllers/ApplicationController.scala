@@ -77,7 +77,7 @@ object ApplicationController extends Controller with Secured {
             ")"
             
           if (toponym.isDefined && offset.isDefined) {
-            val nextSegment = plaintext.substring(beginIndex, offset.get) +
+            val nextSegment = escapePlaintext(plaintext.substring(beginIndex, offset.get)) +
               "<span data-id=\"" + annotation.id.get + "\" class=\"" + cssClassA + cssClassB + "\" title=\"" + title + "\">" + toponym.get + "</span>"
               
             (markup + nextSegment, offset.get + toponym.get.size)
@@ -87,7 +87,7 @@ object ApplicationController extends Controller with Secured {
         }
       }}
 
-      val html = (ranges._1 + plaintext.substring(ranges._2)).replace("\n", "<br/>")
+      val html = (ranges._1 + escapePlaintext(plaintext.substring(ranges._2))).replace("\n", "<br/>")
       
       val gdoc = GeoDocuments.findById(gdocText.get.gdocId)
       val gdocPart = gdocText.get.gdocPartId.map(id => GeoDocumentParts.findById(id)).flatten
@@ -97,6 +97,13 @@ object ApplicationController extends Controller with Secured {
     } else {
       NotFound(Json.parse("{ \"success\": false, \"message\": \"Annotation not found\" }")) 
     }
+  }
+  
+  private def escapePlaintext(segment: String): String = {
+    // Should cover most cases (?) - otherwise switch to Apache Commons StringEscapeUtils
+    segment
+      .replace("<", "&lt;")
+      .replace(">", "&gt;")
   }
   
   /** Helper method that generates detailed debug output for overlapping annotations.
