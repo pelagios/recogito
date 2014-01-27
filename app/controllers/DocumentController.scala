@@ -72,7 +72,7 @@ object DocumentController extends Controller {
     GeoDocumentTexts.deleteForGeoDocument(id)
     GeoDocumentParts.deleteForGeoDocument(id)    
     GeoDocuments.delete(id)
-    Ok("")
+    Status(200)
   }
   
 }

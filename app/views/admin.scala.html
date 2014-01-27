@@ -21,6 +21,14 @@
           success: function() { location.href = '@routes.AdminController.index'; }
         });
       }
+      
+      function dropDocument(doc) {
+        $.ajax({
+          type: 'DELETE',
+          url: '@routes.DocumentController.listAll/' + doc,
+          success: function() { location.href = '@routes.AdminController.index'; }
+        });
+      }
     </script>
   </head>
   
@@ -67,6 +75,7 @@
           }
           <button onclick="location.href='@routes.AdminController.backupAnnotations(egd.id, None)'">CSV Backup (Entire Document)</button>
           <button onclick="if (confirm('Are you sure about that?')) dropAnnotations(@egd.id.get)">Drop All Annotations</button>
+          <button onclick="if (confirm('Are you sure about that?')) dropDocument(@egd.id.get)">Drop Document</button>
           <div class="import-annotations">
             <button onclick="toggleImportForm('@egd.id.get')">Import CSV</button>
             <div class="import-annotations-form" id="@egd.id.get">
