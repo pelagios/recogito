@@ -4,6 +4,7 @@ import global.Global
 import models._
 import play.api.db.slick._
 import play.api.libs.json.{ Json, JsObject }
+import global.CrossGazetteerUtils
 
 /** Utility object to serialize Annotation data to JSON.
   * 
@@ -11,7 +12,7 @@ import play.api.libs.json.{ Json, JsObject }
   */
 object JSONSerializer {
   
-  private val DARE_PREFIX = "http://www.imperium.ahlfeldt.se/"
+
     
   private val UTF8 = "UTF-8"
     
@@ -121,25 +122,16 @@ object JSONSerializer {
     
   /** Renders a JSON object for the place with the specified gazetteer URI **/
   private def placeUriToJson(uri: String): Option[JsObject] = {
-    val place = Global.index.findByURI(uri)
-    
-    // We use DARE coordinates if we have them
-    val coordinate = place.map(place => {
-      val dareEquivalent = Global.index.getNetwork(place).places.filter(_.uri.startsWith(DARE_PREFIX))
-      if (dareEquivalent.size > 0) {
-        dareEquivalent(0).getCentroid
-      } else {
-        place.getCentroid
-      }
-    }).flatten
+    val place = CrossGazetteerUtils.getPlace(uri)
     
     if (place.isDefined) {
+      val p = place.get._1
       Some(Json.obj(
-        "uri" -> place.get.uri,
-        "title" -> place.get.title,
-        "names" -> place.get.names.map(_.labels).flatten.map(_.label).mkString(", "),
-        "category" -> place.get.placeCategory.map(_.toString),
-        "coordinate" -> coordinate.map(coords => Json.toJson(Seq(coords.y, coords.x)))
+        "uri" -> p.uri,
+        "title" -> p.title,
+        "names" -> p.names.map(_.labels).flatten.map(_.label).mkString(", "),
+        "category" -> p.placeCategory.map(_.toString),
+        "coordinate" -> place.get._2.map(coords => Json.toJson(Seq(coords.y, coords.x)))
       ))      
     } else {
       None
