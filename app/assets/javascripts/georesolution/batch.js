@@ -127,9 +127,16 @@ define(['georesolution/common'], function(common) {
     return commonTags;
   }
   
-  var diffTags = function(before, after) {
-    // TODO implement
-    return { add: [], remove: [] };
+  var diffTags = function(before, after) {    
+    var add = $.grep(after, function(tag) {
+      return before.indexOf(tag) == -1;
+    });
+    
+    var remove = $.grep(before, function(tag) {
+      return after.indexOf(tag) == -1;
+    });
+        
+    return { add: add, remove: remove };
   }
    
   return BatchPopup;
