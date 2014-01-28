@@ -115,7 +115,7 @@
                   @defining(totals.map(_._2).foldLeft(0)(_ + _)) { totalUnverified =>
                     <div class="meter">
                       @defining(100 * (totalToponyms - totalUnverified).toDouble / totalToponyms) { ratio =>
-                        <span style="width:@{ratio}%" title="@{"%.2f" format (ratio)} % - @totalUnverified Toponyms left!"></span>
+                        <span style="width:@{ratio}%" title="@{"%.2f" format (ratio)} % - @totalUnverified Toponyms to go!"></span>
                       }
                     </div>
                   }

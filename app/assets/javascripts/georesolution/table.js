@@ -146,7 +146,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
       
     popup.on('update', function(annotations) {
       self._grid.invalidate();
-      // TODO fire event
+      self.fireEvent('update', annotations);
     });
   }
 

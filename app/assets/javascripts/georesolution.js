@@ -26,14 +26,19 @@ require(["georesolution/map", "georesolution/table", "georesolution/footer"], fu
     map.selectPlace(annotation, prev3, next2); 
   });
   
-  table.on('update', function(annotation) {
-  	storeToDB(annotation);
+  table.on('update', function(annotations) {
+    if (!$.isArray(annotations))
+      annotations = [ annotations ];
+      
+    $.each(annotations, function(idx, annotation) {
+    	storeToDB(annotation);
     
-	  if (annotation.marker)
-	    map.removePlaceMarker(annotation);
+  	  if (annotation.marker)
+	      map.removePlaceMarker(annotation);
     
-    map.addPlaceMarker(annotation);
- 	
+      map.addPlaceMarker(annotation);
+ 	  });
+    
     if (self.annotations)
       footer.setData(self.annotations);
   });

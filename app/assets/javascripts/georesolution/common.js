@@ -51,8 +51,10 @@ define(function() {
     this.element.keydown(function(e) {
       if (e.keyCode == 13) {
         // Enter
-        if (onEnter)
-          onEnter(textField.value.split(","));
+        if (onEnter) {
+          var tags = textField.value.split(",");
+          onEnter($.map(tags, function(str) { return $.trim(str); }));
+        }
         
         self.destroy();
       } else if (e.keyCode == 27) {

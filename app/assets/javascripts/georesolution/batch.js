@@ -52,7 +52,23 @@ define(['georesolution/common'], function(common) {
         tagEditor.destroy();
         tagEditor = false;
       } else {
-        tagEditor = new recogito.TagEditor(parent, el.offsetTop - (parent.offsetHeight / 2), el.offsetLeft + parent.offsetWidth);
+        tagEditor = new common.TagEditor(
+          parent, 
+          el.offsetTop - (parent.offsetHeight / 2), el.offsetLeft + parent.offsetWidth,
+          function (tags) { // onEnter
+            if (tags && tags.length > 0) {
+              $.each(annotations, function(idx, annotation) {
+                if (!annotation.tags)
+                  annotation.tags = [];
+                  
+                $.each(tags, function(idx, tag) { annotation.tags.push(tag); });    
+              });
+              
+              self.fireEvent('update', annotations);
+            }
+            self.destroy();  
+          }
+        );
       }
     });
   }
