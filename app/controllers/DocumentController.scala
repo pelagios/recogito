@@ -13,7 +13,7 @@ import controllers.io.CSVSerializer
   *
   * @author Rainer Simon <rainer.simon@ait.ac.at>  
   */
-object DocumentController extends Controller {
+object DocumentController extends Controller with Secured {
   
   private val CSV = "csv"
     
@@ -67,7 +67,7 @@ object DocumentController extends Controller {
   }
   
   /** Deletes a document (and associated data) from the database **/
-  def delete(id: Int) = DBAction { implicit session =>
+  def delete(id: Int) = protectedDBAction(Secure.REJECT) { username => implicit session =>
     Annotations.deleteForGeoDocument(id)
     GeoDocumentTexts.deleteForGeoDocument(id)
     GeoDocumentParts.deleteForGeoDocument(id)    
