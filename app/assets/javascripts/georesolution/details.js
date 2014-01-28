@@ -40,8 +40,6 @@ define(['georesolution/common'], function(common) {
           '          <p class="details-content-correction"></p>' +
           '        </div>' +
           '        <div class="popup-tags">' +
-          '          <ul></ul>' +
-          '          <span class="popup-tag popup-add-tag" title="Add Tag" ><a id="add-tag"  class="icon">&#xf055;</a></span>' +
           '        </div>' +
           '        <div class="details-button details-button-verified"><span class="icon">&#xf14a;</span><span class="caption">VERIFIED</span></div>' +        
           '        <div class="details-button details-button-not-verified"><span class="icon">&#xf059;</span><span class="caption">NOT VERIFIED</span></div>' +   
@@ -167,66 +165,10 @@ define(['georesolution/common'], function(common) {
     }
   
     // Tags
-    var tagList = $('.popup-tags').find('ul');
-    var addTag = function(tag, idx) {
-      tagList.append('<li class="popup-tag">' + tag + '<a title="Remove Tag" data-index="' + idx + '" class="popup-tag-remove icon">&#xf00d;</a></li>');  
-    };
-  
-    var removeTag = function(idx) {
-      if (annotation.tags) {
-        annotation.tags.splice(idx, 1);
-        tagList.empty();
-        $.each(annotation.tags, function(idx, tag) {
-        if (tag.length > 0)
-          addTag(tag, idx);        
-        });
-      }
-    };
-  
-    if (annotation.tags) {
-      $.each(annotation.tags, function(idx, tag) {
-        if (tag.length > 0)
-          addTag(tag, idx);        
-      });
-    }
-  
-    $('.popup-tags').on('click', '.popup-tag-remove', function(e) {
-      var idx = parseInt($(e.target).data('index'));
-      removeTag(idx);
+    var tagList = new common.TagList($('.popup-tags'), annotation.tags);  
+    tagList.on('update', function(tags) {
+      annotation.tags = tags;
       self.fireEvent('update', annotation);
-    });
-  
-    var addTagButton = $('#add-tag'),
-        tagEditor = false;
-      
-    addTagButton.click(function(e) {
-      if (tagEditor) {
-        tagEditor.destroy();
-        tagEditor = false;
-      } else {
-        var offset = addTagButton.offset();
-      
-        var onEnter = function(tags) {
-          if (tags.length > 0) {
-            if (!annotation.tags)
-              annotation.tags = [];
-         
-            $.each(tags, function(idx, tag) { 
-              addTag(tag, annotation.tags.length); 
-              annotation.tags.push(tag);
-            });
-      
-            self.fireEvent('update', annotation);
-          }
-        };
-      
-        var onEscape = function(editor) { 
-          editor.destroy(); 
-          tagEditor = false; 
-        };
-      
-        tagEditor = new common.TagEditor(e.target.offsetParent, -8, 28, onEnter, onEscape);
-      }
     });
   
     // Status info & buttons

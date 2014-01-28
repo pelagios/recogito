@@ -25,8 +25,9 @@ define(['georesolution/common'], function(common) {
           '      <div class="popup-content-inner">' +
           '        <p><strong>Unique toponyms:</strong> <span id="batch-unique-toponyms"></span></p>' + 
           '        <p><strong>Unique gazetteer IDs:</strong> <span id="batch-unique-uris"></span></p>' + 
-          '        <p><strong>Unique tags:</strong> <span id="batch-unique-tags"></span></p>' +         
-          '        <span class="popup-tag popup-add-tag" title="Add Tag"><a class="icon">&#xf055;</a></span>' +
+          '        <p><strong>Tags in Common:</strong></p>' + 
+          '        <div class="popup-tags">' +
+          '        </div>' +      
           '      </div>' +
           '    </div>' +
           '  </div>' +
@@ -41,35 +42,18 @@ define(['georesolution/common'], function(common) {
     $('#batch-header-title').html(annotations.length + ' Annotations Selected');
     $('#batch-unique-toponyms').html(uniqueToponyms(annotations).join(', '));
     $('#batch-unique-uris').html(uniqueGazetteerURIs(annotations).join(', '));
-    $('#batch-unique-tags').html(uniqueTags(annotations).join(', '));
+    // $('#batch-unique-tags').html(uniqueTags(annotations).join(', '));
   
-    var tagEditor = false;
-    $('.popup-add-tag').click(function(e) {
-      var el = e.target,
-        parent = el.offsetParent;
+    // Tags
+    var originalTags = commonTags(annotations);
+    var tagList = new common.TagList($('.popup-tags'), commonTags(annotations));  
     
-      if (tagEditor) {
-        tagEditor.destroy();
-        tagEditor = false;
-      } else {
-        tagEditor = new common.TagEditor(
-          parent, 
-          el.offsetTop - (parent.offsetHeight / 2), el.offsetLeft + parent.offsetWidth,
-          function (tags) { // onEnter
-            if (tags && tags.length > 0) {
-              $.each(annotations, function(idx, annotation) {
-                if (!annotation.tags)
-                  annotation.tags = [];
-                  
-                $.each(tags, function(idx, tag) { annotation.tags.push(tag); });    
-              });
-              
-              self.fireEvent('update', annotations);
-            }
-            self.destroy();  
-          }
-        );
-      }
+    tagList.on('update', function(updatedTags) {
+      var diff = diffTags(originalTags, updatedTags);
+      
+      // TODO update annotations
+      
+      originalTags = updatedTags.slice();
     });
   }
 
@@ -117,19 +101,37 @@ define(['georesolution/common'], function(common) {
    * Returns the list of unique tags that occur in the annotations.
    * @param {Array.<Object>} annotations the annotations
    */
-  var uniqueTags = function(annotations) {
-    var unique = [];
+  var commonTags = function(annotations) {
+    // Step 1 - get a set of all tags in all annotations
+    var commonTags = [];
     $.each(annotations, function(idx, annotation) {
       if (annotation.tags) {
         $.each(annotation.tags, function(idx, tag) {
-          if (unique.indexOf(tag) == -1)
-            unique.push(tag);
+          if (commonTags.indexOf(tag) == -1)
+            commonTags.push(tag);
         });
       }
     });
-    return unique;
+    
+    // Step 2 - remove tags every time there's an annotation that does not have it
+    $.each(annotations, function(idx, annotation) {
+      commonTags = $.grep(commonTags, function(tag) {
+        if (!annotation.tags) {
+          return false;
+        } else {
+          return annotation.tags.indexOf(tag) > -1;
+        }
+      });
+    });
+
+    return commonTags;
   }
   
+  var diffTags = function(before, after) {
+    // TODO implement
+    return { add: [], remove: [] };
+  }
+   
   return BatchPopup;
 
 });

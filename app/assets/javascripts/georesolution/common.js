@@ -28,6 +28,86 @@ define(function() {
     if (this.handlers[event])
       this.handlers[event](e, args);     
   }
+  
+  /**
+   * A tag list element to be used in the Details & Batch popups.
+   * @param {Element} parent the parent element to attach the list to
+   */
+  var TagList = function(parent, tags) {
+    HasEvents.call(this);
+    
+    var self = this,
+        ul = $('<ul></ul>'),
+        tagEditor = false,
+        addButton =  $('<span class="popup-tag popup-add-tag" title="Add Tag" ><a id="add-tag"  class="icon">&#xf055;</a></span>');
+
+    // Helper function to add a tag to the list
+    var addTag = function(idx, tag) {
+      ul.append('<li class="popup-tag">' + tag + '<a title="Remove Tag" data-index="' + idx + '" class="popup-tag-remove icon">&#xf00d;</a></li>'); 
+    };
+      
+    // Helper function to remove a tag from the list
+    var removeTag = function(idx) {
+      if (tags) {
+        tags.splice(idx, 1);
+        ul.empty();
+        $.each(tags, function(idx, tag) {
+        if (tag.length > 0)
+          addTag(idx, tag);        
+        });
+      }
+    };
+      
+    // Initialize the tag list
+    if (tags) {
+      $.each(tags, function(idx, tag) {
+        if (tag.length > 0)
+          addTag(idx, tag);        
+      });
+    }
+    parent.append(ul);
+    parent.append(addButton);
+    
+    // Event hanlding: 'Add tag' button
+    addButton.click(function(e) {
+      if (tagEditor) {
+        tagEditor.destroy();
+        tagEditor = false;
+      } else {
+        var offset = addButton.offset();
+      
+        var onEnter = function(newTags) {
+          if (newTags.length > 0) {
+            if (!tags)
+              tags = [];
+         
+            $.each(newTags, function(idx, newTag) { 
+              addTag(tags.length, newTag); 
+              tags.push(newTag);
+            });
+      
+            self.fireEvent('update', tags);
+          }
+        };
+      
+        var onEscape = function(editor) { 
+          editor.destroy(); 
+          tagEditor = false; 
+        };
+      
+        tagEditor = new TagEditor(e.target.offsetParent, -8, 28, onEnter, onEscape);
+      }
+    });
+    
+    // Event handling: 'Remove tag' icons
+    $(parent).on('click', '.popup-tag-remove', function(e) {
+      var idx = parseInt($(e.target).data('index'));
+      removeTag(idx);
+      self.fireEvent('update', tags);
+    });
+  }
+  
+  TagList.prototype = new HasEvents();
 
   /**
    * A tag editor component to be used in the Details & Batch popups.
@@ -116,7 +196,7 @@ define(function() {
     
     HasEvents: HasEvents,
     
-    TagEditor: TagEditor,
+    TagList: TagList,
     
     Utils: Utils
     
