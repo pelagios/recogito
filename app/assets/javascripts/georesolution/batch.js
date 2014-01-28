@@ -51,9 +51,25 @@ define(['georesolution/common'], function(common) {
     tagList.on('update', function(updatedTags) {
       var diff = diffTags(originalTags, updatedTags);
       
-      // TODO update annotations
+      $.each(annotations, function(idx, annotation) {
+        if (diff.add.length > 0) {
+          if (!annotation.tags)
+            annotation.tags = [];
+            
+          $.each(diff.add, function(idx, toAdd) {
+            if (annotation.tags.indexOf(toAdd) == -1)
+              annotation.tags.push(toAdd);
+          });    
+        } 
+        
+        $.each(diff.remove, function(idx, toRemove) {
+          annotation.tags.splice(annotation.tags.indexOf(toRemove), 1);
+        });
+      });
       
       originalTags = updatedTags.slice();
+      
+      self.fireEvent('update', annotations);
     });
   }
 
