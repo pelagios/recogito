@@ -3,9 +3,10 @@ var recogito = (window.recogito) ? window.recogito : { };
 
 recogito.PublicMap = function(mapDiv, dataURL) {
   var self = this,
-      baseLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
+      dareLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
         attribution: 'Tiles: <a href="http://pelagios.org/maps/greco-roman/about.html">Pelagios</a>, 2012; Data: NASA, OSM, Pleiades, DARMC'
-      }),
+      }),     
+      bingLayer = new L.BingLayer("Au8CjXRugayFe-1kgv1kR1TiKwUhu7aIqQ31AjzzOQz0DwVMjkF34q5eVgsLU5Jn"),
       layer_switcher_template = 
         '<div class="publicmap-layerswitcher">' +
         '  <div class="publicmap-layerswitcher-all">' +
@@ -21,10 +22,12 @@ recogito.PublicMap = function(mapDiv, dataURL) {
   this._map = new L.Map(mapDiv, {
     center: new L.LatLng(41.893588, 12.488022),
     zoom: 5,
-    layers: [baseLayer],
-    minZoom: 3,
-    maxZoom: 11
+    layers: [dareLayer, bingLayer],
+    minZoom: 3
   });
+  
+  var baseLayers = { 'Satellite': bingLayer, 'Map': dareLayer };
+  this._map.addControl(new L.Control.Layers(baseLayers, null, { position: 'topleft' }));
   
   // Fetch JSON data
   $.getJSON(dataURL, function(data) {
