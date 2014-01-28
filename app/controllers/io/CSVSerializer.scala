@@ -45,7 +45,7 @@ class CSVSerializer {
     * @param annotations the annotations
     * @return the CSV
     */
-  def asConsolidatedVerifiedResult(annotations: Seq[Annotation]): String = {
+  def asConsolidatedResult(annotations: Seq[Annotation]): String = {
     val header = Seq("toponym","uri","lat","lng", "place_category").mkString(SEPARATOR) + "\n"
     annotations.foldLeft(header)((csv, annotation) => {
       val uri = if (annotation.correctedGazetteerURI.isDefined && !annotation.correctedGazetteerURI.get.isEmpty) annotation.correctedGazetteerURI else annotation.gazetteerURI
