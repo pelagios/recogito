@@ -64,7 +64,7 @@ object Global extends GlobalSettings {
         Annotations.ddl.create
       
       if (MTable.getTables("edit_history").list().isEmpty)
-        EditHistory.ddl.create        
+        EditHistory.ddl.create
     }
   }  
 

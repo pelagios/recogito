@@ -46,7 +46,7 @@ class CSVSerializer {
     * @return the CSV
     */
   def asConsolidatedResult(annotations: Seq[Annotation]): String = {
-    val header = Seq("toponym","uri","lat","lng", "place_category").mkString(SEPARATOR) + "\n"
+    val header = Seq("toponym","uri","lat","lng", "place_category", "tags").mkString(SEPARATOR) + "\n"
     annotations.foldLeft(header)((csv, annotation) => {
       val uri = if (annotation.correctedGazetteerURI.isDefined && !annotation.correctedGazetteerURI.get.isEmpty) annotation.correctedGazetteerURI else annotation.gazetteerURI
       val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
@@ -60,7 +60,8 @@ class CSVSerializer {
         GazetteerUtils.normalizeURI(uri.get) + SEPARATOR + 
         coord.map(_.y).getOrElse("") + SEPARATOR +
         coord.map(_.x).getOrElse("") + SEPARATOR +
-        category.map(_.toString).getOrElse("") + SEPARATOR + "\n"
+        category.map(_.toString).getOrElse("") + SEPARATOR +
+        "\"" + annotation.tags.mkString(",") + "\"" + SEPARATOR + "\n"
       } else {
         csv
       }
