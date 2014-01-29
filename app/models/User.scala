@@ -8,14 +8,12 @@ import play.api.db.slick.Config.driver.simple._
   *
   * @author Rainer Simon <rainer.simon@ait.ac.at>
   */ 
-case class User(id: Option[Int], username: String, password: String, editableDocuments: String = "*", isAdmin: Boolean = false)
+case class User(username: String, password: String, editableDocuments: String = "*", isAdmin: Boolean = false)
 
 /** User database table **/
 object Users extends Table[User]("users") {
   
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  
-  def username = column[String]("username")
+  def username = column[String]("username", O.PrimaryKey)
   
   def password = column[String]("password")
   
@@ -23,12 +21,9 @@ object Users extends Table[User]("users") {
   
   def isAdmin = column[Boolean]("is_admin")
   
-  def * = id.? ~ username ~ password ~ editableDocuments ~ isAdmin <> (User.apply _, User.unapply _)
+  def * = username ~ password ~ editableDocuments ~ isAdmin <> (User.apply _, User.unapply _)
   
   def listAll()(implicit s: Session): Seq[User] = Query(Users).list
-    
-  def findById(id: Int)(implicit s: Session): Option[User] =
-    Query(Users).where(_.id === id).firstOption
   
   def findByUsername(username: String)(implicit s: Session): Option[User] =
     Query(Users).where(_.username === username).firstOption

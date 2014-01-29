@@ -15,7 +15,7 @@
        </tr>
       @for(event <- history) {
       	<tr>
-          <td>@models.Users.findById(event.userId).map(_.username).getOrElse("anonymous")</td>
+          <td>@event.username</td>
       	  <td>@event.updatedURI</td>
       	  <td>@event.updatedStatus</td>
       	  <td>@event.timestamp</td>

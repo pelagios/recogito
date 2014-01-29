@@ -67,7 +67,7 @@ object AnnotationController extends Controller with Secured {
           val uuid = Annotations returning Annotations.uuid insert(annotation)
     
           // Record edit event
-          EditHistory.insert(EditEvent(None, uuid, user.get.id.get, new Timestamp(new Date().getTime), 
+          EditHistory.insert(EditEvent(None, uuid, user.get.username, new Timestamp(new Date().getTime), None, 
             Some(correctedToponym), None, None, None, None))
                                                       
           Ok(Json.parse("{ \"success\": true }"))
@@ -164,7 +164,7 @@ object AnnotationController extends Controller with Secured {
         
       // Record edit event
       val user = Users.findByUsername(username) // The user is logged in, so we can assume the Option is defined
-      EditHistory.insert(createDiffEvent(annotation.get, updated, user.get.id.get))
+      EditHistory.insert(createDiffEvent(annotation.get, updated, user.get.username))
       Ok(Json.parse("{ \"success\": true }"))
     }
   }
@@ -187,7 +187,7 @@ object AnnotationController extends Controller with Secured {
         
       // Record edit event
       if (updated.isDefined)
-        EditHistory.insert(createDiffEvent(annotation.get, updated.get, user.get.id.get))
+        EditHistory.insert(createDiffEvent(annotation.get, updated.get, user.get.username))
         
       Ok(Json.parse("{ \"success\": true }"))
     } 
@@ -221,7 +221,7 @@ object AnnotationController extends Controller with Secured {
     * @param after the updated annotation
     * @param userId the user who made the update
     */
-  private def createDiffEvent(before: Annotation, after: Annotation, userId: Int): EditEvent = {    
+  private def createDiffEvent(before: Annotation, after: Annotation, username: String): EditEvent = {    
     val updatedStatus = if (before.status.equals(after.status)) None else Some(after.status)
     val updatedToponym = if (before.correctedToponym.equals(after.correctedToponym)) None else after.correctedToponym
     val updatedOffset = if (before.correctedOffset.equals(after.correctedOffset)) None else after.correctedOffset
@@ -229,7 +229,7 @@ object AnnotationController extends Controller with Secured {
     val updatedTags = if (before.tags.equals(after.tags)) None else after.tags
     val updateComment = if (before.comment.equals(after.comment)) None else after.comment
     
-    EditEvent(None, before.uuid, userId, new Timestamp(new Date().getTime),
+    EditEvent(None, before.uuid, username, new Timestamp(new Date().getTime), None,
               updatedToponym, updatedStatus, updatedURI, updatedTags, updateComment)
   }
 

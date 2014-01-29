@@ -19,10 +19,13 @@ case class EditEvent(
     annotationId: UUID, 
     
     /** Relation: the ID of the user who made the edit **/
-    userId: Int,
+    username: String,
     
     /** Time and date of the edit **/
     timestamp: Timestamp,
+    
+    /** A serialized representation of the annotation before the edit **/
+    annotationBefore: Option[String],
         
     /** Updated toponym **/
     updatedToponym: Option[String], 
@@ -46,9 +49,11 @@ object EditHistory extends Table[EditEvent]("edit_history") with HasStatusColumn
   
   def annotationId = column[UUID]("annotation")
   
-  def userId = column[Int]("user")
+  def username = column[String]("username")
   
   def timestamp = column[Timestamp]("timestamp")
+  
+  def annotationBefore = column[String]("annotation_before", O.Nullable)
   
   def updatedToponym = column[String]("updated_toponym", O.Nullable)
   
@@ -60,7 +65,7 @@ object EditHistory extends Table[EditEvent]("edit_history") with HasStatusColumn
   
   def updatedComment = column[String]("updated_comment", O.Nullable)
   
-  def * = id.? ~ annotationId ~ userId ~ timestamp ~ updatedToponym.? ~ updatedStatus.? ~ updatedURI.? ~
+  def * = id.? ~ annotationId ~ username ~ timestamp ~ annotationBefore.? ~ updatedToponym.? ~ updatedStatus.? ~ updatedURI.? ~
     updatedTags.? ~ updatedComment.? <> (EditEvent.apply _, EditEvent.unapply _)
   
   def findByAnnotation(uuid: UUID)(implicit s: Session): Seq[EditEvent] =
