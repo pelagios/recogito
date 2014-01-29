@@ -65,7 +65,7 @@ object JSONSerializer {
                  } 
        
     Json.obj(
-      "id" -> a.id,
+      "id" -> a.uuid.toString,
       "toponym" -> { if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym },
       "status" -> a.status.toString,
       "place" -> a.gazetteerURI.map(placeUriToJson(_)),

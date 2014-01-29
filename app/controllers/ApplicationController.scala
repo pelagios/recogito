@@ -71,14 +71,14 @@ object ApplicationController extends Controller with Secured {
           
           val cssClassB = if (annotation.correctedToponym.isDefined) " manual" else " automatic"
    
-          val title = "#" + annotation.id.get + " " +
+          val title = "#" + annotation.uuid + " " +
             AnnotationStatus.screenName(annotation.status) + " (" +
             { if (annotation.correctedToponym.isDefined) "Manual Correction" else "Automatic Match" } +
             ")"
             
           if (toponym.isDefined && offset.isDefined) {
             val nextSegment = escapePlaintext(plaintext.substring(beginIndex, offset.get)) +
-              "<span data-id=\"" + annotation.id.get + "\" class=\"" + cssClassA + cssClassB + "\" title=\"" + title + "\">" + toponym.get + "</span>"
+              "<span data-id=\"" + annotation.uuid + "\" class=\"" + cssClassA + cssClassB + "\" title=\"" + title + "\">" + toponym.get + "</span>"
               
             (markup + nextSegment, offset.get + toponym.get.size)
           } else {
@@ -112,8 +112,8 @@ object ApplicationController extends Controller with Secured {
     */
   private def debugTextAnnotationUI(annotation: Annotation)(implicit s: Session) = {
     val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
-    Logger.error("Offending annotation: #" + annotation.id.get + " - " + toponym.getOrElse(""))
-    Annotations.getOverlappingAnnotations(annotation).foreach(a => Logger.error("Overlaps with: #" + a.id.get))
+    Logger.error("Offending annotation: #" + annotation.uuid + " - " + toponym.getOrElse(""))
+    Annotations.getOverlappingAnnotations(annotation).foreach(a => Logger.error("Overlaps with: #" + a.uuid))
   }
 
   /** Shows the map-based georesolution correction UI for the specified document.

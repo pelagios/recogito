@@ -4,6 +4,7 @@ import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import play.api.Logger
+import java.util.UUID
 
 /** Annotation case class.
   *  
@@ -11,8 +12,8 @@ import play.api.Logger
   */
 case class Annotation(
     
-    /** Id **/
-    id: Option[Int],
+    /** UUID **/
+    uuid: UUID,
     
     /** Relation to the {{GeoDocument}} **/
     gdocId: Int,
@@ -51,11 +52,17 @@ case class Annotation(
     source: Option[String] = None
     
 )
+
+object Annotation {
+  
+  def newUUID: UUID = UUID.randomUUID
+  
+}
    
 /** Annotation database table **/
 object Annotations extends Table[Annotation]("annotations") with HasStatusColumn {
 
-  def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def uuid = column[UUID]("uuid", O.PrimaryKey)
   
   def gdocId = column[Int]("gdoc")
   
@@ -81,7 +88,7 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
   
   def source = column[String]("source", O.Nullable)
   
-  def * = id.? ~ gdocId ~ gdocPartId.? ~ status ~ toponym.? ~ offset.? ~ gazetteerURI.? ~ correctedToponym.? ~ 
+  def * = uuid ~ gdocId ~ gdocPartId.? ~ status ~ toponym.? ~ offset.? ~ gazetteerURI.? ~ correctedToponym.? ~ 
     correctedOffset.? ~ correctedGazetteerURI.? ~ tags.? ~ comment.?  ~ source.? <> (Annotation.apply _, Annotation.unapply _)
     
   private val sortByOffset = { a: Annotation =>
@@ -93,12 +100,12 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
   }
   
   /** Retrieve an annotation with the specified ID (= primary key) **/
-  def findById(id: Int)(implicit s: Session): Option[Annotation] =
-    Query(Annotations).where(_.id === id).firstOption
+  def findByUUID(uuid: UUID)(implicit s: Session): Option[Annotation] =
+    Query(Annotations).where(_.uuid === uuid.bind).firstOption
 
   /** Delete an annotation with the specified ID (= primary key) **/
-  def delete(id: Int)(implicit s: Session) = 
-    Query(Annotations).where(_.id === id).delete
+  def delete(uuid: UUID)(implicit s: Session) = 
+    Query(Annotations).where(_.uuid === uuid.bind).delete
     
     
     
@@ -112,7 +119,7 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
     
   /** Update an annotation **/
   def update(annotation: Annotation)(implicit s: Session) =
-    Query(Annotations).where(_.id === annotation.id).update(annotation)
+    Query(Annotations).where(_.uuid === annotation.uuid.bind).update(annotation)
   
   /** Delete all annotations on a specific GeoDocument **/
   def deleteForGeoDocument(id: Int)(implicit s: Session) =
@@ -161,7 +168,7 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
         } else {
           false
         }
-      }).filter(_.id != annotation.id)
+      }).filter(_.uuid != annotation.uuid)
     } else {
       Seq.empty[Annotation]
     }

@@ -21,9 +21,9 @@ DELETE  /recogito/api/documents/:id           controllers.DocumentController.del
 
 # Annotations
 POST    /recogito/api/annotations             controllers.AnnotationController.create
-GET     /recogito/api/annotations/:id         controllers.AnnotationController.get(id: Int)
-PUT     /recogito/api/annotations/:id         controllers.AnnotationController.update(id: Int)
-DELETE  /recogito/api/annotations/:id         controllers.AnnotationController.delete(id: Int)
+GET     /recogito/api/annotations/:id         controllers.AnnotationController.get(id: java.util.UUID)
+PUT     /recogito/api/annotations/:id         controllers.AnnotationController.update(id: java.util.UUID)
+DELETE  /recogito/api/annotations/:id         controllers.AnnotationController.delete(id: java.util.UUID)
 
 # Search
 GET     /recogito/api/search/place            controllers.SearchController.placeSearch(query: String)

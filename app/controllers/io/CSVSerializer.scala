@@ -90,7 +90,7 @@ class CSVSerializer {
       val correctedCoordinate = queryResultForCorrectedURI.map(_._2).flatten
       
       csv + 
-      annotation.id.get + SEPARATOR +
+      annotation.uuid + SEPARATOR +
       annotation.gdocPartId.map(getTitleForPart(_)).flatten.getOrElse("") + SEPARATOR +
       annotation.status + SEPARATOR +
       annotation.toponym.getOrElse("") + SEPARATOR +

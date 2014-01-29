@@ -4,6 +4,7 @@ import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import java.sql.Timestamp
+import java.util.UUID
 
 /** Edit event case class.
   * 
@@ -15,14 +16,14 @@ case class EditEvent(
     id: Option[Int] = None,
     
     /** Relation: ID of the annotation the edit event belongs to **/
-    annotationId: Int, 
+    annotationId: UUID, 
     
     /** Relation: the ID of the user who made the edit **/
     userId: Int,
     
     /** Time and date of the edit **/
     timestamp: Timestamp,
-    
+        
     /** Updated toponym **/
     updatedToponym: Option[String], 
     
@@ -43,7 +44,7 @@ object EditHistory extends Table[EditEvent]("edit_history") with HasStatusColumn
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   
-  def annotationId = column[Int]("annotation")
+  def annotationId = column[UUID]("annotation")
   
   def userId = column[Int]("user")
   
@@ -62,8 +63,8 @@ object EditHistory extends Table[EditEvent]("edit_history") with HasStatusColumn
   def * = id.? ~ annotationId ~ userId ~ timestamp ~ updatedToponym.? ~ updatedStatus.? ~ updatedURI.? ~
     updatedTags.? ~ updatedComment.? <> (EditEvent.apply _, EditEvent.unapply _)
   
-  def findByAnnotation(id: Int)(implicit s: Session): Seq[EditEvent] =
-    Query(EditHistory).where(_.annotationId === id).list
+  def findByAnnotation(uuid: UUID)(implicit s: Session): Seq[EditEvent] =
+    Query(EditHistory).where(_.annotationId === uuid.bind).list
     
   def getLastN(n: Int)(implicit s: Session): Seq[EditEvent] =
     Query(EditHistory).sortBy(_.timestamp.desc).take(n).list

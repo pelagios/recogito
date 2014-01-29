@@ -10,6 +10,7 @@ import play.api.db.slick.Config.driver.simple._
 import play.api.libs.json.Json
 import play.api.Logger
 import play.api.mvc.{ Action, Controller }
+import java.util.UUID
 
 /** Annotation CRUD controller.
   *
@@ -47,7 +48,7 @@ object AnnotationController extends Controller with Secured {
         val correctedOffset = (body.get \ "corrected_offset").as[Int]        
 
         val annotation = 
-          Annotation(None, gdocId_verified.get, gdocPart.map(_.id).flatten, 
+          Annotation(Annotation.newUUID, gdocId_verified.get, gdocPart.map(_.id).flatten, 
                      AnnotationStatus.NOT_VERIFIED, None, None, None, 
                      Some(correctedToponym), Some(correctedOffset))
           
@@ -59,14 +60,14 @@ object AnnotationController extends Controller with Secured {
         } else if (Annotations.getOverlappingAnnotations(annotation).size > 0) {
           // Annotation overlaps with existing ones - something is wrong
           Logger.info("Overlap error: " + correctedToponym + " - " + correctedOffset + " GDoc Part: " + gdocPart.get.id)
-          Annotations.getOverlappingAnnotations(annotation).foreach(a => Logger.warn("Overlaps with " + a.id.get))
+          Annotations.getOverlappingAnnotations(annotation).foreach(a => Logger.warn("Overlaps with " + a.uuid))
           BadRequest(Json.parse("{ \"success\": false, \"message\": \"Annotation overlaps with an existing one (details were logged).\" }"))
           
         } else {
-          val id = Annotations returning Annotations.id insert(annotation)
+          val uuid = Annotations returning Annotations.uuid insert(annotation)
     
           // Record edit event
-          EditHistory.insert(EditEvent(None, id, user.get.id.get, new Timestamp(new Date().getTime), 
+          EditHistory.insert(EditEvent(None, uuid, user.get.id.get, new Timestamp(new Date().getTime), 
             Some(correctedToponym), None, None, None, None))
                                                       
           Ok(Json.parse("{ \"success\": true }"))
@@ -106,8 +107,8 @@ object AnnotationController extends Controller with Secured {
     * in the database).
     * @param id the annotation ID
     */
-  def get(id: Int) = DBAction { implicit session =>
-    val annotation = Annotations.findById(id)
+  def get(uuid: UUID) = DBAction { implicit session =>
+    val annotation = Annotations.findByUUID(uuid)
     if (annotation.isDefined) {          
       Ok(JSONSerializer.toJson(annotation.get, true))
     } else {
@@ -119,9 +120,9 @@ object AnnotationController extends Controller with Secured {
     *  
     * @param id the annotation ID to update
     */
-  def update(id: Int) = protectedDBAction(Secure.REJECT) { username => implicit requestWithSession =>
+  def update(uuid: UUID) = protectedDBAction(Secure.REJECT) { username => implicit requestWithSession =>
     val body = requestWithSession.request.body.asJson
-    val annotation = Annotations.findById(id)
+    val annotation = Annotations.findByUUID(uuid)
     
     if (!body.isDefined) {
       // No JSON body - bad request
@@ -151,7 +152,7 @@ object AnnotationController extends Controller with Secured {
       val offset = if (updatedOffset.isDefined) updatedOffset else annotation.get.offset
                      
       val updated = 
-        Annotation(Some(id), annotation.get.gdocId, annotation.get.gdocPartId, 
+        Annotation(uuid, annotation.get.gdocId, annotation.get.gdocPartId, 
                    updatedStatus,
                    annotation.get.toponym, annotation.get.offset, annotation.get.gazetteerURI, 
                    updatedToponym, updatedOffset, updatedURI, updatedTags, updatedComment)
@@ -174,8 +175,8 @@ object AnnotationController extends Controller with Secured {
     * 
     * @param id the annotation ID 
     */
-  def delete(id: Int) = protectedDBAction(Secure.REJECT) { username => implicit requestWithSession =>
-    val annotation = Annotations.findById(id)
+  def delete(uuid: UUID) = protectedDBAction(Secure.REJECT) { username => implicit requestWithSession =>
+    val annotation = Annotations.findByUUID(uuid)
     if (!annotation.isDefined) {
       // Someone tries to delete an annotation that's not in the DB
       NotFound(Json.parse("{ \"success\": false, \"message\": \"Annotation not found\" }"))
@@ -200,10 +201,10 @@ object AnnotationController extends Controller with Secured {
     */
   private def _delete(a: Annotation)(implicit s: Session): Option[Annotation] = {
     if (!a.toponym.isDefined) {
-      Annotations.delete(a.id.get)
+      Annotations.delete(a.uuid)
       None
     } else {
-      val updated = Annotation(a.id, a.gdocId, a.gdocPartId,
+      val updated = Annotation(a.uuid, a.gdocId, a.gdocPartId,
                                AnnotationStatus.FALSE_DETECTION, 
                                a.toponym, a.offset,
                                a.gazetteerURI, a.correctedToponym, a.correctedOffset, a.correctedGazetteerURI,
@@ -228,7 +229,7 @@ object AnnotationController extends Controller with Secured {
     val updatedTags = if (before.tags.equals(after.tags)) None else after.tags
     val updateComment = if (before.comment.equals(after.comment)) None else after.comment
     
-    EditEvent(None, before.id.get, userId, new Timestamp(new Date().getTime),
+    EditEvent(None, before.uuid, userId, new Timestamp(new Date().getTime),
               updatedToponym, updatedStatus, updatedURI, updatedTags, updateComment)
   }
 
