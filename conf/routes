@@ -6,9 +6,9 @@
 GET     /recogito/static/*file                controllers.Assets.at(path="/public", file)
 
 # Authentication
-GET     /recogito/login                       controllers.Auth.login
-POST    /recogito/login                       controllers.Auth.authenticate
-GET     /recogito/logout                      controllers.Auth.logout
+GET     /recogito/login                       controllers.AuthController.login
+POST    /recogito/login                       controllers.AuthController.authenticate
+GET     /recogito/logout                      controllers.AuthController.logout
 
 
 # API

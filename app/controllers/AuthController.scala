@@ -14,7 +14,7 @@ import scala.slick.session.Session
   *
   * @author Rainer Simon <rainer.simon@ait.ac.at>
   */
-object Auth extends Controller {
+object AuthController extends Controller {
 
   import play.api.data.Forms._
   
@@ -56,7 +56,7 @@ object Auth extends Controller {
 
   /** Logout handler **/
   def logout = Action {
-    Redirect(routes.Auth.login).withNewSession.flashing(
+    Redirect(routes.AuthController.login).withNewSession.flashing(
       "success" -> "You are now logged out."
     )
   }
@@ -82,7 +82,7 @@ trait Secured {
   
   private def onUnauthorized(policy: Secure.Policy)(request: RequestHeader) = {
     if (policy == Secure.REDIRECT_TO_LOGIN)
-      Results.Redirect(routes.Auth.login)
+      Results.Redirect(routes.AuthController.login)
     else
       Results.Forbidden
   }  
