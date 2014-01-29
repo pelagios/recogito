@@ -11,7 +11,6 @@ import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import play.api.Play.current
 import play.api.libs.json.Json
-import controllers.io.CSVSerializer
 
 /** Administration features.
   * 

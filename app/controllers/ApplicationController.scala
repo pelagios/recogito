@@ -6,7 +6,6 @@ import play.api.Play.current
 import play.api.libs.json.Json
 import play.api.mvc.{ Action, Controller }
 import play.api.Logger
-import org.pelagios.gazetteer.GazetteerUtils
 
 /** Main application entrypoint.
   *

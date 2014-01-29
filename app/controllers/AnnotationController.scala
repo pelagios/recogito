@@ -2,7 +2,7 @@ package controllers
 
 import controllers.io.JSONSerializer
 import java.sql.Timestamp
-import java.util.Date
+import java.util.{ Date, UUID }
 import models._
 import play.api.Play.current
 import play.api.db.slick._
@@ -10,7 +10,6 @@ import play.api.db.slick.Config.driver.simple._
 import play.api.libs.json.Json
 import play.api.Logger
 import play.api.mvc.{ Action, Controller }
-import java.util.UUID
 
 /** Annotation CRUD controller.
   *
@@ -64,10 +63,10 @@ object AnnotationController extends Controller with Secured {
           BadRequest(Json.parse("{ \"success\": false, \"message\": \"Annotation overlaps with an existing one (details were logged).\" }"))
           
         } else {
-          val uuid = Annotations returning Annotations.uuid insert(annotation)
+          Annotations.insert(annotation)
     
           // Record edit event
-          EditHistory.insert(EditEvent(None, uuid, user.get.username, new Timestamp(new Date().getTime), None, 
+          EditHistory.insert(EditEvent(None, annotation.uuid, user.get.username, new Timestamp(new Date().getTime), None, 
             Some(correctedToponym), None, None, None, None))
                                                       
           Ok(Json.parse("{ \"success\": true }"))
