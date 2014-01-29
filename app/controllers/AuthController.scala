@@ -102,4 +102,7 @@ trait Secured {
     }
   }
   
+  def isAdmin()(implicit username: String, s: Session): Boolean =
+    Users.findByUsername(username).map(_.isAdmin).getOrElse(false)
+  
 }
