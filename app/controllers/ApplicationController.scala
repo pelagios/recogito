@@ -17,7 +17,8 @@ object ApplicationController extends Controller with Secured {
     
   /** Returns the index page for logged-in users **/
   def index = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit request => 
-    Ok(views.html.index(username)) 
+    val user = Users.findByUsername(username)
+    Ok(views.html.index(user.get)) 
   }
    
   /** Shows the 'public map' for the specified document.

@@ -24,6 +24,7 @@ table {
 th, td {
   font-size:14px;
   padding:6px 10px 6px 10px;
+  position:relative;
 }
 
 tr { border-bottom:1px solid #e2e2e2; }
@@ -38,6 +39,14 @@ tr.totals td {
 }
 
 tbody tr:hover { background-color:@tr-hover-color; }
+
+tbody tr.locked-document, tbody tr.locked-document:hover {
+  background-color:#fff; 
+}
+
+tbody tr.locked-document td {
+  color: #bbb;
+}
 
 td.center { text-align:center; }
 
@@ -77,6 +86,12 @@ td.more-stats { width:30px; }
   color:#555;  
   position:relative;
   width:25px;
+}
+
+.icon.locked-document {
+  position:absolute;
+  top:7px;
+  left:-12px;
 }
 
 .icon.toggle:after { content: '\f0d7'; }

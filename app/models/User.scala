@@ -8,7 +8,16 @@ import play.api.db.slick.Config.driver.simple._
   *
   * @author Rainer Simon <rainer.simon@ait.ac.at>
   */ 
-case class User(username: String, password: String, editableDocuments: String = "*", isAdmin: Boolean = false)
+case class User(username: String, password: String, editableDocuments: String = "*", isAdmin: Boolean = false) {
+
+  def canEdit(docId: Int): Boolean = {
+    if (editableDocuments.trim.equals("*"))
+      true
+    else
+      editableDocuments.split(",").map(_.toInt).contains(docId)
+  }
+  
+}
 
 /** User database table **/
 object Users extends Table[User]("users") {

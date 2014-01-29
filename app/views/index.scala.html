@@ -1,4 +1,4 @@
-@(username: String)(implicit s: play.api.db.slick.Config.driver.simple.Session)
+@(user: models.User)(implicit s: play.api.db.slick.Config.driver.simple.Session)
 <html>
   <head>
     <title>RECOGITO</title>
@@ -34,48 +34,55 @@
         </thead>     
         <tbody>
           @for(doc <- models.GeoDocuments.listAll().sortBy(_.title)) {
-          	<tr>
-          	  <td>@doc.title</td> <!-- document title -->
+          	@defining(user.canEdit(doc.id.get)) { canEdit =>
+          	  @if(canEdit) { <tr> } else { <tr class="locked-document"> }
+          	    <td> <!-- document title -->
+          	      @if(!canEdit) {
+          	        <span class="icon locked-document">&#xf023;</span>
+          	      }
+          	      @doc.title
+          	    </td>
           	  
-          	  @defining(models.GeoDocumentParts.countForGeoDocument(doc.id.get)) { parts =>
-          	  	<!-- number of parts -->
-                @if(parts == 0) { 
-          	      <td colspan="2" class="center">-</td>
-          	    } else {
-          	      <td class="right">@parts</td><td><a class="icon toggle toggle-@doc.id.get" href="#" onclick="toggleDetails(@doc.id.get); return false;"></a></td>
-          	    }         	      
-          	  }
+          	    @defining(models.GeoDocumentParts.countForGeoDocument(doc.id.get)) { parts =>
+          	  	  <!-- number of parts -->
+                  @if(parts == 0) { 
+          	        <td colspan="2" class="center">-</td>
+          	      } else {
+          	        <td class="right">@parts</td><td><a class="icon toggle toggle-@doc.id.get" href="#" onclick="toggleDetails(@doc.id.get); return false;"></a></td>
+          	      }         	      
+          	    }
           	  
-          	  <!-- number of toponyms -->
-          	  <td class="center">
-          	    @doc.totalToponymCount
-          	  </td>
+          	    <!-- number of toponyms -->
+          	    <td class="center">
+          	      @doc.totalToponymCount
+          	    </td>
           	  
-          	  <td class="stats"> <!-- completion ratio -->
-          	    @defining(doc.completionRatio * 100) { completionRatio =>
-          	      <div class="meter" title="@{ "%.2f" format (completionRatio) } %">
-	                <span style="width: @completionRatio%"></span>
-                  </div>
-                }
-          	  </td>
-          	  <td class="more-stats"><a href="#" onclick="return false;" class="icon" title="Detailed Stats">&#xf080;</a></td>
+          	    <td class="stats"> <!-- completion ratio -->
+          	      @defining(doc.completionRatio * 100) { completionRatio =>
+          	        <div class="meter" title="@{ "%.2f" format (completionRatio) } %">
+	                  <span style="width: @completionRatio%"></span>
+                    </div>
+                  }
+          	    </td>
+          	    <td class="more-stats"><a href="#" onclick="return false;" class="icon" title="Detailed Stats">&#xf080;</a></td>
           	  
-          	  <td class="icons"> <!-- icons: map, public map, text -->
-          	    @defining(GeoDocumentTexts.getTextForGeoDocument(doc.id.get)) { text =>
-      	          @if(text.isDefined) {
-      	            <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(text.get.id.get)" title="Text Annotation">&#xf0f6;</a>
-      	          } else {
-      	            <span class="icon"></span>
+          	    <td class="icons"> <!-- icons: map, public map, text -->
+          	      @defining(GeoDocumentTexts.getTextForGeoDocument(doc.id.get)) { text =>
+      	            @if(text.isDefined) {
+      	              <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(text.get.id.get)" title="Text Annotation">&#xf0f6;</a>
+      	            } else {
+      	              <span class="icon"></span>
+      	            }
       	          }
-      	        }
-          	    <a class="icon" href="@routes.ApplicationController.showGeoResolutionUI(doc.id.get)" title="Geo-Resolution">&#xf0ac;</a>
-          	    <a class="icon" href="@routes.DocumentController.get(doc.id.get, Some("csv"))" title="Download CSV">&#xf0ce;</a>
-          	    <a class="icon" href="@routes.ApplicationController.showMap(doc.id.get)" title="Public Map">
-          	      &#xf0ac;
-          	      <span class="icon public">&#xf0c0;</span>
-          	    </a>
-          	  </td>
-          	</tr>
+          	      <a class="icon" href="@routes.ApplicationController.showGeoResolutionUI(doc.id.get)" title="Geo-Resolution">&#xf0ac;</a>
+          	      <a class="icon" href="@routes.DocumentController.get(doc.id.get, Some("csv"))" title="Download CSV">&#xf0ce;</a>
+          	      <a class="icon" href="@routes.ApplicationController.showMap(doc.id.get)" title="Public Map">
+          	        &#xf0ac;
+          	        <span class="icon public">&#xf0c0;</span>
+          	      </a>
+          	    </td>
+          	  </tr>
+          	}
           	
           	@for(part <- models.GeoDocumentParts.findByGeoDocument(doc.id.get)) {
               <tr class="document-part document-@doc.id.get">
@@ -170,7 +177,7 @@
     </div>
     <div id="footer">
       <span id="footer-info"></span>
-      <span id="footer-user">You are logged in as: <span class="footer-username">@username</span><a href="logout" title="Logout" class="footer-logout">&#xf011;</a></span>
+      <span id="footer-user">You are logged in as: <span class="footer-username">@user.username</span><a href="logout" title="Logout" class="footer-logout">&#xf011;</a></span>
     </div>
   </body>
 </html>

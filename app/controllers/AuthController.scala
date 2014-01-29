@@ -109,19 +109,5 @@ trait Secured {
       else 
         Results.Forbidden
     }
-    
-  def canEdit(username: String, docId: Int)(implicit s: Session): Boolean = {
-    val user = Users.findByUsername(username)
-    if (user.isDefined) {
-      val editableDocs = user.get.editableDocuments
-      if (editableDocs.trim.equals("*"))
-        true // Wildcard
-      else
-        editableDocs.split(",").map(_.toInt).contains(docId) // List of specific docs
-    } else {
-      // Should never happen
-      false
-    }    
-  }
   
 }
