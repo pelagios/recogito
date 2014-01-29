@@ -1,10 +1,9 @@
 package models
 
+import java.util.UUID
 import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
-import play.api.Logger
-import java.util.UUID
 
 /** Annotation case class.
   *  
@@ -99,11 +98,11 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
       (a.gdocPartId, 0)
   }
   
-  /** Retrieve an annotation with the specified ID (= primary key) **/
+  /** Retrieve an annotation with the specified UUID (= primary key) **/
   def findByUUID(uuid: UUID)(implicit s: Session): Option[Annotation] =
     Query(Annotations).where(_.uuid === uuid.bind).firstOption
 
-  /** Delete an annotation with the specified ID (= primary key) **/
+  /** Delete an annotation with the specified UUID (= primary key) **/
   def delete(uuid: UUID)(implicit s: Session) = 
     Query(Annotations).where(_.uuid === uuid.bind).delete
     

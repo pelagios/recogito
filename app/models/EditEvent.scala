@@ -1,10 +1,10 @@
 package models
 
+import java.sql.Timestamp
+import java.util.UUID
 import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
-import java.sql.Timestamp
-import java.util.UUID
 
 /** Edit event case class.
   * 

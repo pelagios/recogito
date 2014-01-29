@@ -6,7 +6,6 @@ import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.Json
 import play.api.Play.current
 import models.GeoDocumentTexts
-import play.api.Logger
 import models.{ Annotation, Annotations, AnnotationStatus }
 
 /** Toponym search API controller.

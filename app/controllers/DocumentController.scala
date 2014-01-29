@@ -6,8 +6,6 @@ import play.api.db.slick._
 import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.{ Json, JsObject }
 import play.api.Play.current
-import global.Global
-import controllers.io.CSVSerializer
 
 /** GeoDocument JSON API.
   *
@@ -16,8 +14,6 @@ import controllers.io.CSVSerializer
 object DocumentController extends Controller with Secured {
   
   private val CSV = "csv"
-    
-  private val DARE_PREFIX = "http://www.imperium.ahlfeldt.se/"
   
   /** Returns the list of all geo documents in the database as JSON **/
   def listAll = DBAction { implicit session =>
