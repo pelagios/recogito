@@ -77,7 +77,7 @@ object ApplicationController extends Controller with Secured {
             
           if (toponym.isDefined && offset.isDefined) {
             val nextSegment = escapePlaintext(plaintext.substring(beginIndex, offset.get)) +
-              "<span data-id=\"" + annotation.uuid + "\" class=\"" + cssClassA + cssClassB + "\" title=\"" + title + "\">" + toponym.get + "</span>"
+              "<span data-id=\"" + annotation.uuid + "\" class=\"" + cssClassA + cssClassB + "\" title=\"" + title + "\">" + escapePlaintext(toponym.get) + "</span>"
               
             (markup + nextSegment, offset.get + toponym.get.size)
           } else {

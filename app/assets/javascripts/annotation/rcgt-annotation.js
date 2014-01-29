@@ -9,7 +9,7 @@ var recogito = (window.recogito) ? window.recogito : { };
  */
 recogito.TextAnnotationUI = function(textDiv, gdocId, opt_gdocPartId) { 
   var self = this,
-      getId = function(node) { return parseInt($(node).data('id')); };
+      getId = function(node) { return $(node).data('id'); };
    
   this._EDITOR_TEMPLATE = 
     '<div class="annotation-editor">' + 
