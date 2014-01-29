@@ -19,12 +19,12 @@ import play.api.libs.json.Json
 object AdminController extends Controller with Secured {
   
   /** Admin index page **/
-  def index = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit session =>
+  def index = adminAction { username => implicit session =>
     Ok(views.html.admin())
   }
   
   /** Upload document (metadata + text) as a ZIP **/
-  def uploadDocuments = protectedDBAction(Secure.REJECT) { username => implicit session =>
+  def uploadDocuments = adminAction { username => implicit session =>
     val formData = session.request.body.asMultipartFormData
     if (formData.isDefined) {
       formData.get.file("zip").map(filePart => ZipImporter.importZip(new ZipFile(filePart.ref.file)))
@@ -42,7 +42,7 @@ object AdminController extends Controller with Secured {
     * @param doc the document ID (optional)
     * @param part the document part ID (optional)
     */
-  def backupAnnotations(doc: Option[Int], part: Option[Int]) = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit session =>
+  def backupAnnotations(doc: Option[Int], part: Option[Int]) = adminAction { username => implicit session =>
     if (doc.isDefined)
       backupAnnotations_forDoc(doc.get)
     else if (part.isDefined)
@@ -105,7 +105,7 @@ object AdminController extends Controller with Secured {
     * 
     * @param doc the document ID 
     */
-  def dropAnnotations(doc: Int) = protectedDBAction(Secure.REJECT) { username => implicit session =>
+  def dropAnnotations(doc: Int) = adminAction { username => implicit session =>
     Annotations.deleteForGeoDocument(doc)
     Redirect(routes.AdminController.index)
   }

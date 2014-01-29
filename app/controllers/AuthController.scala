@@ -85,27 +85,32 @@ trait Secured {
       Results.Redirect(routes.Auth.login)
     else
       Results.Forbidden
-  }
-  
+  }  
   
   /** For protected actions **/
   def protectedAction(policy: Secure.Policy)(f: => String => Request[AnyContent] => Result) = {
-    Security.Authenticated(username, onUnauthorized(policy)) { user =>
-      Action(request => f(user)(request))
+    Security.Authenticated(username, onUnauthorized(policy)) { username =>
+      Action(request => f(username)(request))
     }
   }
 
   /** For protected actions that require DB access **/
   def protectedDBAction(policy: Secure.Policy)(f: => String => DBSessionRequest[AnyContent] => SimpleResult) = {
-    Security.Authenticated(username, onUnauthorized(policy)) { user =>
-      DBAction(BodyParsers.parse.anyContent)(rs => f(user)(rs))
+    Security.Authenticated(username, onUnauthorized(policy)) { username =>
+      DBAction(BodyParsers.parse.anyContent)(rs => f(username)(rs))
     }
   }
-  
-  def isAdmin()(implicit username: String, s: Session): Boolean =
-    Users.findByUsername(username).map(_.isAdmin).getOrElse(false)
-  
-  def canEdit(docId: Int)(implicit username: String, s: Session): Boolean = {
+
+  def adminAction(f: => String => DBSessionRequest[AnyContent] => SimpleResult) =
+    protectedDBAction(Secure.REJECT) { username => rs =>
+      val isAdmin = Users.findByUsername(username)(rs.dbSession).map(_.isAdmin).getOrElse(false)
+      if (isAdmin)
+        f(username)(rs)
+      else 
+        Results.Forbidden
+    }
+    
+  def canEdit(username: String, docId: Int)(implicit s: Session): Boolean = {
     val user = Users.findByUsername(username)
     if (user.isDefined) {
       val editableDocs = user.get.editableDocuments
