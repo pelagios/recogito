@@ -105,4 +105,18 @@ trait Secured {
   def isAdmin()(implicit username: String, s: Session): Boolean =
     Users.findByUsername(username).map(_.isAdmin).getOrElse(false)
   
+  def canEdit(docId: Int)(implicit username: String, s: Session): Boolean = {
+    val user = Users.findByUsername(username)
+    if (user.isDefined) {
+      val editableDocs = user.get.editableDocuments
+      if (editableDocs.trim.equals("*"))
+        true // Wildcard
+      else
+        editableDocs.split(",").map(_.toInt).contains(docId) // List of specific docs
+    } else {
+      // Should never happen
+      false
+    }    
+  }
+  
 }
