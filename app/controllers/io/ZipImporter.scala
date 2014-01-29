@@ -30,7 +30,8 @@ object ZipImporter {
       val text = (json \ "text").as[Option[String]]
       
       // Insert the document
-      val gdocId = GeoDocuments returning GeoDocuments.id insert(GeoDocument(None, docTitle, docDescription, docSource))
+      val gdocId = GeoDocuments returning GeoDocuments.id insert
+        (GeoDocument(None, None, docTitle, None, None, None, docDescription, docSource))
       
       // Insert text (if any)
       if (text.isDefined)
