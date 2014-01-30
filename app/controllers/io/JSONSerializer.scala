@@ -11,9 +11,7 @@ import global.CrossGazetteerUtils
   * @author Rainer Simon <rainer.simon@ait.ac.at> 
   */
 object JSONSerializer {
-  
-
-    
+   
   private val UTF8 = "UTF-8"
     
   private val CONTEXT_SIZE = 50
@@ -25,7 +23,7 @@ object JSONSerializer {
     * @param a the annotation
     * @param includeContext whether to include fulltext context or not
     */
-  def toJson(a: Annotation, includeContext: Boolean)(implicit session: Session): JsObject = {
+  def toJson(a: Annotation, includePlaces: Boolean, includeContext: Boolean)(implicit session: Session): JsObject = {
     val toponym = if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym
     val offset = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
     val context = if (includeContext) { 
@@ -68,8 +66,8 @@ object JSONSerializer {
       "id" -> a.uuid.toString,
       "toponym" -> { if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym },
       "status" -> a.status.toString,
-      "place" -> a.gazetteerURI.map(placeUriToJson(_)),
-      "place_fixed" -> a.correctedGazetteerURI.map(placeUriToJson(_)),
+      "place" -> { if (includePlaces) a.gazetteerURI.map(placeUriToJson(_)) else a.gazetteerURI },
+      "place_fixed" -> { if (includePlaces) a.correctedGazetteerURI.map(placeUriToJson(_)) else a.correctedGazetteerURI },
       "tags" -> a.tags.map(_.split(",")),
       "context" -> context,
       "comment" -> a.comment,
@@ -92,7 +90,7 @@ object JSONSerializer {
         "annotations" -> { 
           val annotations = 
             if (includeAnnotations)
-              Some(Annotations.findByGeoDocument(doc.id.get).map(toJson(_, false)))
+              Some(Annotations.findByGeoDocument(doc.id.get).map(toJson(_, true, false)))
             else
               None
            
@@ -109,7 +107,7 @@ object JSONSerializer {
           "annotations" -> { 
             val annotations = 
               if (includeAnnotations)
-                Some(Annotations.findByGeoDocumentPart(part.id.get).map(toJson(_, false)))
+                Some(Annotations.findByGeoDocumentPart(part.id.get).map(toJson(_, true, false)))
               else
                 None
            

@@ -66,8 +66,8 @@ object AnnotationController extends Controller with Secured {
           Annotations.insert(annotation)
     
           // Record edit event
-          EditHistory.insert(EditEvent(None, annotation.uuid, user.get.username, new Timestamp(new Date().getTime), None, 
-            Some(correctedToponym), None, None, None, None))
+          EditHistory.insert(EditEvent(None, annotation.uuid, user.get.username, new Timestamp(new Date().getTime),
+            None, Some(correctedToponym), None, None, None, None))
                                                       
           Ok(Json.parse("{ \"success\": true }"))
         }
@@ -109,7 +109,7 @@ object AnnotationController extends Controller with Secured {
   def get(uuid: UUID) = DBAction { implicit session =>
     val annotation = Annotations.findByUUID(uuid)
     if (annotation.isDefined) {          
-      Ok(JSONSerializer.toJson(annotation.get, true))
+      Ok(JSONSerializer.toJson(annotation.get, true, true))
     } else {
       NotFound
     }
@@ -220,7 +220,7 @@ object AnnotationController extends Controller with Secured {
     * @param after the updated annotation
     * @param userId the user who made the update
     */
-  private def createDiffEvent(before: Annotation, after: Annotation, username: String): EditEvent = {    
+  private def createDiffEvent(before: Annotation, after: Annotation, username: String)(implicit s: Session): EditEvent = {    
     val updatedStatus = if (before.status.equals(after.status)) None else Some(after.status)
     val updatedToponym = if (before.correctedToponym.equals(after.correctedToponym)) None else after.correctedToponym
     val updatedOffset = if (before.correctedOffset.equals(after.correctedOffset)) None else after.correctedOffset
@@ -228,7 +228,7 @@ object AnnotationController extends Controller with Secured {
     val updatedTags = if (before.tags.equals(after.tags)) None else after.tags
     val updateComment = if (before.comment.equals(after.comment)) None else after.comment
     
-    EditEvent(None, before.uuid, username, new Timestamp(new Date().getTime), None,
+    EditEvent(None, before.uuid, username, new Timestamp(new Date().getTime), Some(JSONSerializer.toJson(before, false, false).toString),
               updatedToponym, updatedStatus, updatedURI, updatedTags, updateComment)
   }
 
