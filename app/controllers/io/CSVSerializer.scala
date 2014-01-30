@@ -16,23 +16,63 @@ class CSVSerializer {
   
   private val SEPARATOR = ";"
     
-  private val partTitleCache = HashMap.empty[Int, Option[String]]
+  private val docCache = HashMap.empty[Int, Option[GeoDocument]]
+  private val partCache = HashMap.empty[Int, Option[GeoDocumentPart]]
   
-  /** Helper method that returns the title for the specified GeoDocument part.
+  /** Helper method that returns the GeoDocumentPart with the specified ID.
     *
-    * Since this method is called for every annotation that is exported, the result is
-    * cached to avoid excessive DB accesses.
-    * @param partId the ID of the document part
+    * Since this method may be called multiple times for each annotation that is 
+    * exported, the result is cached to avoid excessive DB access.
+    * 
+    * NOTE: the 'cache' is just a HashMap. But we assume that a new CSVSerializer is 
+    * instantiated for (and disposed after) each CSV export. Global re-use of a CSVSerializer
+    * instance would theoretically result in a memory leak.
     */
-  private def getTitleForPart(partId: Int)(implicit s: Session): Option[String] = {
-    val partTitle = partTitleCache.get(partId)
-    if (partTitle.isDefined) {
-      partTitle.get
+  private def getPart(partId: Int)(implicit s: Session): Option[GeoDocumentPart] = {
+    val cachedPart = partCache.get(partId)
+    if (cachedPart.isDefined) {
+      cachedPart.get
     } else {
-      val title = GeoDocumentParts.findById(partId).map(_.title)
-      partTitleCache.put(partId, title)
-      title
-    }
+      val part = GeoDocumentParts.findById(partId)
+      partCache.put(partId, part)
+      part
+    }    
+  }
+
+  /** Helper method that returns the GeoDocument with the specified ID.
+    *
+    * Since this method is called for each annotation that is exported, the result
+    * is cached to avoid excessive DB access.
+    */
+  private def getDocument(docId: Int)(implicit s: Session): Option[GeoDocument] = {
+    val cachedDoc = docCache.get(docId)
+    if (cachedDoc.isDefined) {
+      cachedDoc.get
+    } else {
+      val doc = GeoDocuments.findById(docId)
+      docCache.put(docId, doc)
+      doc
+    }        
+  }
+  
+  /**
+   * Helper method that determines the source for the annotation. An annotation may have a
+   * explicit source defined in its .source field. If not, this method traverses upwards in the
+   * hierarchy, first checking for the source of the associated GeoDocumentPart, and then the
+   * associated GeoDocument.
+   */
+  private def getSourceForAnnotation(annotation: Annotation)(implicit s: Session): Option[String] = {
+    if (annotation.source.isDefined) {
+      annotation.source
+    } else {
+      val part = annotation.gdocPartId.map(getPart(_)).flatten
+      val partSource = part.map(_.source).flatten
+      if (partSource.isDefined) {
+        partSource
+      } else {
+        getDocument(annotation.gdocId).map(_.source).flatten
+      }
+    }    
   }
   
   /** Generates 'consolidated output' for public consumption.
@@ -45,11 +85,12 @@ class CSVSerializer {
     * @param annotations the annotations
     * @return the CSV
     */
-  def asConsolidatedResult(annotations: Seq[Annotation]): String = {
-    val header = Seq("toponym","uri","lat","lng", "place_category", "tags").mkString(SEPARATOR) + "\n"
+  def asConsolidatedResult(annotations: Seq[Annotation])(implicit s: Session): String = {
+    val header = Seq("toponym","uri","lat","lng", "place_category", "tags", "source").mkString(SEPARATOR) + "\n"
     annotations.foldLeft(header)((csv, annotation) => {
       val uri = if (annotation.correctedGazetteerURI.isDefined && !annotation.correctedGazetteerURI.get.isEmpty) annotation.correctedGazetteerURI else annotation.gazetteerURI
       val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
+      
       if (uri.isDefined && !uri.get.isEmpty) {
         val queryResult = CrossGazetteerUtils.getPlace(uri.get)
         val category = queryResult.map(_._1.category).flatten
@@ -61,7 +102,8 @@ class CSVSerializer {
         coord.map(_.y).getOrElse("") + SEPARATOR +
         coord.map(_.x).getOrElse("") + SEPARATOR +
         category.map(_.toString).getOrElse("") + SEPARATOR +
-        "\"" + annotation.tags.mkString(",") + "\"" + SEPARATOR + "\n"
+        "\"" + annotation.tags.mkString(",") + "\"" + SEPARATOR + 
+        getSourceForAnnotation(annotation) + SEPARATOR + "\n"
       } else {
         csv
       }
@@ -91,7 +133,7 @@ class CSVSerializer {
       
       csv + 
       annotation.uuid + SEPARATOR +
-      annotation.gdocPartId.map(getTitleForPart(_)).flatten.getOrElse("") + SEPARATOR +
+      annotation.gdocPartId.map(getPart(_).map(_.title)).flatten.getOrElse("") + SEPARATOR +
       annotation.status + SEPARATOR +
       annotation.toponym.getOrElse("") + SEPARATOR +
       annotation.offset.getOrElse("") + SEPARATOR +
