@@ -129,5 +129,12 @@ object ApplicationController extends Controller with Secured {
     // TODO just a dummy for now
     Ok(views.html.edit_history(EditHistory.getLastN(500))) 
   }
+  
+  /** Shows the stats history page **/
+  def showStats() = DBAction { implicit session =>
+    // TODO just a dummy for now
+    Ok(views.html.stats(StatsHistory.listAll())) 
+  }
+
 
 }

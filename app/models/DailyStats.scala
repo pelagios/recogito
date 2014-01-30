@@ -28,5 +28,8 @@ object StatsHistory extends Table[DailyStats]("stats_history") {
   
   def * = id.? ~ timestamp ~ verifiedToponyms ~ unverifiedToponyms ~ 
     unidentifiableToponyms ~ totalEdits <> (DailyStats.apply _, DailyStats.unapply _)
+    
+  def listAll()(implicit s: Session): Seq[DailyStats] =
+    Query(StatsHistory).list
   
 }
