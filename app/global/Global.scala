@@ -65,7 +65,13 @@ object Global extends GlobalSettings {
       
       if (MTable.getTables("edit_history").list().isEmpty)
         EditHistory.ddl.create
+        
+      if (MTable.getTables("stats_history").list().isEmpty)
+        StatsHistory.ddl.create
     }
+    
+    Logger.info("Starting stats recorder demon")
+    StatsDemon.start()
   }  
 
 }

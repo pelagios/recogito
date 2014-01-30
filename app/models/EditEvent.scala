@@ -13,7 +13,7 @@ import play.api.db.slick.Config.driver.simple._
 case class EditEvent(
     
     /** ID **/
-    id: Option[Int] = None,
+    id: Option[Int],
     
     /** Relation: ID of the annotation the edit event belongs to **/
     annotationId: UUID, 
@@ -73,5 +73,8 @@ object EditHistory extends Table[EditEvent]("edit_history") with HasStatusColumn
     
   def getLastN(n: Int)(implicit s: Session): Seq[EditEvent] =
     Query(EditHistory).sortBy(_.timestamp.desc).take(n).list
+    
+  def countSince(time: Timestamp)(implicit s: Session): Int = 
+    Query(EditHistory).where(_.timestamp > time).list.size
     
 }
