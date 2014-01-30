@@ -21,7 +21,7 @@ object StatsDemon {
 
   def start(): Unit = {
     val delay = Duration(5000, TimeUnit.MILLISECONDS)
-    val interval = Duration(1, TimeUnit.DAYS)
+    val interval = Duration(1, TimeUnit.HOURS)
     
     Akka.system.scheduler.schedule(delay, interval) {
       import Database.threadLocalSession
