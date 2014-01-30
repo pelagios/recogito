@@ -86,7 +86,7 @@ class CSVSerializer {
     * @return the CSV
     */
   def asConsolidatedResult(annotations: Seq[Annotation])(implicit s: Session): String = {
-    val header = Seq("toponym","uri","lat","lng", "place_category", "tags", "source").mkString(SEPARATOR) + "\n"
+    val header = Seq("toponym","uri","lat","lng", "place_category", "tags", "source").mkString(SEPARATOR) + ";\n"
     annotations.foldLeft(header)((csv, annotation) => {
       val uri = if (annotation.correctedGazetteerURI.isDefined && !annotation.correctedGazetteerURI.get.isEmpty) annotation.correctedGazetteerURI else annotation.gazetteerURI
       val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
@@ -119,7 +119,7 @@ class CSVSerializer {
     */
   def asDBBackup(annotations: Seq[Annotation])(implicit s: Session): String = {
     val header = Seq("id", "gdoc_part", "status", "toponym", "offset", "gazetteer_uri", "latlon", "place_category", "toponym_corrected", 
-                     "offset_corrected", "gazetteer_uri_corrected", "latlon_corrected", "place_category_corrected", "tags", "comment").mkString(SEPARATOR) + "\n"
+                     "offset_corrected", "gazetteer_uri_corrected", "latlon_corrected", "place_category_corrected", "tags", "comment").mkString(SEPARATOR) + ";\n"
       
     annotations.foldLeft(header)((csv, annotation) => {
       val queryResultForURI = annotation.gazetteerURI.map(uri => CrossGazetteerUtils.getPlace(uri)).flatten
