@@ -101,6 +101,7 @@ trait Secured {
     }
   }
 
+  /** For Actions that require Admin status **/
   def adminAction(f: => String => DBSessionRequest[AnyContent] => SimpleResult) =
     protectedDBAction(Secure.REJECT) { username => rs =>
       val isAdmin = Users.findByUsername(username)(rs.dbSession).map(_.isAdmin).getOrElse(false)

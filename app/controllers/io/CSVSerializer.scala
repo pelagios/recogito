@@ -1,12 +1,10 @@
 package controllers.io
 
-import global.Global
+import global.{ Global, CrossGazetteerUtils }
 import models._
 import org.pelagios.gazetteer.GazetteerUtils
 import play.api.db.slick._
 import scala.collection.mutable.HashMap
-import global.CrossGazetteerUtils
-import play.api.Logger
 
 /** Utility object to serialize Annotation data to CSV.
   * 
@@ -118,7 +116,7 @@ class CSVSerializer {
     * @return the CSV
     */
   def asDBBackup(annotations: Seq[Annotation])(implicit s: Session): String = {
-    val header = Seq("id", "gdoc_part", "status", "toponym", "offset", "gazetteer_uri", "latlon", "place_category", "toponym_corrected", 
+    val header = Seq("uuid", "gdoc_part", "status", "toponym", "offset", "gazetteer_uri", "latlon", "place_category", "toponym_corrected", 
                      "offset_corrected", "gazetteer_uri_corrected", "latlon_corrected", "place_category_corrected", "tags", "comment").mkString(SEPARATOR) + ";\n"
       
     annotations.foldLeft(header)((csv, annotation) => {

@@ -5,6 +5,7 @@ import play.api.db.slick._
 import scala.io.Source
 import play.api.Logger
 import scala.collection.mutable.HashMap
+import java.util.UUID
 
 /** Utility object to convert CSV input data to Annotation objects.
   * 
@@ -51,6 +52,7 @@ class CSVParser {
       case idx => Some(idx)
     }
     
+    val idxUUID = idx("uuid")
     val idxGdocPart = idx("gdoc_part")
     val idxStatus = idx("status")
     val idxToponym = idx("toponym")
@@ -78,7 +80,7 @@ class CSVParser {
     
     data.map(_.split(SEPARATOR, -1)).map(implicit fields => {
       Annotation(
-          Annotation.newUUID,
+          UUID.fromString(fields(idxUUID.get)),
           gdocId,
           getPartIdForTitle(gdocId, fields(idxGdocPart.get)),
           parseOptCol(idxStatus).map(AnnotationStatus.withName(_)).getOrElse(AnnotationStatus.NOT_VERIFIED),
