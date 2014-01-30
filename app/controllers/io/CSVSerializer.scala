@@ -102,8 +102,8 @@ class CSVSerializer {
         coord.map(_.y).getOrElse("") + SEPARATOR +
         coord.map(_.x).getOrElse("") + SEPARATOR +
         category.map(_.toString).getOrElse("") + SEPARATOR +
-        "\"" + annotation.tags.mkString(",") + "\"" + SEPARATOR + 
-        getSourceForAnnotation(annotation) + SEPARATOR + "\n"
+        { if (annotation.tags.size > 0) "\"" + annotation.tags.mkString(",") + "\"" else "" } + SEPARATOR + 
+        getSourceForAnnotation(annotation).getOrElse("") + SEPARATOR + "\n"
       } else {
         csv
       }
