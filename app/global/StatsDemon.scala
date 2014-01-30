@@ -40,7 +40,7 @@ object StatsDemon {
         val stats = docStats.foldLeft((0, 0, 0))((result, docStats) =>
           (result._1 + docStats._1, result._2 + docStats._2, result._3 + docStats._3))
           
-        val dailyStats = DailyStats(None, new Timestamp(new Date().getTime), stats._1, stats._2, stats._2, totalEdits)
+        val dailyStats = DailyStats(None, new Timestamp(new Date().getTime), stats._1, stats._2, stats._3, totalEdits)
         StatsHistory.insert(dailyStats)
             
         Logger.info("Done - verified:" + dailyStats.verifiedToponyms + ", unverified:" + dailyStats.unverifiedToponyms + 
