@@ -35,11 +35,25 @@ object AnnotationController extends Controller with Secured {
       
     } else {
       if (body.get.isInstanceOf[JsArray]) {
-        body.get.as[List[JsObject]].foreach(json => {
-          // TODO implement
-          Logger.info("inserting: " + json.toString) 
-        })
-        Ok(Json.parse("{ \"success\": true }"))
+        // Use recursion to insert until we get the first error message  
+        def insertNext(toInsert: List[JsObject], username: String): Option[String] = {
+          if (toInsert.size == 0) {
+            None
+          } else {
+            val errorMsg = createOne(toInsert.head, username)
+            if (errorMsg.isDefined)
+              errorMsg
+            else
+              insertNext(toInsert.tail, username)
+          }
+        }
+ 
+        // Insert until error message
+        val errorMsg = insertNext(body.get.as[List[JsObject]], username)
+        if (errorMsg.isDefined)
+          BadRequest(Json.parse(errorMsg.get))
+        else
+            Ok(Json.parse("{ \"success\": true }"))
       } else {
         val errorMsg = createOne(body.get.as[JsObject], user.get.username)
         if (errorMsg.isDefined)
@@ -157,21 +171,21 @@ object AnnotationController extends Controller with Secured {
       
     } else {
       if (body.get.isInstanceOf[JsArray]) {
-        // User recursion to insert until we get the first error message
-        def insertNext(toInsert: List[JsObject], username: String): Option[String] = {
-          if (toInsert.size == 0) {
+        // Use recursion to update until we get the first error message
+        def updateNext(toUpdate: List[JsObject], username: String): Option[String] = {
+          if (toUpdate.size == 0) {
             None
           } else {
-            val errorMsg = updateOne(toInsert.head, None, username)
+            val errorMsg = updateOne(toUpdate.head, None, username)
             if (errorMsg.isDefined)
               errorMsg
             else
-              insertNext(toInsert.tail, username)
+              updateNext(toUpdate.tail, username)
           }
         }
  
         // Insert until error message
-        val errorMsg = insertNext(body.get.as[List[JsObject]], username)
+        val errorMsg = updateNext(body.get.as[List[JsObject]], username)
         if (errorMsg.isDefined)
           BadRequest(Json.parse(errorMsg.get))
         else
