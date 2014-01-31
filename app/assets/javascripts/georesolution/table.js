@@ -85,14 +85,16 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
     });
   
     // Mouseover, mouseout and select -> forward to event listeners
-    this._grid.onMouseEnter.subscribe(function(e, args, foo) {
-      var row = args.grid.getCellFromEvent(e).row;
-      var dataItem = args.grid.getDataItem(row);
-      contextTooltip.show(dataItem.id, e.clientX, e.clientY);
+    this._grid.onMouseEnter.subscribe(function(e, args) {
+      var cell = args.grid.getCellFromEvent(e);
+      var dataItem = args.grid.getDataItem(cell.row);
+      if (cell.cell == 1)
+        contextTooltip.show(dataItem.id, e.clientX, e.clientY);
+        
       self.fireEvent('mouseover', dataItem);
     });
   
-    this._grid.onMouseLeave.subscribe(function(e, args, foo) {
+    this._grid.onMouseLeave.subscribe(function(e, args) {
       var row = args.grid.getCellFromEvent(e).row;
       var dataItem = args.grid.getDataItem(row);
       contextTooltip.hide(dataItem.id);
