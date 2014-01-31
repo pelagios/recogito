@@ -16,6 +16,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
     common.HasEvents.call(this);
   
     var self = this,
+        contextTooltip = new ContextTooltip(),
         statusValues = [ false, 'VERIFIED', 'NOT_VERIFIED', 'IGNORE', 'FALSE_DETECTION', 'NOT_IDENTIFYABLE' ],
         statusIcons = [ '', '&#xf14a;', '&#xf059;', '&#xf05e;', '&#xf057;', '&#xf024;'],
         currentStatusFilterVal = 0,
@@ -87,12 +88,14 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
     this._grid.onMouseEnter.subscribe(function(e, args, foo) {
       var row = args.grid.getCellFromEvent(e).row;
       var dataItem = args.grid.getDataItem(row);
+      contextTooltip.show(dataItem.id, e.clientX, e.clientY);
       self.fireEvent('mouseover', dataItem);
     });
   
     this._grid.onMouseLeave.subscribe(function(e, args, foo) {
       var row = args.grid.getCellFromEvent(e).row;
       var dataItem = args.grid.getDataItem(row);
+      contextTooltip.hide(dataItem.id);
       self.fireEvent('mouseout', dataItem);
     });
   
@@ -112,7 +115,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
       var idx = parseInt(e.target.getAttribute('data-row'));
       self._openDetailsPopup(idx);
     });
-  }
+  };
 
   // Inheritance - not the nicest pattern but works for our case
   TableView.prototype = new common.HasEvents();
@@ -132,7 +135,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
       self._grid.invalidate();
       self.fireEvent('update', annotation);
     });
-  }
+  };
 
   /**
    * Opens the batch operations popup.
@@ -148,7 +151,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
       self._grid.invalidate();
       self.fireEvent('update', annotations);
     });
-  }
+  };
 
   /**
    * Removes a specific row from the table.
@@ -159,7 +162,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
     data.splice(idx, 1);
     this._grid.invalidate();
     this._grid.updateRowCount();
-  }
+  };
 
   /**
    * Selects table rows for a specific gazetteer URI.
@@ -182,7 +185,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
   
     if (rows.length > 0)
       this._grid.scrollRowIntoView(rows[0], true);
-  }
+  };
 
   /**
    * Sets data on the backing SlickGrid DataView.  
@@ -200,14 +203,14 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
       var idx = parseInt(window.location.hash.substring(1));
       this._openDetailsPopup(idx);
     } 
-  }
+  };
 
   /**
    * Refreshes the backing SlickGrid.
    */
   TableView.prototype.render = function() {
     this._grid.render();
-  }
+  };
   
   /** 
    * Returns the next N annotations in the list from the specified index.
@@ -217,7 +220,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
    */
   TableView.prototype.getNextN = function(idx, n)  {
     return getNeighbours(this._grid, idx, n, 1);
-  }
+  };
 
   /**
    * Returns the previous N annotations in the list from the specified index.
@@ -227,7 +230,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
    */
   TableView.prototype.getPrevN = function(idx, n)  {
     return getNeighbours(this._grid, idx, n, -1); 
-  }
+  };
 
   /**
    * Returns N neighbours of the annotation with the specified index, based
@@ -271,7 +274,43 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
     }
       
     return neighbours;
-  }
+  };
+  
+  var ContextTooltip = function(parentEl) {
+    this.template = $('<div class="table-context-tooltip"></div>');
+    $(document.body).append(this.template);
+    this.INTERVAL_MILLIS = 500;
+    this.timer = false;
+    this.currentId = false;
+  };
+  
+  ContextTooltip.prototype.show = function(id, x, y) {
+    var template = this.template;
+    this.currentId = id;
+    this.timer = setTimeout(function() {
+      $.getJSON('api/annotations/' + id, function(a) {
+        if (a.context) {
+          var startIdx = a.context.indexOf(a.toponym);
+          var endIdx = startIdx + a.toponym.length;
+          if (startIdx > -1 && endIdx <= a.context.length) {
+            var pre = a.context.substring(0, startIdx);
+            var post = a.context.substring(endIdx);
+            template.html('...' + pre + '<em>' + a.toponym + '</em>' + post + '...');
+            template.addClass("visible");
+            template.css({left: x, top: y });
+          }
+        }    
+      });
+    }, this.INTERVAL_MILLIS);
+  };
+
+  ContextTooltip.prototype.hide = function(id) {
+    if (id == this.currentId && this.timer) {
+      this.template.removeClass("visible");
+      clearTimeout(this.timer);
+      this.timer = false;
+    }
+  };
 
   var Filters = {     
     StatusFilter : function(item, args) {
@@ -405,7 +444,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
       }
     }
 
-  }
+  };
   
   return TableView;
 

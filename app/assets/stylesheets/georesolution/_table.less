@@ -111,6 +111,30 @@
   color:#777 !important;
 }
 
+.table-context-tooltip {
+  position:absolute;
+  z-index:999999;
+  padding:3px 6px;
+  background-color:#fff;
+  border:1px solid #ccc;
+  -moz-box-shadow:3px 3px 6px rgba(0, 0, 0, 0.4);
+  -webkit-box-shadow:3px 3px 6px rgba(0, 0, 0, 0.4);
+  box-shadow:3px 3px 6px rgba(0, 0, 0, 0.4);
+  display:none;
+  font-style:italic;
+  font-family:"Times New Roman", Times, serif;
+  color:#555;
+  font-size:14px;
+}
+
+.table-context-tooltip em {
+  background-color:#ffaaaa;
+}
+
+.table-context-tooltip.visible {
+  display:block;
+}
+
 .icon {
   margin-left:4px;
 }

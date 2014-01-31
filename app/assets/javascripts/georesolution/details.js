@@ -280,12 +280,12 @@ define(['georesolution/common'], function(common) {
     // Toponym context (i.e. fulltext preview snippet)
     $.getJSON('api/annotations/' + annotation.id, function(a) {
       if (a.context) {
-        var startIdx = a.context.indexOf(annotation.toponym);
-        var endIdx = startIdx + annotation.toponym.length;
+        var startIdx = a.context.indexOf(a.toponym);
+        var endIdx = startIdx + a.toponym.length;
         if (startIdx > -1 && endIdx <= a.context.length) {
           var pre = a.context.substring(0, startIdx);
           var post = a.context.substring(endIdx);
-          $('.details-content-preview').html(pre + '<em>' + annotation.toponym + '</em>' + post);
+          $('.details-content-preview').html(pre + '<em>' + a.toponym + '</em>' + post);
         }
       }    
     });
