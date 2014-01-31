@@ -239,7 +239,12 @@ object AnnotationController extends Controller with Secured {
                    annotation.get.toponym, annotation.get.offset, annotation.get.gazetteerURI, 
                    updatedToponym, updatedOffset, updatedURI, updatedTags, updatedComment)
           
-      Annotations.update(updated)
+      // Important: if an annotation was created manually, and someone marks it as 'false detection',
+      // We delete it instead!
+      if (updated.status == AnnotationStatus.FALSE_DETECTION && !updated.toponym.isDefined)
+        _delete(updated)
+      else
+        Annotations.update(updated)
           
       // Remove all overlapping annotations
       Annotations.getOverlappingAnnotations(updated).foreach(_delete(_))
