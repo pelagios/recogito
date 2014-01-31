@@ -13,6 +13,7 @@ import play.api.db.DB
 import play.api.db.slick.Config.driver.simple._
 import scala.slick.session.Database
 import scala.slick.jdbc.meta.MTable
+import akka.actor.Cancellable
 
 /** Play Global object **/
 object Global extends GlobalSettings {
@@ -23,6 +24,8 @@ object Global extends GlobalSettings {
   private val DATA_DARE = "gazetteer/dare-20131210.ttl.gz"
   
   private val INDEX_DIR = "index"
+    
+  private var statsDemon: Option[Cancellable] = None
  
   lazy val index = {
     val idx = PlaceIndex.open(INDEX_DIR)
@@ -75,8 +78,16 @@ object Global extends GlobalSettings {
     val runStatsDemon = Play.current.configuration.getBoolean("recogito.stats.enabled").getOrElse(false)
     if (runStatsDemon) {
       Logger.info("Starting stats logging background actor")
-      StatsDemon.start()
+      statsDemon = Some(StatsDemon.start())
     }
   }  
+  
+  override def onStop(app: Application): Unit = {
+    if (statsDemon.isDefined) {
+      Logger.info("Shutting down stats logging background actor")
+      statsDemon.get.cancel
+      statsDemon = None
+    }
+  }
 
 }

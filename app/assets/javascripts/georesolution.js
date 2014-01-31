@@ -27,12 +27,12 @@ require(["georesolution/map", "georesolution/table", "georesolution/footer"], fu
   });
   
   table.on('update', function(annotations) {
+    storeToDB(annotations);
+          
     if (!$.isArray(annotations))
       annotations = [ annotations ];
       
-    $.each(annotations, function(idx, annotation) {
-    	storeToDB(annotation);
-    
+    $.each(annotations, function(idx, annotation) {    
   	  if (annotation.marker)
 	      map.removePlaceMarker(annotation);
     
@@ -89,24 +89,41 @@ require(["georesolution/map", "georesolution/table", "georesolution/footer"], fu
    * Stores an updated annotation to the database.
    * @private
    */
-  function storeToDB(annotation) {
-    var payload = {
-      'id': annotation.id,
-      'status': annotation.status
-    };
+  function storeToDB(annotations) {
+    // Creates the JSON request payload for a single annotation 
+    var createPayload = function(annotation)  {
+      var payload = {
+        'id': annotation.id,
+        'status': annotation.status
+      };
   
-    if (annotation.tags)
-      payload.tags = annotation.tags.join(",");
+      if (annotation.tags)
+        payload.tags = annotation.tags.join(",");
   
-    if (annotation.place_fixed)
-      payload.corrected_uri = annotation.place_fixed.uri;
+      if (annotation.place_fixed)
+        payload.corrected_uri = annotation.place_fixed.uri;
     
-    if (annotation.comment)
-      payload.comment = annotation.comment;
-  
+      if (annotation.comment)
+        payload.comment = annotation.comment;      
+        
+      return payload;
+    }
+    
+    var id, payload;
+    if ($.isArray(annotations)) {
+      id = '';
+      payload = [];
+      $.each(annotations, function(idx, annotation) {
+        payload.push(createPayload(annotation));
+      });
+    } else {
+      id = annotations.id;
+      payload = createPayload(annotations);
+    }    
+    
     $.ajax({
       type: 'PUT',
-      url: 'api/annotations/' + annotation.id,
+      url: 'api/annotations/' + id,
       contentType: 'application/json',
       data: JSON.stringify(payload) 
     });

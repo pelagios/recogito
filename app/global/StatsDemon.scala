@@ -45,7 +45,7 @@ object StatsDemon {
     Duration(c.getTimeInMillis - now.getTime, TimeUnit.MILLISECONDS)
   }
 
-  def start(): Unit = {    
+  def start() = {    
     Akka.system.scheduler.schedule(delay, interval) {
       
       import Database.threadLocalSession

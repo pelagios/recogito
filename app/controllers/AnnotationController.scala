@@ -10,6 +10,9 @@ import play.api.db.slick.Config.driver.simple._
 import play.api.libs.json.Json
 import play.api.Logger
 import play.api.mvc.{ Action, Controller }
+import play.api.libs.json.JsObject
+import play.api.libs.json.JsArray
+import play.api.mvc.AnyContent
 
 /** Annotation CRUD controller.
   *
@@ -23,56 +26,73 @@ object AnnotationController extends Controller with Secured {
     *
     * The annotation to create is delivered as JSON in the body of the request.
     */
-  def create = protectedDBAction(Secure.REJECT) { username => implicit requestWithSession =>    
+  def create = protectedDBAction(Secure.REJECT) { username => implicit requestWithSession =>
     val user = Users.findByUsername(username)    
-    val body = requestWithSession.request.body.asJson
+    val body = requestWithSession.request.body.asJson    
     if (!body.isDefined) {    
       // No JSON body - bad request
       BadRequest(Json.parse("{ \"success\": false, \"message\": \"Missing JSON body\" }"))
       
     } else {
-      val jsonGdocId = (body.get \ "gdocId").as[Option[Int]] 
-      val jsonGdocPartId = (body.get \ "gdocPartId").as[Option[Int]]  
-      
-      val gdocPart = jsonGdocPartId.map(id => GeoDocumentParts.findById(id)).flatten
-      val gdocId_verified = if (gdocPart.isDefined) Some(gdocPart.get.gdocId) else jsonGdocId.map(id => GeoDocuments.findById(id)).flatten.map(_.id).flatten
-        
-      if (!gdocPart.isDefined && !(jsonGdocId.isDefined && gdocId_verified.isDefined)) {
-        // Annotation specifies neither valid GDocPart nor valid GDoc - invalid annotation
-        BadRequest(Json.parse("{ \"success\": false, \"message\": \"Invalid GDoc or GDocPart ID\" }"))
-        
+      if (body.get.isInstanceOf[JsArray]) {
+        body.get.as[List[JsObject]].foreach(json => {
+          // TODO implement
+          Logger.info("inserting: " + json.toString) 
+        })
+        Ok(Json.parse("{ \"success\": true }"))
       } else {
-        // Create new annotation
-        val correctedToponym = (body.get \ "corrected_toponym").as[String]
-        val correctedOffset = (body.get \ "corrected_offset").as[Int]        
-
-        val annotation = 
-          Annotation(Annotation.newUUID, gdocId_verified.get, gdocPart.map(_.id).flatten, 
-                     AnnotationStatus.NOT_VERIFIED, None, None, None, 
-                     Some(correctedToponym), Some(correctedOffset))
-          
-        if (!hasValidOffset(annotation)) {
-          // Annotation is mis-aligned with source text - something is wrong
-          Logger.info("Invalid offset error: " + correctedToponym + " - " + correctedOffset + " GDoc Part: " + gdocPart.get.id)
-          BadRequest(Json.parse("{ \"success\": false, \"message\": \"Shifted toponym alert: annotation reports invalid offset value.\" }"))
-          
-        } else if (Annotations.getOverlappingAnnotations(annotation).size > 0) {
-          // Annotation overlaps with existing ones - something is wrong
-          Logger.info("Overlap error: " + correctedToponym + " - " + correctedOffset + " GDoc Part: " + gdocPart.get.id)
-          Annotations.getOverlappingAnnotations(annotation).foreach(a => Logger.warn("Overlaps with " + a.uuid))
-          BadRequest(Json.parse("{ \"success\": false, \"message\": \"Annotation overlaps with an existing one (details were logged).\" }"))
-          
-        } else {
-          Annotations.insert(annotation)
-    
-          // Record edit event
-          EditHistory.insert(EditEvent(None, annotation.uuid, user.get.username, new Timestamp(new Date().getTime),
-            None, Some(correctedToponym), None, None, None, None))
-                                                      
+        val errorMsg = createOne(body.get.as[JsObject], user.get.username)
+        if (errorMsg.isDefined)
+          BadRequest(Json.parse(errorMsg.get))
+        else
           Ok(Json.parse("{ \"success\": true }"))
-        }
+      }
+    }  
+  }
+    
+  private def createOne(json: JsObject, username: String)(implicit s: Session): Option[String] = {
+    val jsonGdocId = (json\ "gdocId").as[Option[Int]] 
+    val jsonGdocPartId = (json \ "gdocPartId").as[Option[Int]]  
+      
+    val gdocPart = jsonGdocPartId.map(id => GeoDocumentParts.findById(id)).flatten
+    val gdocId_verified = if (gdocPart.isDefined) Some(gdocPart.get.gdocId) else jsonGdocId.map(id => GeoDocuments.findById(id)).flatten.map(_.id).flatten
+        
+    if (!gdocPart.isDefined && !(jsonGdocId.isDefined && gdocId_verified.isDefined)) {
+      // Annotation specifies neither valid GDocPart nor valid GDoc - invalid annotation
+      Some("{ \"success\": false, \"message\": \"Invalid GDoc or GDocPart ID\" }")
+        
+    } else {
+      // Create new annotation
+      val correctedToponym = (json \ "corrected_toponym").as[String]
+      val correctedOffset = (json \ "corrected_offset").as[Int]        
+
+      val annotation = 
+        Annotation(Annotation.newUUID, gdocId_verified.get, gdocPart.map(_.id).flatten, 
+                   AnnotationStatus.NOT_VERIFIED, None, None, None, 
+                   Some(correctedToponym), Some(correctedOffset))
+          
+      if (!hasValidOffset(annotation)) {
+        // Annotation is mis-aligned with source text - something is wrong
+        Logger.info("Invalid offset error: " + correctedToponym + " - " + correctedOffset + " GDoc Part: " + gdocPart.get.id)
+        Some("{ \"success\": false, \"message\": \"Shifted toponym alert: annotation reports invalid offset value.\" }")
+          
+      } else if (Annotations.getOverlappingAnnotations(annotation).size > 0) {
+        // Annotation overlaps with existing ones - something is wrong
+        Logger.info("Overlap error: " + correctedToponym + " - " + correctedOffset + " GDoc Part: " + gdocPart.get.id)
+        Annotations.getOverlappingAnnotations(annotation).foreach(a => Logger.warn("Overlaps with " + a.uuid))
+        Some("{ \"success\": false, \"message\": \"Annotation overlaps with an existing one (details were logged).\" }")
+          
+      } else {
+        Annotations.insert(annotation)
+    
+        // Record edit event
+        EditHistory.insert(EditEvent(None, annotation.uuid, username, new Timestamp(new Date().getTime),
+          None, Some(correctedToponym), None, None, None, None))
+                                                      
+        None
       }
     }
+        
   }
   
   /** Checks whether the annotation offset is properly aligned with the source text.
@@ -114,25 +134,74 @@ object AnnotationController extends Controller with Secured {
       NotFound
     }
   }
+  
+  def updateSingle(uuid: UUID) = protectedDBAction(Secure.REJECT) { username => implicit requestWithSession =>
+    // Logger.info("Updating single annotation: " + uuid)
+    update(Some(uuid), username)
+  }
+  
+  def updateBatch() = protectedDBAction(Secure.REJECT) { username => implicit requestWithSession =>
+    // Logger.info("Updating annotation batch")
+    update(None, username)
+  }
     
   /** Updates the annotation with the specified ID.
     *  
     * @param id the annotation ID to update
     */
-  def update(uuid: UUID) = protectedDBAction(Secure.REJECT) { username => implicit requestWithSession =>
-    val body = requestWithSession.request.body.asJson
-    val annotation = Annotations.findByUUID(uuid)
-    
-    if (!body.isDefined) {
+  private def update(uuid: Option[UUID], username: String)(implicit requestWithSession: DBSessionRequest[AnyContent]) = {
+    val body = requestWithSession.request.body.asJson    
+    if (!body.isDefined) {    
       // No JSON body - bad request
       BadRequest(Json.parse("{ \"success\": false, \"message\": \"Missing JSON body\" }"))
       
-    } else if (!annotation.isDefined) {
-      // Someone tries to update an annotation that's not in the DB
-      NotFound(Json.parse("{ \"success\": false, \"message\": \"Annotation not found\" }"))
-      
     } else {
-      val json = body.get
+      if (body.get.isInstanceOf[JsArray]) {
+        // User recursion to insert until we get the first error message
+        def insertNext(toInsert: List[JsObject], username: String): Option[String] = {
+          if (toInsert.size == 0) {
+            None
+          } else {
+            val errorMsg = updateOne(toInsert.head, None, username)
+            if (errorMsg.isDefined)
+              errorMsg
+            else
+              insertNext(toInsert.tail, username)
+          }
+        }
+ 
+        // Insert until error message
+        val errorMsg = insertNext(body.get.as[List[JsObject]], username)
+        if (errorMsg.isDefined)
+          BadRequest(Json.parse(errorMsg.get))
+        else
+            Ok(Json.parse("{ \"success\": true }"))
+      } else {
+        if (uuid.isEmpty) {
+          // Single annotation in JSON body, but no UUID provided - bad request
+          BadRequest(Json.parse("{ \"success\": false, \"message\": \"Missing JSON body\" }"))
+        } else {
+          val errorMsg = updateOne(body.get.as[JsObject], uuid, username)
+          if (errorMsg.isDefined)
+            BadRequest(Json.parse(errorMsg.get))
+          else
+            Ok(Json.parse("{ \"success\": true }"))
+        }
+      }
+    } 
+  }
+    
+  private def updateOne(json: JsObject, uuid: Option[UUID], username: String)(implicit s: Session): Option[String] = {    
+    val annotation = if (uuid.isDefined) {
+        Annotations.findByUUID(uuid.get)        
+      } else {
+        (json \ "id").as[Option[String]].map(uuid => Annotations.findByUUID(UUID.fromString(uuid))).flatten
+      }
+      
+    if (!annotation.isDefined) {
+      // Someone tries to update an annotation that's not in the DB
+      Some("{ \"success\": false, \"message\": \"Annotation not found\" }")      
+    } else { 
       val correctedStatus = (json \ "status").as[Option[String]].map(AnnotationStatus.withName(_))
       val correctedToponym = (json \ "corrected_toponym").as[Option[String]]
       val correctedOffset = (json \ "corrected_offset").as[Option[Int]]
@@ -151,7 +220,7 @@ object AnnotationController extends Controller with Secured {
       val offset = if (updatedOffset.isDefined) updatedOffset else annotation.get.offset
                      
       val updated = 
-        Annotation(uuid, annotation.get.gdocId, annotation.get.gdocPartId, 
+        Annotation(annotation.get.uuid, annotation.get.gdocId, annotation.get.gdocPartId, 
                    updatedStatus,
                    annotation.get.toponym, annotation.get.offset, annotation.get.gazetteerURI, 
                    updatedToponym, updatedOffset, updatedURI, updatedTags, updatedComment)
@@ -164,7 +233,7 @@ object AnnotationController extends Controller with Secured {
       // Record edit event
       val user = Users.findByUsername(username) // The user is logged in, so we can assume the Option is defined
       EditHistory.insert(createDiffEvent(annotation.get, updated, user.get.username))
-      Ok(Json.parse("{ \"success\": true }"))
+      None
     }
   }
   
