@@ -5,14 +5,14 @@ import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 
-case class DailyStats(id: Option[Int], timestamp: Timestamp, verifiedToponyms: Int, unverifiedToponyms: Int, unidentifiableToponyms: Int, totalEdits: Int) {
+case class StatsRecord(id: Option[Int], timestamp: Timestamp, verifiedToponyms: Int, unverifiedToponyms: Int, unidentifiableToponyms: Int, totalEdits: Int) {
   
   lazy val totalToponyms = verifiedToponyms + unverifiedToponyms + unidentifiableToponyms
   
 }
 
 /** Annotation database table **/
-object StatsHistory extends Table[DailyStats]("stats_history") {
+object StatsHistory extends Table[StatsRecord]("stats_history") {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   
@@ -27,9 +27,9 @@ object StatsHistory extends Table[DailyStats]("stats_history") {
   def totalEdits = column[Int]("total_edits")
   
   def * = id.? ~ timestamp ~ verifiedToponyms ~ unverifiedToponyms ~ 
-    unidentifiableToponyms ~ totalEdits <> (DailyStats.apply _, DailyStats.unapply _)
+    unidentifiableToponyms ~ totalEdits <> (StatsRecord.apply _, StatsRecord.unapply _)
     
-  def listAll()(implicit s: Session): Seq[DailyStats] =
+  def listAll()(implicit s: Session): Seq[StatsRecord] =
     Query(StatsHistory).list
   
 }

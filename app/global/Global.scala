@@ -6,9 +6,10 @@ import java.util.zip.GZIPInputStream
 import org.openrdf.rio.RDFFormat
 import org.pelagios.Scalagios
 import org.pelagios.gazetteer.PlaceIndex
+import play.api.Play
+import play.api.Play.current
 import play.api.{ Application, GlobalSettings, Logger }
 import play.api.db.DB
-import play.api.Play.current
 import play.api.db.slick.Config.driver.simple._
 import scala.slick.session.Database
 import scala.slick.jdbc.meta.MTable
@@ -70,8 +71,12 @@ object Global extends GlobalSettings {
         StatsHistory.ddl.create
     }
     
-    Logger.info("Starting stats recorder demon")
-    StatsDemon.start()
+    // Periodic stats logging
+    val runStatsDemon = Play.current.configuration.getBoolean("recogito.stats.enabled").getOrElse(false)
+    if (runStatsDemon) {
+      Logger.info("Starting stats logging background actor")
+      StatsDemon.start()
+    }
   }  
 
 }
