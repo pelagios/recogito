@@ -16,7 +16,7 @@ import scala.concurrent.duration.Duration
 import play.api.Logger
 import play.api.Play
 
-object StatsDemon {
+class StatsDemon {
   
   // Log interval in hours (defaults to 24)
   private val interval =
@@ -44,8 +44,8 @@ object StatsDemon {
     // Time until start time
     Duration(c.getTimeInMillis - now.getTime, TimeUnit.MILLISECONDS)
   }
-
-  def start() = {    
+  
+  private lazy val cancellable = {
     Akka.system.scheduler.schedule(delay, interval) {
       
       import Database.threadLocalSession
@@ -74,5 +74,9 @@ object StatsDemon {
       }
     }
   }
+  
+  def start() = cancellable
+  
+  def dispose() = cancellable.cancel
 
 }

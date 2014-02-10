@@ -24,8 +24,9 @@ object Global extends GlobalSettings {
   private val DATA_DARE = "gazetteer/dare-20131210.ttl.gz"
   
   private val INDEX_DIR = "index"
-    
-  private var statsDemon: Option[Cancellable] = None
+  
+  private val RUN_STATS_DEMON = Play.current.configuration.getBoolean("recogito.stats.enabled").getOrElse(false)
+  private val statsDemon = if (RUN_STATS_DEMON) Some(new StatsDemon()) else None
  
   lazy val index = {
     val idx = PlaceIndex.open(INDEX_DIR)
@@ -75,18 +76,16 @@ object Global extends GlobalSettings {
     }
     
     // Periodic stats logging
-    val runStatsDemon = Play.current.configuration.getBoolean("recogito.stats.enabled").getOrElse(false)
-    if (runStatsDemon) {
+    if (statsDemon.isDefined) {
       Logger.info("Starting stats logging background actor")
-      statsDemon = Some(StatsDemon.start())
+      statsDemon.get.start()
     }
   }  
   
   override def onStop(app: Application): Unit = {
     if (statsDemon.isDefined) {
       Logger.info("Shutting down stats logging background actor")
-      statsDemon.get.cancel
-      statsDemon = None
+      statsDemon.get.dispose()
     }
   }
 
