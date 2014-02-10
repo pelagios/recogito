@@ -14,19 +14,19 @@
     		  strokeColor : "rgba(220,220,220,1)",
     		  pointColor : "rgba(220,220,220,1)",
     		  pointStrokeColor : "#fff",
-    		  data : [@stats.map(_.unverifiedToponyms).mkString(",")]
+    		  data : [@stats.map(s => s.verifiedToponyms + s.unverifiedToponyms + s.unidentifiableToponyms).mkString(",")]    
     		}, { // Verified
     		  fillColor : "rgba(0,128,0,0.5)",
     		  strokeColor : "rgba(0,128,0,1)",
     		  pointColor : "rgba(0,128,0,1)",
     		  pointStrokeColor : "#fff",
-    		  data : [@stats.map(s => s.verifiedToponyms + s.unverifiedToponyms).mkString(",")]
+    		  data : [@stats.map(s => s.verifiedToponyms + s.unidentifiableToponyms).mkString(",")]
     		},{ // Unidentifiable
     		  fillColor : "rgba(255,255,0,0.5)",
     		  strokeColor : "rgba(255,255,0,1)",
     		  pointColor : "rgba(255,255,0,1)",
     		  pointStrokeColor : "#fff",
-    		  data : [@stats.map(s => s.verifiedToponyms + s.unverifiedToponyms + s.unidentifiableToponyms).mkString(",")]    		  
+    		  data : [@stats.map(_.unidentifiableToponyms).mkString(",")]		  
     		}
           ]
     	};
