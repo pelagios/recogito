@@ -80,7 +80,7 @@ class CSVParser {
     
     data.map(_.split(SEPARATOR, -1)).map(implicit fields => {
       Annotation(
-          UUID.fromString(fields(idxUUID.get)),
+          idxUUID.map(idx => UUID.fromString(fields(idx))).getOrElse(Annotation.newUUID),
           gdocId,
           getPartIdForTitle(gdocId, fields(idxGdocPart.get)),
           parseOptCol(idxStatus).map(AnnotationStatus.withName(_)).getOrElse(AnnotationStatus.NOT_VERIFIED),
