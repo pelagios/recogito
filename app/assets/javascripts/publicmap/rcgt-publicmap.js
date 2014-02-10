@@ -4,7 +4,7 @@ var recogito = (window.recogito) ? window.recogito : { };
 recogito.PublicMap = function(mapDiv, dataURL) {
   var self = this,
       dareLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
-        attribution: 'Tiles: <a href="http://pelagios.org/maps/greco-roman/about.html">Pelagios</a>, 2012; Data: NASA, OSM, Pleiades, DARMC'
+    	  attribution: 'Tiles: <a href="http://imperium.ahlfeldt.se/">DARE 2014</a>'
       }),     
       bingLayer = new L.BingLayer("Au8CjXRugayFe-1kgv1kR1TiKwUhu7aIqQ31AjzzOQz0DwVMjkF34q5eVgsLU5Jn"),
       layer_switcher_template = 

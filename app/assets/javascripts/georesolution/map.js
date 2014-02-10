@@ -15,7 +15,7 @@ define(['georesolution/common'], function(common) {
   
     var self = this,
         baseLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
-          attribution: 'Tiles: <a href="http://pelagios.org/maps/greco-roman/about.html">Pelagios</a>, 2012; Data: NASA, OSM, Pleiades, DARMC'
+          attribution: 'Tiles: <a href="http://imperium.ahlfeldt.se/">DARE 2014</a>'
         }),
         selector_template = 
           '<div class="map-selector">' +
