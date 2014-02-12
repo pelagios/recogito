@@ -22,7 +22,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
         currentStatusFilterVal = 0,
         options = { enableCellNavigation: true, enableColumnReorder: false, forceFitColumns: true, autoEdit: false },
         columns = [{ name: '#', field: 'idx', id: 'idx', width:34, sortable:true },
-                   { name: 'Toponym', field: 'toponym', id: 'toponym', sortable:true },
+                   { name: 'Toponym', field: 'toponym', id: 'toponym', sortable:true, formatter: Formatters.ToponymFormatter },
                    { name: 'EGD Part', field: 'part', id: 'part' },
                    { name: 'Tags', field: 'tags', id: 'tags', formatter: Formatters.TagsFormatter },
                    { name: 'Auto Match', field: 'place', id: 'place' , formatter: Formatters.PleiadesFormatter },
@@ -329,6 +329,16 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
 
   var Formatters = {
     /** Custom table cell formatter for Pleiades URIs **/
+    ToponymFormatter : function(row, cell, value, columnDef, dataContext) {
+      if (value) {
+        if (dataContext.comment) {
+          return '<span title="' + dataContext.comment + '" class="icon has-comment">&#xf075;</span>' + value;
+        } else {
+          return '<span class="icon empty"></span>' + value;
+        }
+      }
+    },
+    
     PleiadesFormatter : function(row, cell, value, columnDef, dataContext) {  
       if (value) {
         if (value.uri.indexOf('http://pleiades.stoa.org') == 0) {
