@@ -26,6 +26,7 @@
         <thead>
           <tr>
             <th>Document</th>
+            <th></th> <!-- language tag -->
             <th colspan="2"># of Parts</th>
             <th>Toponyms</th>
             <th colspan="2">Complete</th>
@@ -42,6 +43,10 @@
           	      }
           	      @doc.author.map(_ + ": ").getOrElse("") @doc.title
           	      @doc.dateComment.map("(" + _ + ")").getOrElse("") 
+          	    </td>
+          	    
+          	    <td> <!-- language -->
+          	      @Html(doc.language.map(lang => "<span class=\"lang\">" + lang.toLowerCase + "</span>").getOrElse(""))
           	    </td>
           	  
           	    @defining(models.GeoDocumentParts.countForGeoDocument(doc.id.get)) { parts =>
