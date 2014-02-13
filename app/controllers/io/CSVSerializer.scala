@@ -117,7 +117,7 @@ class CSVSerializer {
     */
   def asDBBackup(annotations: Seq[Annotation])(implicit s: Session): String = {
     val header = Seq("uuid", "gdoc_part", "status", "toponym", "offset", "gazetteer_uri", "latlon", "place_category", "toponym_corrected", 
-                     "offset_corrected", "gazetteer_uri_corrected", "latlon_corrected", "place_category_corrected", "tags", "comment").mkString(SEPARATOR) + ";\n"
+                     "offset_corrected", "gazetteer_uri_corrected", "latlon_corrected", "place_category_corrected", "tags", "comment", "see_also").mkString(SEPARATOR) + ";\n"
       
     annotations.foldLeft(header)((csv, annotation) => {
       val queryResultForURI = annotation.gazetteerURI.map(uri => CrossGazetteerUtils.getPlace(uri)).flatten
@@ -145,6 +145,7 @@ class CSVSerializer {
       correctedPlaceCategory.map(_.toString).getOrElse("") + SEPARATOR +
       annotation.tags.getOrElse("") + SEPARATOR +
       annotation.comment.getOrElse("") + SEPARATOR +
+      annotation.seeAlso.mkString(",") + SEPARATOR +
       "\n"
     })
   }

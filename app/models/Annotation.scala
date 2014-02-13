@@ -4,6 +4,7 @@ import java.util.UUID
 import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
+import play.api.Logger
 
 /** Annotation case class.
   *  
@@ -48,16 +49,28 @@ case class Annotation(
     comment: Option[String] = None,
     
     /** Source URL for the toponym **/
-    source: Option[String] = None
+    source: Option[String] = None,
     
-)
+    /** Reference(s) to (a) related annotation(s) 
+      * 
+      * Related annotations are referred to by their UUID. If multiple
+      * annotations are related, this filed contains multiple annotations
+      * separated by comma.
+      */
+    private val _seeAlso: Option[String] = None
+    
+) {
+  
+  lazy val seeAlso: Seq[String] = _seeAlso.map(_.split(",").toSeq).getOrElse(Seq.empty[String])
+  
+}
 
 object Annotation {
   
   def newUUID: UUID = UUID.randomUUID
   
 }
-   
+  
 /** Annotation database table **/
 object Annotations extends Table[Annotation]("annotations") with HasStatusColumn {
 
@@ -87,8 +100,10 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
   
   def source = column[String]("source", O.Nullable)
   
+  def _seeAlso = column[String]("see_also", O.Nullable)
+  
   def * = uuid ~ gdocId ~ gdocPartId.? ~ status ~ toponym.? ~ offset.? ~ gazetteerURI.? ~ correctedToponym.? ~ 
-    correctedOffset.? ~ correctedGazetteerURI.? ~ tags.? ~ comment.?  ~ source.? <> (Annotation.apply _, Annotation.unapply _)
+    correctedOffset.? ~ correctedGazetteerURI.? ~ tags.? ~ comment.?  ~ source.? ~ _seeAlso.? <> (Annotation.apply _, Annotation.unapply _)
     
   private val sortByOffset = { a: Annotation =>
     val offset = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
