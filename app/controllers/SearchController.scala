@@ -36,6 +36,7 @@ object SearchController extends Controller {
         "uri" -> place.uri,
         "title" -> place.title,
         "names" -> place.names.map(_.labels).flatten.map(_.label).mkString(", "),
+        "category" -> place.category.map(_.toString),
         "coordinate" -> coordinate.map(coords => Json.toJson(Seq(coords.y, coords.x)))
     )})
     
