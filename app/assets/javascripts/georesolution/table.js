@@ -16,6 +16,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
     common.HasEvents.call(this);
   
     var self = this,
+        rightClickMenu = new RightClickMenu(),
         contextTooltip = new ContextTooltip(),
         statusValues = [ false, 'VERIFIED', 'NOT_VERIFIED', 'IGNORE', 'FALSE_DETECTION', 'NOT_IDENTIFYABLE' ],
         statusIcons = [ '', '&#xf14a;', '&#xf059;', '&#xf05e;', '&#xf057;', '&#xf024;'],
@@ -39,15 +40,31 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
     });
     $(window).resize(function() { self._grid.resizeCanvas(); });
   
-    // Selection
+    // Selection    
+    var currentSelection = false;
     this._grid.onSelectedRowsChanged.subscribe(function(e, args) { 
-      if (args.rows.length == 1) {
-        var place = self._grid.getDataItem(args.rows[0]);
-        self.fireEvent('selectionChanged', args, place);
-      } else if (args.rows.length > 1) {
-        self._openBatchPopup(args.rows);
+      rightClickMenu.hide();
+      if (args.rows.length == 0) {
+        currentSelection = false;
+      } else {
+        currentSelection = args.rows;
+        if (args.rows.length == 1) {
+          var place = self._grid.getDataItem(args.rows[0]);
+          self.fireEvent('selectionChanged', args, place);
+        }
       }
     });
+    
+    // Right-click context menu
+    tableDiv.oncontextmenu = function(e) {
+      if (currentSelection.length > 1) {
+        rightClickMenu.show(e.clientX, e.clientY, function() {
+          rightClickMenu.hide();
+          self._openBatchPopup(currentSelection);
+        });
+        return false;
+      }
+    };
   
     // Double click -> Details popup
     this._grid.onDblClick.subscribe(function(e, args) { 
@@ -278,7 +295,30 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
     return neighbours;
   };
   
-  var ContextTooltip = function(parentEl) {
+  var RightClickMenu = function() {
+    var self = this;
+    
+    this.template = $('<div class="table-rightclickmenu"><a>Batch-Edit Selected Toponyms</a></div>');  
+    this.callback = false;
+    this.template.find('a').click(function() { 
+      if (self.callback)
+        self.callback();
+    });
+        
+    $(document.body).append(this.template);
+  };
+  
+  RightClickMenu.prototype.show = function(x, y, callback) {
+    this.template.addClass("visible");
+    this.template.css({left: x, top: y }); 
+    this.callback = callback;
+  };
+  
+  RightClickMenu.prototype.hide = function() {
+    this.template.removeClass("visible");
+  };
+  
+  var ContextTooltip = function() {
     this.template = $('<div class="table-context-tooltip"></div>');
     $(document.body).append(this.template);
     this.INTERVAL_MILLIS = 500;
