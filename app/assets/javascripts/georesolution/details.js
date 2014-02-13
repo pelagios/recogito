@@ -75,8 +75,9 @@ define(['georesolution/common'], function(common) {
      * @param {Object!} opt_style the map marker style
     */
     var displaySearchResult = function(result, opt_style) {
+      var category = (result.category) ? common.Utils.formatCategory(result.category) : 'uncategorized';
       var warning = (result.coordinate) ? '' : '<span title="Place has no coordinates" class="icon no-coords">&#xf041;</span>'     
-      var tr = $('<tr><td>' + warning + '</td><td><a href="javascript:void(0);" class="details-content-candidate-link">' + result.title + '</a></td><td>' + result.names + '</td></tr>');
+      var tr = $('<tr><td>' + warning + '</td><td><a href="javascript:void(0);" title="' + category + '" class="details-content-candidate-link">' + result.title + '</a></td><td>' + result.names + '</td></tr>');
       var marker = undefined;
       if (result.coordinate) {
         if (opt_style)
