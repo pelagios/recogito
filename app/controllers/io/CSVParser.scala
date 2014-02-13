@@ -63,6 +63,7 @@ class CSVParser {
     val idxCorrectedGazetteerURI = idx("gazetteer_uri_corrected")
     val idxTags = idx("tags")
     val idxComment = idx("comment")
+    val idxSeeAlso = idx("see_also")
         
     // Helper function to turn optional fields to Option[String]
     def parseOptCol(idx: Option[Int])(implicit fields: Array[String]): Option[String] = {
@@ -91,7 +92,8 @@ class CSVParser {
           parseOptCol(idxCorrectedOffset).map(_.toInt),
           parseOptCol(idxCorrectedGazetteerURI),
           parseOptCol(idxTags),
-          parseOptCol(idxComment))
+          parseOptCol(idxComment),
+          parseOptCol(idxSeeAlso))
     }).toSeq
   }
   
