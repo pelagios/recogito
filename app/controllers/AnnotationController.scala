@@ -220,7 +220,7 @@ object AnnotationController extends Controller with Secured {
       val correctedToponym = (json \ "corrected_toponym").as[Option[String]]
       val correctedOffset = (json \ "corrected_offset").as[Option[Int]]
       val correctedURI = (json \ "corrected_uri").as[Option[String]]
-      val correctedTags = (json \ "tags").as[Option[String]]
+      val correctedTags = (json \ "tags").as[Option[String]].map(_.toLowerCase)
       val correctedComment = (json \ "comment").as[Option[String]]
         
       val updatedStatus = correctedStatus.getOrElse(annotation.get.status)

@@ -132,7 +132,7 @@ define(function() {
       if (e.keyCode == 13) {
         // Enter
         if (onEnter) {
-          var tags = textField.value.split(",");
+          var tags = textField.value.toLowerCase().split(",");
           onEnter($.map(tags, function(str) { return $.trim(str); }));
         }
         
