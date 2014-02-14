@@ -39,7 +39,28 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
       self._grid.render();
     });
     $(window).resize(function() { self._grid.resizeCanvas(); });
-  
+    
+    // Right-click context menu
+    tableDiv.oncontextmenu = function(e) {
+      if (currentSelection.length > 1) {
+        if (rightClickMenu.isShown()) {
+          rightClickMenu.hide();
+        } else {
+          rightClickMenu.show(e.clientX, e.clientY, function() {
+            rightClickMenu.hide();
+            self._openBatchPopup(currentSelection);
+          });
+        }
+        return false;
+      }
+    };
+    
+    // Escape key hides right-click menu
+    $(document.body).keydown(function(e) {
+      if (e.keyCode == 27)
+        rightClickMenu.hide();
+    });
+    
     // Selection    
     var currentSelection = false;
     this._grid.onSelectedRowsChanged.subscribe(function(e, args) { 
@@ -54,17 +75,6 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
         }
       }
     });
-    
-    // Right-click context menu
-    tableDiv.oncontextmenu = function(e) {
-      if (currentSelection.length > 1) {
-        rightClickMenu.show(e.clientX, e.clientY, function() {
-          rightClickMenu.hide();
-          self._openBatchPopup(currentSelection);
-        });
-        return false;
-      }
-    };
   
     // Double click -> Details popup
     this._grid.onDblClick.subscribe(function(e, args) { 
@@ -309,13 +319,17 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
   };
   
   RightClickMenu.prototype.show = function(x, y, callback) {
-    this.template.addClass("visible");
+    this.template.addClass('visible');
     this.template.css({left: x, top: y }); 
     this.callback = callback;
   };
   
   RightClickMenu.prototype.hide = function() {
-    this.template.removeClass("visible");
+    this.template.removeClass('visible');
+  };
+  
+  RightClickMenu.prototype.isShown = function() {
+    return this.template.hasClass('visible');
   };
   
   var ContextTooltip = function() {
@@ -338,7 +352,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
             var pre = a.context.substring(0, startIdx);
             var post = a.context.substring(endIdx);
             template.html('...' + pre + '<em>' + a.toponym + '</em>' + post + '...');
-            template.addClass("visible");
+            template.addClass('visible');
             template.css({left: x, top: y });
           }
         }    
@@ -348,7 +362,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
 
   ContextTooltip.prototype.hide = function(id) {
     if (id == this.currentId && this.timer) {
-      this.template.removeClass("visible");
+      this.template.removeClass('visible');
       clearTimeout(this.timer);
       this.timer = false;
     }
