@@ -32,7 +32,7 @@ recogito.PublicMap = function(mapDiv, dataURL) {
     minZoom: 3
   });
   
-  var baseLayers = { 'Satellite': bingLayer, 'Empty Base Map': awmcLayer, 'Roman Empire Base Map': dareLayer };
+  var baseLayers = { 'Satellite': bingLayer, 'Empty Base Map (AWMC)': awmcLayer, 'Roman Empire Base Map (DARE)': dareLayer };
   this._map.addControl(new L.Control.Layers(baseLayers, null, { position: 'topleft' }));
   
   // Fetch JSON data
