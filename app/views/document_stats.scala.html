@@ -20,7 +20,7 @@
       Resolution correctness: @{ "%.2f" format (doc.resolutionCorrectness * 100) } % 
     </div>
     
-    @defining(Annotations.findByGeoDocument(doc.id.get)) { annotations =>
+    @defining(Annotations.findByGeoDocumentAndStatus(doc.id.get, AnnotationStatus.VERIFIED, AnnotationStatus.NOT_VERIFIED, AnnotationStatus.NOT_IDENTIFYABLE)) { annotations =>
       <h3>Unique Tags:</h3>
       <p>@models.stats.AnnotationStats.uniqueTags(annotations).mkString(", ")</p>
       
