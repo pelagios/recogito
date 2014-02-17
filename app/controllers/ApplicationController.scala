@@ -126,7 +126,11 @@ object ApplicationController extends Controller with Secured {
   
   /** Shows detailed stats for a specific document **/
   def showDocumentStats(docId: Int) = DBAction { implicit session =>
-    Ok("")
+    val doc = GeoDocuments.findById(docId)
+    if (doc.isDefined)
+      Ok(views.html.document_stats(doc.get))
+    else
+      NotFound(Json.parse("{ \"success\": false, \"message\": \"Document not found\" }"))
   }
   
   /** Shows the edit history overview page **/

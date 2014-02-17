@@ -140,46 +140,6 @@
           </tr>
         </tbody> 
       </table>
-    
-      @*
-      <ul>
-        @for(document <- models.GeoDocuments.listAll()) {
-      	  <li class="geo-document">
-      	    @document.title
-      	    <a href="@routes.ApplicationController.showMapCorrectionUI(document.id.get)">Map (Gazetteer Correction)</a>
-      	    <a href="@routes.ApplicationController.showMap(document.id.get)">Map (Public)</a>
-      	    <a href="@routes.DocumentController.get(document.id.get, Some("csv"))">CSV</a>
-      	    @defining(GeoDocumentTexts.getTextForGeoDocument(document.id.get)) { text =>
-      	      @if(text.isDefined) {
-      	        <a href="@routes.ApplicationController.showTextAnnotationUI(text.get.id.get)" target="_blank">Text</a>
-      	      }
-      	    }
-      	    <div class="stats">
-      	      @document.totalToponymCount Toponyms Total (not counting ignored and false matches)<br/>
-      	      @{document.totalToponymCount - document.unverifiedToponymCount} Toponyms Controlled (Verified + Not identifyable)</br>
-      	      @{ "%.2f" format (document.completionRatio * 100) } % Complete</br>
-      	      @{ "%.2f" format (document.identificiationRatio * 100) } % Identification rate (Verified vs. Not identifyable)<br/>
-      	      NER recall: @{ "%.2f" format (document.nerRecall * 100) } %<br/>
-      	      NER precision: @{ "%.2f" format (document.nerPrecision * 100) } %</br> 
-      	      Resolution correctness: @{ "%.2f" format (document.resolutionCorrectness * 100) } % 
-      	    </div>
-      	    <ul>
-      	    @for(part <- models.GeoDocumentParts.findByGeoDocument(document.id.get)) {
-      	      <li>
-      	        @part.title
-      	        @defining(GeoDocumentTexts.getTextForGeoDocumentPart(part.id.get).map(_.id).flatten) { textId =>
-      	          @if(textId.isDefined) {
-      	           <a href="@routes.ApplicationController.showTextAnnotationUI(textId.get)" target="_blank">Text</a>
-      	          }
-      	        }
-      	      </li> 
-      	    }
-      	    </ul>
-      	  </li>      	  
-        }
-      </ul>
-      *@
-      
     </div>
     <div id="footer">
       <span id="footer-info"></span>
