@@ -21,10 +21,18 @@
     </div>
     
     @defining(Annotations.findByGeoDocument(doc.id.get)) { annotations =>
-      <div class="tags">
-        <h3>Tags:</h3>
-        <p>@models.stats.AnnotationStats.uniqueTags(annotations).mkString(", ")</p> 
-      </div>
+      <h3>Unique Tags:</h3>
+      <p>@models.stats.AnnotationStats.uniqueTags(annotations).mkString(", ")</p>
+      
+      <h3>Place Categories:</h3>
+      <p></p>
+             
+      @defining(models.stats.AnnotationStats.uniquePlaces(annotations)) { places => 
+        <h3>Unique Places: @places.size</h3>
+        @for(tuple <- places) {
+          <a href="@tuple._1.uri">@tuple._1.title</a> (@tuple._2)<br/>
+        }
+      }
     }
   </body>
 </html>

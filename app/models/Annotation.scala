@@ -61,7 +61,17 @@ case class Annotation(
     
 ) {
   
+  /** Helper val that tokenizes the value of the 'see_also' DB filed into a Seq[String **/
   lazy val seeAlso: Seq[String] = _seeAlso.map(_.split(",").toSeq).getOrElse(Seq.empty[String])
+  
+  /** Helper val that returns the 'valid' gazetteer URI - i.e. the correction, if any, or the automatch otherwise **/
+  lazy val validGazetteerURI: Option[String] = 
+    if (correctedGazetteerURI.isDefined && correctedGazetteerURI.get.trim.size > 0) correctedGazetteerURI 
+    else gazetteerURI
+  
+  lazy val validToponym: Option[String] = 
+    if (correctedToponym.isDefined && correctedToponym.get.trim.size > 0) correctedToponym 
+    else toponym
   
 }
 
