@@ -24,8 +24,12 @@
       <h3>Unique Tags:</h3>
       <p>@models.stats.AnnotationStats.uniqueTags(annotations).mkString(", ")</p>
       
-      <h3>Place Categories:</h3>
-      <p></p>
+      @defining(models.stats.AnnotationStats.uniquePlaceCategories(annotations)) { categories =>
+        <h3>Place Categories:</h3>
+        @for(tuple <- categories) {
+          @tuple._1.getOrElse("[uncategorized]"): @tuple._2<br/>
+        }
+      }
              
       @defining(models.stats.AnnotationStats.uniquePlaces(annotations)) { places => 
         <h3>Unique Places: @places.size</h3>
