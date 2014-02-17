@@ -9,18 +9,18 @@
     <h1>@doc.author.map(_ + ": ").getOrElse("") @doc.title @doc.dateComment.map("(" + _ + ")").getOrElse("")</h1>
     
     @* Optimize - just fetch annotations from DB once and then compute all stats in mem *@
+    @defining(Annotations.findByGeoDocumentAndStatus(doc.id.get, AnnotationStatus.VERIFIED, AnnotationStatus.NOT_VERIFIED, AnnotationStatus.NOT_IDENTIFYABLE)) { annotations =>    
+      <div class="stats">
+        @doc.totalToponymCount Toponyms Total (not counting ignored and false matches)<br/>
+        @{doc.totalToponymCount - doc.unverifiedToponymCount} Toponyms Controlled (Verified + Not identifyable)</br>
+        @annotations.filter(a => a.validGazetteerURI.isDefined && a.validGazetteerURI.get.trim.size > 0).size Toponyms mapped to Gazetteer URIs<br/>
+        @{ "%.2f" format (doc.completionRatio * 100) } % Complete</br>
+        @{ "%.2f" format (doc.identificiationRatio * 100) } % Identification rate (Verified vs. Not identifyable)<br/>
+        NER recall: @{ "%.2f" format (doc.nerRecall * 100) } %<br/>
+        NER precision: @{ "%.2f" format (doc.nerPrecision * 100) } %</br> 
+        Resolution correctness: @{ "%.2f" format (doc.resolutionCorrectness * 100) } % 
+      </div>
     
-    <div class="stats">
-      @doc.totalToponymCount Toponyms Total (not counting ignored and false matches)<br/>
-      @{doc.totalToponymCount - doc.unverifiedToponymCount} Toponyms Controlled (Verified + Not identifyable)</br>
-      @{ "%.2f" format (doc.completionRatio * 100) } % Complete</br>
-      @{ "%.2f" format (doc.identificiationRatio * 100) } % Identification rate (Verified vs. Not identifyable)<br/>
-      NER recall: @{ "%.2f" format (doc.nerRecall * 100) } %<br/>
-      NER precision: @{ "%.2f" format (doc.nerPrecision * 100) } %</br> 
-      Resolution correctness: @{ "%.2f" format (doc.resolutionCorrectness * 100) } % 
-    </div>
-    
-    @defining(Annotations.findByGeoDocumentAndStatus(doc.id.get, AnnotationStatus.VERIFIED, AnnotationStatus.NOT_VERIFIED, AnnotationStatus.NOT_IDENTIFYABLE)) { annotations =>
       <h3>Unique Tags:</h3>
       <p>@models.stats.AnnotationStats.uniqueTags(annotations).mkString(", ")</p>
       

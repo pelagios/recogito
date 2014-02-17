@@ -1,10 +1,9 @@
 package models.stats
 
-import models.Annotation
-import org.pelagios.api.Place
 import global.Global
+import models.Annotation
+import org.pelagios.api.{ Place, PlaceCategory }
 import org.pelagios.gazetteer.GazetteerUtils
-import org.pelagios.api.PlaceCategory
 
 object AnnotationStats {
   
