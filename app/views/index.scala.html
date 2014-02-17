@@ -70,7 +70,7 @@
                     </div>
                   }
           	    </td>
-          	    <td class="more-stats"><a href="#" onclick="return false;" class="icon" title="Detailed Stats">&#xf080;</a></td>
+          	    <td class="more-stats"><a href="@routes.ApplicationController.showDocumentStats(doc.id.get)" class="icon" title="Detailed Stats">&#xf080;</a></td>
           	  
           	    <td class="icons"> <!-- icons: map, public map, text -->
           	      @defining(GeoDocumentTexts.getTextForGeoDocument(doc.id.get)) { text =>

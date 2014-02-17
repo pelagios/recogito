@@ -41,6 +41,7 @@ GET     /recogito/edit/annotation             controllers.ApplicationController.
 GET     /recogito/edit/georesolution          controllers.ApplicationController.showGeoResolutionUI(doc: Int)
 GET     /recogito/history                     controllers.ApplicationController.showHistory
 GET     /recogito/stats                       controllers.ApplicationController.showStats
+GET     /recogito/documents/:id/stats         controllers.ApplicationController.showDocumentStats(id: Int)
 
 POST    /recogito/admin/documents             controllers.AdminController.uploadDocuments
 GET     /recogito/admin/annotations           controllers.AdminController.backupAnnotations(doc: Option[Int], part: Option[Int]) 

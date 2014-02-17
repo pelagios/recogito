@@ -124,6 +124,11 @@ object ApplicationController extends Controller with Secured {
     Ok(views.html.georesolution(username, doc))
   }
   
+  /** Shows detailed stats for a specific document **/
+  def showDocumentStats(docId: Int) = DBAction { implicit session =>
+    Ok("")
+  }
+  
   /** Shows the edit history overview page **/
   def showHistory() = DBAction { implicit session =>
     // TODO just a dummy for now
@@ -135,6 +140,5 @@ object ApplicationController extends Controller with Secured {
     // TODO just a dummy for now
     Ok(views.html.stats(StatsHistory.listAll())) 
   }
-
 
 }

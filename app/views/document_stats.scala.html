@@ -1,0 +1,10 @@
+@(doc: models.GeoDocument)(implicit s: play.api.db.slick.Config.driver.simple.Session)
+<html>
+  <head>
+    <title>@doc.author.map(_ + ":").getOrElse("") @doc.title</title>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
+  </head>
+  
+  <body>
+  </body>
+</html>

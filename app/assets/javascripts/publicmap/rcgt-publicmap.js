@@ -34,7 +34,7 @@ recogito.PublicMap = function(mapDiv, dataURL) {
   
   var baseLayers = { 'Satellite': bingLayer, 
                      'Empty Base Map (<a href="http://awmc.unc.edu/wordpress/tiles/map-tile-information" target="_blank">AWMC</a>)': awmcLayer, 
-                    'Roman Empire Base Map (<a href="http://imperium.ahlfeldt.se/" target="_blank">DARE</a>)': dareLayer };
+                     'Roman Empire Base Map (<a href="http://imperium.ahlfeldt.se/" target="_blank">DARE</a>)': dareLayer };
   this._map.addControl(new L.Control.Layers(baseLayers, null, { position: 'topleft' }));
   
   // Fetch JSON data
