@@ -54,7 +54,7 @@
       }
              
       @defining(models.stats.AnnotationStats.uniquePlaces(annotations).groupBy(_._1.category)) { places => 
-        <h3>Unique Places: @places.toSeq.map(_._2).flatten.map(_._2).foldLeft(0)(_ + _)</h3>
+        <h3>Unique Places: @places.toSeq.map(_._2).flatten.size</h3>
         
         <table>
           <tbody>
