@@ -1,4 +1,7 @@
 @()(implicit s: play.api.db.slick.Config.driver.simple.Session)
+
+@import tags.lang
+
 <html>
   <head>
     <title>RECOGITO</title>
@@ -26,9 +29,7 @@
           	    @doc.dateComment.map("(" + _ + ")").getOrElse("") 
           	  </td>
           	    
-          	  <td> <!-- language -->
-          	    @Html(doc.language.map(lang => "<span class=\"lang\">" + lang.toLowerCase + "</span>").getOrElse(""))
-          	  </td>
+          	  <td>@lang(doc.language)</td>
           	         	  
           	  <!-- number of toponyms -->
           	  <td class="center">
