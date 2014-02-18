@@ -7,70 +7,75 @@
   </head>
   
   <body>
-    <h1>@doc.author.map(_ + ": ").getOrElse("") @doc.title @doc.dateComment.map("(" + _ + ")").getOrElse("")</h1>
-    
-    <div class="icons">
-      <a class="icon" href="@routes.ApplicationController.showMap(doc.id.get)" title="Public Map">
-        &#xf0ac;
-        <span class="icon public">&#xf0c0;</span>
-      </a>
-      
-      <a class="icon" href="@routes.DocumentController.get(doc.id.get, Some("csv"))" title="Download CSV">&#xf0ce;</a>    
-      
-      @if(authorized) {
-        <a class="icon" href="@routes.ApplicationController.showGeoResolutionUI(doc.id.get)" title="Geo-Resolution">&#xf0ac;</a>
-
-        @defining(GeoDocumentTexts.getTextForGeoDocument(doc.id.get)) { text =>
-          @if(text.isDefined) {
-            <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(text.get.id.get)" title="Text Annotation">&#xf0f6;</a>
-          } else {
-            <span class="icon"></span>
-          }
-        }
-      }           
+    <div id="header">
+      <div class="title">@doc.author.map(_ + ": ").getOrElse("") @doc.title @doc.dateComment.map("(" + _ + ")").getOrElse("")</div>
+      <div class="home-link"><a class="icon" href="@routes.ApplicationController.index()">&#xf015;</a></div>
     </div>
     
-    @* Optimize - just fetch annotations from DB once and then compute all stats in mem *@
-    @defining(Annotations.findByGeoDocumentAndStatus(doc.id.get, AnnotationStatus.VERIFIED, AnnotationStatus.NOT_IDENTIFYABLE)) { annotations =>    
-      <div class="stats">
-        @doc.totalToponymCount Toponyms Total (not counting ignored and false matches)<br/>
-        @{doc.totalToponymCount - doc.unverifiedToponymCount} Toponyms Controlled (Verified + Not identifyable)</br>
-        @annotations.filter(a => a.validGazetteerURI.isDefined && a.validGazetteerURI.get.trim.size > 0).size Toponyms mapped to Gazetteer URIs<br/>
-        @{ "%.2f" format (doc.completionRatio * 100) } % Complete</br>
-        @{ "%.2f" format (doc.identificiationRatio * 100) } % Identification rate (Verified vs. Not identifyable)<br/>
-        NER recall: @{ "%.2f" format (doc.nerRecall * 100) } %<br/>
-        NER precision: @{ "%.2f" format (doc.nerPrecision * 100) } %</br> 
-        Resolution correctness: @{ "%.2f" format (doc.resolutionCorrectness * 100) } % 
+    <div id="container">
+      <div class="icons">
+        <a class="icon" href="@routes.ApplicationController.showMap(doc.id.get)" title="Public Map">
+          &#xf0ac;
+          <span class="icon public">&#xf0c0;</span>
+        </a>
+      
+        <a class="icon" href="@routes.DocumentController.get(doc.id.get, Some("csv"))" title="Download CSV">&#xf0ce;</a>    
+      
+        @if(authorized) {
+          <a class="icon" href="@routes.ApplicationController.showGeoResolutionUI(doc.id.get)" title="Geo-Resolution">&#xf0ac;</a>
+
+          @defining(GeoDocumentTexts.getTextForGeoDocument(doc.id.get)) { text =>
+            @if(text.isDefined) {
+              <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(text.get.id.get)" title="Text Annotation">&#xf0f6;</a>
+            } else {
+              <span class="icon"></span>
+            }
+          }
+        }           
       </div>
     
-      <h3>Unique Tags:</h3>
-      <p>@models.stats.AnnotationStats.uniqueTags(annotations).mkString(", ")</p>
+      @* Optimize - just fetch annotations from DB once and then compute all stats in mem *@
+      @defining(Annotations.findByGeoDocumentAndStatus(doc.id.get, AnnotationStatus.VERIFIED, AnnotationStatus.NOT_IDENTIFYABLE)) { annotations =>    
+        <div class="stats">
+          @doc.totalToponymCount Toponyms Total (not counting ignored and false matches)<br/>
+          @{doc.totalToponymCount - doc.unverifiedToponymCount} Toponyms Controlled (Verified + Not identifyable)</br>
+          @annotations.filter(a => a.validGazetteerURI.isDefined && a.validGazetteerURI.get.trim.size > 0).size Toponyms mapped to Gazetteer URIs<br/>
+          @{ "%.2f" format (doc.completionRatio * 100) } % Complete</br>
+          @{ "%.2f" format (doc.identificiationRatio * 100) } % Identification rate (Verified vs. Not identifyable)<br/>
+          NER recall: @{ "%.2f" format (doc.nerRecall * 100) } %<br/>
+          NER precision: @{ "%.2f" format (doc.nerPrecision * 100) } %</br> 
+          Resolution correctness: @{ "%.2f" format (doc.resolutionCorrectness * 100) } % 
+        </div>
+    
+        <h3>Unique Tags:</h3>
+        <p>@models.stats.AnnotationStats.uniqueTags(annotations).mkString(", ")</p>
       
-      @defining(models.stats.AnnotationStats.uniquePlaceCategories(annotations)) { categories =>
-        <h3>Place Categories:</h3>
-        @for(tuple <- categories) {
-          @tuple._1.getOrElse("[uncategorized]"): @tuple._2<br/>
+        @defining(models.stats.AnnotationStats.uniquePlaceCategories(annotations)) { categories =>
+          <h3>Place Categories:</h3>
+          @for(tuple <- categories) {
+            @tuple._1.getOrElse("[uncategorized]"): @tuple._2<br/>
+          }
+        }
+             
+        @defining(models.stats.AnnotationStats.uniquePlaces(annotations).groupBy(_._1.category)) { places => 
+          <h3>Unique Places: @places.toSeq.map(_._2).flatten.size</h3>
+        
+          <table>
+            <tbody>
+              @for(category <- places) {
+                <tr>
+                  <td style="vertical-align:top;">@category._1.getOrElse("[uncategorized]")</td>
+                  <td>
+                    @for(tuple <- category._2) {
+                      <a href="@tuple._1.uri">@tuple._1.title</a> (@tuple._2)<br/>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
         }
       }
-             
-      @defining(models.stats.AnnotationStats.uniquePlaces(annotations).groupBy(_._1.category)) { places => 
-        <h3>Unique Places: @places.toSeq.map(_._2).flatten.size</h3>
-        
-        <table>
-          <tbody>
-            @for(category <- places) {
-              <tr>
-                <td style="vertical-align:top;">@category._1.getOrElse("[uncategorized]")</td>
-                <td>
-                  @for(tuple <- category._2) {
-                    <a href="@tuple._1.uri">@tuple._1.title</a> (@tuple._2)<br/>
-                  }
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      }
-    }
+    </div>
   </body>
 </html>
