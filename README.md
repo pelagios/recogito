@@ -68,6 +68,7 @@ columns match with the fields in the Recogito data model, and are (generally) op
 
 ## Hacking on Recogito
 
+* To start Recogito in development mode, type `play run`
 * To create an Eclipse project, type `play eclipse` 
 * To create an Eclipse project with dependency's sources attached, type `play` to enter the Play console, and then `eclipse with-source=true`
 
