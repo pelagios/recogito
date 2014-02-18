@@ -98,7 +98,10 @@ define(['georesolution/common'], function(common) {
      
       var candidateLink = $(tr).find('.details-content-candidate-link');
       if (marker) {
-        candidateLink.mouseover(function() { marker.bindPopup(result.title).openPopup(); });
+        candidateLink.mouseover(function() { 
+          marker.bindPopup(result.title).openPopup(); 
+          map.panTo(marker.getLatLng());
+        });
         candidateLink.mouseout(function() { marker.closePopup(); });
       }
       candidateLink.click(function(e) { saveCorrection(result); });

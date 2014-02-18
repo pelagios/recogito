@@ -21,6 +21,8 @@ object AnnotationStats {
     // Map from (uri -> occurrences) to (place -> occurrences)
     val uniquePlaces = uniqueURIs.map(tuple => (tuple._1, Global.index.findByURI(tuple._1), tuple._2))
     
+    // Note that integrity violations are only possible if someone imports faulty data via CSV import
+    // Still: we want to 'crash early' when there's a mess in the DB
     val integrityViolations = uniquePlaces.filter(_._2.isEmpty)
     integrityViolations.foreach(violation => {
       Logger.warn("Annotation contains invalid URI: " + violation._1)
