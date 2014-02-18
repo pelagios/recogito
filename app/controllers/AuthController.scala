@@ -78,14 +78,16 @@ object Secure extends Enumeration {
 
 trait Secured {
   
-  private def username(request: RequestHeader) = request.session.get(Security.username)
+  def username(request: RequestHeader) = request.session.get(Security.username)
   
   private def onUnauthorized(policy: Secure.Policy)(request: RequestHeader) = {
     if (policy == Secure.REDIRECT_TO_LOGIN)
       Results.Redirect(routes.AuthController.login)
     else
       Results.Forbidden
-  }  
+  } 
+  
+  def isAuthorized(implicit request: RequestHeader) = username(request).isDefined
   
   /** For protected actions **/
   def protectedAction(policy: Secure.Policy)(f: => String => Request[AnyContent] => Result) = {

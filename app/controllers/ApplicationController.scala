@@ -16,9 +16,11 @@ object ApplicationController extends Controller with Secured {
   private val UTF8 = "UTF-8"
     
   /** Returns the index page for logged-in users **/
-  def index = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit request => 
-    val user = Users.findByUsername(username)
-    Ok(views.html.index(user.get)) 
+  def index = DBAction { implicit rs => 
+    if (isAuthorized)
+      Ok(views.html.index(Users.findByUsername(username(rs.request).get).get))
+    else
+      Ok(views.html.index_public())
   }
    
   /** Shows the 'public map' for the specified document.
