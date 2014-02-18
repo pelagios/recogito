@@ -130,7 +130,7 @@ object ApplicationController extends Controller with Secured {
   def showDocumentStats(docId: Int) = DBAction { implicit session =>
     val doc = GeoDocuments.findById(docId)
     if (doc.isDefined)
-      Ok(views.html.document_stats(doc.get))
+      Ok(views.html.document_stats(doc.get, isAuthorized))
     else
       NotFound(Json.parse("{ \"success\": false, \"message\": \"Document not found\" }"))
   }
