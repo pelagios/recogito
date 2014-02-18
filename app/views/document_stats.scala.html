@@ -3,13 +3,23 @@
   <head>
     <title>@doc.author.map(_ + ":").getOrElse("") @doc.title</title>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
+    <style>
+    table {
+      border-collapse:collapse;
+    }
+    
+    td {
+      border: 1px solid black;
+      padding:5px;
+    }
+    </style>
   </head>
   
   <body>
     <h1>@doc.author.map(_ + ": ").getOrElse("") @doc.title @doc.dateComment.map("(" + _ + ")").getOrElse("")</h1>
     
     @* Optimize - just fetch annotations from DB once and then compute all stats in mem *@
-    @defining(Annotations.findByGeoDocumentAndStatus(doc.id.get, AnnotationStatus.VERIFIED, AnnotationStatus.NOT_VERIFIED, AnnotationStatus.NOT_IDENTIFYABLE)) { annotations =>    
+    @defining(Annotations.findByGeoDocumentAndStatus(doc.id.get, AnnotationStatus.VERIFIED, AnnotationStatus.NOT_IDENTIFYABLE)) { annotations =>    
       <div class="stats">
         @doc.totalToponymCount Toponyms Total (not counting ignored and false matches)<br/>
         @{doc.totalToponymCount - doc.unverifiedToponymCount} Toponyms Controlled (Verified + Not identifyable)</br>
@@ -31,11 +41,23 @@
         }
       }
              
-      @defining(models.stats.AnnotationStats.uniquePlaces(annotations)) { places => 
-        <h3>Unique Places: @places.size</h3>
-        @for(tuple <- places) {
-          <a href="@tuple._1.uri">@tuple._1.title</a> (@tuple._2)<br/>
-        }
+      @defining(models.stats.AnnotationStats.uniquePlaces(annotations).groupBy(_._1.category)) { places => 
+        <h3>Unique Places: @places.toSeq.map(_._2).flatten.map(_._2).foldLeft(0)(_ + _)</h3>
+        
+        <table>
+          <tbody>
+            @for(category <- places) {
+              <tr>
+                <td style="vertical-align:top;">@category._1.getOrElse("[uncategorized]")</td>
+                <td>
+                  @for(tuple <- category._2) {
+                    <a href="@tuple._1.uri">@tuple._1.title</a> (@tuple._2)<br/>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
       }
     }
   </body>

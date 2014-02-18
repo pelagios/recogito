@@ -15,7 +15,7 @@ object AnnotationStats {
   def uniquePlaces(annotations: Iterable[Annotation]): Seq[(Place, Int)] = {
     val uniqueURIs = annotations.groupBy(_.validGazetteerURI.map(GazetteerUtils.normalizeURI(_))) // Group by (normalized!) valid URI
       .filter { case (uri, annotations) => uri.isDefined && uri.get.trim.size > 0 } // Filter empty URIs
-      .map(tuple => (tuple._1.get, tuple._2.size)).toSeq // Map to (uri -> no. of occurrences)
+      .map { case (uri, annotations) => (uri.get, annotations.size) }.toSeq // Map to (uri -> no. of occurrences)
       
     // Map from (uri -> occurrences) to (place -> occurrences)
     uniqueURIs.map(tuple => (Global.index.findByURI(tuple._1), tuple._2)) 
