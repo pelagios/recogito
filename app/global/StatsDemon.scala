@@ -56,8 +56,9 @@ object StatsDemon {
           val id = doc.id.get
           val verified = Annotations.countForGeoDocumentAndStatus(id, AnnotationStatus.VERIFIED)
           val unverified = Annotations.countForGeoDocumentAndStatus(id, AnnotationStatus.NOT_VERIFIED)
-          val unidentifiable = Annotations.countForGeoDocumentAndStatus(id, AnnotationStatus.NOT_IDENTIFYABLE)
-          (verified, unverified, unidentifiable)
+          val yellow = Annotations.countForGeoDocumentAndStatus(id, AnnotationStatus.NO_SUITABLE_MATCH,
+              AnnotationStatus.AMBIGUOUS, AnnotationStatus.MULTIPLE, AnnotationStatus.NOT_IDENTIFYABLE)
+          (verified, unverified, yellow)
         })
 
         val lastLogTime = new Date().getTime - interval.toMillis        
