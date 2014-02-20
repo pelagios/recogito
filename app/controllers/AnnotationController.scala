@@ -85,10 +85,10 @@ object AnnotationController extends Controller with Secured {
                    AnnotationStatus.NOT_VERIFIED, None, None, None, 
                    Some(correctedToponym), Some(correctedOffset))
           
-      if (!hasValidOffset(annotation)) {
-        // Annotation is mis-aligned with source text - something is wrong
-        Logger.info("Invalid offset error: " + correctedToponym + " - " + correctedOffset + " GDoc Part: " + gdocPart.get.id)
-        Some("{ \"success\": false, \"message\": \"Shifted toponym alert: annotation reports invalid offset value.\" }")
+      if (!isValid(annotation)) {
+        // Annotation is mis-aligned with source text or has zero toponym length - something is wrong
+        Logger.info("Invalid annotation error: " + correctedToponym + " - " + correctedOffset + " GDoc Part: " + gdocPart.get.id)
+        Some("{ \"success\": false, \"message\": \"Invalid annotation error (invalid offset or toponym).\" }")
           
       } else if (Annotations.getOverlappingAnnotations(annotation).size > 0) {
         // Annotation overlaps with existing ones - something is wrong
@@ -112,20 +112,26 @@ object AnnotationController extends Controller with Secured {
   /** Checks whether the annotation offset is properly aligned with the source text.
     * @param a the annotation 
     */
-  private def hasValidOffset(a: Annotation)(implicit s: Session): Boolean = {
+  private def isValid(a: Annotation)(implicit s: Session): Boolean = {
     val offset = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
     val toponym = if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym
 
     if (offset.isDefined && toponym.isDefined) {
-      // Cross check against the source text, if available
-      val text = GeoDocumentTexts.getTextForAnnotation(a).map(gdt => new String(gdt.text, UTF8))
-      if (text.isDefined) {
-        // Compare with the source text
-        val referenceToponym = text.get.substring(offset.get, offset.get + toponym.get.size)
-        referenceToponym.equals(toponym.get)
+      if (toponym.get.trim.size == 0) {
+        // If the toponym is a string with size 0 we'll discard immediately
+        false
+        
       } else {
-        // We don't have a text for the annotation - so we'll just have to accept the offset
-        true
+        // Cross check against the source text, if available
+        val text = GeoDocumentTexts.getTextForAnnotation(a).map(gdt => new String(gdt.text, UTF8))
+        if (text.isDefined) {
+          // Compare with the source text
+          val referenceToponym = text.get.substring(offset.get, offset.get + toponym.get.size)
+          referenceToponym.equals(toponym.get)
+        } else {
+          // We don't have a text for the annotation - so we'll just have to accept the offset
+          true
+        }
       }
     } else {
       // Annotation has no offset and/or toponym - so isn't tied to a text, and we're cool
