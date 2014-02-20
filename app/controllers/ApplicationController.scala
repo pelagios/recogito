@@ -114,7 +114,7 @@ object ApplicationController extends Controller with Secured {
     */
   private def debugTextAnnotationUI(annotation: Annotation)(implicit s: Session) = {
     val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
-    Logger.error("Offending annotation: #" + annotation.uuid + " - " + toponym.getOrElse(""))
+    Logger.error("Offending annotation: #" + annotation.uuid + " - " + annotation)
     Annotations.getOverlappingAnnotations(annotation).foreach(a => Logger.error("Overlaps with: #" + a.uuid))
   }
 
