@@ -169,6 +169,16 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
   def countForGeoDocumentPart(id: Int)(implicit s: Session): Int =
     Query(Annotations).where(_.gdocPartId === id).list.size
     
+  
+    
+  /** Retrieve all annotations on a specific GeoDocumentPart that have (a) specific status(es) **/
+  def findByGeoDocumentPartAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Seq[Annotation] =
+    Query(Annotations).where(_.gdocPartId === id).filter(_.status inSet status).list.sortBy(sortByOffset)
+    
+  /** Count all annotations on a specific GeoDocumentPart that have (a) specific status(es) **/
+  def countForGeoDocumentPartAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Int =
+    Query(Annotations).where(_.gdocPartId === id).filter(_.status inSet status).list.size
+    
     
     
   /** Helper method to retrieve annotations that overlap the specified annotation **/

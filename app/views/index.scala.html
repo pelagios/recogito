@@ -95,7 +95,12 @@
               <tr class="document-part document-@doc.id.get">
                 <td class="title">@part.title</td>
                 
-                <td colspan="4"></td>
+                <td colspan="3"></td>
+                
+                <!-- number of toponyms -->
+                <td class="center">
+                  @part.totalToponymCount
+                </td>
                 
           	    <td> <!-- completion ratio -->
           	      @defining(part.completionRatio * 100) { completionRatio =>
