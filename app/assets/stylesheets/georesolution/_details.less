@@ -138,14 +138,6 @@
   color:#555;
 }
 
-.details-button-not-identifyable.active .icon {
-  background-color:#ffae00;
-}
-
-.details-button-not-identifyable.active .caption {
-  color:#ffae00;
-}
-
 .details-button-false-detection.active .icon {
   background-color:#bb0000;
 }
@@ -160,6 +152,69 @@
 
 .details-button-ignore.active .caption {
   color:#555;
+}
+
+.details-button-no-suitable-match .icon:after {
+  content:'\f05e';
+  font-weight:bold;
+  position:absolute;
+  font-size:60%;
+  bottom:-1px;
+  right:21px;
+}
+
+.details-button-no-suitable-match.active .icon {
+  background-color:#ffae00;
+}
+
+.details-button-not-no-suitable-match.active .caption {
+  color:#ffae00;
+}
+
+.details-button-ambiguous .icon:after {
+  content:'\f059';
+  font-weight:bold;
+  position:absolute;
+  font-size:60%;
+  bottom:-1px;
+  right:17px;
+}
+
+.details-button-ambiguous.active .icon {
+  background-color:#ffae00;
+}
+
+.details-button-ambiguous.active .caption {
+  color:#ffae00;
+}
+
+.details-button-multiple .icon:after {
+  content:'2+';
+  font-weight:bold;
+  position:absolute;
+  font-size:60%;
+  bottom:-1px;
+  right:17px;
+}
+
+.details-button-multiple.active .icon {
+  background-color:#ffae00;
+}
+
+.details-button-multiple.active .caption {
+  color:#ffae00;
+}
+
+
+
+
+
+.details-button-not-identifyable.active .icon {
+  background-color:#ffae00;
+}
+
+.details-button-not-identifyable.active .caption {
+  color:#ffae00;
 }
 
 .details-content-actions {

@@ -451,19 +451,6 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
           html = html.replace('{{status-2-value}}', 'FALSE_DETECTION');
           html = html.replace('{{status-2-icon}}', '&#xf057;');
           html = html.replace(/{{row}}/g, row);
-        } else if (value == 'NOT_IDENTIFYABLE') {
-          html = html.replace('{{current-status-css}}', 'not-identifyable');
-          html = html.replace('{{current-status-title}}', 'Not Identifyable');
-          html = html.replace('{{current-status-icon}}', '&#xf024;');
-          html = html.replace('{{status-1-css}}', 'not-verified');
-          html = html.replace('{{status-1-title}}', 'Set to Not Verified');
-          html = html.replace('{{status-1-value}}', 'NOT_VERIFIED');
-          html = html.replace('{{status-1-icon}}', '&#xf059;'); 
-          html = html.replace('{{status-2-css}}', 'false-detection');
-          html = html.replace('{{status-2-title}}', 'Set to False Detection');
-          html = html.replace('{{status-2-value}}', 'FALSE_DETECTION');
-          html = html.replace('{{status-2-icon}}', '&#xf057;');
-          html = html.replace(/{{row}}/g, row);
         } else if (value == 'FALSE_DETECTION') { 
           html = html.replace('{{current-status-css}}', 'false-detection');
           html = html.replace('{{current-status-title}}', 'False Detection');
@@ -489,6 +476,19 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
           html = html.replace('{{status-2-title}}', 'Set to Verified');
           html = html.replace('{{status-2-value}}', 'VERIFIED');
           html = html.replace('{{status-2-icon}}', '&#xf14a;');
+          html = html.replace(/{{row}}/g, row);
+        } else if (value == 'NO_SUITABLE_MATCH' || value == 'AMBIGUOUS' || value == 'MULTIPLE' || value == 'NOT_IDENTIFYABLE') {
+          html = html.replace('{{current-status-css}}', 'not-identifyable');
+          html = html.replace('{{current-status-title}}', 'Not Identifyable');
+          html = html.replace('{{current-status-icon}}', '&#xf024;');
+          html = html.replace('{{status-1-css}}', 'not-verified');
+          html = html.replace('{{status-1-title}}', 'Set to Not Verified');
+          html = html.replace('{{status-1-value}}', 'NOT_VERIFIED');
+          html = html.replace('{{status-1-icon}}', '&#xf059;'); 
+          html = html.replace('{{status-2-css}}', 'false-detection');
+          html = html.replace('{{status-2-title}}', 'Set to False Detection');
+          html = html.replace('{{status-2-value}}', 'FALSE_DETECTION');
+          html = html.replace('{{status-2-icon}}', '&#xf057;');
           html = html.replace(/{{row}}/g, row);
         } else {
           // 'NOT_VERIFIED'

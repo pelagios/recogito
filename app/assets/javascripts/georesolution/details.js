@@ -42,10 +42,13 @@ define(['georesolution/common'], function(common) {
           '        <div class="popup-tags">' +
           '        </div>' +
           '        <div class="details-button details-button-verified"><span class="icon">&#xf14a;</span><span class="caption">VERIFIED</span></div>' +        
-          '        <div class="details-button details-button-not-verified"><span class="icon">&#xf059;</span><span class="caption">NOT VERIFIED</span></div>' +   
-          '        <div class="details-button details-button-not-identifyable"><span class="icon">&#xf024;</span><span class="caption">NOT IDENTIFYABLE</span></div>' +   
+          '        <div class="details-button details-button-not-verified"><span class="icon">&#xf059;</span><span class="caption">NOT VERIFIED</span></div>' +     
           '        <div class="details-button details-button-false-detection"><span class="icon">&#xf057;</span><span class="caption">FALSE DETECTION</span></div>' +   
           '        <div class="details-button details-button-ignore"><span class="icon">&#xf05e;</span><span class="caption">IGNORE/DUPLICATE</span></div>' + 
+          '        <div class="details-button details-button-no-suitable-match"><span class="icon">&#xf024;</span><span class="caption">NO SUITABLE MATCH</span></div>' + 
+          '        <div class="details-button details-button-ambiguous"><span class="icon">&#xf024;</span><span class="caption">AMBIGUOUS</span></div>' + 
+          '        <div class="details-button details-button-multiple"><span class="icon">&#xf024;</span><span class="caption">MULTIPLE PLACES</span></div>' + 
+          '        <div class="details-button details-button-not-identifyable"><span class="icon">&#xf024;</span><span class="caption">NOT IDENTIFYABLE</span></div>' + 
           '        <h3>Comment</h3>' +
           '        <div class="details-comment">' +
           '          <textarea class="details-comment-textarea"></textarea>' + 
@@ -180,12 +183,18 @@ define(['georesolution/common'], function(common) {
       $('.details-button-verified').addClass('active');
     } else if (annotation.status == 'NOT_VERIFIED') {
       $('.details-button-not-verified').addClass('active');
-    } else if (annotation.status == 'NOT_IDENTIFYABLE') {
-      $('.details-button-not-identifyable').addClass('active');
     } else if (annotation.status == 'FALSE_DETECTION') {
       $('.details-button-false-detection').addClass('active');
     } else if (annotation.status == 'IGNORE') {
       $('.details-button-ignore').addClass('active');
+    } else if (annotation.status == 'NO_SUITABLE_MATCH') {
+      $('.details-button-no-suitable-match').addClass('active');
+    } else if (annotation.status == 'AMBIGUOUS') {
+      $('.details-button-ambiguous').addClass('active');
+    } else if (annotation.status == 'MULTIPLE') {
+      $('.details-button-multiple').addClass('active');
+    } else if (annotation.status == 'NOT_IDENTIFYABLE') {
+      $('.details-button-not-identifyable').addClass('active');   
     }
   
     // Status buttons
@@ -202,9 +211,12 @@ define(['georesolution/common'], function(common) {
     // Button 'verified'
     changeStatus($('.details-button-verified'), 'VERIFIED');
     changeStatus($('.details-button-not-verified'), 'NOT_VERIFIED');
-    changeStatus($('.details-button-not-identifyable'), 'NOT_IDENTIFYABLE');
+    changeStatus($('.details-button-no-suitable-match'), 'NO_SUITABLE_MATCH');
+    changeStatus($('.details-button-ambiguous'), 'AMBIGUOUS');
+    changeStatus($('.details-button-multiple'), 'MULTIPLE');
     changeStatus($('.details-button-false-detection'), 'FALSE_DETECTION');
     changeStatus($('.details-button-ignore'), 'IGNORE');
+    changeStatus($('.details-button-not-identifyable'), 'NOT_IDENTIFYABLE');
   
     // Comment
     var commentTextArea = $('.details-comment-textarea');
