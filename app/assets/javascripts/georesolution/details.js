@@ -139,8 +139,8 @@ define(['georesolution/common'], function(common) {
   
     // Automatch info
     if (annotation.place) {
-      var meta = annotation.place.title + 
-                 common.Utils.formatCategory(annotation.place.category, ' ({{category}})') + '<br/>' +
+      var meta = annotation.place.title + ' ' +
+                 common.Utils.categoryTag(annotation.place.category) + '<br/>' +
                  annotation.place.names + '<br/>' +
                  '<a href="http://pelagios.org/api/places/' + 
                  encodeURIComponent(common.Utils.normalizePleiadesURI(annotation.place.uri)) +
@@ -156,8 +156,8 @@ define(['georesolution/common'], function(common) {
   
     // Expert correction info
     if (annotation.place_fixed) {
-      var meta = annotation.place_fixed.title + 
-                 common.Utils.formatCategory(annotation.place_fixed.category, ' ({{category}})') + '<br/>' +
+      var meta = annotation.place_fixed.title + ' ' +
+                 common.Utils.categoryTag(annotation.place_fixed.category) + '<br/>' +
                  annotation.place_fixed.names + '<br/>' +
                  '<a href="http://pelagios.org/api/places/' + 
                  encodeURIComponent(common.Utils.normalizePleiadesURI(annotation.place_fixed.uri)) +
