@@ -188,6 +188,18 @@ define(function() {
         return opt_template.replace('{{category}}', screenName);
       else
         return screenName
+    },
+    
+    categoryTag: function(category)  {
+      var longName = Utils.formatCategory(category);
+      var shortName = longName;
+    
+      if (category == 'NATURAL_FEATURE')
+        shortName = 'Feature';
+      else if (category == 'MAN_MADE_STRUCTURE')
+        shortName = 'Structure';
+        
+      return '<span class="categorytag ' + shortName.toLowerCase() + '" title="' + longName + '">' + shortName + '</span>';
     }
   
   }
