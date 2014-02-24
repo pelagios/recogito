@@ -8,12 +8,28 @@
   
   <body>
     <div id="header">
-      <div class="title">@doc.author.map(_ + ": ").getOrElse("") @doc.title @doc.dateComment.map("(" + _ + ")").getOrElse("")</div>
-      <div class="home-link"><a class="icon" href="@routes.ApplicationController.index()">&#xf015;</a></div>
+      <div id="title">
+        @doc.author.map(_ + ": ").getOrElse("") @doc.title @doc.dateComment.map("(" + _ + ")").getOrElse("")
+        <div id="home-button"><a href="@routes.ApplicationController.index()" class="icon">&#xf015;</a></div>
+      </div>
+      
+      <div id="menu">
+        <ul>
+          <li class="active"><a href="@routes.ApplicationController.showDocumentStats(doc.id.get)" onclick="return false;">Document Stats</a></li>
+          @defining(GeoDocumentTexts.getTextForGeoDocument(doc.id.get)) { text =>
+            @if(text.isDefined) {
+              <li><a href="@routes.ApplicationController.showTextAnnotationUI(text.get.id.get)">Text</a></li>
+            } else {
+              <li><a href="#">Text</a></li>
+            }
+          }
+          <li><a href="@routes.ApplicationController.showGeoResolutionUI(doc.id.get)">Geo-Resolution</a></li>
+        </ul>
+      </div>
     </div>
     
-    <div id="container">
-      <div class="icons">
+    <div id="content">
+      <!--  div class="icons">
         <a class="icon" href="@routes.ApplicationController.showMap(doc.id.get)" title="Public Map">
           &#xf0ac;
           <span class="icon public">&#xf0c0;</span>
@@ -32,7 +48,7 @@
             }
           }
         }           
-      </div>
+      </div -->
     
       @* Optimize - just fetch annotations from DB once and then compute all stats in mem *@
       @defining(Annotations.findByGeoDocumentAndStatus(doc.id.get, AnnotationStatus.VERIFIED, AnnotationStatus.NOT_IDENTIFYABLE)) { annotations =>    
