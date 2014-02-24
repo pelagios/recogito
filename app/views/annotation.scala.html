@@ -1,4 +1,4 @@
-@(title: String, textHTML: String, docId: Int, partId: Option[Int])
+@(doc: GeoDocument, part: Option[GeoDocumentPart], textHTML: String)
 
 <html>
   <head>
@@ -8,36 +8,57 @@
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-ui-1.10.3.custom.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/rangy/rangy-core-1.2.3.js")"></script>
-    <script type="text/javascript" src="@routes.Assets.at("javascripts-min/annotation/rcgt-annotation.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/annotation/rcgt-annotation.js")"></script>
     <script>
     $(document).ready(function() {
-      new recogito.TextAnnotationUI(document.getElementById('text'), @docId,  @partId.map(_.toString).getOrElse("false")); 
+      new recogito.TextAnnotationUI(document.getElementById('text'), @doc.id,  @part.map(_.id.get.toString).getOrElse("false")); 
     })
     </script>
   </head>
   
   <body>
     <div id="header">
-      <div class="title">@title</div>
-      <div class="annotation-mode">
-        
-        <div class="mode-indicator indicator-normal">
-          MODE
-          <span class="icon icon-normal">&#xf040;</span>
-          NORMAL
-        </div>
-        
-        <div class="mode-indicator indicator-poweruser">
-          MODE
-          <span class="icon">&#xf135;</span>
-          ADVANCED
-        </div>
-        
+      <div id="title">
+        @doc.author.map(_ + ": ").getOrElse("") @doc.title @doc.dateComment.map("(" + _ + ")").getOrElse("")
+        <div id="home-button"><a href="@routes.ApplicationController.index()" class="icon">&#xf015;</a></div>
       </div>
-      <div class="home-link"><a class="icon" href="@routes.ApplicationController.index()">&#xf015;</a></div>
-    </div>
-    <div id="text">
+      
+      <div id="menu">
+        <ul>
+          <li><a href="@routes.ApplicationController.showDocumentStats(doc.id.get)">Document Stats</a></li>
+          <li class="active"><a href="#" onclick="return false;">Text</a></li>
+          <li><a href="@routes.ApplicationController.showGeoResolutionUI(doc.id.get)">Geo-Resolution</a></li>
+        </ul>
+      </div>
+      
+      <div id="toolbar">
+        <div class="tool selected normal-annotation">
+          <span class="icon">&#xf040;</span>
+        </div>   
+        
+        <div class="tool rocket-annotation">
+          <span class="icon">&#xf135;</span>
+        </div>   
+      </div>
+    </div>   
+    
+    <div id="content">
+      <div id="text">
 @Html(textHTML)
+      </div>
+    </div>
+    
+    <div id="footer">
+      <!-- 615 Annotations  
+      <span class="icon">&#xf14a;</span> 577  
+      <span class="icon">&#xf024;</span> 21   
+      <span class="icon">&#xf057;</span> 0  
+      <span class="icon">&#xf05e;</span> 0
+      -   97.1% Complete  -->
+      
+      <div id="user">
+        You are logged in as rainer <a href="@routes.AuthController.logout" class="icon">&#xf011;</a>
+      </div>
     </div>
   </body>
 </html>

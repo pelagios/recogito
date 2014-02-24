@@ -30,12 +30,29 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, opt_gdocPartId) {
   this._editor; // To keep track of the current open editor & prevent opening of multipe editors
   this._powerUserMode = false;
   
-  // Annotation mode switch
+  // Toolbar
+  var toolNormalAnnotation = $('.normal-annotation'),
+      toolRocketAnnotation = $('.rocket-annotation');
+      
+  toolNormalAnnotation.click(function(e) {
+    self._powerUserMode = false;
+    toolNormalAnnotation.addClass('selected');
+    toolRocketAnnotation.removeClass('selected');
+  });
+  
+  toolRocketAnnotation.click(function(e) {
+    self._powerUserMode = true;  
+    toolNormalAnnotation.removeClass('selected');
+    toolRocketAnnotation.addClass('selected');
+  });
+
+  /*
   var annotationModeSwitch = $('.annotation-mode');
   annotationModeSwitch.click(function() {
     self._powerUserMode = !self._powerUserMode;
     annotationModeSwitch.toggleClass('poweruser');
   });
+  */
   
   rangy.init();
  
