@@ -1,4 +1,5 @@
 @import "../globals.less";
+@import "../footer.less";
 
 #header {
   position:fixed;
@@ -107,37 +108,6 @@
   } /* #toolbar */
   
 } /* header */
-
-#footer {
-  color:#727272;
-  font-family: "Lucida Grande", "Lucida Sans", "Lucida Sans Unicode", sans-serif;
-  font-size:16px;
-  position:fixed;
-  bottom:-20px;
-  left:0;
-  right:0;
-  background-color:#fcfcfc;
-  margin:0 -20px;
-  padding:15px 80px;
-  box-shadow:inset 0 0 14px rgba(128, 128, 128, 0.8);
-  height:38px;
-  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.6);
-  
-  .icon {
-    padding-left:16px;
-  }
-  
-  #user {
-    float:right;
-    
-    a {
-      text-decoration:none;
-      color:#727272;    
-    }
-    
-  }
-
-} /* footer */
 
 @import "_annotation.less";
 @import "_editor.less";

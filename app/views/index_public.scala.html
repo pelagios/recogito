@@ -10,17 +10,29 @@
   </head>
   
   <body>
+    <div id="header">
+      <div id="header-top">
+        <div id="title">
+          <h1>Recogito</h1>
+          <div id="login"><a class="button blue" href="@routes.AuthController.login">Log In <span class="icon">&#xf090;</span></a></div>
+        </div>
+      </div>
+      
+      <div id="column-headings">
+        <table>
+          <thead>
+            <tr>
+              <th>Document</th>
+              <th>Toponyms</th>
+              <th>Complete</th>    
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+    
     <div id="container">    
-      <table>
-        <thead>
-          <tr>
-            <th>Document</th>
-            <th></th> <!-- language tag -->
-            <th>Toponyms</th>
-            <th colspan="2">Complete</th>
-            <th></th>
-          </tr>
-        </thead>     
+      <table> 
         <tbody>
           @for(doc <- models.GeoDocuments.listAll().sortBy(d => (d.date, d.author, d.title))) {
           	<tr>

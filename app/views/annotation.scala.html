@@ -1,4 +1,4 @@
-@(doc: GeoDocument, part: Option[GeoDocumentPart], textHTML: String)
+@(doc: GeoDocument, part: Option[GeoDocumentPart], textHTML: String, username: String)
 
 <html>
   <head>
@@ -57,7 +57,7 @@
       -   97.1% Complete  -->
       
       <div id="user">
-        You are logged in as rainer <a href="@routes.AuthController.logout" class="icon">&#xf011;</a>
+        You are logged in as <span id="username">@username</span> <a href="@routes.AuthController.logout" class="icon">&#xf011;</a>
       </div>
     </div>
   </body>

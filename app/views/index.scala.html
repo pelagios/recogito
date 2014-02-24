@@ -24,18 +24,30 @@
   </head>
   
   <body>
+    <div id="header">
+      <div id="header-top">
+        <div id="title">
+          <h1>Recogito</h1>
+          <div id="logout">logged in as: <strong>@user.username</strong> <a href="@routes.AuthController.logout" title="Logout"><span class="icon">&#xf011;</span></a></div>
+        </div>
+      </div>
+      
+      <div id="column-headings">
+        <table>
+          <thead>
+            <tr>
+              <th>Document</th>
+              <th># of Parts</th>
+              <th>Toponyms</th>
+              <th>Complete</th>    
+            </tr>
+          </thead>
+        </table>
+      </div>
+    </div>
+    
     <div id="container">    
-      <table>
-        <thead>
-          <tr>
-            <th>Document</th>
-            <th></th> <!-- language tag -->
-            <th colspan="2"># of Parts</th>
-            <th>Toponyms</th>
-            <th colspan="2">Complete</th>
-            <th></th>
-          </tr>
-        </thead>     
+      <table>   
         <tbody>
           @for(doc <- models.GeoDocuments.listAll().sortBy(d => (d.date, d.author, d.title))) {
           	@defining(user.canEdit(doc.id.get)) { canEdit =>
@@ -147,9 +159,18 @@
         </tbody> 
       </table>
     </div>
-    <div id="footer">
-      <span id="footer-info"></span>
-      <span id="footer-user">You are logged in as: <span class="footer-username">@user.username</span><a href="@routes.AuthController.logout" title="Logout" class="footer-logout">&#xf011;</a></span>
-    </div>
+    
+    <!-- div id="footer">
+      <615 Annotations  
+      <span class="icon">&#xf14a;</span> 577  
+      <span class="icon">&#xf024;</span> 21   
+      <span class="icon">&#xf057;</span> 0  
+      <span class="icon">&#xf05e;</span> 0
+      -   97.1% Complete>
+      
+      <div id="user">
+        You are logged in as <span id="username">@user.username</span> <a href="@routes.AuthController.logout" class="icon">&#xf011;</a>
+      </div>
+    </div -->
   </body>
 </html>
