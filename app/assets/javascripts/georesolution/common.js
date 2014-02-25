@@ -2,7 +2,7 @@ define(function() {
 
   /**
    * A simple base class that takes care of event subcription.
-   * @contructor
+   * @constructor
    */
   var HasEvents = function() { 
     this.handlers = {}

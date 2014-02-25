@@ -67,6 +67,9 @@ object ApplicationController extends Controller with Secured {
           val cssClassA = annotation.status match {
             case AnnotationStatus.VERIFIED => "annotation verified"
             case AnnotationStatus.IGNORE => "annotation ignore"
+            case AnnotationStatus.NO_SUITABLE_MATCH => "annotation not-identifyable"
+            case AnnotationStatus.AMBIGUOUS => "annotation not-identifyable"
+            case AnnotationStatus.MULTIPLE => "annotation not-identifyable"
             case AnnotationStatus.NOT_IDENTIFYABLE => "annotation not-identifyable"
             case _ => "annotation" 
           }
