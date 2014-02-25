@@ -28,7 +28,7 @@ recogito.PublicMap = function(mapDiv, dataURL) {
   this._map = new L.Map(mapDiv, {
     center: new L.LatLng(41.893588, 12.488022),
     zoom: 5,
-    layers: [awmcLayer, bingLayer, dareLayer],
+    layers: [awmcLayer],
     minZoom: 3
   });
   
