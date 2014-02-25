@@ -122,7 +122,7 @@ object ApplicationController extends Controller with Secured {
     *
     * @param doc the document ID 
     */
-  def showGeoResolutionUI(doc: Int) = protectedAction(Secure.REDIRECT_TO_LOGIN) { username => implicit request => 
+  def showGeoResolutionUI(doc: Int) = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit session => 
     Ok(views.html.georesolution(username, doc))
   }
   

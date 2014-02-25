@@ -1,4 +1,4 @@
-@(username: String, docId: Int)
+@(username: String, docId: Int)(implicit s: play.api.db.slick.Config.driver.simple.Session)
 <html>
   <head>
     <title>RECOGITO Geo-Resolution</title>
@@ -19,10 +19,32 @@
   </head>
   
   <body>
+    <div id="header">
+      <div id="title">
+        Foo...
+        <div id="home-button"><a href="@routes.ApplicationController.index()" class="icon">&#xf015;</a></div>
+      </div>
+      
+      <div id="menu">
+        <ul>
+          <li><a href="@routes.ApplicationController.showDocumentStats(docId)">Document Stats</a></li>
+          @defining(GeoDocumentTexts.getTextForGeoDocument(docId)) { text =>
+            @if(text.isDefined) {
+              <li><a href="@routes.ApplicationController.showTextAnnotationUI(text.get.id.get)">Text</a></li>
+            } else {
+              <li><a href="#">Text</a></li>
+            }
+          }
+          <li class="active"><a href="#" onclick="return false;">Geo-Resolution</a></li>
+        </ul>
+      </div>
+    </div
+    
     <div id="container">
       <div id="table"></div>
       <div id="map"></div>
     </div>
+    
     <div id="footer">
       <span id="footer-info"></span>
       <span id="footer-user">You are logged in as: <span class="footer-username">@username</span><a href="logout" title="Logout" class="footer-logout">&#xf011;</a></span>
