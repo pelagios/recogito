@@ -4,30 +4,40 @@
 
 html, body {
   font-family:Arial, Verdana, Helvetica, sans-serif;
+  overflow:hidden;
 }
 
-#container {
-  position:absolute;
-  top:100px;
-  left:0px;
+#header {
+  position:absolute !important;
+}
+
+#content {
   width:100%;
-  bottom:40px;
+  position:absolute;
+  top:77px;
+  bottom:48px;
+  z-index:0;
 }
 
-#map {
-  position:absolute;
-  top:90px;
-  right:0px;
-  width:60%;
+#table {
+  float:left;
+  width:40%;
   height:100%;
 }
 
-.map-selector {
-  position:absolute;
-  top:10px;
-  right:10px;
-  padding:10px 20px 10px 10px;
-  background-color:#fff;
+#map {
+  float:right;
+  width:60%;
+  height:100%;
+
+  .map-selector {
+    position:absolute;
+    top:10px;
+    right:10px;
+    padding:10px 20px 10px 10px;
+    background-color:#fff;
+  }
+  
 }
 
 @import "_table.less";

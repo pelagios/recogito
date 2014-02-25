@@ -1,9 +1,9 @@
-@(username: String, docId: Int)(implicit s: play.api.db.slick.Config.driver.simple.Session)
+@(doc: models.GeoDocument, username: String)(implicit s: play.api.db.slick.Config.driver.simple.Session)
 <html>
   <head>
     <title>RECOGITO Geo-Resolution</title>
     <link rel="stylesheet" href="@routes.Assets.at("javascripts/lib/slickgrid/slick.grid.css")" />
-    <link rel="related" type="application/json" href="@routes.DocumentController.get(docId, Some("json"))" />
+    <link rel="related" type="application/json" href="@routes.DocumentController.get(doc.id.get, Some("json"))" />
     <link rel="stylesheet" href="@routes.Assets.at("javascripts/lib/leaflet/leaflet.css")" />
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/georesolution/main.css")" />
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
@@ -21,14 +21,14 @@
   <body>
     <div id="header">
       <div id="title">
-        Foo...
+        @doc.author.map(_ + ": ").getOrElse("") @doc.title @doc.dateComment.map("(" + _ + ")").getOrElse("")
         <div id="home-button"><a href="@routes.ApplicationController.index()" class="icon">&#xf015;</a></div>
       </div>
       
       <div id="menu">
         <ul>
-          <li><a href="@routes.ApplicationController.showDocumentStats(docId)">Document Stats</a></li>
-          @defining(GeoDocumentTexts.getTextForGeoDocument(docId)) { text =>
+          <li><a href="@routes.ApplicationController.showDocumentStats(doc.id.get)">Document Stats</a></li>
+          @defining(GeoDocumentTexts.getTextForGeoDocument(doc.id.get)) { text =>
             @if(text.isDefined) {
               <li><a href="@routes.ApplicationController.showTextAnnotationUI(text.get.id.get)">Text</a></li>
             } else {
@@ -38,16 +38,26 @@
           <li class="active"><a href="#" onclick="return false;">Geo-Resolution</a></li>
         </ul>
       </div>
-    </div
+    </div>
     
-    <div id="container">
+    <div id="content">
       <div id="table"></div>
       <div id="map"></div>
     </div>
     
     <div id="footer">
-      <span id="footer-info"></span>
-      <span id="footer-user">You are logged in as: <span class="footer-username">@username</span><a href="logout" title="Logout" class="footer-logout">&#xf011;</a></span>
+      <div id="footer-inf">
+        <!-- 615 Annotations  
+        <span class="icon">&#xf14a;</span> 577  
+        <span class="icon">&#xf024;</span> 21   
+        <span class="icon">&#xf057;</span> 0  
+        <span class="icon">&#xf05e;</span> 0
+        -   97.1% Complete  -->
+      </div>
+      
+      <div id="user">
+        You are logged in as <span id="username">@username</span> <a href="@routes.AuthController.logout" class="icon">&#xf011;</a>
+      </div>
     </div>
   </body>
 </html>

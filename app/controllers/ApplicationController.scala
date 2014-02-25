@@ -122,8 +122,12 @@ object ApplicationController extends Controller with Secured {
     *
     * @param doc the document ID 
     */
-  def showGeoResolutionUI(doc: Int) = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit session => 
-    Ok(views.html.georesolution(username, doc))
+  def showGeoResolutionUI(docId: Int) = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit session => 
+    val doc = GeoDocuments.findById(docId)
+    if (doc.isDefined)
+      Ok(views.html.georesolution(doc.get, username))
+    else
+      NotFound
   }
   
   /** Shows detailed stats for a specific document **/
