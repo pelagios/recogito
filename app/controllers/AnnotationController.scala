@@ -87,7 +87,7 @@ object AnnotationController extends Controller with Secured {
           
       if (!isValid(annotation)) {
         // Annotation is mis-aligned with source text or has zero toponym length - something is wrong
-        Logger.info("Invalid annotation error: " + correctedToponym + " - " + correctedOffset + " GDoc Part: " + gdocPart.get.id)
+        Logger.info("Invalid annotation error: " + correctedToponym + " - " + correctedOffset + " GDoc Part: " + gdocPart.map(_.id))
         Some("{ \"success\": false, \"message\": \"Invalid annotation error (invalid offset or toponym).\" }")
           
       } else if (Annotations.getOverlappingAnnotations(annotation).size > 0) {
