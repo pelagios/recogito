@@ -1,4 +1,4 @@
-@()(implicit s: play.api.db.slick.Config.driver.simple.Session)
+@(documents: Seq[(GeoDocument, Int, Int)])
 
 @import tags.lang
 
@@ -34,65 +34,52 @@
     <div id="container">    
       <table> 
         <tbody>
-          @for(doc <- models.GeoDocuments.listAll().sortBy(d => (d.date, d.author, d.title))) {
-          	<tr>
-      	      <td> <!-- document title -->
-                @doc.author.map(_ + ": ").getOrElse("") @doc.title
-          	    @doc.dateComment.map("(" + _ + ")").getOrElse("") 
-          	  </td>
-          	    
-          	  <td>@lang(doc.language)</td>
-          	         	  
-          	  <!-- number of toponyms -->
-          	  <td class="center">
-          	    @doc.totalToponymCount
-          	  </td>
-          	  
-              <td class="stats"> <!-- completion ratio -->
-          	    @defining(doc.completionRatio * 100) { completionRatio =>
-          	      <div class="meter" title="@{ "%.2f" format (completionRatio) } %">
-	                <span style="width: @completionRatio%"></span>
+          @for(doc <- documents) {
+            <tr>
+              <td> <!-- document title -->
+                @doc._1.author.map(_ + ": ").getOrElse("") @doc._1.title
+                @doc._1.dateComment.map("(" + _ + ")").getOrElse("") 
+              </td>
+                
+              <td>@lang(doc._1.language)</td>
+                          
+              <td class="center">@doc._2</td>
+              
+              <td class="stats">
+                @defining(((doc._2 - doc._3).toDouble / doc._2) * 100) { completionRatio =>
+                  <div class="meter" title="@{ "%.2f" format (completionRatio) } %">
+                    <span style="width: @completionRatio%"></span>
                   </div>
                 }
-          	  </td>
-      	      <td class="more-stats"><a href="@routes.ApplicationController.showDocumentStats(doc.id.get)" class="icon" title="Detailed Stats">&#xf080;</a></td>
-          	  
-       	      <td class="icons"> <!-- icons: public map -->
-                <a class="icon" href="@routes.ApplicationController.showMap(doc.id.get)" title="Public Map">
-          	      &#xf0ac;
-          	      <span class="icon public">&#xf0c0;</span>
-          	    </a>
-          	    <a class="icon" href="@routes.DocumentController.get(doc.id.get, Some("csv"))" title="Download CSV">&#xf0ce;</a>
-          	  </td>
-           </tr>
-         }
+              </td>
+              <td class="more-stats"><a href="@routes.ApplicationController.showDocumentStats(doc._1.id.get)" class="icon" title="Detailed Stats">&#xf080;</a></td>
+              
+              <td class="icons"> <!-- icons: public map -->
+                <a class="icon" href="@routes.ApplicationController.showMap(doc._1.id.get)" title="Public Map">
+                  &#xf0ac;
+                  <span class="icon public">&#xf0c0;</span>
+                </a>
+                <a class="icon" href="@routes.DocumentController.get(doc._1.id.get, Some("csv"))" title="Download CSV">&#xf0ce;</a>
+              </td>
+            </tr>
+          }
           
-          @* We need to do some optimization here to avoid redundant DB access! *@
           <tr class="totals">
-            @defining(models.GeoDocuments.listAll().map(doc => (doc.totalToponymCount, doc.unverifiedToponymCount))) { totals =>
-              @defining(totals.map(_._1).foldLeft(0)(_ + _)) { totalToponyms =>
-                <td colspan="2"></td>
-                <td class="center">@totalToponyms</td> <!-- Toponyms -->
-                <td>
-                  @defining(totals.map(_._2).foldLeft(0)(_ + _)) { totalUnverified =>
-                    <div class="meter">
-                      @defining(100 * (totalToponyms - totalUnverified).toDouble / totalToponyms) { ratio =>
-                        <span style="width:@{ratio}%" title="@{"%.2f" format (ratio)} % - @totalUnverified Toponyms to go!"></span>
-                      }
-                    </div>
+            @defining(documents.foldLeft(0, 0)((sum, doc) => (sum._1 + doc._2, sum._2 + doc._3))) { sum =>
+              <td colspan="2"></td>
+              <td class="center">@sum._1</td> <!-- Total toponyms -->
+              <td>
+                <div class="meter">
+                  @defining(100 * (sum._1 - sum._2).toDouble / sum._1) { ratio =>
+                    <span style="width:@{ratio}%" title="@{"%.2f" format (ratio)} % - @sum._2 Toponyms to go!"></span>
                   }
-                </td>
-                <td></td>
-                <td></td>  
-              }         
+                </div>
+              </td>
+              <td colspan="2"></td>
             }
           </tr>
         </tbody> 
       </table>
-    </div>
-    <div id="footer">
-      <span id="footer-info"></span>
-      <span id="footer-user">You are not logged in<a href="@routes.AuthController.login" title="Login" class="footer-logout">&#xf090;</a></span>
     </div>
   </body>
 </html>

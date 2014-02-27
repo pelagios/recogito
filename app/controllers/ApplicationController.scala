@@ -17,10 +17,15 @@ object ApplicationController extends Controller with Secured {
     
   /** Returns the index page for logged-in users **/
   def index = DBAction { implicit rs => 
-    if (isAuthorized)
+    if (isAuthorized) {
       Ok(views.html.index(currentUser.get))
-    else
-      Ok(views.html.index_public())
+    } else {
+      val docs = GeoDocuments.listAll
+          .sortBy(d => (d.date, d.author, d.title))
+          .map(doc => (doc, doc.totalToponymCount, doc.unverifiedToponymCount))
+          
+      Ok(views.html.index_public(docs))
+    }
   }
    
   /** Shows the 'public map' for the specified document.
