@@ -9,7 +9,9 @@
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-ui-1.10.3.custom.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/rangy/rangy-core-1.2.3.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/annotation/rcgt-annotation.js")"></script>
-    @tags.js_text_menu()
+    @if(texts.size > 1) { 
+      @tags.js_text_menu() 
+    }
     <script>
     $(document).ready(function() {
       new recogito.TextAnnotationUI(document.getElementById('text'), @doc.id,  @part.map(_.id.get.toString).getOrElse("false")); 

@@ -5,7 +5,9 @@
     <title>@doc.author.map(_ + ":").getOrElse("") @doc.title</title>
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/details/main.css")" />
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
-    @tags.js_text_menu()
+    @if(texts.size > 1) { 
+      @tags.js_text_menu() 
+    }
   </head>
   
   <body>
