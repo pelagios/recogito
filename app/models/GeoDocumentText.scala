@@ -34,6 +34,12 @@ object GeoDocumentTexts extends Table[GeoDocumentText]("gdocument_texts") {
     
     
     
+  /** Retrieves all texts associated with a specific GeoDocument (or parts of it) **/
+  def findByGeoDocument(gdocId: Int)(implicit s: Session): Seq[GeoDocumentText] =
+    Query(GeoDocumentTexts).where(_.gdocId === gdocId).list
+    
+    
+    
   /** Retrieves the text that is **directly** associated with the specified GeoDocument.
     * 
     * Note that this method will **not** retrieve texts that are associated with parts of

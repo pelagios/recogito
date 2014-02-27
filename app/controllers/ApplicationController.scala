@@ -18,7 +18,7 @@ object ApplicationController extends Controller with Secured {
   /** Returns the index page for logged-in users **/
   def index = DBAction { implicit rs => 
     if (isAuthorized)
-      Ok(views.html.index(Users.findByUsername(username(rs.request).get).get))
+      Ok(views.html.index(currentUser.get))
     else
       Ok(views.html.index_public())
   }
@@ -97,8 +97,8 @@ object ApplicationController extends Controller with Secured {
       val gdoc = GeoDocuments.findById(gdocText.get.gdocId)
       val gdocPart = gdocText.get.gdocPartId.map(id => GeoDocumentParts.findById(id)).flatten
       
-      val title = gdoc.get.title + gdocPart.map(" - " + _.title).getOrElse("")
-      Ok(views.html.annotation(gdoc.get, gdocPart, html, username))
+      val title = gdoc.get.title + gdocPart.map(" - " + _.title).getOrElse("")      
+      Ok(views.html.annotation(gdoc.get, textsForGeoDocument(gdoc.get.id.get), username, gdocPart, html))
     } else {
       NotFound(Json.parse("{ \"success\": false, \"message\": \"Annotation not found\" }")) 
     }
@@ -128,7 +128,7 @@ object ApplicationController extends Controller with Secured {
   def showGeoResolutionUI(docId: Int) = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit session => 
     val doc = GeoDocuments.findById(docId)
     if (doc.isDefined)
-      Ok(views.html.georesolution(doc.get, username))
+      Ok(views.html.georesolution(doc.get, textsForGeoDocument(docId), username))
     else
       NotFound
   }
@@ -136,10 +136,11 @@ object ApplicationController extends Controller with Secured {
   /** Shows detailed stats for a specific document **/
   def showDocumentStats(docId: Int) = DBAction { implicit session =>
     val doc = GeoDocuments.findById(docId)
-    if (doc.isDefined)
-      Ok(views.html.document_stats(doc.get, isAuthorized))
-    else
+    if (doc.isDefined) {        
+      Ok(views.html.document_stats(doc.get, textsForGeoDocument(docId), currentUser.map(_.username)))
+    } else {
       NotFound(Json.parse("{ \"success\": false, \"message\": \"Document not found\" }"))
+    }
   }
   
   /** Shows the edit history overview page **/
@@ -153,5 +154,12 @@ object ApplicationController extends Controller with Secured {
     // TODO just a dummy for now
     Ok(views.html.stats(StatsHistory.listAll())) 
   }
+  
+  /** Helper method to get the texts (and titles) for a specific GeoDocument **/
+  private def textsForGeoDocument(docId: Int)(implicit session: Session): Seq[(GeoDocumentText, Option[String])] =
+    GeoDocumentTexts.findByGeoDocument(docId).map(text =>
+        // If the text is associated with a GDoc part (rather than the GDoc directly), we'll fetch the part title
+        (text, text.gdocPartId.map(partId => GeoDocumentParts.findById(partId).map(_.title)).flatten))
+    
 
 }

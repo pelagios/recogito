@@ -76,7 +76,10 @@ object Secure extends Enumeration {
 
 trait Secured {
   
-  def username(request: RequestHeader) = request.session.get(Security.username)
+  private def username(request: RequestHeader) = request.session.get(Security.username)
+  
+  def currentUser(implicit request: RequestHeader, session: Session) =
+    username(request).map(username => Users.findByUsername(username)).flatten
   
   private def onUnauthorized(policy: Secure.Policy)(request: RequestHeader) = {
     if (policy == Secure.REDIRECT_TO_LOGIN)

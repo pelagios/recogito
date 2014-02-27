@@ -1,4 +1,4 @@
-@(doc: models.GeoDocument, username: String)(implicit s: play.api.db.slick.Config.driver.simple.Session)
+@(doc: models.GeoDocument, texts: Seq[(models.GeoDocumentText, Option[String])], username: String)(implicit s: play.api.db.slick.Config.driver.simple.Session)
 <html>
   <head>
     <title>RECOGITO Geo-Resolution</title>
@@ -15,6 +15,7 @@
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/leaflet/leaflet.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/leaflet/leaflet.textpath.js")"></script>
     @helper.requireJs(core = routes.Assets.at("javascripts/require.js").url, module = routes.Assets.at("javascripts/georesolution").url)
+    @tags.js_text_menu()
     <base href="@routes.ApplicationController.index()">
   </head>
   
@@ -28,16 +29,28 @@
       <div id="menu">
         <ul>
           <li><a href="@routes.ApplicationController.showDocumentStats(doc.id.get)">Document Stats</a></li>
-          @defining(GeoDocumentTexts.getTextForGeoDocument(doc.id.get)) { text =>
-            @if(text.isDefined) {
-              <li><a href="@routes.ApplicationController.showTextAnnotationUI(text.get.id.get)">Text</a></li>
+          @if(texts.size == 0) {
+            <li class="disabled"><a href="#" title="There is no text available for this document" onclick="return false;">Text</a>
+          } else {
+            @if(texts.size == 1) {
+              <li><a href="@routes.ApplicationController.showTextAnnotationUI(texts(0)._1.id.get)">Text</a></li>  
             } else {
-              <li><a href="#">Text</a></li>
-            }
+              <li><a href="#" id="dropdown-text-trigger" onclick="return false;">Text <span class="icon">&#xf0d7;</span></a>
+            }          
           }
           <li class="active"><a href="#" onclick="return false;">Geo-Resolution</a></li>
         </ul>
       </div>
+      
+      @if(texts.size > 1) {
+        <div id="dropdown-text-menu">
+          <ul>
+            @for(text <- texts) {
+              <li><a href="@routes.ApplicationController.showTextAnnotationUI(text._1.id.get)">@text._2.getOrElse("[untitled]")</a></li>
+            }
+          </ul>
+        </div>
+      }
     </div>
     
     <div id="content">

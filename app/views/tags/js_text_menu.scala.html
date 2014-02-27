@@ -1,0 +1,23 @@
+<script>
+  $(document).ready(function() {
+    var trigger = $('#dropdown-text-trigger');
+    var menu = $('#dropdown-text-menu');
+    menu.css('left', trigger.position().left);
+
+    var menuOpen = false;
+    $(document.body).click(function(e) {
+      if (e.target.id == 'dropdown-text-trigger' || e.target.parentNode.id == 'dropdown-text-trigger' || menuOpen) {
+        var display = menu.css('display');
+        if (display == 'none') {
+          trigger.addClass('menu-open');
+          menu.css('display', 'block');
+          menuOpen = true;
+        } else {
+          trigger.removeClass('menu-open');
+          menu.css('display', 'none');
+          menuOpen = false;
+        } 
+      }
+    });
+  });
+</script>
