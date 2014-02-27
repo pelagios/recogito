@@ -17,10 +17,10 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, opt_gdocPartId) {
     '  <div class="annotation-editor-body">' +
     '    <span class="annotation-editor-selection"></span>' +
     '    <span class="annotation-editor-message"></span>' +
-    '  </div>' +
-    '  <div class="annotation-editor-buttons">' +
-    '    <button class="annotation-editor-button button-ok">OK</button>' +
-    '    <button class="annotation-editor-button button-cancel">Cancel</button>' +
+    '    <div class="annotation-editor-buttons">' +
+    '      <button class="button blue button-ok">OK</button>' +
+    '      <button class="button grey button-cancel">Cancel</button>' +
+    '    </div>' +
     '  </div>' +
     '<div>';
 
@@ -45,14 +45,6 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, opt_gdocPartId) {
     toolNormalAnnotation.removeClass('selected');
     toolRocketAnnotation.addClass('selected');
   });
-
-  /*
-  var annotationModeSwitch = $('.annotation-mode');
-  annotationModeSwitch.click(function() {
-    self._powerUserMode = !self._powerUserMode;
-    annotationModeSwitch.toggleClass('poweruser');
-  });
-  */
   
   rangy.init();
  

@@ -5,103 +5,55 @@
   -moz-box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
   -webkit-box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
   box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
-  border:1px solid #686868;
-}
+  z-index:9999;
+  
+  .annotation-editor-header {
+    .gradient(#5a5a5a, #4f4f4f);
+    font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-size:16px;
+    padding:6px;
+    color:#fff;
+    text-shadow:1px 1px 1px #333;
+    cursor:move;
+    border-width:1px 1px 0px 1px;
+    border-style:solid;
+    border-color:#6f6f6f;
+  }
+  
+  .annotation-editor-body {
+    text-align:center;
+    padding:0px 10px;
+    border-width:0px 1px 1px 1px;
+    border-style:solid;
+    border-color:#c2c2c2;
+    
+    .annotation-editor-selection {
+      display:inline-block;
+      padding:2px;
+      margin:15px auto 10px auto;
+      background-color:#f2ee00;
+      border-bottom:1px dotted #99940b;
+    }
 
-.annotation-editor-header {
-  .gradient(#5a5a5a, #494949);
-  font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
-  font-size:16px;
-  padding:6px;
-  color:#fff;
-  text-shadow:1px 1px 1px #333;
-  cursor:move;
-}
-
-.annotation-editor-body {
-  text-align:center;
-  padding:0px 10px;
-}
-
-.annotation-editor-selection {
-  display:inline-block;
-  padding:2px;
-  margin:15px auto 10px auto;
-  background-color:#f2ee00;
-  border-bottom:1px dotted #99940b;
-}
-
-.annotation-editor-message {
-  display:block;
-  font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
-  font-size:14px;
-  margin:0 5px 10px 5px;
-  line-height:140%;
-}
-
-.annotation-editor-buttons {
-  text-align:center;
-  padding:5px 15px 15px 15px;
-}
-
-.annotation-editor-button  {
-  -webkit-border-radius:3px;
-  -moz-border-radius:3px;
-  border-radius:3px;
-  font:bold 11px "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
-  line-height:1;
-  padding:6px 0;
-  text-align:center;
-  width:70px;
-  cursor:pointer; 
-  outline:none;
-}
-
-.annotation-editor-button:active {
-	position:relative;
-	top:1px;
-}
-
-.button-ok {
-	background-color:#63b8ee;
-	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #63b8ee), color-stop(1, #468ccf) );
-	background:-moz-linear-gradient( center top, #63b8ee 5%, #468ccf 100% );
-	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#63b8ee', endColorstr='#468ccf');
-  background:linear-gradient(top, #63b8ee, #468ccf);
-  border:1px solid #3866a3;
-	-moz-box-shadow:inset 0px 1px 0px 0px #bee2f9;
-	-webkit-box-shadow:inset 0px 1px 0px 0px #bee2f9;
-	box-shadow:inset 0px 1px 0px 0px #bee2f9;
-  color: #fff;
-	text-shadow:1px 1px 0px #7cacde;
-}
-
-.button-ok:hover {
-	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #468ccf), color-stop(1, #63b8ee) );
-	background:-moz-linear-gradient( center top, #468ccf 5%, #63b8ee 100% );
-	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#468ccf', endColorstr='#63b8ee');
-	background-color:#468ccf;
-  background-image: linear-gradient(top, #468ccf, #63b8ee);
-}
-
-.button-cancel {
-	background-color:#ededed;
-	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ededed), color-stop(1, #dfdfdf) );
-	background:-moz-linear-gradient( center top, #ededed 5%, #dfdfdf 100% );
-  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ededed', endColorstr='#dfdfdf');
-  background: linear-gradient(top, #ededed, #dfdfdf);
-	border:1px solid #dcdcdc;
-  color: #333;
-	-moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
-	-webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
-	box-shadow:inset 0px 1px 0px 0px #ffffff;
-	text-shadow:1px 1px 0px #ffffff;
-}
-
-.button-cancel:hover {
-	background-color:#dfdfdf;
-	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #dfdfdf), color-stop(1, #ededed) );
-	background:-moz-linear-gradient( center top, #dfdfdf 5%, #ededed 100% );
-  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#dfdfdf', endColorstr='#ededed');
-  background: linear-gradient(top, #dfdfdf, #ededed);
+    .annotation-editor-message {
+      display:block;
+      font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
+      font-size:14px;
+      margin:0 5px 10px 5px;
+      line-height:140%;
+    }
+    
+  } /* .annotation-editor-body */
+  
+  .annotation-editor-buttons {
+    text-align:center;
+    padding:5px 15px 15px 15px;
+    
+    .button {
+      padding:4px 18px;
+      outline:none;
+    }
+    
+  } /* annotation-editor-buttons */
+  
 }
