@@ -25,52 +25,59 @@ define(['georesolution/common'], function(common) {
           '      <a class="popup-exit">&#xf00d;</a>' +
           '    </div>' +
           '    <div class="popup-content">' +
-          '      <div class="popup-content-inner">' +
-          '        <div class="details-content-sidebar">' +
-          '          <div class="details-content-search">' +
-          '            <div class="details-content-search-container">' +
-          '              <span>Search</span> <input class="details-content-search-input">' +
-          '            </div>'+
-          '            <table class="details-content-search-results">' +
-          '            </table>' +
+          
+          '      <div id="details-content-topsection">' +
+          '        <div id="details-map"></div>' +
+          '        <div id="details-content-search">' +
+          '          <div id="details-content-search-suggestions">ALTERNATIVE SUGGESTIONS</div>' +
+          '          <div id="details-content-search-textsearch">' + 
+          '            <span class="icon">&#xf002;</span>&nbsp;&nbsp;<input class="details-content-search-input">' + 
           '          </div>' +
           '        </div>' +
-          '        <div class="details-content-placeinfo">' +
-          '          <p class="details-content-automatch"></p>' +
-          '          <p class="details-content-correction"></p>' +
+          '        <div id="details-content-placeinfo">' +
+          '          <p id="details-content-automatch"></p>' +
+          '          <p id="details-content-correction"></p>' +
+          
+          '          <div id="details-content-status">' +
+          '            <div class="status-button status-button-verified" title="Verified"><span class="icon">&#xf14a;</span></div>' +        
+          '            <div class="status-button status-button-not-verified" title="Not Verified"><span class="icon">&#xf059;</span></div>' +     
+          '            <div class="status-button status-button-false-detection" title="False Detection"><span class="icon">&#xf057;</span></div>' +   
+          '            <div class="status-button status-button-ignore" title="Ignore this toponym"><span class="icon">&#xf05e;</span></div>' + 
+          '            <div class="status-button status-button-no-suitable-match" title="No suitable gazetteer match available"><span class="icon">&#xf024;</span></div>' + 
+          '            <div class="status-button status-button-ambiguous" title="Multiple possible gazetteer matches available"><span class="icon">&#xf024;</span></div>' + 
+          '            <div class="status-button status-button-multiple" title="Toponym refers to multiple places"><span class="icon">&#xf024;</span></div>' + 
+          '            <div class="status-button status-button-not-identifyable" title="Not Identifiable"><span class="icon">&#xf024;</span></div>' + 
+          '          </div>' +
           '        </div>' +
-          '        <div class="popup-tags">' +
+          '        <div class="details-content-preview"></div>' +
+          '      </div>' + // details-content-topsection
+          
+          '      <div id="details-content-bottomsection">' +
+          '        <table id="details-content-searchresults"></table>' +          
+          '        <div id="details-content-tags">' +
+          '          <h3><span class="icon">&#xf02b;</span>&nbsp;&nbsp;Tags</h3>' +
+          '          <div class="tag-list"></div>' +
           '        </div>' +
-          '        <div class="details-button details-button-verified"><span class="icon">&#xf14a;</span><span class="caption">VERIFIED</span></div>' +        
-          '        <div class="details-button details-button-not-verified"><span class="icon">&#xf059;</span><span class="caption">NOT VERIFIED</span></div>' +     
-          '        <div class="details-button details-button-false-detection"><span class="icon">&#xf057;</span><span class="caption">FALSE DETECTION</span></div>' +   
-          '        <div class="details-button details-button-ignore"><span class="icon">&#xf05e;</span><span class="caption">IGNORE/DUPLICATE</span></div>' + 
-          '        <div class="details-button details-button-no-suitable-match"><span class="icon">&#xf024;</span><span class="caption">NO SUITABLE MATCH</span></div>' + 
-          '        <div class="details-button details-button-ambiguous"><span class="icon">&#xf024;</span><span class="caption">AMBIGUOUS</span></div>' + 
-          '        <div class="details-button details-button-multiple"><span class="icon">&#xf024;</span><span class="caption">MULTIPLE PLACES</span></div>' + 
-          '        <div class="details-button details-button-not-identifyable"><span class="icon">&#xf024;</span><span class="caption">NOT IDENTIFYABLE</span></div>' + 
-          '        <h3>Comment</h3>' +
-          '        <div class="details-comment">' +
+          '        <div id="details-content-comment">' +
+          '          <h3><span class="icon">&#xf075;</span>&nbsp;&nbsp;Comment</h3>' +
+          '          <button class="details-comment-button button grey" type="button">SAVE</button>' +
           '          <textarea class="details-comment-textarea"></textarea>' + 
-          '          <input class="details-comment-button" type="button" value="SAVE"></input>' +
           '        </div>' +
-          '        <h3>Source Text Snippets</h3>' + 
-          '        <div class="details-content-preview">' +
+          '        <div id="details-content-history">' +
+          '          <h3><span class="icon">&#xf040;</span>&nbsp;&nbsp;Edit History</h3>' +
           '        </div>' +
-          '        <h3>Possible Alternatives</h3>' +
-          '        <table class="details-content-candidates">' +
-          '        </table>' +   
-          '      </div>' + 
-          '    </div>' +
-          '  </div>' +
-          '</div>';
+          '      </div>' + // details-content-bottomsection
+          
+          '    </div>' + // popup-content
+          '  </div>' + // details
+          '</div>'; // clicktrap
     
     // Details Popup DOM element
     this.element = $(template);
     this.element.appendTo(document.body);
   
     // Leaflet map
-    var map = this._initMap($('.details-content-sidebar'));
+    var map = this._initMap(document.getElementById('details-map'));
 
     /**
      * Generates a view of a search result by rendering an HTML table row and attach a marker to the map
@@ -79,8 +86,8 @@ define(['georesolution/common'], function(common) {
     */
     var displaySearchResult = function(result, opt_style) {
       var category = (result.category) ? common.Utils.formatCategory(result.category) : 'uncategorized';
-      var warning = (result.coordinate) ? '' : '<span title="Place has no coordinates" class="icon no-coords">&#xf041;</span>'     
-      var tr = $('<tr><td>' + common.Utils.categoryTag(result.category) + ' ' + warning + '</td><td><a href="javascript:void(0);" title="' + category + '" class="details-content-candidate-link">' + result.title + '</a></td><td>' + result.names + '</td></tr>');
+      var warning = (result.coordinate) ? '<td></td>' : '<td><span title="Place has no coordinates" class="icon no-coords">&#xf041;</span></td>'     
+      var tr = $('<tr><td>' + common.Utils.categoryTag(result.category) + '</td>' + warning + '<td><a href="javascript:void(0);" title="' + category + '" class="details-content-candidate-link">' + result.title + '</a></td><td>' + result.names + '</td></tr>');
       var marker = undefined;
       if (result.coordinate) {
         if (opt_style)
@@ -149,9 +156,9 @@ define(['georesolution/common'], function(common) {
       if (!annotation.place.coordinate)
         meta += '<br/><span class="icon no-coords ">&#xf041;</span>No coordinates for this place!</a>';
                
-      $('.details-content-automatch').html(meta);
+      $('#details-content-automatch').html(meta);
     } else {
-      $('.details-content-automatch').html('-');
+      $('#details-content-automatch').html('-');
     }
   
     // Expert correction info
@@ -166,13 +173,13 @@ define(['georesolution/common'], function(common) {
       if (!annotation.place_fixed.coordinate)
         meta += '<br/><span class="icon no-coords ">&#xf041;</span>No coordinates for this place!</a>';
                
-      $('.details-content-correction').html(meta);
+      $('#details-content-correction').html(meta);
     } else {
-      $('.details-content-correction').html('-');
+      $('#details-content-correction').html('-');
     }
   
     // Tags
-    var tagList = new common.TagList($('.popup-tags'), annotation.tags);  
+    var tagList = new common.TagList($('.tag-list'), annotation.tags);  
     tagList.on('update', function(tags) {
       annotation.tags = tags;
       self.fireEvent('update', annotation);
@@ -180,21 +187,21 @@ define(['georesolution/common'], function(common) {
   
     // Status info & buttons
     if (annotation.status == 'VERIFIED') {
-      $('.details-button-verified').addClass('active');
+      $('.status-button-verified').addClass('active');
     } else if (annotation.status == 'NOT_VERIFIED') {
-      $('.details-button-not-verified').addClass('active');
+      $('.status-button-not-verified').addClass('active');
     } else if (annotation.status == 'FALSE_DETECTION') {
-      $('.details-button-false-detection').addClass('active');
+      $('.status-button-false-detection').addClass('active');
     } else if (annotation.status == 'IGNORE') {
-      $('.details-button-ignore').addClass('active');
+      $('.status-button-ignore').addClass('active');
     } else if (annotation.status == 'NO_SUITABLE_MATCH') {
-      $('.details-button-no-suitable-match').addClass('active');
+      $('.status-button-no-suitable-match').addClass('active');
     } else if (annotation.status == 'AMBIGUOUS') {
-      $('.details-button-ambiguous').addClass('active');
+      $('.status-button-ambiguous').addClass('active');
     } else if (annotation.status == 'MULTIPLE') {
-      $('.details-button-multiple').addClass('active');
+      $('.status-button-multiple').addClass('active');
     } else if (annotation.status == 'NOT_IDENTIFYABLE') {
-      $('.details-button-not-identifyable').addClass('active');   
+      $('.status-button-not-identifyable').addClass('active');   
     }
   
     // Status buttons
@@ -209,14 +216,14 @@ define(['georesolution/common'], function(common) {
     };
   
     // Button 'verified'
-    changeStatus($('.details-button-verified'), 'VERIFIED');
-    changeStatus($('.details-button-not-verified'), 'NOT_VERIFIED');
-    changeStatus($('.details-button-no-suitable-match'), 'NO_SUITABLE_MATCH');
-    changeStatus($('.details-button-ambiguous'), 'AMBIGUOUS');
-    changeStatus($('.details-button-multiple'), 'MULTIPLE');
-    changeStatus($('.details-button-false-detection'), 'FALSE_DETECTION');
-    changeStatus($('.details-button-ignore'), 'IGNORE');
-    changeStatus($('.details-button-not-identifyable'), 'NOT_IDENTIFYABLE');
+    changeStatus($('.status-button-verified'), 'VERIFIED');
+    changeStatus($('.status-button-not-verified'), 'NOT_VERIFIED');
+    changeStatus($('.status-button-no-suitable-match'), 'NO_SUITABLE_MATCH');
+    changeStatus($('.status-button-ambiguous'), 'AMBIGUOUS');
+    changeStatus($('.status-button-multiple'), 'MULTIPLE');
+    changeStatus($('.status-button-false-detection'), 'FALSE_DETECTION');
+    changeStatus($('.status-button-ignore'), 'IGNORE');
+    changeStatus($('.status-button-not-identifyable'), 'NOT_IDENTIFYABLE');
   
     // Comment
     var commentTextArea = $('.details-comment-textarea');
@@ -238,7 +245,7 @@ define(['georesolution/common'], function(common) {
         var marker = L.circleMarker(annotation.place.coordinate, { color:'blue', opacity:1, fillOpacity:0.6 }).addTo(map);    
         var popup = '<strong>Auto-Match:</strong> ' + annotation.place.title;
         marker.on('mouseover', function(e) { marker.bindPopup(popup).openPopup(); });
-        $('.details-content-automatch').mouseover(function() { marker.bindPopup(popup).openPopup(); });
+        $('#details-content-automatch').mouseover(function() { marker.bindPopup(popup).openPopup(); });
       }
   
       // Marker for manual correction (if any)
@@ -246,7 +253,7 @@ define(['georesolution/common'], function(common) {
         var markerFixed = L.circleMarker(annotation.place_fixed.coordinate, { color:'red', opacity:1, fillOpacity:0.6 }).addTo(map);   
         var popupFixed =   '<strong>Correction:</strong> ' + annotation.place_fixed.title;
         markerFixed.on('mouseover', function(e) { markerFixed.bindPopup(popupFixed).openPopup(); });
-        $('.details-content-correction').mouseover(function() { markerFixed.bindPopup(popupFixed).openPopup(); });
+        $('#details-content-correction').mouseover(function() { markerFixed.bindPopup(popupFixed).openPopup(); });
       }
   
       // Sequence
@@ -287,9 +294,9 @@ define(['georesolution/common'], function(common) {
       });
 
       if (html.length == 0) {
-        $('.details-content-candidates').html('<p>No alternatives found.</p>');
+        $('#details-content-searchresults').html('<tr><td>No alternatives found.</td></tr>');
       } else {
-        $('.details-content-candidates').append(html);
+        $('#details-content-searchresults').append(html);
       }
     });
   
@@ -301,7 +308,7 @@ define(['georesolution/common'], function(common) {
         if (startIdx > -1 && endIdx <= a.context.length) {
           var pre = a.context.substring(0, startIdx);
           var post = a.context.substring(endIdx);
-          $('.details-content-preview').html(pre + '<em>' + a.toponym + '</em>' + post);
+          $('.details-content-preview').html('...' + pre + '<em>' + a.toponym + '</em>' + post + '...');
         }
       }    
     });
@@ -311,7 +318,7 @@ define(['georesolution/common'], function(common) {
     $('.details-content-search-input').keypress(function(e) {
       if (e.charCode == 13) {
         // Clear previous results (if any)
-        $('.details-content-search-results').html('');
+        $('#details-content-searchresults').html('');
         $.each(markers, function(idx, marker) { map.removeLayer(marker); });
         markers = [];
       
@@ -326,9 +333,9 @@ define(['georesolution/common'], function(common) {
           });
         
           if (html.length == 0) {
-            $('.details-content-search-results').html('<p>No results for &quot;' + response.query + '</p>');
+            $('#details-content-searchresults').html('<p>No results for &quot;' + response.query + '</p>');
           } else {
-            $('.details-content-search-results').append(html);
+            $('#details-content-searchresults').append(html);
           }
         
           map.fitBounds(new L.featureGroup(markers).getBounds());
@@ -345,11 +352,7 @@ define(['georesolution/common'], function(common) {
    * @param {Element} parentEl the DOM element to attach to 
    * @private
    */
-  DetailsPopup.prototype._initMap = function(parentEl) {
-    var mapDiv = document.createElement('div');
-    mapDiv.className = 'details-map';
-    $(parentEl).prepend(mapDiv);
-  
+  DetailsPopup.prototype._initMap = function(mapDiv) {  
     var baseLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
       attribution: 'Tiles: <a href="http://pelagios.org/maps/greco-roman/about.html">Pelagios</a>, 2012'
     });

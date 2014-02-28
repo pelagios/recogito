@@ -39,7 +39,7 @@ define(function() {
     var self = this,
         ul = $('<ul></ul>'),
         tagEditor = false,
-        addButton =  $('<span class="popup-tag popup-add-tag" title="Add Tag" ><a id="add-tag"  class="icon">&#xf055;</a></span>');
+        addButton =  $('<button class="button grey">Add Tag</button>');
 
     // Helper function to add a tag to the list
     var addTag = function(idx, tag) {
@@ -95,7 +95,7 @@ define(function() {
           tagEditor = false; 
         };
       
-        tagEditor = new TagEditor(e.target.offsetParent, -8, 28, onEnter, onEscape);
+        tagEditor = new TagEditor(e.target.offsetParent, e.target.offsetTop - 5, e.target.offsetLeft + e.target.offsetWidth + 5, onEnter, onEscape);
       }
     });
     

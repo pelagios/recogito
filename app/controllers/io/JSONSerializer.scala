@@ -13,7 +13,7 @@ import global.CrossGazetteerUtils
 object JSONSerializer {
    
   private val UTF8 = "UTF-8"  
-  private val CONTEXT_SIZE = 50
+  private val CONTEXT_SIZE = 80
 
   /** Serializes a single annotation, with optional fulltext context.
     *  
