@@ -218,11 +218,11 @@ define(['georesolution/common'], function(common) {
     // Button 'verified'
     changeStatus($('.status-button-verified'), 'VERIFIED');
     changeStatus($('.status-button-not-verified'), 'NOT_VERIFIED');
+    changeStatus($('.status-button-false-detection'), 'FALSE_DETECTION');
+    changeStatus($('.status-button-ignore'), 'IGNORE');
     changeStatus($('.status-button-no-suitable-match'), 'NO_SUITABLE_MATCH');
     changeStatus($('.status-button-ambiguous'), 'AMBIGUOUS');
     changeStatus($('.status-button-multiple'), 'MULTIPLE');
-    changeStatus($('.status-button-false-detection'), 'FALSE_DETECTION');
-    changeStatus($('.status-button-ignore'), 'IGNORE');
     changeStatus($('.status-button-not-identifyable'), 'NOT_IDENTIFYABLE');
   
     // Comment
