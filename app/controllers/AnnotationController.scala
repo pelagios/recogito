@@ -288,8 +288,11 @@ object AnnotationController extends Controller with Secured {
   
   /** Deletes an annotation.
     *  
-    * Note that an annotation is only really deleted if it was created manually. Annotations
-    * created by the NER are not deleted, only marked as false detection.  
+    * Note that an annotation deletion is a bit of complex issue. If we're dealing with a manually created annotation, 
+    * we just delete it. Period. BUT: if we deal with an annotation that was created automatically, we still want to keep
+    * it in the DB for the purposes of precision/recall estimation. In this case, we therefore don't delete the
+    * annotation, but just mark it as a 'false detection'. If the annotation was manually modified, we also remove those
+    * manual modifications to restore the original NER state. 
     * @param a the annotation
     */
   private def _delete(a: Annotation)(implicit s: Session): Option[Annotation] = {
@@ -299,9 +302,8 @@ object AnnotationController extends Controller with Secured {
     } else {
       val updated = Annotation(a.uuid, a.gdocId, a.gdocPartId,
                                AnnotationStatus.FALSE_DETECTION, 
-                               a.toponym, a.offset,
-                               a.gazetteerURI, a.correctedToponym, a.correctedOffset, a.correctedGazetteerURI,
-                               a.tags, a.comment)
+                               a.toponym, a.offset, a.gazetteerURI,
+                               None, None, None, None, None)
                                  
       Annotations.update(updated)    
       Some(updated)
