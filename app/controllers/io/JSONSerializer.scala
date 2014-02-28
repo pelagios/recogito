@@ -86,6 +86,7 @@ object JSONSerializer {
       Json.obj(
         "id" -> doc.id,
         "title" -> doc.title,
+        "source" -> doc.source,
         "annotations" -> { 
           val annotations = 
             if (includeAnnotations)

@@ -21,7 +21,7 @@ define(['georesolution/common'], function(common) {
           '  <div class="popup details">' +
           '    <div class="popup-header">' +
           '      »<span class="details-header-toponym"></span>«' +
-          '      <span class="details-header-source">in <span class="details-header-source-label"></span></span>' + 
+          '      <span class="details-header-source">  <span class="details-header-source-label"></span></span>' + 
           '      <a class="popup-exit">&#xf00d;</a>' +
           '    </div>' +
           '    <div class="popup-content">' +
@@ -142,7 +142,13 @@ define(['georesolution/common'], function(common) {
     // Populate the template
     $('.popup-exit').click(function() { self.destroy(); });
     $('.details-header-toponym').html(annotation.toponym);
-    $('.details-header-source-label').html(annotation.part + ' <a href="' + annotation.source + '" target="_blank" title="Visit External Source">&#xf08e;</a>');
+    
+    var sourceLabel = '';
+    if (annotation.part)
+      sourceLabel += ' in ' + annotation.part;
+    if (annotation.source)
+      sourceLabel += ' <a href="' + annotation.source + '" target="_blank" title="Visit External Source">&#xf08e;</a>';
+    $('.details-header-source-label').html(sourceLabel);
   
     // Automatch info
     if (annotation.place) {
