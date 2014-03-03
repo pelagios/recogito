@@ -11,6 +11,7 @@ import org.pelagios.Scalagios
 import org.pelagios.api.{ Annotation => OAnnotation }
 import java.io.ByteArrayOutputStream
 import org.pelagios.api.AnnotatedThing
+import play.api.Logger
 
 /** GeoDocument JSON API.
   *
@@ -45,7 +46,7 @@ object DocumentController extends Controller with Secured {
       if (format.isDefined && format.get.equalsIgnoreCase(CSV))
         get_CSV(doc.get)
       else if (format.isDefined && format.get.equalsIgnoreCase(RDF_XML))
-        get_RDF(doc.get, RDFFormat.RDFXML)
+        get_RDF(doc.get, RDFFormat.RDFXML, routes.ApplicationController.index.absoluteURL(false))
       else
         get_JSON(doc.get)
     } else {
@@ -61,18 +62,15 @@ object DocumentController extends Controller with Secured {
     Ok(serializer.asConsolidatedResult(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=pelagios-egd-" + id.toString + ".csv"))  
   }
   
-  private def get_RDF(doc: GeoDocument, format: RDFFormat)(implicit session: Session) = {
-    // TODO construct URI based on Recogito base URL (somehow...)
-    val thing = AnnotatedThing("http://www.example.org/pelagios/egd", doc.title)
+  private def get_RDF(doc: GeoDocument, format: RDFFormat, basePath: String)(implicit session: Session) = {
+    val thing = AnnotatedThing(basePath + "egd", doc.title)
     val annotations = Annotations.findByGeoDocumentAndStatus(doc.id.get, AnnotationStatus.VERIFIED)
     
     // Convert Recogito annotations to OA
     annotations.zipWithIndex.foreach{ case (a, idx) => {
       val place =  { if (a.correctedGazetteerURI.isDefined) a.correctedGazetteerURI else a.gazetteerURI }
         .map(Seq(_)).getOrElse(Seq.empty[String])
-        
-      val target = "" // TODO
-      val oa = OAnnotation("http://www.example.org/pelagios/annotations#" + idx, thing, place = place)
+      val oa = OAnnotation(basePath + "annotations#" + idx, thing, place = place)
     }}
 
     val out = new ByteArrayOutputStream()
