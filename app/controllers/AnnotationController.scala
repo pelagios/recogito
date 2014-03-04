@@ -13,6 +13,11 @@ import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.JsObject
 import play.api.libs.json.JsArray
 import play.api.mvc.AnyContent
+import org.pelagios.api.{ Annotation => OAnnotation }
+import org.pelagios.api.AnnotatedThing
+import java.io.ByteArrayOutputStream
+import org.pelagios.Scalagios
+import org.openrdf.rio.RDFFormat
 
 /** Annotation CRUD controller.
   *
@@ -63,50 +68,73 @@ object AnnotationController extends Controller with Secured {
       }
     }  
   }
+  
+  private def createOneCTS(json: JsObject, username: String)(implicit s: Session): Option[String] = {
+    val source = (json \ "source").as[String]
+    val correctedToponym = (json \ "corrected_toponym").as[String]
+    val correctedOffset = (json \ "corrected_offset").as[Int]        
+
+    val annotation = 
+      Annotation(Annotation.newUUID, -1, None, 
+                 AnnotationStatus.NOT_VERIFIED, None, None, None, 
+                 Some(correctedToponym), Some(correctedOffset), source = Some(source))
+
+    Annotations.insert(annotation)
+    
+    // Record edit event
+    EditHistory.insert(EditEvent(None, annotation.uuid, username, new Timestamp(new Date().getTime),
+      None, Some(correctedToponym), None, None, None, None))
+                                                      
+    None
+  }
     
   private def createOne(json: JsObject, username: String)(implicit s: Session): Option[String] = {
     val jsonGdocId = (json\ "gdocId").as[Option[Int]] 
     val jsonGdocPartId = (json \ "gdocPartId").as[Option[Int]]  
-      
-    val gdocPart = jsonGdocPartId.map(id => GeoDocumentParts.findById(id)).flatten
-    val gdocId_verified = if (gdocPart.isDefined) Some(gdocPart.get.gdocId) else jsonGdocId.map(id => GeoDocuments.findById(id)).flatten.map(_.id).flatten
-        
-    if (!gdocPart.isDefined && !(jsonGdocId.isDefined && gdocId_verified.isDefined)) {
-      // Annotation specifies neither valid GDocPart nor valid GDoc - invalid annotation
-      Some("{ \"success\": false, \"message\": \"Invalid GDoc or GDocPart ID\" }")
-        
-    } else {
-      // Create new annotation
-      val correctedToponym = (json \ "corrected_toponym").as[String]
-      val correctedOffset = (json \ "corrected_offset").as[Int]        
-
-      val annotation = 
-        Annotation(Annotation.newUUID, gdocId_verified.get, gdocPart.map(_.id).flatten, 
-                   AnnotationStatus.NOT_VERIFIED, None, None, None, 
-                   Some(correctedToponym), Some(correctedOffset))
-          
-      if (!isValid(annotation)) {
-        // Annotation is mis-aligned with source text or has zero toponym length - something is wrong
-        Logger.info("Invalid annotation error: " + correctedToponym + " - " + correctedOffset + " GDoc Part: " + gdocPart.map(_.id))
-        Some("{ \"success\": false, \"message\": \"Invalid annotation error (invalid offset or toponym).\" }")
-          
-      } else if (Annotations.getOverlappingAnnotations(annotation).size > 0) {
-        // Annotation overlaps with existing ones - something is wrong
-        Logger.info("Overlap error: " + correctedToponym + " - " + correctedOffset + " GDoc Part: " + gdocPart.get.id)
-        Annotations.getOverlappingAnnotations(annotation).foreach(a => Logger.warn("Overlaps with " + a.uuid))
-        Some("{ \"success\": false, \"message\": \"Annotation overlaps with an existing one (details were logged).\" }")
-          
-      } else {
-        Annotations.insert(annotation)
+    val jsonSource = (json \ "source").as[Option[String]]
     
-        // Record edit event
-        EditHistory.insert(EditEvent(None, annotation.uuid, username, new Timestamp(new Date().getTime),
-          None, Some(correctedToponym), None, None, None, None))
-                                                      
-        None
-      }
-    }
+    if (jsonSource.isDefined) {
+      createOneCTS(json, username)
+    } else {
+      val gdocPart = jsonGdocPartId.map(id => GeoDocumentParts.findById(id)).flatten
+      val gdocId_verified = if (gdocPart.isDefined) Some(gdocPart.get.gdocId) else jsonGdocId.map(id => GeoDocuments.findById(id)).flatten.map(_.id).flatten
         
+      if (!gdocPart.isDefined && !(jsonGdocId.isDefined && gdocId_verified.isDefined)) {
+        // Annotation specifies neither valid GDocPart nor valid GDoc - invalid annotation
+        Some("{ \"success\": false, \"message\": \"Invalid GDoc or GDocPart ID\" }")
+        
+      } else {
+        // Create new annotation
+        val correctedToponym = (json \ "corrected_toponym").as[String]
+        val correctedOffset = (json \ "corrected_offset").as[Int]        
+
+        val annotation = 
+          Annotation(Annotation.newUUID, gdocId_verified.get, gdocPart.map(_.id).flatten, 
+                     AnnotationStatus.NOT_VERIFIED, None, None, None, 
+                     Some(correctedToponym), Some(correctedOffset))
+          
+        if (!isValid(annotation)) {
+          // Annotation is mis-aligned with source text or has zero toponym length - something is wrong
+          Logger.info("Invalid annotation error: " + correctedToponym + " - " + correctedOffset + " GDoc Part: " + gdocPart.map(_.id))
+          Some("{ \"success\": false, \"message\": \"Invalid annotation error (invalid offset or toponym).\" }")
+          
+        } else if (Annotations.getOverlappingAnnotations(annotation).size > 0) {
+          // Annotation overlaps with existing ones - something is wrong
+          Logger.info("Overlap error: " + correctedToponym + " - " + correctedOffset + " GDoc Part: " + gdocPart.get.id)
+          Annotations.getOverlappingAnnotations(annotation).foreach(a => Logger.warn("Overlaps with " + a.uuid))
+          Some("{ \"success\": false, \"message\": \"Annotation overlaps with an existing one (details were logged).\" }")
+          
+        } else {
+          Annotations.insert(annotation)
+    
+          // Record edit event
+          EditHistory.insert(EditEvent(None, annotation.uuid, username, new Timestamp(new Date().getTime),
+            None, Some(correctedToponym), None, None, None, None))
+                                                      
+          None
+        }
+      }
+    }   
   }
   
   /** Checks whether the annotation offset is properly aligned with the source text.
@@ -153,6 +181,22 @@ object AnnotationController extends Controller with Secured {
     } else {
       NotFound
     }
+  }
+  
+  def forSource(source: String) = DBAction { implicit session =>    
+    // Convert Recogito annotations to OA
+    val basePath = routes.ApplicationController.index.absoluteURL(false)
+    val thing = AnnotatedThing(basePath + "egd", source)
+    
+    Annotations.findBySource(source).zipWithIndex.foreach{ case (a, idx) => {
+      val place =  { if (a.correctedGazetteerURI.isDefined) a.correctedGazetteerURI else a.gazetteerURI }
+        .map(Seq(_)).getOrElse(Seq.empty[String])
+      val oa = OAnnotation(basePath + "annotations#" + idx, thing, place = place)
+    }}
+
+    val out = new ByteArrayOutputStream()
+    Scalagios.writeAnnotations(Seq(thing), out, RDFFormat.RDFXML)
+    Ok(new String(out.toString(UTF8))).withHeaders(CONTENT_TYPE -> "application/rdf+xml", CONTENT_DISPOSITION -> ("attachment; filename=pelagios-egd.rdf"))      
   }
   
   def updateSingle(uuid: UUID) = protectedDBAction(Secure.REJECT) { username => implicit requestWithSession =>

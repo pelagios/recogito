@@ -150,7 +150,11 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
     Query(Annotations).where(_.gdocId === id).delete
     
     
-     
+  
+  /** Retrieve all annotations for a specific source URI **/
+  def findBySource(source: String)(implicit s: Session): Seq[Annotation] =
+    Query(Annotations).where(_.source === source).list.sortBy(sortByOffset)
+    
   /** Retrieve all annotations on a specific GeoDocument that have (a) specific status(es) **/
   def findByGeoDocumentAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Seq[Annotation] =
     Query(Annotations).where(_.gdocId === id).filter(_.status inSet status).list.sortBy(sortByOffset)    

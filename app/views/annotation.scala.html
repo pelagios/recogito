@@ -1,4 +1,4 @@
-@(doc: GeoDocument, texts: Seq[(models.GeoDocumentText, Option[String])], username: String, part: Option[GeoDocumentPart], textHTML: String)
+@(doc: Option[GeoDocument], texts: Seq[(models.GeoDocumentText, Option[String])], username: String, part: Option[GeoDocumentPart], textHTML: String, source: Option[String])
 
 <html>
   <head>
@@ -14,7 +14,8 @@
     }
     <script>
     $(document).ready(function() {
-      new recogito.TextAnnotationUI(document.getElementById('text'), @doc.id,  @part.map(_.id.get.toString).getOrElse("false")); 
+      new recogito.TextAnnotationUI(document.getElementById('text'), 
+        @doc.map(_.id).getOrElse("-1"), @part.map(_.id.get.toString).getOrElse("false") @Html(source.map(", \"" + _ + "\"").getOrElse("")) )
     })
     </script>
   </head>
@@ -22,28 +23,35 @@
   <body>
     <div id="header">
       <div id="title">
-        @doc.author.map(_ + ": ").getOrElse("") @doc.title @doc.dateComment.map("(" + _ + ")").getOrElse("")
-        @part.map(" - " + _.title).getOrElse("")
+        @if(doc.isDefined) {
+          @doc.get.author.map(_ + ": ").getOrElse("") @doc.get.title
+          @doc.get.dateComment.map("(" + _ + ")").getOrElse("")
+          @part.map(" - " + _.title).getOrElse("")
+        } else {
+          @source.getOrElse("")
+        }
         <div id="home-button"><a href="@routes.ApplicationController.index()" class="icon">&#xf015;</a></div>
       </div>
       
       <div id="menu">
-        <ul>
-          <li><a href="@routes.ApplicationController.showDocumentStats(doc.id.get)">Document Stats</a></li>
-          @if(texts.size < 2) {
-            <li class="disabled"><a href="#" title="There is no text available for this document" onclick="return false;">Text</a>
-          } else {
-            <li><a href="#" id="dropdown-text-trigger" onclick="return false;">Text <span class="icon">&#xf0d7;</span></a>   
-          }
-          <li><a href="@routes.ApplicationController.showGeoResolutionUI(doc.id.get)">Geo-Resolution</a></li>
-        </ul>
+        @if(doc.isDefined) {
+          <ul>
+            <li><a href="@routes.ApplicationController.showDocumentStats(doc.get.id.get)">Document Stats</a></li>
+            @if(texts.size < 2) {
+              <li class="disabled"><a href="#" title="There is no text available for this document" onclick="return false;">Text</a>
+            } else {
+              <li><a href="#" id="dropdown-text-trigger" onclick="return false;">Text <span class="icon">&#xf0d7;</span></a>   
+            }
+            <li><a href="@routes.ApplicationController.showGeoResolutionUI(doc.get.id.get)">Geo-Resolution</a></li>
+          </ul>
+        }
       </div>
       
       @if(texts.size > 1) {
         <div id="dropdown-text-menu">
           <ul>
             @for(text <- texts) {
-              <li><a href="@routes.ApplicationController.showTextAnnotationUI(text._1.id.get)">@text._2.getOrElse("[untitled]")</a></li>
+              <li><a href="@routes.ApplicationController.showTextAnnotationUI(text._1.id.get, None)">@text._2.getOrElse("[untitled]")</a></li>
             }
           </ul>
         </div>
@@ -61,7 +69,7 @@
     </div>   
     
     <div id="content">
-      <div id="text" class="@doc.language">
+      <div id="text" class="@doc.map(_.language).getOrElse("")">
 @Html(textHTML)
       </div>
     </div>

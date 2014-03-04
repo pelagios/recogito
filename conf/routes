@@ -22,6 +22,7 @@ DELETE  /recogito/api/documents/:id           controllers.DocumentController.del
 # Annotations
 POST    /recogito/api/annotations             controllers.AnnotationController.create
 GET     /recogito/api/annotations/:id         controllers.AnnotationController.get(id: java.util.UUID)
+GET     /recogito/api/annotations             controllers.AnnotationController.forSource(source: String)
 PUT     /recogito/api/annotations/:id         controllers.AnnotationController.updateSingle(id: java.util.UUID)
 PUT     /recogito/api/annotations/            controllers.AnnotationController.updateBatch()
 DELETE  /recogito/api/annotations/:id         controllers.AnnotationController.delete(id: java.util.UUID)
@@ -37,7 +38,7 @@ GET     /recogito/api/search/place            controllers.SearchController.place
 GET     /recogito/map                         controllers.ApplicationController.showMap(doc: Int)
 
 # Private views 
-GET     /recogito/edit/annotation             controllers.ApplicationController.showTextAnnotationUI(text: Int)
+GET     /recogito/edit/annotation             controllers.ApplicationController.showTextAnnotationUI(text: Int, ctsURI: Option[String])
 GET     /recogito/edit/georesolution          controllers.ApplicationController.showGeoResolutionUI(doc: Int)
 GET     /recogito/history                     controllers.ApplicationController.showHistory
 GET     /recogito/stats                       controllers.ApplicationController.showStats

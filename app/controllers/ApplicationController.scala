@@ -11,7 +11,7 @@ import play.api.Logger
   *
   * @author Rainer Simon <rainer.simon@ait.ac.at>
   */
-object ApplicationController extends Controller with Secured {
+object ApplicationController extends Controller with Secured with CTSClient {
   
   private val UTF8 = "UTF-8"
     
@@ -44,69 +44,83 @@ object ApplicationController extends Controller with Secured {
     * 
     * @param text the internal ID of the text in the DB 
     */
-  def showTextAnnotationUI(text: Int) = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit request => 
-    val gdocText = GeoDocumentTexts.findById(text)
-    if (gdocText.isDefined) {
-      val plaintext = new String(gdocText.get.text, UTF8)
-      val annotations = if (gdocText.get.gdocPartId.isDefined) {
+  def showTextAnnotationUI(text: Int, ctsURI: Option[String]) = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit request =>   
+    // Warning: temporary (d'oh) hack for supporting CTS alongside stored texts
+    val (someGDocText, somePlaintext, someAnnotations) = if (ctsURI.isDefined) {
+      val annotations = Annotations.findBySource(ctsURI.get)
+      Logger.info(annotations.toString)
+      (None, Some(getPlaintext(ctsURI.get)), Some(annotations))
+    } else {
+      val gdocText = GeoDocumentTexts.findById(text)
+      val a = gdocText.map(txt => {
+        if (gdocText.get.gdocPartId.isDefined) {
           Annotations.findByGeoDocumentPart(gdocText.get.gdocPartId.get)
         } else {
           Annotations.findByGeoDocument(gdocText.get.gdocId)
         }
-      
-      // Build HTML
-      val ranges = annotations.foldLeft(("", 0)) { case ((markup, beginIndex), annotation) => {
-        if (annotation.status == AnnotationStatus.FALSE_DETECTION) {
-          (markup, beginIndex)
-        } else {
-          // Use corrections if they exist, or Geoparser results otherwise
-          val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
-          val offset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset 
-          val url = if (annotation.correctedGazetteerURI.isDefined && !annotation.correctedGazetteerURI.get.trim.isEmpty) 
-                      annotation.correctedGazetteerURI
-                    else annotation.gazetteerURI
-
-          if (offset.isDefined && offset.get < beginIndex)
-            debugTextAnnotationUI(annotation)
+      })
+      (gdocText, gdocText.map(txt => new String(txt.text, UTF8)), a)
+    }
+    
+    if (somePlaintext.isDefined && someAnnotations.isDefined) {
+      val gdoc = someGDocText.map(text => GeoDocuments.findById(text.gdocId)).flatten
+      val gdocPart = someGDocText.map(text => text.gdocPartId.map(id => GeoDocumentParts.findById(id))).flatten.flatten
           
-          val cssClassA = annotation.status match {
-            case AnnotationStatus.VERIFIED => "annotation verified"
-            case AnnotationStatus.IGNORE => "annotation ignore"
-            case AnnotationStatus.NO_SUITABLE_MATCH => "annotation not-identifyable"
-            case AnnotationStatus.AMBIGUOUS => "annotation not-identifyable"
-            case AnnotationStatus.MULTIPLE => "annotation not-identifyable"
-            case AnnotationStatus.NOT_IDENTIFYABLE => "annotation not-identifyable"
-            case _ => "annotation" 
-          }
-          
-          val cssClassB = if (annotation.correctedToponym.isDefined) " manual" else " automatic"
-   
-          val title = "#" + annotation.uuid + " " +
-            AnnotationStatus.screenName(annotation.status) + " (" +
-            { if (annotation.correctedToponym.isDefined) "Manual Correction" else "Automatic Match" } +
-            ")"
-            
-          if (toponym.isDefined && offset.isDefined) {
-            val nextSegment = escapePlaintext(plaintext.substring(beginIndex, offset.get)) +
-              "<span data-id=\"" + annotation.uuid + "\" class=\"" + cssClassA + cssClassB + "\" title=\"" + title + "\">" + escapePlaintext(toponym.get) + "</span>"
-              
-            (markup + nextSegment, offset.get + toponym.get.size)
-          } else {
-            (markup, beginIndex)
-          }
-        }
-      }}
-
-      val html = (ranges._1 + escapePlaintext(plaintext.substring(ranges._2))).replace("\n", "<br/>")
+      val texts = gdoc.map(doc => textsForGeoDocument(doc.id.get)).getOrElse(Seq.empty[(GeoDocumentText, Option[String])])
+      // val title = gdoc.get.title s gdocPart.map(" - " + _.title).getOrElse("")      
       
-      val gdoc = GeoDocuments.findById(gdocText.get.gdocId)
-      val gdocPart = gdocText.get.gdocPartId.map(id => GeoDocumentParts.findById(id)).flatten
+      val html = buildHTML(somePlaintext.get, someAnnotations.get)
       
-      val title = gdoc.get.title + gdocPart.map(" - " + _.title).getOrElse("")      
-      Ok(views.html.annotation(gdoc.get, textsForGeoDocument(gdoc.get.id.get), username, gdocPart, html))
+      Ok(views.html.annotation(gdoc, gdoc.map(gdoc => textsForGeoDocument(gdoc.id.get)).getOrElse(Seq.empty[(models.GeoDocumentText, Option[String])]), username, gdocPart, html, ctsURI))
     } else {
       NotFound(Json.parse("{ \"success\": false, \"message\": \"Annotation not found\" }")) 
     }
+  }
+
+  private def buildHTML(plaintext: String, annotations: Seq[Annotation])(implicit session: Session): String = {
+    val ranges = annotations.foldLeft(("", 0)) { case ((markup, beginIndex), annotation) => {
+      if (annotation.status == AnnotationStatus.FALSE_DETECTION) {
+        (markup, beginIndex)
+      } else {
+        // Use corrections if they exist, or Geoparser results otherwise
+        val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
+        val offset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset 
+        val url = if (annotation.correctedGazetteerURI.isDefined && !annotation.correctedGazetteerURI.get.trim.isEmpty) 
+            annotation.correctedGazetteerURI
+          else annotation.gazetteerURI
+
+        if (offset.isDefined && offset.get < beginIndex)
+          debugTextAnnotationUI(annotation)
+          
+        val cssClassA = annotation.status match {
+          case AnnotationStatus.VERIFIED => "annotation verified"
+          case AnnotationStatus.IGNORE => "annotation ignore"
+          case AnnotationStatus.NO_SUITABLE_MATCH => "annotation not-identifyable"
+          case AnnotationStatus.AMBIGUOUS => "annotation not-identifyable"
+          case AnnotationStatus.MULTIPLE => "annotation not-identifyable"
+          case AnnotationStatus.NOT_IDENTIFYABLE => "annotation not-identifyable"
+          case _ => "annotation" 
+        }
+          
+        val cssClassB = if (annotation.correctedToponym.isDefined) " manual" else " automatic"
+   
+        val title = "#" + annotation.uuid + " " +
+            AnnotationStatus.screenName(annotation.status) + " (" +
+          { if (annotation.correctedToponym.isDefined) "Manual Correction" else "Automatic Match" } +
+            ")"
+            
+        if (toponym.isDefined && offset.isDefined) {
+          val nextSegment = escapePlaintext(plaintext.substring(beginIndex, offset.get)) +
+            "<span data-id=\"" + annotation.uuid + "\" class=\"" + cssClassA + cssClassB + "\" title=\"" + title + "\">" + escapePlaintext(toponym.get) + "</span>"
+              
+          (markup + nextSegment, offset.get + toponym.get.size)
+        } else {
+          (markup, beginIndex)
+        }
+      }
+    }}
+ 
+    (ranges._1 + escapePlaintext(plaintext.substring(ranges._2))).replace("\n", "<br/>") 
   }
   
   private def escapePlaintext(segment: String): String = {

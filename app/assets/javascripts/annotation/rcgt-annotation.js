@@ -7,7 +7,7 @@ var recogito = (window.recogito) ? window.recogito : { };
  * @param {Number} gdocId the DB id of the document the text belongs to
  * @param {Number} opt_gdocPartId the DB id of the document part the text belongs to (if any)
  */
-recogito.TextAnnotationUI = function(textDiv, gdocId, opt_gdocPartId) { 
+recogito.TextAnnotationUI = function(textDiv, gdocId, opt_gdocPartId, opt_source) { 
   var self = this,
       getId = function(node) { return $(node).data('id'); };
    
@@ -27,6 +27,7 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, opt_gdocPartId) {
   this._nodeType = 'span'; // So we can quickly replace with 'a' should it be needed
   this._gdocId = gdocId;
   this._gdocPartId = opt_gdocPartId;  
+  this._source = opt_source;
   this._editor; // To keep track of the current open editor & prevent opening of multipe editors
   this._powerUserMode = false;
   
@@ -166,7 +167,7 @@ recogito.TextAnnotationUI.prototype.createAnnotation = function(msgTitle, msgDet
   // If silentMode == true, the popup dialog won't open (used for batch annotation)
   var create = function(skipBatch) {    
     // Store on server
-    recogito.TextAnnotationUI.REST.createAnnotation(toponym, offset, self._gdocId, self._gdocPartId);
+    recogito.TextAnnotationUI.REST.createAnnotation(toponym, offset, self._gdocId, self._gdocPartId, self._source);
     
     // Create markup
     var anchor = document.createElement(self._nodeType);
@@ -195,7 +196,7 @@ recogito.TextAnnotationUI.prototype.updateAnnotation = function(msgTitle, msgDet
   
   var update = function() {
     // Store on server
-    recogito.TextAnnotationUI.REST.updateAnnotation(annotationId, toponym, offset, self._gdocId, self._gdocPartId);
+    recogito.TextAnnotationUI.REST.updateAnnotation(annotationId, toponym, offset, self._gdocId, self._gdocPartId, self._source);
     
     // We'll need to replace all nodes in the markup that are fully or partially in the range
     var nodes = selectedRange.getNodes();
@@ -353,10 +354,16 @@ recogito.TextAnnotationUI.getQueryParam = function(key) {
 /** REST calls **/
 recogito.TextAnnotationUI.REST = { }
 
-recogito.TextAnnotationUI.REST.createAnnotation = function(toponym, offset, gdocId, gdocPartId) {
+recogito.TextAnnotationUI.REST.createAnnotation = function(toponym, offset, gdocId, gdocPartId, source) {
   var data = (gdocPartId) ? 
     '{ "gdocPartId": ' + gdocPartId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }' :
     '{ "gdocId": ' + gdocId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }';
+    
+  if (source) {
+    var json = JSON.parse(data);
+    json.source = source;
+    data = JSON.stringify(json);
+  }  
   
   $.ajax({
     url: '../api/annotations',
@@ -369,10 +376,13 @@ recogito.TextAnnotationUI.REST.createAnnotation = function(toponym, offset, gdoc
   });
 }
 
-recogito.TextAnnotationUI.REST.updateAnnotation = function(id, toponym, offset, gdocId, gdocPartId) { 
+recogito.TextAnnotationUI.REST.updateAnnotation = function(id, toponym, offset, gdocId, gdocPartId, source) { 
   var data = (gdocPartId) ? 
     '{ "gdocPartId": ' + gdocPartId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }' :
     '{ "gdocId": ' + gdocId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }';
+
+  if (source)
+    data.source = source;
     
   $.ajax({
     url: '../api/annotations/' + id,
