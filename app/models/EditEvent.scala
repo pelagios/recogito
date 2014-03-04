@@ -74,6 +74,9 @@ object EditHistory extends Table[EditEvent]("edit_history") with HasStatusColumn
   def getLastN(n: Int)(implicit s: Session): Seq[EditEvent] =
     Query(EditHistory).sortBy(_.timestamp.desc).take(n).list
     
+  def getLastN(n: Int, status: AnnotationStatus.Value*)(implicit s: Session): Seq[EditEvent] =
+    Query(EditHistory).sortBy(_.timestamp.desc).filter(_.updatedStatus inSet status).take(n).list 
+    
   def countSince(time: Timestamp)(implicit s: Session): Int = 
     Query(EditHistory).where(_.timestamp > time).list.size
     

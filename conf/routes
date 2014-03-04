@@ -26,6 +26,9 @@ PUT     /recogito/api/annotations/:id         controllers.AnnotationController.u
 PUT     /recogito/api/annotations/            controllers.AnnotationController.updateBatch()
 DELETE  /recogito/api/annotations/:id         controllers.AnnotationController.delete(id: java.util.UUID)
 
+# History feed
+GET     /recogito/feed/recent                 controllers.FeedController.recentVerifications
+
 # Search
 GET     /recogito/api/search/place            controllers.SearchController.placeSearch(query: String)
 
