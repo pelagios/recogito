@@ -45,7 +45,7 @@ object FeedController extends Controller {
             
       val content = new Content()
       content.setType("text/plain")
-      content.setValue(editEvent.annotationBefore.getOrElse(""))
+      content.setValue(editEvent.annotationAfter.toString)
       entry.setContents(Seq(content))
 
       entry
