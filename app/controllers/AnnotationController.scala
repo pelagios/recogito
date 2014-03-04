@@ -18,6 +18,7 @@ import org.pelagios.api.AnnotatedThing
 import java.io.ByteArrayOutputStream
 import org.pelagios.Scalagios
 import org.openrdf.rio.RDFFormat
+import org.pelagios.api.Agent
 
 /** Annotation CRUD controller.
   *
@@ -191,6 +192,9 @@ object AnnotationController extends Controller with Secured {
     Annotations.findBySource(source).zipWithIndex.foreach{ case (a, idx) => {
       val place =  { if (a.correctedGazetteerURI.isDefined) a.correctedGazetteerURI else a.gazetteerURI }
         .map(Seq(_)).getOrElse(Seq.empty[String])
+        
+      val contributors = EditHistory.findByAnnotation(a.uuid).groupBy(_.username).keys
+      
       val oa = OAnnotation(basePath + "annotations#" + idx, thing, place = place)
     }}
 
@@ -287,8 +291,8 @@ object AnnotationController extends Controller with Secured {
         Annotation(annotation.get.uuid, annotation.get.gdocId, annotation.get.gdocPartId, 
                    updatedStatus,
                    annotation.get.toponym, annotation.get.offset, annotation.get.gazetteerURI, 
-                   updatedToponym, updatedOffset, updatedURI, updatedTags, updatedComment)
-          
+                   updatedToponym, updatedOffset, updatedURI, updatedTags, updatedComment, annotation.get.source)
+                   
       // Important: if an annotation was created manually, and someone marks it as 'false detection',
       // We delete it instead!
       if (updated.status == AnnotationStatus.FALSE_DETECTION && !updated.toponym.isDefined)

@@ -48,7 +48,6 @@ object ApplicationController extends Controller with Secured with CTSClient {
     // Warning: temporary (d'oh) hack for supporting CTS alongside stored texts
     val (someGDocText, somePlaintext, someAnnotations) = if (ctsURI.isDefined) {
       val annotations = Annotations.findBySource(ctsURI.get)
-      Logger.info(annotations.toString)
       (None, Some(getPlaintext(ctsURI.get)), Some(annotations))
     } else {
       val gdocText = GeoDocumentTexts.findById(text)
