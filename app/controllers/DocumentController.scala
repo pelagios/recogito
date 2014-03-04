@@ -12,6 +12,10 @@ import org.pelagios.api.{ Annotation => OAnnotation }
 import java.io.ByteArrayOutputStream
 import org.pelagios.api.AnnotatedThing
 import play.api.Logger
+import org.pelagios.api.selectors.TextOffsetSelector
+import org.pelagios.api.Transcription
+import org.pelagios.api.TranscriptionType
+import org.pelagios.api.SpecificResource
 
 /** GeoDocument JSON API.
   *
@@ -70,7 +74,16 @@ object DocumentController extends Controller with Secured {
     annotations.zipWithIndex.foreach{ case (a, idx) => {
       val place =  { if (a.correctedGazetteerURI.isDefined) a.correctedGazetteerURI else a.gazetteerURI }
         .map(Seq(_)).getOrElse(Seq.empty[String])
-      val oa = OAnnotation(basePath + "annotations#" + idx, thing, place = place)
+        
+      val offset = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
+      val toponym = if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym
+      
+      val transcription = toponym.map(t => Transcription(t, TranscriptionType.Toponym))
+      val selector = offset.map(offset => TextOffsetSelector(offset, toponym.get.size))
+      
+      val target = if (selector.isDefined) SpecificResource(thing, selector.get) else thing
+          
+      val oa = OAnnotation(basePath + "annotations#" + idx, target, place = place, transcription = transcription)
     }}
 
     val out = new ByteArrayOutputStream()
