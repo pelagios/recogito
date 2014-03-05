@@ -10,68 +10,9 @@ import scala.collection.mutable.HashMap
   * 
   * @author Rainer Simon <rainer.simon@ait.ac.at> 
   */
-class CSVSerializer {
+class CSVSerializer extends BaseSerializer {
   
   private val SEPARATOR = ";"
-    
-  private val docCache = HashMap.empty[Int, Option[GeoDocument]]
-  private val partCache = HashMap.empty[Int, Option[GeoDocumentPart]]
-  
-  /** Helper method that returns the GeoDocumentPart with the specified ID.
-    *
-    * Since this method may be called multiple times for each annotation that is 
-    * exported, the result is cached to avoid excessive DB access.
-    * 
-    * NOTE: the 'cache' is just a HashMap. But we assume that a new CSVSerializer is 
-    * instantiated for (and disposed after) each CSV export. Global re-use of a CSVSerializer
-    * instance would theoretically result in a memory leak.
-    */
-  private def getPart(partId: Int)(implicit s: Session): Option[GeoDocumentPart] = {
-    val cachedPart = partCache.get(partId)
-    if (cachedPart.isDefined) {
-      cachedPart.get
-    } else {
-      val part = GeoDocumentParts.findById(partId)
-      partCache.put(partId, part)
-      part
-    }    
-  }
-
-  /** Helper method that returns the GeoDocument with the specified ID.
-    *
-    * Since this method is called for each annotation that is exported, the result
-    * is cached to avoid excessive DB access.
-    */
-  private def getDocument(docId: Int)(implicit s: Session): Option[GeoDocument] = {
-    val cachedDoc = docCache.get(docId)
-    if (cachedDoc.isDefined) {
-      cachedDoc.get
-    } else {
-      val doc = GeoDocuments.findById(docId)
-      docCache.put(docId, doc)
-      doc
-    }        
-  }
-  
-  /**
-   * Helper method that determines the source for the annotation. An annotation may have a
-   * explicit source defined in its .source field. If not, this method traverses upwards in the
-   * hierarchy, first checking for the source of the associated GeoDocumentPart, and then the
-   * associated GeoDocument.
-   */
-  private def getSourceForAnnotation(annotation: Annotation)(implicit s: Session): Option[String] = {
-    if (annotation.source.isDefined) {
-      annotation.source
-    } else {
-      val part = annotation.gdocPartId.map(getPart(_)).flatten
-      val partSource = part.map(_.source).flatten
-      if (partSource.isDefined) {
-        partSource
-      } else {
-        annotation.gdocId.map(id => getDocument(id)).flatten.map(_.source).flatten
-      }
-    }    
-  }
   
   /** Generates 'consolidated output' for public consumption.
     *
