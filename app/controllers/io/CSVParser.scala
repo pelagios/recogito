@@ -3,36 +3,15 @@ package controllers.io
 import java.util.UUID
 import models._
 import play.api.db.slick._
-import scala.collection.mutable.HashMap
 import scala.io.Source
 
 /** Utility object to convert CSV input data to Annotation objects.
   * 
   * @author Rainer Simon <rainer.simon@ait.ac.at> 
   */
-class CSVParser {
+class CSVParser extends BaseParser {
   
   private val SEPARATOR = ";"
-    
-  private val partIdCache = HashMap.empty[String, Option[Int]]
-  
-  /** Helper method that returns the ID for the specified GeoDocument part.
-    *
-    * Since this method is called for every line in the CSV file, the result is
-    * cached to avoid excessive DB accesses.
-    * @param docId the ID of the document the part belongs to
-    * @param title the part title
-    */
-  private def getPartIdForTitle(docId: Int, title: String)(implicit s: Session): Option[Int] = {
-    val partId = partIdCache.get(title)
-    if (partId.isDefined) {
-      partId.get
-    } else {
-      val id = GeoDocumentParts.findByGeoDocumentAndTitle(docId, title).map(_.id).flatten
-      partIdCache.put(title, id)
-      id
-    }
-  }
   
   /** Parses an input CSV file and produces annotations.
     * 
