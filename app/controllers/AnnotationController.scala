@@ -197,6 +197,7 @@ object AnnotationController extends Controller with Secured {
       val place =  { if (a.correctedGazetteerURI.isDefined) a.correctedGazetteerURI else a.gazetteerURI }
         .map(Seq(_)).getOrElse(Seq.empty[String])
               
+      val serializedBy = Agent("http://pelagios.org/recogito#version1.0", Some("Recogito Annotation Tool"))
       val offset = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
       val toponym = if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym
       
@@ -205,7 +206,7 @@ object AnnotationController extends Controller with Secured {
       
       val target = if (selector.isDefined) SpecificResource(thing, selector.get) else thing
           
-      val oa = OAnnotation(basePath + "annotations#" + idx, target, place = place, transcription = transcription)
+      val oa = OAnnotation(basePath + "annotations#" + idx, target, place = place, transcription = transcription, serializedBy = serializedBy)
     }}
 
     val out = new ByteArrayOutputStream()
