@@ -35,7 +35,7 @@
             <li class="disabled"><a href="#" title="There is no text available for this document" onclick="return false;">Text</a>
           } else {
             @if(texts.size == 1) {
-              <li><a href="@routes.ApplicationController.showTextAnnotationUI(texts(0)._1.id.get, None)">Text</a></li>  
+              <li><a href="@routes.ApplicationController.showTextAnnotationUI(texts(0)._1.id, None)">Text</a></li>  
             } else {
               <li><a href="#" id="dropdown-text-trigger" onclick="return false;">Text <span class="icon">&#xf0d7;</span></a>
             }          
@@ -48,7 +48,7 @@
         <div id="dropdown-text-menu">
           <ul>
             @for(text <- texts) {
-              <li><a href="@routes.ApplicationController.showTextAnnotationUI(text._1.id.get, None)">@text._2.getOrElse("[untitled]")</a></li>
+              <li><a href="@routes.ApplicationController.showTextAnnotationUI(text._1.id, None)">@text._2.getOrElse("[untitled]")</a></li>
             }
           </ul>
         </div>

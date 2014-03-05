@@ -88,7 +88,7 @@
           	    <td class="icons"> <!-- icons: map, public map, text -->
           	      @defining(GeoDocumentTexts.getTextForGeoDocument(doc.id.get)) { text =>
       	            @if(text.isDefined) {
-      	              <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(text.get.id.get, None)" title="Text Annotation">&#xf0f6;</a>
+      	              <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(text.get.id, None)" title="Text Annotation">&#xf0f6;</a>
       	            } else {
       	              <span class="icon"></span>
       	            }
@@ -128,7 +128,7 @@
       	            @if(text.isDefined) {
       	              <span class="icon"></span>
       	              <span class="icon"></span>
-      	              <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(text.get.id.get, None)" title="Text">&#xf0f6;</a>
+      	              <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(text.get.id, None)" title="Text">&#xf0f6;</a>
       	            }
       	          }
                 </td>

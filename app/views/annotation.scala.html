@@ -51,7 +51,7 @@
         <div id="dropdown-text-menu">
           <ul>
             @for(text <- texts) {
-              <li><a href="@routes.ApplicationController.showTextAnnotationUI(text._1.id.get, None)">@text._2.getOrElse("[untitled]")</a></li>
+              <li><a href="@routes.ApplicationController.showTextAnnotationUI(text._1.id, None)">@text._2.getOrElse("[untitled]")</a></li>
             }
           </ul>
         </div>

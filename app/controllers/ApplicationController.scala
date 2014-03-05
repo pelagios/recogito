@@ -44,13 +44,13 @@ object ApplicationController extends Controller with Secured with CTSClient {
     * 
     * @param text the internal ID of the text in the DB 
     */
-  def showTextAnnotationUI(text: Int, ctsURI: Option[String]) = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit request =>   
+  def showTextAnnotationUI(text: Option[Int], ctsURI: Option[String]) = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit request =>   
     // Warning: temporary (d'oh) hack for supporting CTS alongside stored texts
     val (someGDocText, somePlaintext, someAnnotations) = if (ctsURI.isDefined) {
       val annotations = Annotations.findBySource(ctsURI.get)
       (None, Some(getPlaintext(ctsURI.get)), Some(annotations))
     } else {
-      val gdocText = GeoDocumentTexts.findById(text)
+      val gdocText = GeoDocumentTexts.findById(text.get)
       val a = gdocText.map(txt => {
         if (gdocText.get.gdocPartId.isDefined) {
           Annotations.findByGeoDocumentPart(gdocText.get.gdocPartId.get)
