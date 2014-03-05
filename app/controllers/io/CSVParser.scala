@@ -1,11 +1,10 @@
 package controllers.io
 
+import java.util.UUID
 import models._
 import play.api.db.slick._
-import scala.io.Source
-import play.api.Logger
 import scala.collection.mutable.HashMap
-import java.util.UUID
+import scala.io.Source
 
 /** Utility object to convert CSV input data to Annotation objects.
   * 
@@ -82,7 +81,7 @@ class CSVParser {
     data.map(_.split(SEPARATOR, -1)).map(implicit fields => {
       Annotation(
           idxUUID.map(idx => UUID.fromString(fields(idx))).getOrElse(Annotation.newUUID),
-          gdocId,
+          Some(gdocId),
           getPartIdForTitle(gdocId, fields(idxGdocPart.get)),
           parseOptCol(idxStatus).map(AnnotationStatus.withName(_)).getOrElse(AnnotationStatus.NOT_VERIFIED),
           parseOptCol(idxToponym),

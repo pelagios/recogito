@@ -80,7 +80,7 @@ object AnnotationController extends Controller with Secured {
     val correctedOffset = (json \ "corrected_offset").as[Int]        
 
     val annotation = 
-      Annotation(Annotation.newUUID, -1, None, 
+      Annotation(Annotation.newUUID, None, None, 
                  AnnotationStatus.NOT_VERIFIED, None, None, None, 
                  Some(correctedToponym), Some(correctedOffset), source = Some(source))
 
@@ -114,7 +114,7 @@ object AnnotationController extends Controller with Secured {
         val correctedOffset = (json \ "corrected_offset").as[Int]        
 
         val annotation = 
-          Annotation(Annotation.newUUID, gdocId_verified.get, gdocPart.map(_.id).flatten, 
+          Annotation(Annotation.newUUID, gdocId_verified, gdocPart.map(_.id).flatten, 
                      AnnotationStatus.NOT_VERIFIED, None, None, None, 
                      Some(correctedToponym), Some(correctedOffset))
           

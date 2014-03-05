@@ -68,7 +68,7 @@ class CSVSerializer {
       if (partSource.isDefined) {
         partSource
       } else {
-        getDocument(annotation.gdocId).map(_.source).flatten
+        annotation.gdocId.map(id => getDocument(id)).flatten.map(_.source).flatten
       }
     }    
   }

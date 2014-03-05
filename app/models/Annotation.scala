@@ -16,7 +16,7 @@ case class Annotation(
     uuid: UUID,
     
     /** Relation to the {{GeoDocument}} **/
-    gdocId: Int,
+    gdocId: Option[Int],
     
     /** Relation to the {{GeoDocumentPart}} (if gdoc has parts) **/
     gdocPartId: Option[Int],
@@ -86,7 +86,7 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
 
   def uuid = column[UUID]("uuid", O.PrimaryKey)
   
-  def gdocId = column[Int]("gdoc")
+  def gdocId = column[Int]("gdoc", O.Nullable)
   
   def gdocPartId = column[Int]("gdoc_part", O.Nullable)
   
@@ -112,7 +112,7 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
   
   def _seeAlso = column[String]("see_also", O.Nullable)
   
-  def * = uuid ~ gdocId ~ gdocPartId.? ~ status ~ toponym.? ~ offset.? ~ gazetteerURI.? ~ correctedToponym.? ~ 
+  def * = uuid ~ gdocId.? ~ gdocPartId.? ~ status ~ toponym.? ~ offset.? ~ gazetteerURI.? ~ correctedToponym.? ~ 
     correctedOffset.? ~ correctedGazetteerURI.? ~ tags.? ~ comment.?  ~ source.? ~ _seeAlso.? <> (Annotation.apply _, Annotation.unapply _)
     
   private val sortByOffset = { a: Annotation =>
@@ -193,8 +193,10 @@ object Annotations extends Table[Annotation]("annotations") with HasStatusColumn
     if (toponym.isDefined && offset.isDefined) {
       val all = if (annotation.gdocPartId.isDefined)
                   findByGeoDocumentPart(annotation.gdocPartId.get)
+                else if (annotation.gdocId.isDefined)
+                  findByGeoDocument(annotation.gdocId.get)
                 else
-                  findByGeoDocument(annotation.gdocId)
+                  findBySource(annotation.source.get)
                   
       all.filter(a => {
         val otherToponym = if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym

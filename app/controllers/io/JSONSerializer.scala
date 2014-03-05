@@ -53,9 +53,11 @@ object JSONSerializer {
                    if (a.gdocPartId.isDefined) {
                      val part = GeoDocumentParts.findById(a.gdocPartId.get)
                      part.map(_.source).flatten
-                   } else {
-                     val doc = GeoDocuments.findById(a.gdocId)
+                   } else if (a.gdocId.isDefined) {
+                     val doc = GeoDocuments.findById(a.gdocId.get)
                      doc.map(_.source).flatten
+                   } else {
+                     None
                    }
                  } else {
                    None
