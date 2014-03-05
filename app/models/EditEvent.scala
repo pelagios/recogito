@@ -5,6 +5,7 @@ import java.util.UUID
 import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
+import play.api.libs.json.Json
 
 /** Edit event case class.
   * 
@@ -40,7 +41,35 @@ case class EditEvent(
     updatedTags: Option[String],
     
     /** A comment **/
-    updatedComment: Option[String])
+    updatedComment: Option[String]
+    
+)  {
+  
+  lazy val annotationAfter: Option[Annotation] = {
+    if (annotationBefore.isEmpty) {
+      None
+      
+    } else {
+      val before = Json.parse(annotationBefore.get)
+      
+      val beforeToponym = (before \ "toponym").as[Option[String]]
+      val beforeStatus = (before \ "status").as[Option[String]].map(AnnotationStatus.withName(_))
+      val beforePlace = (before \ "place").as[Option[String]]
+      val beforePlaceFixed = (before \ "place_fixed").as[Option[String]]
+      val beforeTags = (before \ "tags").as[Option[String]]
+      val beforeComment = (before \ "comment").as[Option[String]]  
+    
+      val afterToponym = if (updatedToponym.isDefined) updatedToponym else beforeToponym
+      val afterStatus = if (updatedStatus.isDefined) updatedStatus else beforeStatus
+      val afterPlace = if (updatedURI.isDefined) updatedURI else if (beforePlaceFixed.isDefined) beforePlaceFixed else beforePlace
+      val afterTags = if (updatedTags.isDefined) updatedTags else beforeTags
+      val afterComment = if (updatedComment.isDefined) updatedComment else beforeComment
+      
+      Some(Annotation(annotationId, -1, None, afterStatus.get, afterToponym, None))
+    }
+  }
+  
+}
     
 /** Annotation database table **/
 object EditHistory extends Table[EditEvent]("edit_history") with HasStatusColumn {
@@ -73,6 +102,9 @@ object EditHistory extends Table[EditEvent]("edit_history") with HasStatusColumn
     
   def getLastN(n: Int)(implicit s: Session): Seq[EditEvent] =
     Query(EditHistory).sortBy(_.timestamp.desc).take(n).list
+    
+  def getLastN(n: Int, status: AnnotationStatus.Value*)(implicit s: Session): Seq[EditEvent] =
+    Query(EditHistory).sortBy(_.timestamp.desc).filter(_.updatedStatus inSet status).take(n).list 
     
   def countSince(time: Timestamp)(implicit s: Session): Int = 
     Query(EditHistory).where(_.timestamp > time).list.size

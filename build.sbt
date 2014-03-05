@@ -15,7 +15,8 @@ libraryDependencies ++= Seq(
   "org.apache.lucene" % "lucene-queryparser" % "4.4.0",
   "org.jsoup" % "jsoup" % "1.7.2",
   "com.typesafe.play" %% "play-slick" % "0.5.0.8",
-  "org.xerial" % "sqlite-jdbc" % "3.7.2"  
+  "org.xerial" % "sqlite-jdbc" % "3.7.2",
+  "rome" % "rome" % "1.0"          
 )
 
 /** Transient dependencies required by Scalagios
