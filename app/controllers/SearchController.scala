@@ -13,15 +13,11 @@ import models.{ Annotation, Annotations, AnnotationStatus }
   */
 object SearchController extends Controller {
   
-  private val UTF8 = "UTF-8"
-  
-  private val PLEIADES_PREFIX = "http://pleiades.stoa.org"
-
   private val DARE_PREFIX = "http://www.imperium.ahlfeldt.se/"
     
   def placeSearch(query: String) = Action {
     // A little hard-wired hack for Pleiades and DARE:
-    // We don't want DARE to appear in the results - but we want to use DARE coordinates instead of Pleiades where available
+    // We don't want DARE to appear in the results - but we want to use DARE coordinates where available
     val results = Global.index.query(query, true).filter(!_.uri.startsWith(DARE_PREFIX)).map(place => { 
       val coordinate = {
         val dareEquivalent = Global.index.getNetwork(place).places.filter(_.uri.startsWith(DARE_PREFIX))
