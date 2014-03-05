@@ -20,8 +20,7 @@ object Global extends GlobalSettings {
 
   import Database.threadLocalSession
   
-  private val DATA_PLEIADES = "gazetteer/pleiades-20120826-migrated.ttl.gz"
-  private val DATA_DARE = "gazetteer/dare-20131210.ttl.gz"
+  private val GAZETTEER_DIR = "gazetteer"
   
   private val INDEX_DIR = "index"
     
@@ -32,15 +31,20 @@ object Global extends GlobalSettings {
     if (idx.isEmpty) {
       Logger.info("Building new index")
       
-      Logger.info("Loading Pleiades data")
-      val pleiades = Scalagios.readPlaces(new GZIPInputStream(new FileInputStream(DATA_PLEIADES)), "http://pleiades.stoa.org/", RDFFormat.TURTLE)
-      Logger.info("Inserting " + pleiades.size + " Pleiades places into index")
-      idx.addPlaces(pleiades)
-    
-      Logger.info("Loading DARE data")
-      val dare = Scalagios.readPlaces(new GZIPInputStream(new FileInputStream(DATA_DARE)), "http://imperium.ahlfeldt.se/", RDFFormat.TURTLE)
-      Logger.info("Inserting " + dare.size +" DARE places into index") 
-      idx.addPlaces(dare)
+      val dumps = Play.current.configuration.getString("recogito.gazetteers")
+        .map(_.split(",").toSeq).getOrElse(Seq.empty[String]).map(_.trim)
+        
+      dumps.foreach(f => {
+        Logger.info("Loading gazetteer dump: " + f)
+        val is = if (f.endsWith(".gz"))
+            new GZIPInputStream(new FileInputStream(new File(GAZETTEER_DIR, f)))
+          else
+            new FileInputStream(new File(GAZETTEER_DIR, f))
+        
+        val places = Scalagios.readPlaces(is, "http://pelagios.org/", RDFFormat.TURTLE)
+        Logger.info("Inserting " + places.size + " places into index")
+        idx.addPlaces(places)
+      })
       
       Logger.info("Index complete")      
     }
