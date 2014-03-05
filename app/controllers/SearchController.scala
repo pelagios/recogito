@@ -21,7 +21,7 @@ object SearchController extends Controller {
     
   def placeSearch(query: String) = Action {
     // For search, we're restricting to Pleiades URIs only
-    val results = Global.index.query(query, true).filter(_.uri.startsWith(PLEIADES_PREFIX)).map(place => { 
+    val results = Global.index.query(query, true).filter(result => result.uri.startsWith(PLEIADES_PREFIX) || result.uri.startsWith("http://www.alraqmiyyat.org/")).map(place => { 
       // We use DARE coordinates if we have them
       val coordinate = place.map(place => {
         val dareEquivalent = Global.index.getNetwork(place).places.filter(_.uri.startsWith(DARE_PREFIX))

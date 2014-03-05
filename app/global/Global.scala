@@ -41,8 +41,9 @@ object Global extends GlobalSettings {
           else
             new FileInputStream(new File(GAZETTEER_DIR, f))
         
-        val places = Scalagios.readPlaces(is, "http://pelagios.org/", RDFFormat.TURTLE)
-        Logger.info("Inserting " + places.size + " places into index")
+        val places = Scalagios.readPlaces(is, "http://pelagios.org/", RDFFormat.TURTLE).toSeq
+        val names = places.flatMap(_.names)
+        Logger.info("Inserting " + places.size + " places with " + names.size + " names into index")
         idx.addPlaces(places)
       })
       

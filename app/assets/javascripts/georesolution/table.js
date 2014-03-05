@@ -411,7 +411,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
           else
             return '<span title="Place has no coordinates" class="icon no-coords">&#xf041;</span>' + formatted;
         } else {
-          return value;
+          return value.title;
         }
       }
     },
