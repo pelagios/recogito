@@ -22,7 +22,7 @@ DELETE  /recogito/api/documents/:id           controllers.DocumentController.del
 # Annotations
 POST    /recogito/api/annotations             controllers.AnnotationController.create
 GET     /recogito/api/annotations/:id         controllers.AnnotationController.get(id: java.util.UUID)
-GET     /recogito/api/annotations             controllers.AnnotationController.forSource(source: String)
+GET     /recogito/api/annotations             controllers.AnnotationController.forSource(ctsURI: String)
 PUT     /recogito/api/annotations/:id         controllers.AnnotationController.updateSingle(id: java.util.UUID)
 PUT     /recogito/api/annotations/            controllers.AnnotationController.updateBatch()
 DELETE  /recogito/api/annotations/:id         controllers.AnnotationController.delete(id: java.util.UUID)

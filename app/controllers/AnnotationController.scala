@@ -19,6 +19,10 @@ import java.io.ByteArrayOutputStream
 import org.pelagios.Scalagios
 import org.openrdf.rio.RDFFormat
 import org.pelagios.api.Agent
+import org.pelagios.api.Transcription
+import org.pelagios.api.TranscriptionType
+import org.pelagios.api.selectors.TextOffsetSelector
+import org.pelagios.api.SpecificResource
 
 /** Annotation CRUD controller.
   *
@@ -192,10 +196,16 @@ object AnnotationController extends Controller with Secured {
     Annotations.findBySource(source).zipWithIndex.foreach{ case (a, idx) => {
       val place =  { if (a.correctedGazetteerURI.isDefined) a.correctedGazetteerURI else a.gazetteerURI }
         .map(Seq(_)).getOrElse(Seq.empty[String])
-        
-      val contributors = EditHistory.findByAnnotation(a.uuid).groupBy(_.username).keys
+              
+      val offset = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
+      val toponym = if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym
       
-      val oa = OAnnotation(basePath + "annotations#" + idx, thing, place = place)
+      val transcription = toponym.map(t => Transcription(t, TranscriptionType.Toponym))
+      val selector = offset.map(offset => TextOffsetSelector(offset, toponym.get.size))
+      
+      val target = if (selector.isDefined) SpecificResource(thing, selector.get) else thing
+          
+      val oa = OAnnotation(basePath + "annotations#" + idx, target, place = place, transcription = transcription)
     }}
 
     val out = new ByteArrayOutputStream()
