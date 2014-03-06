@@ -23,6 +23,7 @@ import org.pelagios.api.Transcription
 import org.pelagios.api.TranscriptionType
 import org.pelagios.api.selectors.TextOffsetSelector
 import org.pelagios.api.SpecificResource
+import global.Global
 
 /** Annotation CRUD controller.
   *
@@ -111,11 +112,19 @@ object AnnotationController extends Controller with Secured {
       } else {
         // Create new annotation
         val correctedToponym = (json \ "corrected_toponym").as[String]
-        val correctedOffset = (json \ "corrected_offset").as[Int]        
-
+        val correctedOffset = (json \ "corrected_offset").as[Int]   
+        
+        val automatch = { 
+          val matches = Global.index.query(correctedToponym, true)
+          if (matches.size > 0)
+            Some(matches.head)
+          else
+            None
+        }
+        
         val annotation = 
           Annotation(Annotation.newUUID, gdocId_verified, gdocPart.map(_.id).flatten, 
-                     AnnotationStatus.NOT_VERIFIED, None, None, None, 
+                     AnnotationStatus.NOT_VERIFIED, None, None, automatch.map(_.uri), 
                      Some(correctedToponym), Some(correctedOffset))
           
         if (!isValid(annotation)) {

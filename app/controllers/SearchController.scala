@@ -17,21 +17,23 @@ object SearchController extends Controller {
     
   def placeSearch(query: String) = Action {
     // A little hard-wired hack for Pleiades and DARE:
-    // We don't want DARE to appear in the results - but we want to use DARE coordinates where available
+    // We don't want DARE to appear in the results. BUT:
+    //  (i)  we want to use DARE coordinates instead of Pleiades if available
+    //  (ii) we want to use DARE names in addition to Pleiades
     val results = Global.index.query(query, true).filter(!_.uri.startsWith(DARE_PREFIX)).map(place => { 
-      val coordinate = {
+      val (coordinate, names) = {
         val dareEquivalent = Global.index.getNetwork(place).places.filter(_.uri.startsWith(DARE_PREFIX))
         if (dareEquivalent.size > 0) {
-          dareEquivalent(0).getCentroid
+          (dareEquivalent(0).getCentroid, place.names ++ dareEquivalent(0).names)
         } else {
-          place.getCentroid
+          (place.getCentroid, place.names)
         }
       }
       
       Json.obj(
         "uri" -> place.uri,
         "title" -> place.title,
-        "names" -> place.names.map(_.labels).flatten.map(_.label).mkString(", "),
+        "names" -> names.map(_.labels).flatten.map(_.label).mkString(", "),
         "category" -> place.category.map(_.toString),
         "coordinate" -> coordinate.map(coords => Json.toJson(Seq(coords.y, coords.x)))
     )})

@@ -83,7 +83,7 @@ define(['georesolution/common'], function(common) {
      * Generates a view of a search result by rendering an HTML table row and attach a marker to the map
      * @param {Object} result the search result
      * @param {Object!} opt_style the map marker style
-    */
+     */
     var displaySearchResult = function(result, opt_style) {
       var category = (result.category) ? common.Utils.formatCategory(result.category) : 'uncategorized';
       var warning = (result.coordinate) ? '<td></td>' : '<td><span title="Place has no coordinates" class="icon no-coords">&#xf041;</span></td>'     
@@ -338,8 +338,8 @@ define(['georesolution/common'], function(common) {
               markers.push(displayedResult.marker);
           });
         
-          if (html.length == 0) {
-            $('#details-content-searchresults').html('<p>No results for &quot;' + response.query + '</p>');
+          if (html.length == 0) {       
+            $('#details-content-searchresults').html('»<tr><td>No results for &quot;' + response.query + '«</td></tr>');
           } else {
             $('#details-content-searchresults').append(html);
           }
