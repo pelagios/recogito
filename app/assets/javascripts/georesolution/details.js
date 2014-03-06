@@ -87,7 +87,7 @@ define(['georesolution/common'], function(common) {
     var displaySearchResult = function(result, opt_style) {
       var category = (result.category) ? common.Utils.formatCategory(result.category) : 'uncategorized';
       var warning = (result.coordinate) ? '<td></td>' : '<td><span title="Place has no coordinates" class="icon no-coords">&#xf041;</span></td>'     
-      var tr = $('<tr><td>' + common.Utils.categoryTag(result.category) + '</td>' + warning + '<td><a href="javascript:void(0);" title="' + category + '" class="details-content-candidate-link">' + result.title + '</a></td><td>' + result.names + '</td></tr>');
+      var tr = $('<tr><td>' + common.Utils.categoryTag(result.category) + '</td>' + warning + '<td><a href="javascript:void(0);" title="' + category + '" class="details-content-candidate-link">' + result.title + '</a></td><td>' + result.description + '</td></tr>');
       var marker = undefined;
       if (result.coordinate) {
         if (opt_style)
@@ -359,19 +359,19 @@ define(['georesolution/common'], function(common) {
    * @private
    */
   DetailsPopup.prototype._initMap = function(mapDiv) {  
-    /* var baseLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
+    var baseLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
       attribution: 'Tiles: <a href="http://pelagios.org/maps/greco-roman/about.html">Pelagios</a>, 2012'
-    }); */
+    }); 
     
-    var awmcLayer = L.tileLayer('http://a.tiles.mapbox.com/v3/isawnyu.map-knmctlkh/{z}/{x}/{y}.png', {
+    /* var awmcLayer = L.tileLayer('http://a.tiles.mapbox.com/v3/isawnyu.map-knmctlkh/{z}/{x}/{y}.png', {
       attribution: 'Tiles &copy; <a href="http://mapbox.com/" target="_blank">MapBox</a> | ' +
                    'Data &copy; <a href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> and contributors, CC-BY-SA | '+
                    'Tiles and Data &copy; 2013 <a href="http://www.awmc.unc.edu" target="_blank">AWMC</a> ' +
                    '<a href="http://creativecommons.org/licenses/by-nc/3.0/deed.en_US" target="_blank">CC-BY-NC 3.0</a>'
-    });
+    });*/
   
     var map = new L.Map(mapDiv, {
-      layers: [/* baseLayer, */ awmcLayer],
+      layers: [ baseLayer ],
       minZoom: 3,
       maxZoom: 11
     });

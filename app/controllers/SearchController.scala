@@ -6,6 +6,9 @@ import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.Json
 import play.api.Play.current
 import models.{ Annotation, Annotations, AnnotationStatus }
+import org.pelagios.gazetteer.PlaceDocument
+import org.pelagios.gazetteer.Network
+import org.pelagios.api.Place
 
 /** Toponym search API controller.
   *
@@ -14,33 +17,58 @@ import models.{ Annotation, Annotations, AnnotationStatus }
 object SearchController extends Controller {
   
   private val DARE_PREFIX = "http://www.imperium.ahlfeldt.se/"
+  private val PLEIADES_PREFIX = "http://pleiades.stoa.org"
+    
+  private def conflateNetwork(network: Network) = {
+    if (network.places.size == 1) {
+      val place = network.places.head
+      Json.obj(
+        "uri" -> place.uri,
+        "title" -> place.title,
+        "names" -> place.names.map(_.label).mkString(", "),
+        "description" -> place.descriptions.map(_.label).mkString(", "),
+        "category" -> place.category.map(_.toString),
+        "coordinate" -> place.getCentroid.map(coords => Json.toJson(Seq(coords.y, coords.x))))
+    } else {
+      val head = network.places.head
+      val tail = network.places.tail
+      
+      // We prefer DARE coordinates (if we have them) because of our background map
+      val coordinate = {
+        val dare = network.places.filter(_.uri.startsWith(DARE_PREFIX))
+        if (dare.size > 0)
+          dare.head.getCentroid
+        else
+          head.getCentroid
+      }
+      
+      // We prefer the Pleiades description (if we have it)
+      val descriptions = {
+        val pleiades = network.places.filter(_.uri.startsWith(PLEIADES_PREFIX))
+        if (pleiades.size > 0)
+          pleiades.head.descriptions
+        else
+          head.descriptions 
+      }
+      
+      Json.obj(
+        "uri" -> head.uri,
+        "title" -> head.title,
+        "names" -> (head.names ++ tail.flatMap(_.names)).map(_.label).mkString(", "),
+        "description" -> descriptions.map(_.label).mkString(", "),
+        "category" -> head.category.map(_.toString),
+        "coordinate" -> coordinate.map(coords => Json.toJson(Seq(coords.y, coords.x))))
+    }
+  }
     
   def placeSearch(query: String) = Action {
     // A little hard-wired hack for Pleiades and DARE:
     // We don't want DARE to appear in the results. BUT:
     //  (i)  we want to use DARE coordinates instead of Pleiades if available
     //  (ii) we want to use DARE names in addition to Pleiades
-    val results = Global.index.query(query, true).filter(!_.uri.startsWith(DARE_PREFIX)).map(place => { 
-      val (coordinate, names) = {
-        val dareEquivalent = Global.index.getNetwork(place).places.filter(_.uri.startsWith(DARE_PREFIX))
-        if (dareEquivalent.size > 0) {
-          (dareEquivalent(0).getCentroid, place.names ++ dareEquivalent(0).names)
-        } else {
-          (place.getCentroid, place.names)
-        }
-      }
-      
-      Json.obj(
-        "uri" -> place.uri,
-        "title" -> place.title,
-        "names" -> names.map(_.labels).flatten.map(_.label).mkString(", "),
-        "category" -> place.category.map(_.toString),
-        "coordinate" -> coordinate.map(coords => Json.toJson(Seq(coords.y, coords.x)))
-    )})
-    
-    Ok(Json.obj(
-      "query" -> query,     "results" -> Json.toJson(results))
-    )
+    val networks = Global.index.query(query, true).map(Global.index.getNetwork(_)).toSet    
+    val results = networks.map(conflateNetwork(_))
+    Ok(Json.obj("query" -> query, "results" -> Json.toJson(results)))
   }
 
 }
