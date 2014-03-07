@@ -9,6 +9,7 @@ import play.api.Play.current
 import play.api.libs.json.JsValue
 import play.api.db.slick.DBSessionRequest
 import scala.slick.session.Session
+import models.User
 
 /** Authentication based on username & password.
   *
@@ -36,7 +37,8 @@ object AuthController extends Controller {
     Global.database.withSession { implicit s: Session =>
       val user = Users.findByUsername(username)
       if (user.isDefined) {
-        user.get.password.equals(password)
+        val hash = User.computeHash(user.get.salt + password)
+        user.get.hash.equals(hash)
       } else {
         false
       }

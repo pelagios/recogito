@@ -1,5 +1,6 @@
 package global
 
+import akka.actor.Cancellable
 import models._
 import java.io.{ File, FileInputStream }
 import java.util.zip.GZIPInputStream
@@ -13,7 +14,6 @@ import play.api.db.DB
 import play.api.db.slick.Config.driver.simple._
 import scala.slick.session.Database
 import scala.slick.jdbc.meta.MTable
-import akka.actor.Cancellable
 
 /** Play Global object **/
 object Global extends GlobalSettings {
