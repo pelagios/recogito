@@ -10,6 +10,9 @@ GET     /recogito/login                       controllers.AuthController.login
 POST    /recogito/login                       controllers.AuthController.authenticate
 GET     /recogito/logout                      controllers.AuthController.logout
 
+# User
+GET     /recogito/signup                      controllers.UserController.signup
+POST    /recogito/signup                      controllers.UserController.processSignup
 
 # API
 # ~~~~

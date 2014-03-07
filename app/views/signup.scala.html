@@ -1,0 +1,38 @@
+@(form: Form[controllers.UserData])(implicit flash: Flash)
+
+<html>
+  <head>
+    <title>Recogito - Sign Up</title>
+  </head>
+  
+  <body>      
+    @helper.form(routes.UserController.processSignup) {          
+      <h1>Sign Up</h1>
+            
+      @form.globalError.map { error =>
+        <p class="error">
+          @error.message
+        </p>
+      }
+            
+      @flash.get("success").map { message =>
+        <p class="success">
+          @message
+        </p>
+      }
+            
+      <p>
+        <input name="username" placeholder="Username" id="username" value="@form("username").value">
+      </p>
+      <p>
+        <input type="password" name="password" id="password" placeholder="Password">
+      </p>
+      <p>
+        <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Confirm Password">
+      </p>
+      <p>
+        <button type="submit" id="loginbutton">Sign Up</button>
+      </p>      
+    }       
+  </body>
+</html>
