@@ -42,17 +42,17 @@ object SearchController extends Controller {
           head.getCentroid
       }
       
-      // We prefer the Pleiades description (if we have it)
-      val descriptions = {
+      // We prefer Pleiades URI and description (if we have it)
+      val (uri, descriptions) = {
         val pleiades = network.places.filter(_.uri.startsWith(PLEIADES_PREFIX))
         if (pleiades.size > 0)
-          pleiades.head.descriptions
+          (pleiades.head.uri, pleiades.head.descriptions)
         else
-          head.descriptions 
+          (head.uri, head.descriptions) 
       }
       
       Json.obj(
-        "uri" -> head.uri,
+        "uri" -> uri,
         "title" -> head.title,
         "names" -> (head.names ++ tail.flatMap(_.names)).map(_.label).mkString(", "),
         "description" -> descriptions.map(_.label).mkString(", "),
@@ -62,10 +62,6 @@ object SearchController extends Controller {
   }
     
   def placeSearch(query: String) = Action {
-    // A little hard-wired hack for Pleiades and DARE:
-    // We don't want DARE to appear in the results. BUT:
-    //  (i)  we want to use DARE coordinates instead of Pleiades if available
-    //  (ii) we want to use DARE names in addition to Pleiades
     val networks = Global.index.query(query, true).map(Global.index.getNetwork(_)).toSet    
     val results = networks.map(conflateNetwork(_))
     Ok(Json.obj("query" -> query, "results" -> Json.toJson(results)))
