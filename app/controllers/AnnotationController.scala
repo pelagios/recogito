@@ -202,21 +202,20 @@ object AnnotationController extends Controller with Secured {
     val basePath = routes.ApplicationController.index.absoluteURL(false)
     val thing = AnnotatedThing(basePath + "egd", source)
     
-    Annotations.findBySource(source).zipWithIndex.foreach{ case (a, idx) => {
+    Annotations.findBySource(source).foreach(a => {
       val place =  { if (a.correctedGazetteerURI.isDefined) a.correctedGazetteerURI else a.gazetteerURI }
         .map(Seq(_)).getOrElse(Seq.empty[String])
               
       val serializedBy = Agent("http://pelagios.org/recogito#version1.0", Some("Recogito Annotation Tool"))
       val offset = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
       val toponym = if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym
-      
       val transcription = toponym.map(t => Transcription(t, TranscriptionType.Toponym))
       val selector = offset.map(offset => TextOffsetSelector(offset, toponym.get.size))
-      
       val target = if (selector.isDefined) SpecificResource(thing, selector.get) else thing
-          
-      val oa = OAnnotation(basePath + "annotations#" + idx, target, place = place, transcription = transcription, serializedBy = serializedBy)
-    }}
+      val uri = basePath + "api/annotations/" + a.uuid          
+      
+      val oa = OAnnotation(uri, target, place = place, transcription = transcription, serializedBy = serializedBy)
+    })
 
     val out = new ByteArrayOutputStream()
     Scalagios.writeAnnotations(Seq(thing), out, RDFFormat.RDFXML)
