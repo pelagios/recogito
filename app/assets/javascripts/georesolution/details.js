@@ -348,6 +348,8 @@ define(['georesolution/common'], function(common) {
         });
       }
     });
+    
+    $('.details-content-search-input').focus();
   }
 
   // Inheritance - not the nicest pattern but works for our case
