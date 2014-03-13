@@ -11,6 +11,7 @@ import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import play.api.Play.current
 import play.api.libs.json.Json
+import play.api.Logger
 
 /** Administration features.
   * 
@@ -95,6 +96,7 @@ object AdminController extends Controller with Secured {
       session.request.body.file("csv").map(filePart => {
         val parser = new CSVParser()
         val annotations = parser.parse(filePart.ref.file.getAbsolutePath, gdoc.get.id.get)
+        Logger.info("Importing " + annotations.size + " annotations to " + gdoc.get.title)
         Annotations.insertAll(annotations:_*)
       })
     }
