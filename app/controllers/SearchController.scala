@@ -62,6 +62,8 @@ object SearchController extends Controller {
   }
     
   def placeSearch(query: String) = Action {
+    // The .toSet ensures there are no duplicate entries - but it also looses ranking order
+    // TODO think of a better way to de-duplicate without losing order
     val networks = Global.index.query(query, true).map(Global.index.getNetwork(_)).toSet    
     val results = networks.map(conflateNetwork(_))
     Ok(Json.obj("query" -> query, "results" -> Json.toJson(results)))
