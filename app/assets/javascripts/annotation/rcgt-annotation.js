@@ -204,8 +204,7 @@ recogito.TextAnnotationUI.prototype.createAnnotation = function(msgTitle, msgDet
  * Updates an existing annotation.
  */
 recogito.TextAnnotationUI.prototype.updateAnnotation = function(msgTitle, msgDetails, toponym, x, y, offset, selectedRange, selection, annotationId) {
-  var self = this,
-       isValidSelection = true;
+  var self = this;
   
   var update = function() {
     // Store on server
@@ -248,12 +247,10 @@ recogito.TextAnnotationUI.prototype.updateAnnotation = function(msgTitle, msgDet
     selection.removeAllRanges();
   };
   
-  if (isValidSelection) {
-    if (this._powerUserMode)
-      update();
-    else 
-      this.openEditor(msgTitle, toponym, msgDetails, x, y, update);  
-  }
+  if (this._powerUserMode)
+    this.ifPlausible(toponym, x, y, function() { update(); });
+  else 
+    this.ifPlausible(toponym, x, y, function() { self.openEditor(msgTitle, toponym, msgDetails, x, y, update); });  
 }
 
 /**
