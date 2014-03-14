@@ -12,12 +12,24 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, opt_gdocPartId, opt_source
       getId = function(node) { return $(node).data('id'); };
    
   this._EDITOR_TEMPLATE = 
-    '<div class="annotation-editor">' + 
-    '  <div class="annotation-editor-header"></div>' +
-    '  <div class="annotation-editor-body">' +
-    '    <span class="annotation-editor-selection"></span>' +
-    '    <span class="annotation-editor-message"></span>' +
-    '    <div class="annotation-editor-buttons">' +
+    '<div class="annotation-dialog annotation-editor">' + 
+    '  <div class="header"></div>' +
+    '  <div class="body">' +
+    '    <span class="selection"></span>' +
+    '    <span class="message"></span>' +
+    '    <div class="buttons">' +
+    '      <button class="button blue button-ok">OK</button>' +
+    '      <button class="button grey button-cancel">Cancel</button>' +
+    '    </div>' +
+    '  </div>' +
+    '<div>';
+    
+  this._PLAUSIBILITY_WARNING_TEMPLATE =
+    '<div class="annotation-dialog">' +
+    '  <div class="header">WARNING</div>' +
+    '  <div class="body">' +
+    '    <span class="message"></span>' +
+    '    <div class="buttons">' +
     '      <button class="button blue button-ok">OK</button>' +
     '      <button class="button grey button-cancel">Cancel</button>' +
     '    </div>' +
@@ -163,7 +175,7 @@ recogito.TextAnnotationUI.prototype.normalizeSelection = function(textDiv, selec
  */
 recogito.TextAnnotationUI.prototype.createAnnotation = function(msgTitle, msgDetails, toponym, x, y, offset, selectedRange, skipBatchAnnotation) {  
   var self = this;
-  
+      	
   // If silentMode == true, the popup dialog won't open (used for batch annotation)
   var create = function(skipBatch) {    
     // Store on server
@@ -180,11 +192,11 @@ recogito.TextAnnotationUI.prototype.createAnnotation = function(msgTitle, msgDet
     if (!skipBatch)
       self.batchAnnotate(toponym); 
   };
-  
+
   if (msgTitle && msgDetails && !this._powerUserMode) {
-    this.openEditor(msgTitle, toponym, msgDetails, x, y, create);
+	this.ifPlausible(toponym, x, y, function() { self.openEditor(msgTitle, toponym, msgDetails, x, y, create); });
   } else {
-    create(skipBatchAnnotation);
+    this.ifPlausible(toponym, x, y, function() { create(skipBatchAnnotation); });
   }
 }
 
@@ -192,7 +204,8 @@ recogito.TextAnnotationUI.prototype.createAnnotation = function(msgTitle, msgDet
  * Updates an existing annotation.
  */
 recogito.TextAnnotationUI.prototype.updateAnnotation = function(msgTitle, msgDetails, toponym, x, y, offset, selectedRange, selection, annotationId) {
-  var self = this;
+  var self = this,
+       isValidSelection = true;
   
   var update = function() {
     // Store on server
@@ -235,10 +248,12 @@ recogito.TextAnnotationUI.prototype.updateAnnotation = function(msgTitle, msgDet
     selection.removeAllRanges();
   };
   
-  if (this._powerUserMode)
-    update();
-  else 
-    this.openEditor(msgTitle, toponym, msgDetails, x, y, update);  
+  if (isValidSelection) {
+    if (this._powerUserMode)
+      update();
+    else 
+      this.openEditor(msgTitle, toponym, msgDetails, x, y, update);  
+  }
 }
 
 /**
@@ -309,6 +324,32 @@ recogito.TextAnnotationUI.prototype.batchAnnotate = function(toponym) {
   }
 }
 
+
+recogito.TextAnnotationUI.prototype.ifPlausible = function(toponym, x, y, ok_callback) {
+  var error = false;
+  
+  if (toponym.length < 3)
+    error = 'Your selection is very short. ';
+  
+  var words = toponym.split(' '); 
+  if (words.length > 5)
+    error = 'Your selection is very long. ';
+  
+  if (!error) {
+    ok_callback();
+  } else {
+	// This selection was potentially made by mistake - we require extra confirmation
+	var dialog = $(this._PLAUSIBILITY_WARNING_TEMPLATE);
+
+    dialog.find('.message').html(error + 'Click OK if you really want to do this.');
+    dialog.appendTo(document.body);
+    dialog.css({ position: 'absolute', top: y + 'px', left: x + 'px' });
+    dialog.find('.button-ok').click(function() { ok_callback(); dialog.remove(); });
+    dialog.find('.button-cancel').focus().click(function() { dialog.remove(); });
+    dialog.draggable({ handle: dialog.find('.header') });
+  }
+}
+
 /**
  * Opens the editor, unless it is already open.
  */
@@ -317,17 +358,16 @@ recogito.TextAnnotationUI.prototype.openEditor = function(title, selection, msg,
     this._editor = $(this._EDITOR_TEMPLATE);
   
     var self = this,
-        e = $(this._editor),
-        header = e.find('.annotation-editor-header');
+        header = this._editor.find('.header');
       
     header.html(title);
-    e.find('.annotation-editor-selection').html(selection);
-    e.find('.annotation-editor-message').html(msg);
-    e.appendTo(document.body);
-    e.css({ position: 'absolute', top: y + 'px', left: x + 'px' });
-    e.find('.button-ok').focus().click(function() { ok_callback(); self.closeEditor(); });
-    e.find('.button-cancel').click(function() { self.closeEditor(); });
-    e.draggable({ handle: header });
+    this._editor.find('.selection').html(selection);
+    this._editor.find('.message').html(msg);
+    this._editor.appendTo(document.body);
+    this._editor.css({ position: 'absolute', top: y + 'px', left: x + 'px' });
+    this._editor.find('.button-ok').focus().click(function() { ok_callback(); self.closeEditor(); });
+    this._editor.find('.button-cancel').click(function() { self.closeEditor(); });
+    this._editor.draggable({ handle: header });
   }
 }
 

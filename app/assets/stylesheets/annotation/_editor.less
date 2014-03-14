@@ -1,53 +1,15 @@
 .annotation-editor {
-  position:absolute;
-  background-color:#fff;
-  width:300px;
-  -moz-box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
-  -webkit-box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
-  box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
-  z-index:9999;
   
-  .annotation-editor-header {
-    .gradient(#5a5a5a, #4f4f4f);
-    font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
-    font-size:16px;
-    padding:6px;
-    color:#fff;
-    text-shadow:1px 1px 1px #333;
-    cursor:move;
-    border-width:1px 1px 0px 1px;
-    border-style:solid;
-    border-color:#6f6f6f;
-  }
-  
-  .annotation-editor-body {
-    text-align:center;
-    padding:0px 10px;
-    border-width:0px 1px 1px 1px;
-    border-style:solid;
-    border-color:#c2c2c2;
-    
-    .annotation-editor-selection {
+  .body {
+
+    .selection {
       display:inline-block;
       padding:2px;
-      margin:15px auto 10px auto;
+      margin:15px auto 0 auto;
       background-color:#f2ee00;
       border-bottom:1px dotted #99940b;
     }
-
-    .annotation-editor-message {
-      display:block;
-      font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif;
-      font-size:14px;
-      margin:0 5px 10px 5px;
-      line-height:140%;
-    }
     
-  } /* .annotation-editor-body */
-  
-  .annotation-editor-buttons {
-    text-align:center;
-    padding:5px 15px 15px 15px;
-  }
+  } /* .body */
   
 }
