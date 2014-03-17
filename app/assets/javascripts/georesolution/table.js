@@ -164,6 +164,20 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
       self._grid.invalidate();
       self.fireEvent('update', annotation);
     });
+    
+    popup.on('skip-prev', function() {
+      if (idx > 0) {
+        popup.destroy();
+        self._openDetailsPopup(idx - 1); 
+      }
+    });
+    
+    popup.on('skip-next', function() {
+      if (idx < self._grid.getDataLength() - 1) {
+        popup.destroy();
+        self._openDetailsPopup(idx + 1);
+      }
+    });
   };
 
   /**

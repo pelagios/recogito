@@ -22,7 +22,11 @@ define(['georesolution/common'], function(common) {
           '    <div class="popup-header">' +
           '      »<span class="details-header-toponym"></span>«' +
           '      <span class="details-header-source">  <span class="details-header-source-label"></span></span>' + 
-          '      <a class="popup-exit">&#xf00d;</a>' +
+          '      <span class="popup-header-icons">' + 
+          '        <a class="details-skip-prev icon" title="Skip to Previous Toponym">&#xf0d9;</a>' + 
+          '        <a class="details-skip-next icon" title="Skipt to Next Toponym">&#xf0da;</a>' +
+          '        <a class="popup-exit" title="Close">&#xf00d;</a>' + 
+          '      </span>' +
           '    </div>' +
           '    <div class="popup-content">' +
           
@@ -142,6 +146,15 @@ define(['georesolution/common'], function(common) {
     // Populate the template
     $('.popup-exit').click(function() { self.destroy(); });
     $('.details-header-toponym').html(annotation.toponym);
+    $('.details-skip-prev').click(function() { self.fireEvent('skip-prev'); });
+    $('.details-skip-next').click(function() { self.fireEvent('skip-next'); });
+    
+    $('.details').keydown(function(e) {
+      if (e.keyCode == 37)
+        self.fireEvent('skip-prev');
+      else if (e.keyCode == 39)
+        self.fireEvent('skip-next');
+    });
     
     var sourceLabel = '';
     if (annotation.part)
