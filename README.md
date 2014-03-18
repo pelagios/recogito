@@ -15,7 +15,7 @@ A Web-based tool for validating &amp; correcting geo-resolution results.
 
 ## Importing Documents
 
-To work with Recogito, you first need to import data. The sample database included with this project contains a single user with admin rights. Log
+To work with Recogito, you first need to import data. The sample SQLite database included with this project contains a single user with admin rights. Log
 in with this user (username = admin, password = admin) and go to [http://localhost:9000/recogito/admin](http://localhost:9000/recogito/admin).
 You should see an "Upload" button which allows you to upload a ZIP file containing (UTF-8 encoded) plaintexts and accompanying document metadata.  
 

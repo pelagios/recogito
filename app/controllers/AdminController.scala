@@ -12,13 +12,15 @@ import play.api.db.slick.Config.driver.simple._
 import play.api.Play.current
 import play.api.libs.json.Json
 import play.api.Logger
+import controllers.io.ZipExporter
+import scala.io.Source
 
 /** Administration features.
   * 
   * @author Rainer Simon <rainer.simon@ait.ac.at>
   */
 object AdminController extends Controller with Secured {
-  
+    
   /** Admin index page **/
   def index = adminAction { username => implicit session =>
     Ok(views.html.admin())
@@ -110,6 +112,18 @@ object AdminController extends Controller with Secured {
   def dropAnnotations(doc: Int) = adminAction { username => implicit session =>
     Annotations.deleteForGeoDocument(doc)
     Redirect(routes.AdminController.index)
+  }
+  
+  def downloadPackage(gdocId: Int) = protectedDBAction(Secure.REJECT) { username => implicit session =>
+    val gdoc = GeoDocuments.findById(gdocId)
+    if (gdoc.isDefined) {
+      val file = new ZipExporter().exportGDoc(gdoc.get)
+      val bytes = Source.fromFile(file.file)(scala.io.Codec.ISO8859).map(_.toByte).toArray
+      file.finalize()
+      Ok(bytes).withHeaders(CONTENT_TYPE -> "application/zip", CONTENT_DISPOSITION -> ({ "attachment; filename=" + file.file.getName() }))
+    } else {
+      NotFound
+    }
   }
   
 }
