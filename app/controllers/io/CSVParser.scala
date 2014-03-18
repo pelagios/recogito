@@ -20,8 +20,11 @@ class CSVParser extends BaseParser {
     * @param file the CSV file path
     * @param gdocId the database ID of the GeoDocument to import to
     */
-  def parse(file: String, gdocId: Int)(implicit s: Session): Seq[Annotation] = {
-    val data = Source.fromFile(file).getLines    
+  def parse(file: String, gdocId: Int)(implicit s: Session): Seq[Annotation] =
+    parse(Source.fromFile(file), gdocId)
+    
+  def parse(source: Source, gdocId: Int)(implicit s: Session): Seq[Annotation] = {
+    val data = source.getLines    
     val header = data.take(1).toSeq.head.split(SEPARATOR, -1).toSeq 
     
     // Helper method to find the row index for a specific label

@@ -35,7 +35,7 @@ class CSVSerializer extends BaseSerializer {
         val coord = queryResult.map(_._2).flatten
         
         csv + 
-        toponym.getOrElse("") + SEPARATOR + 
+        esc(toponym.getOrElse("")) + SEPARATOR + 
         GazetteerUtils.normalizeURI(uri.get) + SEPARATOR + 
         coord.map(_.y).getOrElse("") + SEPARATOR +
         coord.map(_.x).getOrElse("") + SEPARATOR +
@@ -73,21 +73,23 @@ class CSVSerializer extends BaseSerializer {
       annotation.uuid + SEPARATOR +
       annotation.gdocPartId.map(getPart(_).map(_.title)).flatten.getOrElse("") + SEPARATOR +
       annotation.status + SEPARATOR +
-      annotation.toponym.getOrElse("") + SEPARATOR +
+      esc(annotation.toponym.getOrElse("")) + SEPARATOR +
       annotation.offset.getOrElse("") + SEPARATOR +
       annotation.gazetteerURI.map(GazetteerUtils.normalizeURI(_)).getOrElse("") + SEPARATOR +
       coordinate.map(c => c.x + "," + c.y).getOrElse("") + SEPARATOR +
       placeCategory.map(_.toString).getOrElse("") + SEPARATOR +
-      annotation.correctedToponym.getOrElse("") + SEPARATOR +
+      esc(annotation.correctedToponym.getOrElse("")) + SEPARATOR +
       annotation.correctedOffset.getOrElse("") + SEPARATOR +
       annotation.correctedGazetteerURI.map(GazetteerUtils.normalizeURI(_)).getOrElse("") + SEPARATOR +
       correctedCoordinate.map(c => c.x + "," + c.y).getOrElse("") + SEPARATOR +
       correctedPlaceCategory.map(_.toString).getOrElse("") + SEPARATOR +
-      annotation.tags.getOrElse("") + SEPARATOR +
-      annotation.comment.getOrElse("") + SEPARATOR +
+      esc(annotation.tags.getOrElse("")) + SEPARATOR +
+      esc(annotation.comment.getOrElse("")) + SEPARATOR +
       annotation.seeAlso.mkString(",") + SEPARATOR +
       "\n"
     })
   }
+  
+  private def esc(field: String) = field.replace(SEPARATOR, "\\" + SEPARATOR)
 
 }
