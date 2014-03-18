@@ -24,19 +24,24 @@ object ZipImporter {
     jsonDescriptions.foreach(str => {
       val json = Json.parse(str)
       val docTitle = (json \ "title").as[String]
+      val docAuthor = (json \ "author").as[Option[String]]
+      val docDate = (json \ "date").as[Option[Int]]
+      val docDateComment = (json \ "date_comment").as[Option[String]]
       val docDescription = (json \ "description").as[Option[String]]
+      val docLanguage = (json \ "language").as[Option[String]]
       val docSource = (json \ "source").as[Option[String]]
+      val docText = (json \ "text").as[Option[String]]
       val docParts = (json \ "parts").as[Option[List[JsObject]]]
-      val text = (json \ "text").as[Option[String]]
       
       // Insert the document
       val gdocId = GeoDocuments returning GeoDocuments.id insert
-        (GeoDocument(None, None, docTitle, None, None, None, docDescription, docSource))
+        GeoDocument(None, docAuthor, docTitle, docDate, docDateComment, docLanguage, docDescription, docSource)
       
       // Insert text (if any)
-      if (text.isDefined)
-        importText(zipFile, text.get, gdocId, None)
+      if (docText.isDefined)
+        importText(zipFile, docText.get, gdocId, None)
       
+      // Insert parts
       if (docParts.isDefined) {
         docParts.get.foreach(docPart => {
           val partTitle = (docPart \ "title").as[String]
