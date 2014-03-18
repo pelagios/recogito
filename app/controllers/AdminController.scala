@@ -117,10 +117,11 @@ object AdminController extends Controller with Secured {
   def downloadPackage(gdocId: Int) = protectedDBAction(Secure.REJECT) { username => implicit session =>
     val gdoc = GeoDocuments.findById(gdocId)
     if (gdoc.isDefined) {
-      val file = new ZipExporter().exportGDoc(gdoc.get)
+      val exporter = new ZipExporter()
+      val file = exporter.exportGDoc(gdoc.get)
       val bytes = Source.fromFile(file.file)(scala.io.Codec.ISO8859).map(_.toByte).toArray
       file.finalize()
-      Ok(bytes).withHeaders(CONTENT_TYPE -> "application/zip", CONTENT_DISPOSITION -> ({ "attachment; filename=" + file.file.getName() }))
+      Ok(bytes).withHeaders(CONTENT_TYPE -> "application/zip", CONTENT_DISPOSITION -> ({ "attachment; filename=" + exporter.titleToFilename(gdoc.get.title) }))
     } else {
       NotFound
     }
