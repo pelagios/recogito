@@ -34,7 +34,7 @@ application.global=global.Global
 # By convention, the default datasource is named `default`
 #
 db.default.driver="org.sqlite.JDBC"
-db.default.url="jdbc:sqlite:db/grct.db"
+db.default.url="jdbc:sqlite:db/sample.db"
 db.default.user="sa"
 db.default.password=""
 

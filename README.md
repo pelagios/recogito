@@ -6,13 +6,18 @@ A Web-based tool for validating &amp; correcting geo-resolution results.
 
 * Install the [Play Framework v2.2.1](http://www.playframework.com/download).
 * Recogito depends on the _scalagios-core_ and _scalagios-gazetteer_ utility libraries from the [Scalagios](http://github.com/pelagios/scalagios)
-  project. These are not yet available through a Maven repository. You need to add them manually to a `lib` folder in the project root.
-* Start Recogito using `play start` or `play "start {portnumber}"`.  
+  project. These are not yet available through a Maven repository. You need to add them manually to a `lib` folder in the `recogito` root folder.
+* Create a copy of the file `conf/application.conf.template` named `conf/application.conf`, and adapt the settings according to your environment.
+  (For the most part, the default settings should be fine.)
+* Start Recogito using `play start` (to start on the default port) or `play "start {portnumber}"` for a custom port.  
+* Go to [http://localhost:9000/recogito](http://localhost:9000/recogito) (change the port number accordingly if you're running on a custom port).
+  You should see the Recogito landing page, with a login button.
 
 ## Importing Documents
 
-To work with Recogito, you first need to import data. The _admin_ area includes a facility to upload a ZIP file with document metadata and 
-accompanying UTF-8 plaintext files.
+To work with Recogito, you first need to import data. The sample database included with this project contains a single user with admin rights. Log
+in with this user (username = admin, password = admin) and go to [http://localhost:9000/recogito/admin](http://localhost:9000/recogito/admin).
+You should see an "Upload" button which allows you to upload a ZIP file containing (UTF-8 encoded) plaintexts and accompanying document metadata.  
 
 Document metadata must be provided as a JSON file. The name of the file can be chosen arbitrarily. The only requirement is that it has a
 `.json` extension. The JSON structure defines the document's __title__, __description__ and __source__ properties, as well as the __parts__
