@@ -166,15 +166,19 @@ define(['georesolution/common'], function(common) {
   
     // Automatch info
     if (annotation.place) {
-      var meta = annotation.place.title + ' ' +
-                 common.Utils.categoryTag(annotation.place.category) + '<br/>' +
-                 annotation.place.names + '<br/>' +
-                 '<a href="http://pelagios.org/api/places/' + 
+      var meta = '<a href="http://pelagios.org/api/places/' + 
                  encodeURIComponent(common.Utils.normalizePleiadesURI(annotation.place.uri)) +
-                 '" target="_blank">' + annotation.place.uri + '</a>'; 
+                 '" target="_blank">' + annotation.place.title + '</a> ' +
+                 common.Utils.categoryTag(annotation.place.category) + '<br/>';
+                 
+      if (annotation.place.description)
+        meta += annotation.place.description + '<br/>';
+        
+      if (annotation.place.names)
+        meta += annotation.place.names + '<br/>';
                               
       if (!annotation.place.coordinate)
-        meta += '<br/><span class="icon no-coords ">&#xf041;</span>No coordinates for this place!</a>';
+        meta += '<span class="icon no-coords ">&#xf041;</span>No coordinates for this place!</a>';
                
       $('#details-content-automatch').html(meta);
     } else {
@@ -183,15 +187,19 @@ define(['georesolution/common'], function(common) {
   
     // Expert correction info
     if (annotation.place_fixed) {
-      var meta = annotation.place_fixed.title + ' ' +
-                 common.Utils.categoryTag(annotation.place_fixed.category) + '<br/>' +
-                 annotation.place_fixed.names + '<br/>' +
-                 '<a href="http://pelagios.org/api/places/' + 
+      var meta = '<a href="http://pelagios.org/api/places/' + 
                  encodeURIComponent(common.Utils.normalizePleiadesURI(annotation.place_fixed.uri)) +
-                 '" target="_blank">' + annotation.place_fixed.uri + '</a>'; 
-               
+                 '" target="_blank">' + annotation.place_fixed.title + '</a> ' +
+                 common.Utils.categoryTag(annotation.place_fixed.category) + '<br/>';
+                 
+      if (annotation.place_fixed.description)
+        meta += annotation.place_fixed.description + '<br/>';
+        
+      if (annotation.place_fixed.names)
+        meta += annotation.place_fixed.names + '<br/>';
+        
       if (!annotation.place_fixed.coordinate)
-        meta += '<br/><span class="icon no-coords ">&#xf041;</span>No coordinates for this place!</a>';
+        meta += '<span class="icon no-coords ">&#xf041;</span>No coordinates for this place!</a>';
                
       $('#details-content-correction').html(meta);
     } else {
