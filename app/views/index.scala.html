@@ -49,7 +49,7 @@
     <div id="container">    
       <table>   
         <tbody>
-          @for(doc <- models.GeoDocuments.listAll().sortBy(d => (d.date, d.author, d.title))) {
+          @for(doc <- models.GeoDocuments.listAll().sortBy(d => (d.language, d.date, d.author, d.title))) {
           	@defining(user.canEdit(doc.id.get)) { canEdit =>
           	  @if(canEdit) { <tr> } else { <tr class="locked-document"> }
           	    <td> <!-- document title -->
