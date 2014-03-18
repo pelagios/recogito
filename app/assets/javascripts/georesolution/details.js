@@ -137,9 +137,10 @@ define(['georesolution/common'], function(common) {
         annotation.place_fixed.uri = result.uri;    
         annotation.place_fixed.coordinate = result.coordinate;
         annotation.status = 'VERIFIED';
+        annotation.status = 'VERIFIED';
         
         self.fireEvent('update', annotation);        
-        self.destroy();
+        self.fireEvent('skip-next');
       }
     };
     
@@ -229,7 +230,7 @@ define(['georesolution/common'], function(common) {
         if (annotation.status != status) {
           annotation.status = status;
           self.fireEvent('update', annotation);
-          self.destroy(); 
+          self.fireEvent('skip-next'); 
         }
       });
     };
