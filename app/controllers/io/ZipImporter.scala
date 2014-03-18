@@ -72,6 +72,8 @@ object ZipImporter {
         importAnnotations(zipFile, docAnnotations.get, gdocId)
       }
     })
+    
+    Logger.info("Import complete")
   }
   
   private def importText(zipFile: ZipFile, entryName: String, gdocId: Int, gdocPartId: Option[Int])(implicit s: Session) = {

@@ -84,12 +84,12 @@ class CSVSerializer extends BaseSerializer {
       correctedCoordinate.map(c => c.x + "," + c.y).getOrElse("") + SEPARATOR +
       correctedPlaceCategory.map(_.toString).getOrElse("") + SEPARATOR +
       esc(annotation.tags.getOrElse("")) + SEPARATOR +
-      esc(annotation.comment.getOrElse("")) + SEPARATOR +
+      esc(annotation.comment.getOrElse("")) + "\"" + SEPARATOR +
       annotation.seeAlso.mkString(",") + SEPARATOR +
       "\n"
     })
   }
   
-  private def esc(field: String) = field.replace(SEPARATOR, "\\" + SEPARATOR)
+  private def esc(field: String) = field.replace(SEPARATOR, "\\" + SEPARATOR).replace(System.lineSeparator(), "\\n")
 
 }

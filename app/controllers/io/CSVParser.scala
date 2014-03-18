@@ -4,6 +4,8 @@ import java.util.UUID
 import models._
 import play.api.db.slick._
 import scala.io.Source
+import java.io.Reader
+import java.util.regex.Pattern
 
 /** Utility object to convert CSV input data to Annotation objects.
   * 
@@ -60,7 +62,8 @@ class CSVParser extends BaseParser {
       }
     }
     
-    data.map(_.split(SEPARATOR, -1)).map(implicit fields => {
+    val regex = "(?<!\\\\)" + Pattern.quote(SEPARATOR)
+    data.map(_.split(regex, -1)).map(implicit fields => {
       Annotation(
           idxUUID.map(idx => UUID.fromString(fields(idx))).getOrElse(Annotation.newUUID),
           Some(gdocId),

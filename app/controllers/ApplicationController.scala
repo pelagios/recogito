@@ -17,7 +17,7 @@ object ApplicationController extends Controller with Secured with CTSClient {
     
   /** Returns the index page for logged-in users **/
   def index = DBAction { implicit rs => 
-    if (isAuthorized) {
+    if (currentUser.isDefined && isAuthorized) {
       Ok(views.html.index(currentUser.get))
     } else {
       val docs = GeoDocuments.listAll
