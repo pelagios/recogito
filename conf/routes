@@ -50,8 +50,9 @@ GET     /recogito/history                     controllers.ApplicationController.
 GET     /recogito/stats                       controllers.ApplicationController.showStats
 GET     /recogito/documents/:id/stats         controllers.ApplicationController.showDocumentStats(id: Int)
 
+GET     /recogito/admin/documents/:id/zip     controllers.AdminController.backupSingle(id: Int)
+GET     /recogito/admin/documents/zip         controllers.AdminController.backupAll()
 POST    /recogito/admin/documents             controllers.AdminController.uploadDocuments
-GET     /recogito/admin/documents/:id/zip     controllers.AdminController.downloadPackage(id: Int)
 GET     /recogito/admin/annotations           controllers.AdminController.backupAnnotations(doc: Option[Int], part: Option[Int]) 
 POST    /recogito/admin/annotations           controllers.AdminController.importAnnotations(doc: Int)
 DELETE  /recogito/admin/annotations           controllers.AdminController.dropAnnotations(doc: Int)

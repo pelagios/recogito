@@ -14,6 +14,8 @@ import play.api.libs.json.Json
 import play.api.Logger
 import controllers.io.ZipExporter
 import scala.io.Source
+import play.api.libs.concurrent.Execution.Implicits.defaultContext  
+import scala.concurrent.Future
 
 /** Administration features.
   * 
@@ -114,16 +116,36 @@ object AdminController extends Controller with Secured {
     Redirect(routes.AdminController.index)
   }
   
-  def downloadPackage(gdocId: Int) = protectedDBAction(Secure.REJECT) { username => implicit session =>
+  def backupSingle(gdocId: Int) = adminAction { username => implicit session =>
     val gdoc = GeoDocuments.findById(gdocId)
     if (gdoc.isDefined) {
       val exporter = new ZipExporter()
       val file = exporter.exportGDoc(gdoc.get)
       val bytes = Source.fromFile(file.file)(scala.io.Codec.ISO8859).map(_.toByte).toArray
       file.finalize()
-      Ok(bytes).withHeaders(CONTENT_TYPE -> "application/zip", CONTENT_DISPOSITION -> ({ "attachment; filename=" + exporter.titleToFilename(gdoc.get.title) }))
+      Ok(bytes).withHeaders(CONTENT_TYPE -> "application/zip", CONTENT_DISPOSITION -> ({ "attachment; filename=" + exporter.escapeTitle(gdoc.get.title) }))
     } else {
       NotFound
+    }
+  }
+  
+  def backupAll() = Action.async { implicit request =>
+    val user = DB.withSession { implicit s: Session => currentUser }
+    if (user.isDefined && user.get.isAdmin) {
+      DB.withSession { implicit s: Session =>
+        // This is a long-running operation
+        val future = Future {
+          val file = new ZipExporter().exportGDocs(GeoDocuments.listAll)
+          val bytes = Source.fromFile(file.file)(scala.io.Codec.ISO8859).map(_.toByte).toArray
+          file.finalize()
+          bytes
+        }
+   
+        future.map(bytes => Ok(bytes).withHeaders(CONTENT_TYPE -> "application/zip", CONTENT_DISPOSITION -> ({ "attachment; filename=all.zip" })))
+      }
+    } else {
+      Logger.info("Unauthorized backup attempt")
+      Future { }.map(_ => Forbidden)
     }
   }
   

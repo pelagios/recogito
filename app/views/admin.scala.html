@@ -43,6 +43,10 @@
           <input type="submit" value="Upload!" />
         }
       </div>
+      
+      <div class="download-all">
+        <button class="big" onclick="location.href='@routes.AdminController.backupAll()'">Download All Documents</button>
+      </div>
     </div>
     @for(egd <- models.GeoDocuments.listAll) {
       <div class="egd-container">
@@ -73,7 +77,7 @@
           } else {
             <p>@models.Annotations.countForGeoDocument(egd.id.get) Annotations</p>
           }
-          <button onclick="location.href='@routes.AdminController.downloadPackage(egd.id.get)'">Download ZIP</button>
+          <button onclick="location.href='@routes.AdminController.backupSingle(egd.id.get)'">Download ZIP</button>
           <button onclick="location.href='@routes.AdminController.backupAnnotations(egd.id, None)'">CSV Backup (Entire Document)</button>
           <button onclick="if (confirm('Are you sure about that?')) dropAnnotations(@egd.id.get)">Drop All Annotations</button>
           <button onclick="if (confirm('Are you sure about that?')) dropDocument(@egd.id.get)">Drop Document</button>

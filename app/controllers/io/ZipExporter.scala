@@ -27,19 +27,25 @@ class ZipExporter {
   def exportGDocs(gdocs: Seq[GeoDocument])(implicit session: Session): TemporaryFile = {
     val zipFile = new TemporaryFile(new File(TMP_DIR, UUID.randomUUID().toString + ".zip"))
     val zipStream = new ZipOutputStream(new FileOutputStream(zipFile.file, false))
-    gdocs.foreach(exportOne(_, zipStream))
+    gdocs.foreach(doc => {
+      Logger.info("Building ZIP package: " + doc.title + doc.language.map(" (" + _ + ")").getOrElse(""))
+      exportOne(doc, zipStream) 
+    })
     zipStream.close()
+    Logger.info("Export complete")
     zipFile
   }
   
   private def exportOne(gdoc: GeoDocument, zipStream: ZipOutputStream)(implicit session: Session) = {   
+    val gdocNamePrefix = escapeTitle(gdoc.title) + gdoc.language.map("_" + _).getOrElse("")
+    
     // Get GeoDocument parts & texts from the DB
     val parts = GeoDocumentParts.findByGeoDocument(gdoc.id.get)
     val texts = GeoDocumentTexts.findByGeoDocument(gdoc.id.get) 
       
     // Add JSON metadata file to ZIP
     val metadata = createMetaFile(gdoc, parts, texts)   
-    addToZip(metadata.file, metadata.file.getName, zipStream)
+    addToZip(metadata.file, gdocNamePrefix + ".json", zipStream)
     metadata.finalize();
     
     // Add texts to ZIP
@@ -55,9 +61,9 @@ class ZipExporter {
             parts.find(_.id == text.gdocPartId).map(_.title)
           else
             Some(gdoc.title)
-        } map (titleToFilename(_))
+        } map (escapeTitle(_))
             
-      addToZip(textFile.file, textName.map(n => titleToFilename(gdoc.title) + File.separator + n + ".txt").get, zipStream)
+      addToZip(textFile.file, textName.map(n => gdocNamePrefix + File.separator + n + ".txt").get, zipStream)
       textFile.finalize()
     })
     
@@ -69,15 +75,17 @@ class ZipExporter {
       annotationsFileWriter.write(new CSVSerializer().asDBBackup(annotations))
       annotationsFileWriter.flush()
       annotationsFileWriter.close()
-      addToZip(annotationsFile.file, titleToFilename(gdoc.title) + ".csv", zipStream)
+      addToZip(annotationsFile.file, gdocNamePrefix + ".csv", zipStream)
       annotationsFile.finalize()
     }
   }
   
   /** Creates the document metadata JSON file for a GeoDocument **/
   private def createMetaFile(gdoc: GeoDocument, parts: Seq[GeoDocumentPart], texts: Seq[GeoDocumentText])(implicit session: Session): TemporaryFile = {
+    val gdocNamePrefix = escapeTitle(gdoc.title) + gdoc.language.map("_" + _).getOrElse("")
+    
     val jsonParts = parts.map(part => {
-      val text = texts.find(_.gdocPartId == part.id).map(_ => titleToFilename(gdoc.title) + File.separator + titleToFilename(part.title) + ".txt")
+      val text = texts.find(_.gdocPartId == part.id).map(_ => gdocNamePrefix + File.separator + escapeTitle(part.title) + ".txt")
       Json.obj(
         "title" -> part.title,
         "source" -> part.source,
@@ -87,7 +95,7 @@ class ZipExporter {
     
     val gdocText = texts.find(t => t.gdocId == gdoc.id.get && t.gdocPartId == None)
     val annotations =
-      if (Annotations.countForGeoDocument(gdoc.id.get) > 0) Some(titleToFilename(gdoc.title) + ".csv") else None
+      if (Annotations.countForGeoDocument(gdoc.id.get) > 0) Some(gdocNamePrefix + ".csv") else None
         
     val jsonMeta = Json.obj(
       "title" -> gdoc.title,
@@ -97,12 +105,12 @@ class ZipExporter {
       "description" -> gdoc.description,
       "language" -> gdoc.language,
       "source" -> gdoc.source,
-      "text" -> gdocText.map(_ => titleToFilename(gdoc.title) + File.separator + titleToFilename(gdoc.title) + ".txt"),
+      "text" -> gdocText.map(_ => gdocNamePrefix + File.separator + escapeTitle(gdoc.title) + ".txt"),
       "annotations" -> annotations,
       "parts" -> jsonParts
     )
     
-    val metaFile = new TemporaryFile(new File(TMP_DIR, titleToFilename(gdoc.title) + ".json"))
+    val metaFile = new TemporaryFile(new File(TMP_DIR, "meta_" + gdoc.id.get + ".json"))
     val metaFileWriter = new PrintWriter(metaFile.file)
     metaFileWriter.write(Json.prettyPrint(jsonMeta))
     metaFileWriter.flush()
@@ -128,7 +136,7 @@ class ZipExporter {
     * We keep this separate, so we have a central location to add stuff 
     * in the future if necessary.  
     */
-  def titleToFilename(title: String): String =
+  def escapeTitle(title: String): String =
     title.replace(" ", "_")
 
 }
