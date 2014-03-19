@@ -46,6 +46,7 @@ class CSVParser extends BaseParser {
     val idxCorrectedGazetteerURI = idx("gazetteer_uri_corrected")
     val idxTags = idx("tags")
     val idxComment = idx("comment")
+    val idxSource = idx("source")
     val idxSeeAlso = idx("see_also")
         
     // Helper function to turn optional fields to Option[String]
@@ -77,6 +78,7 @@ class CSVParser extends BaseParser {
           parseOptCol(idxCorrectedGazetteerURI),
           parseOptCol(idxTags),
           parseOptCol(idxComment),
+          parseOptCol(idxSource),
           parseOptCol(idxSeeAlso))
     }).toSeq
   }

@@ -84,7 +84,8 @@ class CSVSerializer extends BaseSerializer {
       correctedCoordinate.map(c => c.x + "," + c.y).getOrElse("") + SEPARATOR +
       correctedPlaceCategory.map(_.toString).getOrElse("") + SEPARATOR +
       esc(annotation.tags.getOrElse("")) + SEPARATOR +
-      esc(annotation.comment.getOrElse("")) + "\"" + SEPARATOR +
+      esc(annotation.comment.getOrElse("")) + SEPARATOR +
+      annotation.source.getOrElse("") + SEPARATOR +
       annotation.seeAlso.mkString(",") + SEPARATOR +
       "\n"
     })
