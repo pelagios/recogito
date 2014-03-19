@@ -63,7 +63,7 @@ object DocumentController extends Controller with Secured {
     val id = doc.id.get
     val annotations = Annotations.findByGeoDocumentAndStatus(id, AnnotationStatus.VERIFIED)
     val serializer = new CSVSerializer()
-    Ok(serializer.annotationsConsolidated(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=pelagios-egd-" + id.toString + ".csv"))  
+    Ok(serializer.serializeAnnotationsConsolidated(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=pelagios-egd-" + id.toString + ".csv"))  
   }
   
   private def get_RDF(doc: GeoDocument, format: RDFFormat, basePath: String)(implicit session: Session) = {
@@ -93,14 +93,5 @@ object DocumentController extends Controller with Secured {
       
   private def get_JSON(doc: GeoDocument)(implicit s: Session) =
     Ok(JSONSerializer.toJson(doc, true))
-  
-  /** Deletes a document (and associated data) from the database **/
-  def delete(id: Int) = protectedDBAction(Secure.REJECT) { username => implicit session =>
-    Annotations.deleteForGeoDocument(id)
-    GeoDocumentTexts.deleteForGeoDocument(id)
-    GeoDocumentParts.deleteForGeoDocument(id)    
-    GeoDocuments.delete(id)
-    Status(200)
-  }
   
 }

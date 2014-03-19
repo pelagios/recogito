@@ -44,9 +44,9 @@
         }
       </div>
       
-      <div class="download-all">
-        <button class="big" onclick="location.href='@routes.AdminController.backupAll()'">Download All Documents</button>
-      </div>
+      <div><button class="big" onclick="location.href='@routes.AdminController.downloadAllDocuments()'">Download All Documents</button></div>
+      <div><button class="big" onclick="location.href='@routes.AdminController.downloadUsers()'">Backup Users</button></div>
+      <div><button class="big" onclick="location.href='@routes.AdminController.downloadHistory()'">Backup Edit History</button></div>
     </div>
     @for(egd <- models.GeoDocuments.listAll) {
       <div class="egd-container">
@@ -69,7 +69,6 @@
                     <td>@part.title</td>
                     <td><a href="@part.source" target="_blank">@part.source</a></td>
                     <td>@models.Annotations.countForGeoDocumentPart(part.id.get)</td>
-                    <td class="action"><button onclick="location.href='@routes.AdminController.backupAnnotations(None, part.id)'">CSV Backup</button></td>
                   </tr>
                 }
               </tbody>
@@ -77,19 +76,18 @@
           } else {
             <p>@models.Annotations.countForGeoDocument(egd.id.get) Annotations</p>
           }
-          <button onclick="location.href='@routes.AdminController.backupSingle(egd.id.get)'">Download ZIP</button>
-          <button onclick="location.href='@routes.AdminController.backupAnnotations(egd.id, None)'">CSV Backup (Entire Document)</button>
-          <button onclick="if (confirm('Are you sure about that?')) dropAnnotations(@egd.id.get)">Drop All Annotations</button>
-          <button onclick="if (confirm('Are you sure about that?')) dropDocument(@egd.id.get)">Drop Document</button>
+          <button onclick="location.href='@routes.AdminController.downloadDocument(egd.id.get)'">Download Document as ZIP</button>
           <div class="import-annotations">
-            <button onclick="toggleImportForm('@egd.id.get')">Import CSV</button>
+            <button onclick="toggleImportForm('@egd.id.get')">Import Annotations</button>
             <div class="import-annotations-form" id="@egd.id.get">
-              @helper.form(action = routes.AdminController.importAnnotations(egd.id.get), 'enctype -> "multipart/form-data") {
+              @helper.form(action = routes.AdminController.uploadAnnotations(egd.id.get), 'enctype -> "multipart/form-data") {
                 <input type="file" name="csv" value="Import CSV" />
                 <input type="submit" value="IMPORT!" />
               }
             </div>
           </div>
+          <button onclick="if (confirm('Are you sure about that?')) deleteAnnotations(@egd.id.get)">Drop All Annotations</button>
+          <button onclick="if (confirm('Are you sure about that?')) deleteDocument(@egd.id.get)">Drop Document</button>
         }
       </div>
     }

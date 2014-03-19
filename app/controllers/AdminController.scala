@@ -14,8 +14,10 @@ import play.api.libs.json.Json
 import play.api.Logger
 import controllers.io.ZipExporter
 import scala.io.Source
-import play.api.libs.concurrent.Execution.Implicits.defaultContext  
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.concurrent.Future
+import controllers.io.CSVSerializer
+import controllers.io.CSVSerializer
 
 /** Administration features.
   * 
@@ -28,95 +30,8 @@ object AdminController extends Controller with Secured {
     Ok(views.html.admin())
   }
   
-  /** Upload document (metadata + text) as a ZIP **/
-  def uploadDocuments = adminAction { username => implicit session =>
-    val formData = session.request.body.asMultipartFormData
-    if (formData.isDefined) {
-      formData.get.file("zip").map(filePart => ZipImporter.importZip(new ZipFile(filePart.ref.file)))
-      Redirect(routes.AdminController.index)
-    } else {
-      BadRequest
-    }
-  }
-  
-  /** Generates a CSV backup for the specified document or document part.
-    *
-    * Either a document ID or a document part ID must be provided. If neither is
-    * provided, the method will return HTTP 404. If both are provided, a backup will
-    * be created for the specified document. The part ID will be ignored.
-    * @param doc the document ID (optional)
-    * @param part the document part ID (optional)
-    */
-  def backupAnnotations(doc: Option[Int], part: Option[Int]) = adminAction { username => implicit session =>
-    if (doc.isDefined)
-      backupAnnotations_forDoc(doc.get)
-    else if (part.isDefined)
-      backupAnnotations_forPart(part.get)
-    else
-      NotFound
-  }
-    
-  /** Download annotations for a specific document as CSV.
-    * 
-    * @param doc the document ID
-    */
-  private def backupAnnotations_forDoc(doc: Int)(implicit session: Session) = {
-    val gdoc = GeoDocuments.findById(doc)
-    if (gdoc.isDefined) {
-      val filename = gdoc.get.title.replace(' ', '_').toLowerCase.trim
-      val annotations = Annotations.findByGeoDocument(doc)
-      val serializer = new CSVSerializer()
-      Ok(serializer.annotationsDBBackup(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + ".csv\""))
-    } else {
-      NotFound
-    }
-  } 
-  
-  /** Download annotations for a specific document part as CSV.
-    * 
-    * @param part the document part ID
-    */
-  private def backupAnnotations_forPart(part: Int)(implicit session: Session) = {
-    val gdocPart = GeoDocumentParts.findById(part)
-    if (gdocPart.isDefined) {
-      val gdoc = GeoDocuments.findById(gdocPart.get.gdocId)
-      val filename = gdoc.get.title.replace(' ', '_').toLowerCase + "_" + gdocPart.get.title.replace(' ', '_').toLowerCase.trim
-      val annotations = Annotations.findByGeoDocumentPart(part)
-      val serializer = new CSVSerializer()
-      Ok(serializer.annotationsDBBackup(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + "\".csv"))
-    } else {
-      NotFound 
-    }
-  }
-        
-  /** Import annotations into the document with the specified ID.
-    * 
-    * Annotations are to be delivered as a CSV file in the body of the POST request.
-    * @param doc the document ID
-    */
-  def importAnnotations(doc: Int) = DBAction(parse.multipartFormData) { implicit session =>
-    val gdoc = GeoDocuments.findById(doc)
-    if (gdoc.isDefined) {
-      session.request.body.file("csv").map(filePart => {
-        val parser = new CSVParser()
-        val annotations = parser.parse(filePart.ref.file.getAbsolutePath, gdoc.get.id.get)
-        Logger.info("Importing " + annotations.size + " annotations to " + gdoc.get.title)
-        Annotations.insertAll(annotations:_*)
-      })
-    }
-    Redirect(routes.AdminController.index)
-  }
-  
-  /** Drops annotations for the document with the specified ID.
-    * 
-    * @param doc the document ID 
-    */
-  def dropAnnotations(doc: Int) = adminAction { username => implicit session =>
-    Annotations.deleteForGeoDocument(doc)
-    Redirect(routes.AdminController.index)
-  }
-  
-  def backupSingle(gdocId: Int) = adminAction { username => implicit session =>
+  /** Download one specific document (with text and annotations) as a ZIP file **/
+  def downloadDocument(gdocId: Int) = adminAction { username => implicit session =>
     val gdoc = GeoDocuments.findById(gdocId)
     if (gdoc.isDefined) {
       val exporter = new ZipExporter()
@@ -129,7 +44,8 @@ object AdminController extends Controller with Secured {
     }
   }
   
-  def backupAll() = Action.async { implicit request =>
+  /** Download all documents (with text and annotations) as a ZIP file **/
+  def downloadAllDocuments = Action.async { implicit request =>
     val user = DB.withSession { implicit s: Session => currentUser }
     if (user.isDefined && user.get.isAdmin) {
       DB.withSession { implicit s: Session =>
@@ -144,8 +60,72 @@ object AdminController extends Controller with Secured {
         future.map(bytes => Ok(bytes).withHeaders(CONTENT_TYPE -> "application/zip", CONTENT_DISPOSITION -> ({ "attachment; filename=all.zip" })))
       }
     } else {
-      Logger.info("Unauthorized backup attempt")
+      Logger.info("Unauthorized document backup attempt")
       Future { }.map(_ => Forbidden)
+    }
+  }
+  
+  /** Upload documents (with text and annotations) to the database, from a ZIP file **/
+  def uploadDocuments = adminAction { username => implicit session =>
+    val formData = session.request.body.asMultipartFormData
+    if (formData.isDefined) {
+      formData.get.file("zip").map(filePart => ZipImporter.importZip(new ZipFile(filePart.ref.file)))
+      Redirect(routes.AdminController.index)
+    } else {
+      BadRequest
+    }
+  }
+    
+  /** Delete a document (and associated data) from the database **/
+  def deleteDocument(id: Int) = protectedDBAction(Secure.REJECT) { username => implicit session =>
+    Annotations.deleteForGeoDocument(id)
+    GeoDocumentTexts.deleteForGeoDocument(id)
+    GeoDocumentParts.deleteForGeoDocument(id)    
+    GeoDocuments.delete(id)
+    Status(200)
+  }
+        
+  /** Import annotations from a CSV file into the document with the specified ID **/
+  def uploadAnnotations(doc: Int) = DBAction(parse.multipartFormData) { implicit session =>
+    val gdoc = GeoDocuments.findById(doc)
+    if (gdoc.isDefined) {
+      session.request.body.file("csv").map(filePart => {
+        val parser = new CSVParser()
+        val annotations = parser.parse(filePart.ref.file.getAbsolutePath, gdoc.get.id.get)
+        Logger.info("Importing " + annotations.size + " annotations to " + gdoc.get.title)
+        Annotations.insertAll(annotations:_*)
+      })
+    }
+    Redirect(routes.AdminController.index)
+  }
+  
+  /** Drop all annotations from the document with the specified ID **/
+  def deleteAnnotations(doc: Int) = adminAction { username => implicit session =>
+    Annotations.deleteForGeoDocument(doc)
+    Redirect(routes.AdminController.index)
+  }
+  
+  /** Dowload all user data for the purpose of backup **/
+  def downloadUsers = adminAction { username => implicit session =>
+    val csv = new CSVSerializer().serializeUsers(Users.listAll)
+    Ok(csv).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> "attachment; filename=recogito-users.csv")
+  }
+  
+  /** Dowload the edit history for the purpose of backup **/
+  def downloadHistory = Action.async { implicit request =>
+    val user = DB.withSession { implicit s: Session => currentUser }
+    if (user.isDefined && user.get.isAdmin) {
+      DB.withSession { implicit s: Session =>
+        // This is a long-running operation
+        val future = Future {
+          new CSVSerializer().serializeEditHistory(EditHistory.getAll)
+        }
+        
+        future.map(csv => Ok(csv).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> "attachment; filename=recogito-history.csv"))
+      }  
+    } else {
+      Logger.info("Unauthorized user backup attempt")
+      Future { }.map(_ => Forbidden)      
     }
   }
   

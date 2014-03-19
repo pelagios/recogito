@@ -35,14 +35,15 @@ class CSVSerializer extends BaseSerializer {
    */
   def serializeEditHistory(history: Seq[EditEvent]): String = {
     val header = 
-      Seq("annotation_id","username","timestamp","annotation_before","updated_toponym", "updated_status","updated_uri","updated_tags","updated_comment")
+      Seq("annotation_id","username","timestamp","timestamp_formatted","annotation_before","updated_toponym", "updated_status","updated_uri","updated_tags","updated_comment")
       .mkString(SEPARATOR) + ";\n"
    
     history.foldLeft(header)((csv, event) => {
       csv +
       event.annotationId + SEPARATOR + 
       esc(event.username) + SEPARATOR +
-      event.timestamp.getTime() + SEPARATOR + 
+      event.timestamp.getTime + SEPARATOR + 
+      event.timestamp.toString + SEPARATOR +
       event.annotationBefore.getOrElse("") + SEPARATOR + 
       esc(event.updatedToponym.getOrElse("")) + SEPARATOR + 
       event.updatedStatus.getOrElse("") + SEPARATOR + 
