@@ -36,7 +36,7 @@ class CSVSerializer extends BaseSerializer {
   def serializeEditHistory(history: Seq[EditEvent]): String = {
     val header = 
       Seq("annotation_id","username","timestamp","timestamp_formatted","annotation_before","updated_toponym", "updated_status","updated_uri","updated_tags","updated_comment")
-      .mkString(SEPARATOR) + ";\n"
+      .mkString(SEPARATOR) + SEPARATOR + "\n"
    
     history.foldLeft(header)((csv, event) => {
       csv +
@@ -50,6 +50,25 @@ class CSVSerializer extends BaseSerializer {
       event.updatedURI.getOrElse("") + SEPARATOR +
       esc(event.updatedTags.getOrElse("")) + SEPARATOR +
       esc(event.updatedComment.getOrElse("")) + SEPARATOR + "\n"
+    })
+  }
+  
+  /** Serializes the daily stats history for backup purposes.
+   *
+   * @param stats the list of stats records to serialize to CSV  
+   */
+  def serializeStats(stats: Seq[StatsRecord]): String = {
+    val header = Seq("timestamp","timestamp_formatted","verified_toponyms","unverified_toponyms","unidentifiable_toponyms","total_edits")
+      .mkString(SEPARATOR) + SEPARATOR + "\n"
+      
+    stats.foldLeft(header)((csv, record) => {
+      csv + 
+      record.timestamp + SEPARATOR + 
+      record.timestamp.toString + SEPARATOR +
+      record.verifiedToponyms + SEPARATOR +
+      record.unverifiedToponyms + SEPARATOR +
+      record.unidentifiableToponyms + SEPARATOR +
+      record.totalEdits + SEPARATOR + "\n"
     })
   }
   
