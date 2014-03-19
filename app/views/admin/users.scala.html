@@ -1,0 +1,35 @@
+@(users: Seq[models.User])
+
+<html>
+  <head>
+    <title>Recogito > Admin > Users</title>
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/admin.css")" />
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
+    <script>
+      function toggleImportForm(id) {
+        var el = document.getElementById(id);
+        if (el.style.display == 'block')
+            el.style.display = 'none';
+        else
+            el.style.display = 'block';
+      }
+    </script>
+  </head>
+  
+  <body>
+    <button class="big" onclick="toggleImportForm('upload-documents')">Upload Users</button> 
+    <div class="upload-documents-form" id="upload-documents">
+      @helper.form(action = routes.AdminController.uploadUsers, 'enctype -> "multipart/form-data") {
+        <input type="file" name="users" value="Upload CSV" />
+        <input type="submit" value="Upload!" />
+      }
+    </div>
+    <div><button class="big" onclick="location.href='@routes.AdminController.downloadUsers()'">Download All Users</button></div>
+    
+    @for(user <-users) {
+      <p>@user.username</p>
+    }
+  </body>
+</html>
+    
+

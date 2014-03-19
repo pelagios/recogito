@@ -28,7 +28,12 @@ object AdminController extends Controller with Secured {
     
   /** Admin index page **/
   def index = adminAction { username => implicit session =>
-    Ok(views.html.admin())
+    Ok(views.html.admin.index())
+  }
+  
+  /** Admin users page **/
+  def users = adminAction { username => implicit session =>
+    Ok(views.html.admin.users(Users.listAll))
   }
   
   /** Download one specific document (with text and annotations) as a ZIP file **/
@@ -120,7 +125,7 @@ object AdminController extends Controller with Secured {
         val users = new CSVParser().parseUsers(filePart.ref.file.getAbsolutePath)
         Users.insertAll(users:_*)
       })
-      Redirect(routes.AdminController.index)
+      Redirect(routes.AdminController.users)
     } else {
       BadRequest
     }

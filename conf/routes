@@ -5,12 +5,14 @@
 # Static resources
 GET     /recogito/static/*file                   controllers.Assets.at(path="/public", file)
 
+
 # Authentication
 GET     /recogito/login                          controllers.AuthController.login
 POST    /recogito/login                          controllers.AuthController.authenticate
 GET     /recogito/logout                         controllers.AuthController.logout
 GET     /recogito/signup                         controllers.UserController.signup
 POST    /recogito/signup                         controllers.UserController.processSignup
+
 
 # JSON API
 # ~~~~
@@ -31,9 +33,11 @@ PUT     /recogito/api/annotations                controllers.AnnotationControlle
 GET     /recogito/api/search/place               controllers.SearchController.placeSearch(query: String)
 
 
+
 # ATOM Feed
 # ~~~~
 GET     /recogito/feeds/recent                   controllers.FeedController.recentVerifications
+
 
 # Application views
 # ~~~~
@@ -54,13 +58,13 @@ DELETE  /recogito/admin/documents/:id            controllers.AdminController.del
 GET     /recogito/admin/documents/download       controllers.AdminController.downloadAllDocuments()
 POST    /recogito/admin/documents                controllers.AdminController.uploadDocuments
 GET     /recogito/admin/users/download           controllers.AdminController.downloadUsers
+GET     /recogito/admin/users                    controllers.AdminController.users
 POST    /recogito/admin/users                    controllers.AdminController.uploadUsers
 GET     /recogito/admin/history/download         controllers.AdminController.downloadEditHistory
 GET     /recogito/admin/timeline/download        controllers.AdminController.downloadStatsTimeline
 POST    /recogito/admin/annotations              controllers.AdminController.uploadAnnotations(doc: Int)
 DELETE  /recogito/admin/annotations              controllers.AdminController.deleteAnnotations(doc: Int)
 GET     /recogito/admin                          controllers.AdminController.index
-
 
 # Index page (available in public and private version)
 GET     /recogito/                               controllers.ApplicationController.index
