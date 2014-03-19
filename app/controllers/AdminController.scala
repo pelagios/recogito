@@ -66,7 +66,7 @@ object AdminController extends Controller with Secured {
       val filename = gdoc.get.title.replace(' ', '_').toLowerCase.trim
       val annotations = Annotations.findByGeoDocument(doc)
       val serializer = new CSVSerializer()
-      Ok(serializer.asDBBackup(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + ".csv\""))
+      Ok(serializer.annotationsDBBackup(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + ".csv\""))
     } else {
       NotFound
     }
@@ -83,7 +83,7 @@ object AdminController extends Controller with Secured {
       val filename = gdoc.get.title.replace(' ', '_').toLowerCase + "_" + gdocPart.get.title.replace(' ', '_').toLowerCase.trim
       val annotations = Annotations.findByGeoDocumentPart(part)
       val serializer = new CSVSerializer()
-      Ok(serializer.asDBBackup(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + "\".csv"))
+      Ok(serializer.annotationsDBBackup(annotations)).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=\"" + filename + "\".csv"))
     } else {
       NotFound 
     }

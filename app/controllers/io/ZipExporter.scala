@@ -80,7 +80,7 @@ class ZipExporter {
     if (annotations.size > 0) {
       val annotationsFile = new TemporaryFile(new File(TMP_DIR, "annotations_" + gdoc.id.get + ".csv"))
       val annotationsFileWriter = new PrintWriter(annotationsFile.file)
-      annotationsFileWriter.write(new CSVSerializer().asDBBackup(annotations))
+      annotationsFileWriter.write(new CSVSerializer().annotationsDBBackup(annotations))
       annotationsFileWriter.flush()
       annotationsFileWriter.close()
       addToZip(annotationsFile.file, gdocNamePrefix + ".csv", zipStream)
