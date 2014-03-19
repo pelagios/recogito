@@ -58,12 +58,12 @@ DELETE  /recogito/admin/documents/:id            controllers.AdminController.del
 GET     /recogito/admin/documents/download       controllers.AdminController.downloadAllDocuments()
 POST    /recogito/admin/documents                controllers.AdminController.uploadDocuments
 GET     /recogito/admin/users/download           controllers.AdminController.downloadUsers
-GET     /recogito/admin/users                    controllers.AdminController.users
 POST    /recogito/admin/users                    controllers.AdminController.uploadUsers
 GET     /recogito/admin/history/download         controllers.AdminController.downloadEditHistory
 GET     /recogito/admin/timeline/download        controllers.AdminController.downloadStatsTimeline
 POST    /recogito/admin/annotations              controllers.AdminController.uploadAnnotations(doc: Int)
 DELETE  /recogito/admin/annotations              controllers.AdminController.deleteAnnotations(doc: Int)
+GET     /recogito/admin/backup                   controllers.AdminController.backup
 GET     /recogito/admin                          controllers.AdminController.index
 
 # Index page (available in public and private version)
