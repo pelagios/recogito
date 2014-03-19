@@ -92,7 +92,7 @@ object AdminController extends Controller with Secured {
     if (gdoc.isDefined) {
       session.request.body.file("csv").map(filePart => {
         val parser = new CSVParser()
-        val annotations = parser.parse(filePart.ref.file.getAbsolutePath, gdoc.get.id.get)
+        val annotations = parser.parseAnnotations(filePart.ref.file.getAbsolutePath, gdoc.get.id.get)
         Logger.info("Importing " + annotations.size + " annotations to " + gdoc.get.title)
         Annotations.insertAll(annotations:_*)
       })
@@ -110,6 +110,20 @@ object AdminController extends Controller with Secured {
   def downloadUsers = adminAction { username => implicit session =>
     val csv = new CSVSerializer().serializeUsers(Users.listAll)
     Ok(csv).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> "attachment; filename=recogito-users.csv")
+  }
+  
+  /** Batch-upload users to the database, for the purpose of restoring **/
+  def uploadUsers = adminAction { username => implicit session =>
+    val formData = session.request.body.asMultipartFormData
+    if (formData.isDefined) {
+      formData.get.file("users").map(filePart => {
+        val users = new CSVParser().parseUsers(filePart.ref.file.getAbsolutePath)
+        Users.insertAll(users:_*)
+      })
+      Redirect(routes.AdminController.index)
+    } else {
+      BadRequest
+    }
   }
   
   /** Dowload the edit history for the purpose of backup **/
