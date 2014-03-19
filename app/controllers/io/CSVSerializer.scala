@@ -63,7 +63,7 @@ class CSVSerializer extends BaseSerializer {
       
     stats.foldLeft(header)((csv, record) => {
       csv + 
-      record.timestamp + SEPARATOR + 
+      record.timestamp.getTime + SEPARATOR + 
       record.timestamp.toString + SEPARATOR +
       record.verifiedToponyms + SEPARATOR +
       record.unverifiedToponyms + SEPARATOR +

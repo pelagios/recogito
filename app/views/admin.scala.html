@@ -46,7 +46,8 @@
       
       <div><button class="big" onclick="location.href='@routes.AdminController.downloadAllDocuments()'">Download All Documents</button></div>
       <div><button class="big" onclick="location.href='@routes.AdminController.downloadUsers()'">Backup Users</button></div>
-      <div><button class="big" onclick="location.href='@routes.AdminController.downloadHistory()'">Backup Edit History</button></div>
+      <div><button class="big" onclick="location.href='@routes.AdminController.downloadEditHistory()'">Backup Edit History</button></div>
+      <div><button class="big" onclick="location.href='@routes.AdminController.downloadStatsTimeline'">Backup Stats Timeline</button></div>
     </div>
     @for(egd <- models.GeoDocuments.listAll) {
       <div class="egd-container">

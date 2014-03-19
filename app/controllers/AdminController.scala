@@ -18,6 +18,7 @@ import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.concurrent.Future
 import controllers.io.CSVSerializer
 import controllers.io.CSVSerializer
+import controllers.io.CSVSerializer
 
 /** Administration features.
   * 
@@ -112,7 +113,7 @@ object AdminController extends Controller with Secured {
   }
   
   /** Dowload the edit history for the purpose of backup **/
-  def downloadHistory = Action.async { implicit request =>
+  def downloadEditHistory = Action.async { implicit request =>
     val user = DB.withSession { implicit s: Session => currentUser }
     if (user.isDefined && user.get.isAdmin) {
       DB.withSession { implicit s: Session =>
@@ -127,6 +128,11 @@ object AdminController extends Controller with Secured {
       Logger.info("Unauthorized user backup attempt")
       Future { }.map(_ => Forbidden)      
     }
+  }
+  
+  def downloadStatsTimeline = adminAction { username => implicit session =>
+    val csv = new CSVSerializer().serializeStats(StatsHistory.listAll)
+    Ok(csv).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> "attachment; filename=recogito-stats-timeline.csv")
   }
   
 }
