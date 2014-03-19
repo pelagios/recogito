@@ -91,6 +91,7 @@ class CSVSerializer extends BaseSerializer {
     })
   }
   
-  private def esc(field: String) = field.replace(SEPARATOR, "\\" + SEPARATOR).replace(System.lineSeparator(), "\\n")
+  private def esc(field: String) = 
+    field.replace(SEPARATOR, "\\" + SEPARATOR).replace(System.lineSeparator(), "\\n")
 
 }

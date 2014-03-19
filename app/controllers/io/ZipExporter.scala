@@ -1,29 +1,32 @@
 package controllers.io
 
 import models._
-import java.io.{ File, FileOutputStream, PrintWriter }
-import java.util.zip.ZipOutputStream
+import java.io.{ BufferedInputStream, File, FileInputStream, FileOutputStream, PrintWriter }
+import java.util.UUID
+import java.util.zip.{ ZipEntry, ZipOutputStream }
+import play.api.Logger
 import play.api.libs.json.Json
 import play.api.libs.Files.TemporaryFile
 import scala.slick.session.Session
-import java.util.zip.ZipEntry
-import java.io.BufferedInputStream
-import java.io.FileInputStream
-import java.util.UUID
-import play.api.Logger
 
+/** Utility class to export GeoDocuments (with text and annotations) to a ZIP file **/
 class ZipExporter {
   
   private val UTF8 = "UTF-8"
-  
   private val TMP_DIR = System.getProperty("java.io.tmpdir")
 
-  /** Exports one GeoDocument (with texts and annotations) to ZIP **/
+  /** Exports one GeoDocument (with texts and annotations) to ZIP 
+    *
+    * @param gdoc the GeoDocument
+    */
   def exportGDoc(gdoc: GeoDocument)(implicit session: Session): TemporaryFile = {
     exportGDocs(Seq(gdoc))
   } 
 
-  /** Exports a list of GeoDocuments (with text and annotations) to ZIP **/
+  /** Exports a list of GeoDocuments (with text and annotations) to ZIP 
+    *
+    * @param gdocs a Seq of GeoDocuments
+    */
   def exportGDocs(gdocs: Seq[GeoDocument])(implicit session: Session): TemporaryFile = {
     val zipFile = new TemporaryFile(new File(TMP_DIR, UUID.randomUUID().toString + ".zip"))
     val zipStream = new ZipOutputStream(new FileOutputStream(zipFile.file, false))
@@ -36,6 +39,11 @@ class ZipExporter {
     zipFile
   }
   
+  /** Writes one GeoDocument to a ZIP stream 
+    *
+    * @param gdoc the GeoDocument
+    * @param zipStream the ZIP output stream
+    */
   private def exportOne(gdoc: GeoDocument, zipStream: ZipOutputStream)(implicit session: Session) = {   
     val gdocNamePrefix = escapeTitle(gdoc.title) + gdoc.language.map("_" + _).getOrElse("")
     
@@ -80,7 +88,12 @@ class ZipExporter {
     }
   }
   
-  /** Creates the document metadata JSON file for a GeoDocument **/
+  /** Creates the document metadata JSON file for a GeoDocument 
+    *
+    * @param gdoc the GeoDocument
+    * @param parts the parts of the GeoDocument
+    * @param texts the texts associated with the GeoDocument
+    */
   private def createMetaFile(gdoc: GeoDocument, parts: Seq[GeoDocumentPart], texts: Seq[GeoDocumentText])(implicit session: Session): TemporaryFile = {
     val gdocNamePrefix = escapeTitle(gdoc.title) + gdoc.language.map("_" + _).getOrElse("")
     
@@ -118,7 +131,12 @@ class ZipExporter {
     metaFile
   }
    
-  /** Adds a file to a ZIP archive **/
+  /** Adds a file to a ZIP archive
+    *
+    * @param file the file to add to the ZIP
+    * @param filename the (relative) path and name of the file within the ZIP
+    * @param zip the ZIP output stream 
+    */
   private def addToZip(file: File, filename: String, zip: ZipOutputStream) = {
     zip.putNextEntry(new ZipEntry(filename))
     val in = new BufferedInputStream(new FileInputStream(file))
@@ -135,6 +153,8 @@ class ZipExporter {
     *
     * We keep this separate, so we have a central location to add stuff 
     * in the future if necessary.  
+    * 
+    * @param title the title
     */
   def escapeTitle(title: String): String =
     title.replace(" ", "_")

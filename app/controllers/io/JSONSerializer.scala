@@ -1,10 +1,9 @@
 package controllers.io
 
-import global.Global
+import global.{ CrossGazetteerUtils, Global }
 import models._
 import play.api.db.slick._
 import play.api.libs.json.{ Json, JsObject }
-import global.CrossGazetteerUtils
 
 /** Utility object to serialize Annotation data to JSON.
   * 

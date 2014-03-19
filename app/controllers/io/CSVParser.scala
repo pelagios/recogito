@@ -1,11 +1,11 @@
 package controllers.io
 
+import java.io.Reader
 import java.util.UUID
+import java.util.regex.Pattern
 import models._
 import play.api.db.slick._
 import scala.io.Source
-import java.io.Reader
-import java.util.regex.Pattern
 
 /** Utility object to convert CSV input data to Annotation objects.
   * 
@@ -25,6 +25,11 @@ class CSVParser extends BaseParser {
   def parse(file: String, gdocId: Int)(implicit s: Session): Seq[Annotation] =
     parse(Source.fromFile(file), gdocId)
     
+  /** Parses CSV from a scala.io.Source.
+    * 
+    * @param source the CSV source
+    * @param gdocId the database ID of the GeoDocument to import to
+    */
   def parse(source: Source, gdocId: Int)(implicit s: Session): Seq[Annotation] = {
     val data = source.getLines    
     val header = data.take(1).toSeq.head.split(SEPARATOR, -1).toSeq 

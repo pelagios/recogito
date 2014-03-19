@@ -10,10 +10,19 @@ import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import scala.io.Source
 
+/** Utility object to import data from a ZIP file.
+  *
+  * The internal structure and format of the ZIP file is compatible with that
+  * produced by the ZipExporter.   
+  */
 object ZipImporter {
   
   private val UTF8 = "UTF-8"
   
+  /** Import a Zip file into Recogito 
+    *
+    * @param zipFile the ZIP file
+    */
   def importZip(zipFile: ZipFile)(implicit s: Session) = {
     val entries = zipFile.entries.asScala.toSeq
  
@@ -76,6 +85,13 @@ object ZipImporter {
     Logger.info("Import complete")
   }
   
+  /** Imports UTF-8 plaintext.
+    *
+    * @param zipFile the ZIP file
+    * @param entryName the name of the text file within the ZIP
+    * @param gdocId the ID of the GeoDocument the text is associated with
+    * @param gdocPartId the ID of the GeoDocumentPart the text is associated with (if any) 
+    */
   private def importText(zipFile: ZipFile, entryName: String, gdocId: Int, gdocPartId: Option[Int])(implicit s: Session) = {
     val text = getEntry(zipFile, entryName)    
     if (text.isDefined) {
@@ -84,6 +100,12 @@ object ZipImporter {
     }
   }
   
+  /** Imports annotations from a CSV.
+    *
+    * @param zipFile the ZIP file
+    * @param entryName the name of the CSV file within the ZIP
+    * @param gdocId the ID of the GeoDocument the annotations are associated with
+    */  
   private def importAnnotations(zipFile: ZipFile, entryName: String, gdocId: Int)(implicit s: Session) = {
     val csv = getEntry(zipFile, entryName)
     if (csv.isDefined) {
@@ -93,6 +115,11 @@ object ZipImporter {
     }
   }
   
+  /** Helper method to get an entry from a ZIP file.
+    *
+    * @param zipFile the ZIP file
+    * @param name the entry's name within the ZIP 
+    */
   private def getEntry(zipFile: ZipFile, name: String): Option[Source] = {
     val entry = zipFile.getEntry(name)
     if (entry == null)
