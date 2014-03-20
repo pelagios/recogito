@@ -14,6 +14,9 @@ case class GeoDocument(
     /** Id **/
     id: Option[Int], 
     
+    /** An external (URI) identifier for the 'Work' (in terms of FRBR terminology) **/
+    externalWorkID: Option[String],
+    
     /** Author (if known) **/
     author: Option[String], 
     
@@ -32,9 +35,9 @@ case class GeoDocument(
     /** Free-text description **/
     description: Option[String] = None, 
     
-    /** Online or bibliographic source **/
+    /** Online or bibliographic source from where the text was obtained **/
     source: Option[String] = None,
-      
+          
     /** Collection memberships
       * 
       * A GeoDocument can be part of multiple collections. This field contains all collection 
@@ -54,6 +57,8 @@ object GeoDocuments extends Table[GeoDocument]("gdocuments") {
   
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   
+  def externalWorkID = column[String]("ext_work_id", O.Nullable)
+  
   def author = column[String]("author", O.Nullable)
   
   def title = column[String]("title")
@@ -70,7 +75,8 @@ object GeoDocuments extends Table[GeoDocument]("gdocuments") {
   
   def _collections = column[String]("collections", O.Nullable)
 
-  def * = id.? ~ author.? ~ title ~ date.? ~ dateComment.? ~ language.? ~ description.? ~ source.? ~ _collections.? <> (GeoDocument.apply _, GeoDocument.unapply _)
+  def * = id.? ~ externalWorkID.? ~ author.? ~ title ~ date.? ~ dateComment.? ~ language.? ~ 
+    description.? ~ source.? ~ _collections.? <> (GeoDocument.apply _, GeoDocument.unapply _)
   
   def listAll()(implicit s: Session): Seq[GeoDocument] = Query(GeoDocuments).list
   

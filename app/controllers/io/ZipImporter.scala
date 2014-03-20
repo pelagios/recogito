@@ -35,14 +35,16 @@ object ZipImporter {
       Logger.info("Importing " + metafile)
       
       val json = Json.parse(Source.fromInputStream(zipFile.getInputStream(metafile)).getLines.mkString("\n"))
-      val docTitle = (json \ "title").as[String]
+      val docExtWorkID = (json \ "external_work_id").as[Option[String]]
       val docAuthor = (json \ "author").as[Option[String]]
+      val docTitle = (json \ "title").as[String]
       val docDate = (json \ "date").as[Option[Int]]
       val docDateComment = (json \ "date_comment").as[Option[String]]
-      val docDescription = (json \ "description").as[Option[String]]
       val docLanguage = (json \ "language").as[Option[String]]
+      val docDescription = (json \ "description").as[Option[String]]
       val docSource = (json \ "source").as[Option[String]]
       val docCollections = (json \ "source").as[Option[String]]
+      
       val docText = (json \ "text").as[Option[String]]
       val docAnnotations = (json \ "annotations").as[Option[String]]
       val docParts = (json \ "parts").as[Option[List[JsObject]]]
@@ -50,7 +52,7 @@ object ZipImporter {
       // Insert the document
       Logger.info("... document")
       val gdocId = GeoDocuments returning GeoDocuments.id insert
-        GeoDocument(None, docAuthor, docTitle, docDate, docDateComment, docLanguage, docDescription, docSource, docSource)
+        GeoDocument(None, docExtWorkID, docAuthor, docTitle, docDate, docDateComment, docLanguage, docDescription, docSource, docSource)
       
       // Insert text (if any)
       if (docText.isDefined) {
