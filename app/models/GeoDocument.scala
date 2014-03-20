@@ -33,9 +33,21 @@ case class GeoDocument(
     description: Option[String] = None, 
     
     /** Online or bibliographic source **/
-    source: Option[String] = None) 
+    source: Option[String] = None,
+      
+    /** Collection memberships
+      * 
+      * A GeoDocument can be part of multiple collections. This field contains all collection 
+      * names, separated by comma.
+      */
+    private val _collections: Option[String] = None) 
     
-  extends GeoDocumentStats
+  extends GeoDocumentStats {
+  
+  /** Helper val that tokenizes the value of the 'collections' DB field into a Seq[String] **/
+  lazy val collections: Seq[String] = _collections.map(_.split(",").toSeq).getOrElse(Seq.empty[String])  
+  
+}
 
 /** Geospatial Documents database table **/
 object GeoDocuments extends Table[GeoDocument]("gdocuments") {
@@ -55,8 +67,10 @@ object GeoDocuments extends Table[GeoDocument]("gdocuments") {
   def description = column[String]("description", O.Nullable)
   
   def source = column[String]("source", O.Nullable)
+  
+  def _collections = column[String]("collections", O.Nullable)
 
-  def * = id.? ~ author.? ~ title ~ date.? ~ dateComment.? ~ language.? ~ description.? ~ source.? <> (GeoDocument.apply _, GeoDocument.unapply _)
+  def * = id.? ~ author.? ~ title ~ date.? ~ dateComment.? ~ language.? ~ description.? ~ source.? ~ _collections.? <> (GeoDocument.apply _, GeoDocument.unapply _)
   
   def listAll()(implicit s: Session): Seq[GeoDocument] = Query(GeoDocuments).list
   

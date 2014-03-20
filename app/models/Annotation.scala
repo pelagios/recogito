@@ -54,14 +54,14 @@ case class Annotation(
     /** Reference(s) to (a) related annotation(s) 
       * 
       * Related annotations are referred to by their UUID. If multiple
-      * annotations are related, this filed contains multiple annotations
+      * annotations are related, this field contains multiple annotations
       * separated by comma.
       */
     private val _seeAlso: Option[String] = None
     
 ) {
   
-  /** Helper val that tokenizes the value of the 'see_also' DB filed into a Seq[String **/
+  /** Helper val that tokenizes the value of the 'see_also' DB field into a Seq[String] **/
   lazy val seeAlso: Seq[String] = _seeAlso.map(_.split(",").toSeq).getOrElse(Seq.empty[String])
   
   /** Helper val that returns the 'valid' gazetteer URI - i.e. the correction, if any, or the automatch otherwise **/
