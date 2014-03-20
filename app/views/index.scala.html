@@ -32,8 +32,8 @@
             <div id="info">
               logged in as: <strong>@user.username</strong>
               <p id="user-links">
-                @if(user.isAdmin) { <a href="@routes.AdminController.backup">Administration</a> }
-                <a href="#">My Settings</a>
+                @if(user.isAdmin) { <a href="@routes.AdminController.backup" title="Administration Access to Recogito">Administration</a> }
+                <a href="#" title="Edit User Settings">My Settings</a>
               </p>
             </div> 
             

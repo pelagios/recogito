@@ -60,7 +60,9 @@ POST    /recogito/admin/documents                controllers.AdminController.upl
 GET     /recogito/admin/users/download           controllers.AdminController.downloadUsers
 POST    /recogito/admin/users                    controllers.AdminController.uploadUsers
 GET     /recogito/admin/history/download         controllers.AdminController.downloadEditHistory
+POST    /recogito/admin/history                  controllers.AdminController.uploadEditHistory
 GET     /recogito/admin/timeline/download        controllers.AdminController.downloadStatsTimeline
+POST    /recogito/admin/timeline                 controllers.AdminController.uploadStatsTimeline
 POST    /recogito/admin/annotations              controllers.AdminController.uploadAnnotations(doc: Int)
 DELETE  /recogito/admin/annotations              controllers.AdminController.deleteAnnotations(doc: Int)
 GET     /recogito/admin/backup                   controllers.AdminController.backup

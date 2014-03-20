@@ -45,7 +45,76 @@
       </table>
       
       <h2>Restore</h2>
-      
+      <table>
+        <tr>
+          <td>
+            <button class="upload icon" data-input="upload-documents">&#xf093;</button>
+          </td>
+          <td>
+            Restore Documents from ZIP
+          </td>
+          <td>
+            @helper.form(action = routes.AdminController.uploadDocuments(), 'enctype -> "multipart/form-data") {
+              <input type="file" id="upload-documents" name="zip" accept=".zip">
+            }
+          </td>
+        </tr>
+        
+        <tr>
+          <td>
+            <button class="upload icon" data-input="upload-users">&#xf093;</button>
+          </td>
+          <td>
+            Restore Users from CSV
+          </td>
+          <td>
+            @helper.form(action = routes.AdminController.uploadUsers(), 'enctype -> "multipart/form-data") {
+              <input type="file" id="upload-users" name="csv" accept=".csv">
+            }
+          </td>
+        </tr>
+        
+        <tr>
+          <td>
+            <button class="upload icon" data-input="upload-history">&#xf093;</button>
+          </td>
+          <td>
+            Restore Edit History from CSV
+          </td>
+          <td>
+            @helper.form(action = routes.AdminController.uploadEditHistory(), 'enctype -> "multipart/form-data") {
+              <input type="file" id="upload-history" name="csv" accept=".csv">
+            }
+          </td>
+        </tr>
+        
+        <tr>
+          <td>
+            <button class="upload icon" data-input="upload-timeline">&#xf093;</button>
+          </td>
+          <td>
+            Restore Daily Stats Timeline from CSV
+          </td>
+          <td>
+            @helper.form(action = routes.AdminController.uploadStatsTimeline(), 'enctype -> "multipart/form-data") {
+              <input type="file" id="upload-timeline" name="csv" accept=".csv">
+            }
+          </td>
+        </tr>
+      </table>
     </div>
+    
+    <script type="text/javascript">
+      // Wire CSS-styled upload button to hidden file input 
+      $('.upload').click(function(e) {
+        var inputId = e.target.getAttribute('data-input');
+        $('#' + inputId).click();  
+      });
+
+      // Set the hidden inputs to auto-submit
+      $('input:file').change(function(e) {
+        e.target.parentNode.submit();  
+      });
+    </script>
   </body>
 </html>

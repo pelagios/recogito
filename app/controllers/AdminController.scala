@@ -76,7 +76,7 @@ object AdminController extends Controller with Secured {
     val formData = session.request.body.asMultipartFormData
     if (formData.isDefined) {
       formData.get.file("zip").map(filePart => ZipImporter.importZip(new ZipFile(filePart.ref.file)))
-      Redirect(routes.AdminController.index)
+      Redirect(routes.AdminController.backup)
     } else {
       BadRequest
     }
@@ -121,7 +121,7 @@ object AdminController extends Controller with Secured {
   def uploadUsers = adminAction { username => implicit session =>
     val formData = session.request.body.asMultipartFormData
     if (formData.isDefined) {
-      formData.get.file("users").map(filePart => {
+      formData.get.file("csv").map(filePart => {
         val users = new CSVParser().parseUsers(filePart.ref.file.getAbsolutePath)
         Users.insertAll(users:_*)
       })
@@ -149,9 +149,17 @@ object AdminController extends Controller with Secured {
     }
   }
   
+  def uploadEditHistory = adminAction { username => implicit session =>
+    Redirect(routes.AdminController.backup)
+  }
+  
   def downloadStatsTimeline = adminAction { username => implicit session =>
     val csv = new CSVSerializer().serializeStats(StatsHistory.listAll)
     Ok(csv).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> "attachment; filename=recogito-stats-timeline.csv")
+  }
+  
+  def uploadStatsTimeline = adminAction { username => implicit session =>
+    Redirect(routes.AdminController.backup)
   }
   
 }
