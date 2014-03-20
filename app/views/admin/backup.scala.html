@@ -35,37 +35,37 @@
           @message
         </div>
       }
-      <h2>Backup</h2>
+      <h2>Download Database Contents</h2>
       <table>
         <tr>
           <td><button class="icon" onclick="location.href='@routes.AdminController.downloadAllDocuments()'">&#xf019;</button></td>
-          <td>Backup Documents (ZIP)</td>
+          <td>Download All Documents (ZIP)</td>
         </tr>
         
         <tr>
           <td><button class="icon" onclick="location.href='@routes.AdminController.downloadUsers()'">&#xf019;</button></td>
-          <td>Backup User (CSV)</td>
+          <td>Download Users (CSV)</td>
         </tr>
         
         <tr>
           <td><button class="icon" onclick="location.href='@routes.AdminController.downloadEditHistory()'">&#xf019;</button></td>
-          <td>Backup Edit History (CSV)</td>
+          <td>Download Edit History (CSV)</td>
         </tr>
         
         <tr>
           <td><button class="icon" onclick="location.href='@routes.AdminController.downloadStatsTimeline()'">&#xf019;</button></td>
-          <td>Backup Daily Stats Timeline (CSV)</td>
+          <td>Download Daily Stats Timeline (CSV)</td>
         </tr>
       </table>
       
-      <h2>Restore</h2>
+      <h2>Upload to Database</h2>
       <table>
         <tr>
           <td>
             <button class="upload icon" data-input="upload-documents">&#xf093;</button>
           </td>
           <td>
-            Restore Documents from ZIP
+            Upload Document ZIP
           </td>
           <td>
             @helper.form(action = routes.AdminController.uploadDocuments(), 'enctype -> "multipart/form-data") {
@@ -79,7 +79,7 @@
             <button class="upload icon" data-input="upload-users">&#xf093;</button>
           </td>
           <td>
-            Restore Users from CSV
+            Upload User CSV
           </td>
           <td>
             @helper.form(action = routes.AdminController.uploadUsers(), 'enctype -> "multipart/form-data") {
@@ -93,7 +93,7 @@
             <button class="upload icon" data-input="upload-history">&#xf093;</button>
           </td>
           <td>
-            Restore Edit History from CSV
+            Upload Edit History CSV
           </td>
           <td>
             @helper.form(action = routes.AdminController.uploadEditHistory(), 'enctype -> "multipart/form-data") {
@@ -107,7 +107,7 @@
             <button class="upload icon" data-input="upload-timeline">&#xf093;</button>
           </td>
           <td>
-            Restore Daily Stats Timeline from CSV
+            Upload Daily Stats CSV
           </td>
           <td>
             @helper.form(action = routes.AdminController.uploadStatsTimeline(), 'enctype -> "multipart/form-data") {

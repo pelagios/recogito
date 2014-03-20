@@ -86,6 +86,7 @@ object ZipImporter {
     })
     
     Logger.info("Import complete")
+    metafiles.size
   }
   
   /** Imports UTF-8 plaintext.
