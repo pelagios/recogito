@@ -1,2 +1,40 @@
 @import "../globals.less";
 @import "../header.less";
+
+#content {
+  padding:120px 60px 60px 60px;
+  
+  button, input[type=submit]  {
+    .rounded-corners(3px);
+    font-size:11px;
+    line-height: 1;
+    padding: 4px 12px 3px 12px;
+    text-align: center;
+    cursor: pointer; 
+    .gradient(#eee, #ccc);
+    border: 1px solid #ccc;
+    border-bottom: 1px solid #bbb;
+    color: #555;
+  }
+
+  button:hover, input[type=submit]:hover {
+    .gradient(#ddd, #bbb);
+    border: 1px solid #bbb;
+    border-bottom: 1px solid #999; 
+    text-shadow: 0 1px 0 #ddd;
+  }
+
+  button:active, input[type=submit]:active {
+    border: 1px solid #aaa;
+    border-bottom: 1px solid #888;
+    -webkit-box-shadow: inset 0 0 5px 2px #aaaaaa, 0 1px 0 0 #eeeeee;
+    -moz-box-shadow: inset 0 0 5px 2px #aaaaaa, 0 1px 0 0 #eeeeee;
+    box-shadow: inset 0 0 5px 2px #aaaaaa, 0 1px 0 0 #eeeeee;
+  }
+
+  button.big {
+    font-size:22px;
+    padding: 10px 20px;
+  }
+  
+}

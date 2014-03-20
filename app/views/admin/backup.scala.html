@@ -21,7 +21,31 @@
     </div>  
     
     <div id="content">
-    foo
+      <h2>Backup</h2>
+      <table>
+        <tr>
+          <td><button class="icon" onclick="location.href='@routes.AdminController.downloadAllDocuments()'">&#xf019;</button></td>
+          <td>Backup Documents (ZIP)</td>
+        </tr>
+        
+        <tr>
+          <td><button class="icon" onclick="location.href='@routes.AdminController.downloadUsers()'">&#xf019;</button></td>
+          <td>Backup User (CSV)</td>
+        </tr>
+        
+        <tr>
+          <td><button class="icon" onclick="location.href='@routes.AdminController.downloadEditHistory()'">&#xf019;</button></td>
+          <td>Backup Edit History (CSV)</td>
+        </tr>
+        
+        <tr>
+          <td><button class="icon" onclick="location.href='@routes.AdminController.downloadStatsTimeline()'">&#xf019;</button></td>
+          <td>Backup Daily Stats Timeline (CSV)</td>
+        </tr>
+      </table>
+      
+      <h2>Restore</h2>
+      
     </div>
   </body>
 </html>
