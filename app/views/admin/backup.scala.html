@@ -1,3 +1,4 @@
+@()(implicit flash: Flash)
 <html>
   <head>
     <title>RECOGITO Administration » Backup &amp; Restore</title>
@@ -21,6 +22,19 @@
     </div>  
     
     <div id="content">
+      @flash.get("error").map { message =>
+      	<h2>Something's wrong with your uploaded file.</h2>
+      	<p>Maybe this error message is of help.</p>
+        <div class="error">
+          @message
+        </div>
+      }
+      
+      @flash.get("success").map { message =>
+        <div class="success">
+          @message
+        </div>
+      }
       <h2>Backup</h2>
       <table>
         <tr>

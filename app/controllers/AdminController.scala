@@ -19,6 +19,7 @@ import scala.concurrent.Future
 import controllers.io.CSVSerializer
 import controllers.io.CSVSerializer
 import controllers.io.CSVSerializer
+import com.fasterxml.jackson.core.JsonParseException
 
 /** Administration features.
   * 
@@ -75,8 +76,12 @@ object AdminController extends Controller with Secured {
   def uploadDocuments = adminAction { username => implicit session =>
     val formData = session.request.body.asMultipartFormData
     if (formData.isDefined) {
-      formData.get.file("zip").map(filePart => ZipImporter.importZip(new ZipFile(filePart.ref.file)))
-      Redirect(routes.AdminController.backup)
+      try {
+        formData.get.file("zip").map(filePart => ZipImporter.importZip(new ZipFile(filePart.ref.file)))
+        Redirect(routes.AdminController.backup).flashing("success" -> "Upload Successful.")
+      } catch {
+        case t: Throwable => Redirect(routes.AdminController.backup).flashing("error" -> t.getMessage)
+      }
     } else {
       BadRequest
     }
@@ -125,7 +130,7 @@ object AdminController extends Controller with Secured {
         val users = new CSVParser().parseUsers(filePart.ref.file.getAbsolutePath)
         Users.insertAll(users:_*)
       })
-      Redirect(routes.AdminController.index)
+      Redirect(routes.AdminController.backup)
     } else {
       BadRequest
     }
