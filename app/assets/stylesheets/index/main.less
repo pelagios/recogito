@@ -53,21 +53,53 @@ html, body {
                 
       } /* #login */
       
-      #logout {
+      #current-user {
         position:absolute;
-        top:22px;
+        top:14px;
         right:25px;
         
-        a {
-          text-decoration:none;
-          color:#f2f2f2;
-          margin-left:6px;
+        #info {
+          display:inline-block;
           
-          .icon {
-            position:relative;
-            top:1px;
+          #user-links {
+            font-size:11px;
+            text-shadow:none;
+            padding:0;
+            margin:2px 0;
+            text-align:right;
+            
+            a { 
+              color:#c2c2c2; 
+              margin-left:4px;
+              text-decoration:none;
+            }
+          
+            a:hover {
+              color:#f2f2f2;
+              text-decoration:underline;
+            }
+            
           }
+           
         }
+        
+        #logout {
+          vertical-align:top;
+          display:inline-block;
+  
+          a {
+            text-decoration:none;
+            color:#f2f2f2;
+            margin-left:6px;
+          
+            .icon {
+              position:relative;
+              top:1px;
+            }
+          }
+           
+        }
+        
       }
           
     } /* #title */
