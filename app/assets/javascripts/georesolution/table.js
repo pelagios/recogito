@@ -26,8 +26,8 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
                    { name: 'Toponym', field: 'toponym', id: 'toponym', sortable:true, formatter: Formatters.ToponymFormatter },
                    { name: 'EGD Part', field: 'part', id: 'part' },
                    { name: 'Tags', field: 'tags', id: 'tags', formatter: Formatters.TagsFormatter },
-                   { name: 'Auto Match', field: 'place', id: 'place' , formatter: Formatters.PleiadesFormatter },
-                   { name: 'Corrected', field: 'place_fixed', id: 'place_fixed', formatter: Formatters.PleiadesFormatter },
+                   { name: 'Auto Match', field: 'place', id: 'place' , formatter: Formatters.GazeeteerURIFormatter },
+                   { name: 'Corrected', field: 'place_fixed', id: 'place_fixed', formatter: Formatters.GazeeteerURIFormatter },
                    { name: 'Status', field: 'status', id: 'status', headerCssClass: 'table-status-header', width:80, formatter: Formatters.StatusFormatter }];
    
     // Initialize dataView and grid
@@ -407,7 +407,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
       }
     },
     
-    PleiadesFormatter : function(row, cell, value, columnDef, dataContext) {  
+    GazeeteerURIFormatter : function(row, cell, value, columnDef, dataContext) {  
       if (value) {
         if (value.uri.indexOf('http://pleiades.stoa.org') == 0) {
           var id =  value.uri.substring(32);
@@ -424,6 +424,9 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
             return '<span class="icon empty"></span>' + formatted;
           else
             return '<span title="Place has no coordinates" class="icon no-coords">&#xf041;</span>' + formatted;
+        } else if (value.uri.indexOf('http://www.alraqmiyyat.org') == 0) {
+          return '<span class="icon empty"></span><a href="' + value.uri + '" target="_blank" title="' + value.title + '">' +
+            'thurayya:' + value.uri.substring(39) + '</a>';
         } else {
           return value.title;
         }
