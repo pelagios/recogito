@@ -7,7 +7,7 @@ GET     /recogito/static/*file                   controllers.Assets.at(path="/pu
 
 
 # Authentication
-GET     /recogito/login                          controllers.AuthController.login
+GET     /recogito/login                          controllers.AuthController.login(destination: Option[String])
 POST    /recogito/login                          controllers.AuthController.authenticate
 GET     /recogito/logout                         controllers.AuthController.logout
 GET     /recogito/signup                         controllers.UserController.signup
