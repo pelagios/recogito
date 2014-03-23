@@ -30,7 +30,9 @@
       <p>
         <button type="submit" id="loginbutton">Login</button>
       </p>   
-      <input type="hidden" name="destination" value="@destination.getOrElse("")">   
+      @if(destination.isDefined) {
+        <input type="hidden" name="destination" value="@destination.get">   
+      }
     }       
   </body>
 </html>
