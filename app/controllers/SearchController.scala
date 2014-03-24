@@ -19,54 +19,20 @@ object SearchController extends Controller {
   private val DARE_PREFIX = "http://www.imperium.ahlfeldt.se/"
   private val PLEIADES_PREFIX = "http://pleiades.stoa.org"
     
-  private def conflateNetwork(network: Network) = {
-    if (network.places.size == 1) {
-      val place = network.places.head
-      Json.obj(
+  def placeSearch(query: String) = Action {
+    val networks = Global.index.query(query, true).map(Global.index.getNetwork(_))
+    val results = Network.conflateNetworks(networks.toSeq, 
+        Some(PLEIADES_PREFIX), // prefer Pleiades URIs
+        Some(DARE_PREFIX),     // prefer DARE for coordinates
+        Some(PLEIADES_PREFIX)) // prefer Pleiades for descriptions
+    
+    Ok(Json.obj("query" -> query, "results" -> results.map(place => Json.obj(
         "uri" -> place.uri,
         "title" -> place.title,
         "names" -> place.names.map(_.label).mkString(", "),
         "description" -> place.descriptions.map(_.label).mkString(", "),
         "category" -> place.category.map(_.toString),
-        "coordinate" -> place.getCentroid.map(coords => Json.toJson(Seq(coords.y, coords.x))))
-    } else {
-      val head = network.places.head
-      val tail = network.places.tail
-      
-      // We prefer DARE coordinates (if we have them) because of our background map
-      val coordinate = {
-        val dare = network.places.filter(_.uri.startsWith(DARE_PREFIX))
-        if (dare.size > 0)
-          dare.head.getCentroid
-        else
-          head.getCentroid
-      }
-      
-      // We prefer Pleiades URI and description (if we have it)
-      val (uri, descriptions) = {
-        val pleiades = network.places.filter(_.uri.startsWith(PLEIADES_PREFIX))
-        if (pleiades.size > 0)
-          (pleiades.head.uri, pleiades.head.descriptions)
-        else
-          (head.uri, head.descriptions) 
-      }
-      
-      Json.obj(
-        "uri" -> uri,
-        "title" -> head.title,
-        "names" -> (head.names ++ tail.flatMap(_.names)).map(_.label).mkString(", "),
-        "description" -> descriptions.map(_.label).mkString(", "),
-        "category" -> head.category.map(_.toString),
-        "coordinate" -> coordinate.map(coords => Json.toJson(Seq(coords.y, coords.x))))
-    }
-  }
-    
-  def placeSearch(query: String) = Action {
-    // The .toSet ensures there are no duplicate entries - but it also looses ranking order
-    // TODO think of a better way to de-duplicate without losing order
-    val networks = Global.index.query(query, true).map(Global.index.getNetwork(_)).toSet    
-    val results = networks.map(conflateNetwork(_))
-    Ok(Json.obj("query" -> query, "results" -> Json.toJson(results)))
+        "coordinate" -> place.getCentroid.map(coords => Json.toJson(Seq(coords.y, coords.x)))))))
   }
 
 }

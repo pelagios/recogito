@@ -24,12 +24,17 @@ import org.pelagios.api.TranscriptionType
 import org.pelagios.api.selectors.TextOffsetSelector
 import org.pelagios.api.SpecificResource
 import global.Global
+import org.pelagios.gazetteer.Network
 
 /** Annotation CRUD controller.
   *
   * @author Rainer Simon <rainer.simon@ait.ac.at> 
   */
 object AnnotationController extends Controller with Secured {
+  
+  private val DARE_PREFIX = "http://www.imperium.ahlfeldt.se/"
+    
+  private val PLEIADES_PREFIX = "http://pleiades.stoa.org"
   
   private val UTF8 = "UTF-8"
 
@@ -115,7 +120,12 @@ object AnnotationController extends Controller with Secured {
         val correctedOffset = (json \ "corrected_offset").as[Int]   
         
         val automatch = { 
-          val matches = Global.index.query(correctedToponym, true)
+          val networks = Global.index.query(correctedToponym, true).map(Global.index.getNetwork(_))
+          val matches = Network.conflateNetworks(networks.toSeq, 
+            Some(PLEIADES_PREFIX), // prefer Pleiades URIs
+            Some(DARE_PREFIX),     // prefer DARE for coordinates
+            Some(PLEIADES_PREFIX)) // prefer Pleiades for descriptions
+            
           if (matches.size > 0)
             Some(matches.head)
           else
