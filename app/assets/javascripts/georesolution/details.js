@@ -91,7 +91,7 @@ define(['georesolution/common'], function(common) {
     var displaySearchResult = function(result, opt_style) {
       var category = (result.category) ? common.Utils.formatCategory(result.category) : 'uncategorized';
       var warning = (result.coordinate) ? '<td></td>' : '<td><span title="Place has no coordinates" class="icon no-coords">&#xf041;</span></td>'     
-      var tr = $('<tr><td>' + common.Utils.categoryTag(result.category) + '</td>' + warning + '<td><a href="javascript:void(0);" title="' + category + '" class="details-content-candidate-link">' + result.title + '</a></td><td>' + result.description + '</td></tr>');
+      var tr = $('<tr><td>' + common.Utils.categoryTag(result.category) + '</td>' + warning + '<td><a href="javascript:void(0);" title="' + category + ' - ' + result.uri + ' (' + result.names + ')" class="details-content-candidate-link">' + result.title + '</a></td><td>' + result.description + '</td></tr>');
       var marker = undefined;
       if (result.coordinate) {
         if (opt_style)
