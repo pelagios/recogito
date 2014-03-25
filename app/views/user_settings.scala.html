@@ -1,0 +1,57 @@
+@(form: Form[controllers.ChangePasswordData])(implicit flash: Flash)
+
+<html>
+  <head>
+    <title>Recogito - My Settings</title>
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/admin/main.css")" />
+  </head>
+  
+  <body>
+    <div id="header">
+      <div id="title">My Settings
+        <div id="home-button"><a href="@routes.ApplicationController.index()" class="icon">&#xf015;</a></div>
+      </div> 
+      
+      <div id="menu">
+        <ul>
+          <li class="active"><a href="#" onclick="return false;">Change Password</a></li>
+        </ul>
+      </div>    
+    </div> 
+    
+    <div id="content" style="clear:both">
+      @helper.form(routes.UserController.processChangePassword) {          
+        @form.globalError.map { error =>
+          <div class="error">
+            @error.message
+          </div>
+        }
+        
+        @flash.get("error").map { message =>
+          <div class="error">
+            @message
+          </div>
+        }
+            
+        @flash.get("success").map { message =>
+          <div class="success">
+            @message
+          </div>
+        }
+            
+        <p>
+          <input type="password" name="oldPassword" id="oldPassword" placeholder="Current Password">
+        </p>
+        <p>
+          <input type="password" name="newPassword" id="newPassword" placeholder="New Password">
+        </p>
+        <p>
+          <input type="password" name="confirmPassword" id="confirmPassword" placeholder="Confirm New Password">
+        </p>
+        <p>
+          <button type="submit">Sign Up</button>
+        </p>      
+      }
+    </div>
+  </body>
+</html>

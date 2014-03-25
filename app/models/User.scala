@@ -60,5 +60,9 @@ object Users extends Table[User]("users") {
   
   def findByUsername(username: String)(implicit s: Session): Option[User] =
     Query(Users).where(_.username === username).firstOption
+    
+  /** Update an annotation **/
+  def update(user: User)(implicit s: Session) =
+    Query(Users).where(_.username === user.username).update(user)
   
 }

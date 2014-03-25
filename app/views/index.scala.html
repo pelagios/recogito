@@ -33,7 +33,7 @@
               logged in as: <strong>@user.username</strong>
               <p id="user-links">
                 @if(user.isAdmin) { <a href="@routes.AdminController.backup" title="Administration Access to Recogito">Administration</a> }
-                <a href="#" title="Edit User Settings">My Settings</a>
+                <a href="@routes.UserController.changePassword" title="Edit User Settings">My Settings</a>
               </p>
             </div> 
             

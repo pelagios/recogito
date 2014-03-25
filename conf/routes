@@ -12,6 +12,8 @@ POST    /recogito/login                          controllers.AuthController.auth
 GET     /recogito/logout                         controllers.AuthController.logout
 GET     /recogito/signup                         controllers.UserController.signup
 POST    /recogito/signup                         controllers.UserController.processSignup
+GET     /recogito/settings                       controllers.UserController.changePassword
+POST    /recogito/settings                       controllers.UserController.processChangePassword
 
 
 # JSON API
