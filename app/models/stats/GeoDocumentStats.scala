@@ -15,7 +15,13 @@ trait GeoDocumentStats {
   
   /** Total # of toponyms in the document, i.e. all that were not marked as 'false detection' **/
   def totalToponymCount()(implicit s: Session): Int =
-    Annotations.countForGeoDocumentAndStatus(id.get, AnnotationStatus.VERIFIED, AnnotationStatus.NOT_VERIFIED, AnnotationStatus.NOT_IDENTIFYABLE)
+    Annotations.countForGeoDocumentAndStatus(id.get, 
+        AnnotationStatus.VERIFIED, 
+        AnnotationStatus.NOT_VERIFIED, 
+        AnnotationStatus.AMBIGUOUS,
+        AnnotationStatus.NO_SUITABLE_MATCH,
+        AnnotationStatus.MULTIPLE,
+        AnnotationStatus.NOT_IDENTIFYABLE)
     
   /** # of verified annotations in the document **/
   def unverifiedToponymCount()(implicit s: Session): Int =
