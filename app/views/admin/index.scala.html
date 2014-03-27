@@ -25,7 +25,7 @@
       function dropDocument(doc) {
         $.ajax({
           type: 'DELETE',
-          url: '@routes.DocumentController.listAll/' + doc,
+          url: '@routes.AdminController.uploadDocuments/' + doc,
           success: function() { location.href = '@routes.AdminController.index'; }
         });
       }
@@ -71,8 +71,8 @@
               }
             </div>
           </div>
-          <button onclick="if (confirm('Are you sure about that?')) deleteAnnotations(@egd.id.get)">Drop All Annotations</button>
-          <button onclick="if (confirm('Are you sure about that?')) deleteDocument(@egd.id.get)">Drop Document</button>
+          <button onclick="if (confirm('Are you sure about that?')) dropAnnotations(@egd.id.get)">Drop All Annotations</button>
+          <button onclick="if (confirm('Are you sure about that?')) dropDocument(@egd.id.get)">Drop Document</button>
         }
       </div>
     }
