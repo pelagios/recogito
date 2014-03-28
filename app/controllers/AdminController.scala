@@ -77,10 +77,21 @@ object AdminController extends Controller with Secured {
     val formData = session.request.body.asMultipartFormData
     if (formData.isDefined) {
       try {
-        val imported = formData.get.file("zip").map(filePart => ZipImporter.importZip(new ZipFile(filePart.ref.file))).getOrElse(0)
-        Redirect(routes.AdminController.backup).flashing("success" -> { "Uploaded " + imported + " document(s)." })
+        val f = formData.get.file("zip")
+        if (f.isDefined) {
+          val zipFile = new ZipFile(f.get.ref.file)
+          val errors = ZipImporter.validateZip(zipFile)
+          if (errors.size == 0) {
+            val imported = ZipImporter.importZip(zipFile)
+            Redirect(routes.AdminController.backup).flashing("success" -> { "Uploaded " + imported + " document(s)." })
+          } else {
+            Redirect(routes.AdminController.backup).flashing("error" -> { "<strong>Your file had " + errors.size + " errors:</strong>" + errors.map("<p>" + _ + "</p>").mkString("\n") })
+          }
+        } else {
+          BadRequest
+        }
       } catch {
-        case t: Throwable => Redirect(routes.AdminController.backup).flashing("error" -> t.getMessage)
+        case t: Throwable => Redirect(routes.AdminController.backup).flashing("error" -> { "There is something wrong with your JSON: " + t.getMessage })
       }
     } else {
       BadRequest

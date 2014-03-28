@@ -9,6 +9,7 @@ import play.api.libs.json.{ Json, JsObject }
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import scala.io.Source
+import play.api.libs.json.JsValue
 
 /** Utility object to import data from a ZIP file.
   *
@@ -33,8 +34,9 @@ object ZipImporter {
       
     metafiles.foreach(metafile => {
       Logger.info("Importing " + metafile)
-      
+            
       val json = Json.parse(Source.fromInputStream(zipFile.getInputStream(metafile)).getLines.mkString("\n"))
+      
       val docExtWorkID = (json \ "external_work_id").as[Option[String]]
       val docAuthor = (json \ "author").as[Option[String]]
       val docTitle = (json \ "title").as[String]
@@ -89,6 +91,32 @@ object ZipImporter {
     metafiles.size
   }
   
+  def validateZip(zipFile: ZipFile): Seq[String] = {
+    val entries = zipFile.entries.asScala.toSeq
+ 
+    // We can have multiple JSON files in the Zip, one per document
+    val metafiles = entries.filter(_.getName.endsWith(".json"))
+    
+    metafiles.flatMap(metafile => {
+      val name = metafile.getName()
+      val json = Json.parse(Source.fromInputStream(zipFile.getInputStream(metafile)).getLines.mkString("\n"))
+
+      val docText = (json \ "text").as[Option[String]]
+      val docAnnotations = (json \ "annotations").as[Option[String]]
+      val docParts = (json \ "parts").as[Option[List[JsObject]]].getOrElse(List.empty[JsObject]).toSeq
+
+      val warnings = Seq(
+        docText.flatMap(txt => if (entryExists(txt, zipFile)) None else Some(name + ": referenced text file " + txt + " is missing from ZIP")),
+        docAnnotations.flatMap(csv => if (entryExists(csv, zipFile)) None else Some(name + ": referenced annotations file " + csv + " is missing from ZIP pacakge"))
+      ) ++ docParts.map(part => {
+        val partText = (part \ "text").as[Option[String]]
+        partText.flatMap(txt => if (entryExists(txt, zipFile)) None else Some(name + ": referenced text file " + txt + " is missing from ZIP"))
+      })
+    
+      warnings.filter(_.isDefined).map(_.get)
+    })
+  }
+  
   /** Imports UTF-8 plaintext.
     *
     * @param zipFile the ZIP file
@@ -118,6 +146,9 @@ object ZipImporter {
       Annotations.insertAll(annotations:_*)
     }
   }
+  
+  private def entryExists(name: String, zipFile: ZipFile): Boolean =
+    zipFile.getEntry(name) != null
   
   /** Helper method to get an entry from a ZIP file.
     *
