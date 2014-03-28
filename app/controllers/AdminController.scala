@@ -166,7 +166,16 @@ object AdminController extends Controller with Secured {
   }
   
   def uploadEditHistory = adminAction { username => implicit session =>
-    Redirect(routes.AdminController.backup)
+    val formData = session.request.body.asMultipartFormData
+    if (formData.isDefined) {
+      formData.get.file("csv").map(filePart => {
+        val history = new CSVParser().parseEditHistory(filePart.ref.file.getAbsolutePath)
+        EditHistory.insertAll(history:_*)
+      })
+      Redirect(routes.AdminController.backup)
+    } else {
+      BadRequest
+    }
   }
   
   def downloadStatsTimeline = adminAction { username => implicit session =>

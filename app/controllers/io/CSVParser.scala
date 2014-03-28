@@ -6,6 +6,8 @@ import java.util.regex.Pattern
 import models._
 import play.api.db.slick._
 import scala.io.Source
+import java.sql.Timestamp
+import models.stats.AnnotationStats
 
 /** Utility object to convert CSV input data to Annotation objects.
   * 
@@ -87,7 +89,7 @@ class CSVParser extends BaseParser {
     * 
     * @param file the CSV file path
     */
-  def parseUsers(file: String)(implicit s: Session): Seq[User] = {
+  def parseUsers(file: String): Seq[User] = {
     val data = Source.fromFile(file).getLines    
     val header = data.take(1).toSeq.head.split(SEPARATOR, -1).toSeq 
     
@@ -105,6 +107,35 @@ class CSVParser extends BaseParser {
         fields(idxSalt.get),
         fields(idxEditableDocuments.get),
         fields(idxIsAdmin.get).toBoolean)
+    }).toSeq
+  }
+  
+  def parseEditHistory(file: String): Seq[EditEvent] = {
+    val data = Source.fromFile(file).getLines
+    val header = data.take(1).toSeq.head.split(SEPARATOR, -1).toSeq
+
+    val idxAnnotationId = idx(header, "annotation_id")
+    val idxUsername = idx(header, "username")
+    val idxTimestamp = idx(header, "timestamp")
+    val idxAnnotationBefore = idx(header, "annotation_before")
+    val idxUpdatedToponym = idx(header, "updated_toponym")
+    val idxUpdatedStatus = idx(header, "updated_status")
+    val idxUpdatedURI = idx(header, "updated_uri")
+    val idxUpdatedTags = idx(header, "updated_tags")
+    val idxUpdatedComment = idx(header, "updated_comment")
+    
+    data.map(_.split(SPLIT_REGEX, -1)).map(fields => {
+      // All fields must be there - it's ok to fail if not
+      EditEvent(None,
+        UUID.fromString(fields(idxAnnotationId.get)),
+        fields(idxUsername.get),
+        new Timestamp(fields(idxTimestamp.get).toLong),
+        idxAnnotationBefore.map(fields(_)),
+        idxUpdatedToponym.map(fields(_)),
+        idxUpdatedStatus.map(s => AnnotationStatus.withName(fields(s))),
+        idxUpdatedURI.map(fields(_)),
+        idxUpdatedTags.map(fields(_)),
+        idxUpdatedComment.map(fields(_)))
     }).toSeq
   }
   
