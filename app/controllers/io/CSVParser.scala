@@ -139,6 +139,15 @@ class CSVParser extends BaseParser {
     }).toSeq
   }
   
+  def parseStatsTimeline(file: String): Seq[StatsRecord] = {
+    val data = Source.fromFile(file).getLines
+    val header = data.take(1).toSeq.head.split(SEPARATOR, -1).toSeq
+
+    // TODO implement
+    
+    Seq.empty[StatsRecord]
+  }
+  
   /** Helper method to find the row index of a specific header label 
     *
     * @param header the CSV headers

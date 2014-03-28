@@ -1,6 +1,6 @@
 package controllers
 
-import controllers.io.{ CSVParser, CSVSerializer, JSONSerializer, ZipImporter }
+import controllers.io.{ CSVParser, CSVSerializer, JSONSerializer, ZipImporter, ZipExporter }
 import java.util.zip.ZipFile
 import models._
 import play.api.data.Form
@@ -10,16 +10,10 @@ import play.api.mvc.{ Action, Controller }
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import play.api.Play.current
-import play.api.libs.json.Json
 import play.api.Logger
-import controllers.io.ZipExporter
-import scala.io.Source
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.concurrent.Future
-import controllers.io.CSVSerializer
-import controllers.io.CSVSerializer
-import controllers.io.CSVSerializer
-import com.fasterxml.jackson.core.JsonParseException
+import scala.io.Source
 
 /** Administration features.
   * 
@@ -164,7 +158,7 @@ object AdminController extends Controller with Secured {
       Future { }.map(_ => Forbidden)      
     }
   }
-  
+    
   def uploadEditHistory = adminAction { username => implicit session =>
     val formData = session.request.body.asMultipartFormData
     if (formData.isDefined) {
@@ -184,7 +178,16 @@ object AdminController extends Controller with Secured {
   }
   
   def uploadStatsTimeline = adminAction { username => implicit session =>
-    Redirect(routes.AdminController.backup)
+    val formData = session.request.body.asMultipartFormData
+    if (formData.isDefined) {
+      formData.get.file("csv").map(filePart => {
+        val timeline = new CSVParser().parseStatsTimeline(filePart.ref.file.getAbsolutePath)
+        StatsHistory.insertAll(timeline:_*)
+      })
+      Redirect(routes.AdminController.backup)
+    } else {
+      BadRequest
+    }
   }
   
 }
