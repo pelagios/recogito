@@ -10,12 +10,32 @@ import play.api.db.slick.Config.driver.simple._
 import play.api.Play.current
 import play.api.Logger
 import scala.io.Source
+import play.api.data.Form
+import play.api.data.Forms._
 
 /** Controller for the 'Documents' section of the admin area.
   * 
   * @author Rainer Simon <rainer.simon@ait.ac.at> 
   */
 object DocumentAdminController extends Controller with Secured {
+  
+  /**
+   * Describes the document form (used in both create and edit documents).
+   */
+  val documentForm = Form(
+	mapping(
+		"id" -> optional(number),
+		"extWorkID" -> optional(text),
+		"author" -> optional(text), 
+		"title" -> text, 
+		"date" -> optional(number), 
+		"dateComment" -> optional(text),
+		"language" -> optional(text),
+		"description" -> optional(text),
+		"source" -> optional(text),
+		"collections" -> optional(text)
+	)(GeoDocument.apply)(GeoDocument.unapply)
+  )
   
   /** Index page listing all documents in the DB **/
   def listAll = adminAction { username => implicit session =>
@@ -69,6 +89,23 @@ object DocumentAdminController extends Controller with Secured {
     } else {
       BadRequest
     }
+  }
+  
+  def create = adminAction { username => implicit session =>
+    Ok(views.html.admin.edit_document(documentForm))
+  }
+  
+  def save = protectedDBAction(Secure.REJECT) { implicit request => implicit session =>
+    documentForm.bindFromRequest.fold(
+    	formWithErrors => BadRequest(views.html.admin.edit_document(formWithErrors)),
+    	document => {GeoDocuments.insert(document)})
+    	Status(200)
+  }
+  
+  def update(id: Int) = DBAction { implicit session =>
+    GeoDocuments.findById(id).map { doc =>
+      Ok(views.html.admin.edit_document(documentForm.fill(doc)))
+    }.getOrElse(NotFound)
   }
   
   /** Import annotations from a CSV file into the document with the specified ID **/

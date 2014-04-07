@@ -1,0 +1,40 @@
+@(documentForm: Form[GeoDocument])
+
+<html>
+  <head>
+    <title>Recogito > Admin > Users</title>
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/admin/main.css")" />
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
+  </head>
+  
+  <body>
+    <div id="header">
+      <div id="title">ADMINISTRATION » Users
+        <div id="home-button"><a href="@routes.ApplicationController.index()" class="icon">&#xf015;</a></div>
+      </div>
+      
+      <div id="menu">
+        <ul>
+          <li><a href="@controllers.admin.routes.DocumentAdminController.listAll()">Documents</a></li>
+          <li><a href="@controllers.admin.routes.UserAdminController.listAll()">Users</a></li>
+          <li><a href="@controllers.admin.routes.BackupRestoreController.index()" >Backup &amp; Restore</a></li>
+        </ul>
+      </div>      
+    </div>
+  
+    <div id="content">
+		@helper.form(controllers.admin.routes.DocumentAdminController.save()) {
+			<fieldset>
+				@helper.inputText(documentForm("title"), '_label -> "Title")
+				@helper.inputText(documentForm("author"), '_label -> "Author")
+				@helper.inputText(documentForm("title"), '_label -> "Date")
+				@helper.textarea(documentForm("title"), '_label -> "Description", 'rows -> 15, 'cols -> 50)
+			</fieldset>
+			
+			<div class="actions">
+            	<input type="submit" value="SAVE" class="btn primary">
+        	</div>
+		}      
+    </div>
+  </body>
+</html>

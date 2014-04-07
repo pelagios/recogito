@@ -66,9 +66,12 @@ POST    /recogito/admin/users                      controllers.admin.BackupResto
 
 GET     /recogito/admin/documents/:id/download     controllers.admin.DocumentAdminController.downloadDocument(id: Int)
 DELETE  /recogito/admin/documents/:id              controllers.admin.DocumentAdminController.deleteDocument(id: Int)
+GET     /recogito/admin/documents/:id              controllers.admin.DocumentAdminController.update(id: Int) 
 POST    /recogito/admin/documents/:id/annotations  controllers.admin.DocumentAdminController.uploadAnnotations(id: Int)
 DELETE  /recogito/admin/documents/:id/annotations  controllers.admin.DocumentAdminController.deleteAnnotations(id: Int)
-POST    /recogito/admin/documents                  controllers.admin.DocumentAdminController.uploadDocuments
+POST    /recogito/admin/documents/upload           controllers.admin.DocumentAdminController.uploadDocuments
+GET     /recogito/admin/documents/new              controllers.admin.DocumentAdminController.create
+POST    /recogito/admin/documents                  controllers.admin.DocumentAdminController.save                  
 GET     /recogito/admin/documents                  controllers.admin.DocumentAdminController.listAll
 
 GET     /recogito/admin/users                      controllers.admin.UserAdminController.listAll
