@@ -19,10 +19,8 @@ import play.api.data.Forms._
   */
 object DocumentAdminController extends Controller with Secured {
   
-  /**
-   * Describes the document form (used in both create and edit documents).
-   */
-  val documentForm = Form(
+  /** The document form (used in both create and edit documents) **/
+  private val documentForm = Form(
 	mapping(
 		"id" -> optional(number),
 		"extWorkID" -> optional(text),
@@ -91,22 +89,28 @@ object DocumentAdminController extends Controller with Secured {
     }
   }
   
-  def create = adminAction { username => implicit session =>
+  /** Create a new document in the UI form **/
+  def createDocument = adminAction { username => implicit session =>
     Ok(views.html.admin.edit_document(documentForm))
   }
   
-  def save = protectedDBAction(Secure.REJECT) { implicit request => implicit session =>
-    documentForm.bindFromRequest.fold(
-    	formWithErrors => BadRequest(views.html.admin.edit_document(formWithErrors)),
-    	document => {GeoDocuments.insert(document)})
-    	Status(200)
-  }
-  
-  def update(id: Int) = DBAction { implicit session =>
+  /** Edit an existing document in the UI form **/
+  def editDocument(id: Int) = DBAction { implicit session =>
     GeoDocuments.findById(id).map { doc =>
       Ok(views.html.admin.edit_document(documentForm.fill(doc)))
     }.getOrElse(NotFound)
   }
+  
+  /** Save a document from the UI form **/
+  def saveDocument = protectedDBAction(Secure.REJECT) { implicit request => implicit session =>
+    documentForm.bindFromRequest.fold(
+      formWithErrors => BadRequest(views.html.admin.edit_document(formWithErrors)),
+      document => {
+        GeoDocuments.insert(document)
+        Redirect(routes.DocumentAdminController.listAll())
+      }
+    )
+  }  
   
   /** Import annotations from a CSV file into the document with the specified ID **/
   def uploadAnnotations(doc: Int) = DBAction(parse.multipartFormData) { implicit session =>
