@@ -25,7 +25,7 @@
       function dropDocument(doc) {
         $.ajax({
           type: 'DELETE',
-          url: '@controllers.admin.routes.AdminController.uploadDocuments/' + doc,
+          url: '@controllers.admin.routes.DocumentAdminController.uploadDocuments/' + doc,
           success: function() { location.href = '@controllers.admin.routes.AdminController.index'; }
         });
       }
@@ -61,7 +61,7 @@
           } else {
             <p>@models.Annotations.countForGeoDocument(egd.id.get) Annotations</p>
           }
-          <button onclick="location.href='@controllers.admin.routes.AdminController.downloadDocument(egd.id.get)'">Download Document as ZIP</button>
+          <button onclick="location.href='@controllers.admin.routes.DocumentAdminController.downloadDocument(egd.id.get)'">Download Document as ZIP</button>
           <div class="import-annotations">
             <button onclick="toggleImportForm('@egd.id.get')">Import Annotations</button>
             <div class="import-annotations-form" id="@egd.id.get">

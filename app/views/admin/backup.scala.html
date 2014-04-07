@@ -14,7 +14,7 @@
       
       <div id="menu">
         <ul>
-          <li><a href="@controllers.admin.routes.AdminController.documents()">Documents</a></li>
+          <li><a href="@controllers.admin.routes.DocumentAdminController.listAll()">Documents</a></li>
           <li><a href="#">Users</a></li>
           <li class="active"><a href="#" onclick="return false;">Backup &amp; Restore</a></li>
         </ul>
@@ -38,22 +38,22 @@
       <h2>Download Database Contents</h2>
       <table>
         <tr>
-          <td><button class="icon" onclick="location.href='@controllers.admin.routes.AdminController.downloadAllDocuments()'">&#xf019;</button></td>
+          <td><button class="icon" onclick="location.href='@controllers.admin.routes.BackupRestoreController.downloadAllDocuments()'">&#xf019;</button></td>
           <td>Download All Documents (ZIP)</td>
         </tr>
         
         <tr>
-          <td><button class="icon" onclick="location.href='@controllers.admin.routes.AdminController.downloadUsers()'">&#xf019;</button></td>
+          <td><button class="icon" onclick="location.href='@controllers.admin.routes.BackupRestoreController.downloadUsers()'">&#xf019;</button></td>
           <td>Download Users (CSV)</td>
         </tr>
         
         <tr>
-          <td><button class="icon" onclick="location.href='@controllers.admin.routes.AdminController.downloadEditHistory()'">&#xf019;</button></td>
+          <td><button class="icon" onclick="location.href='@controllers.admin.routes.BackupRestoreController.downloadEditHistory()'">&#xf019;</button></td>
           <td>Download Edit History (CSV)</td>
         </tr>
         
         <tr>
-          <td><button class="icon" onclick="location.href='@controllers.admin.routes.AdminController.downloadStatsTimeline()'">&#xf019;</button></td>
+          <td><button class="icon" onclick="location.href='@controllers.admin.routes.BackupRestoreController.downloadStatsTimeline()'">&#xf019;</button></td>
           <td>Download Daily Stats Timeline (CSV)</td>
         </tr>
       </table>
@@ -68,7 +68,7 @@
             Upload Document ZIP
           </td>
           <td>
-            @helper.form(action = controllers.admin.routes.AdminController.uploadDocuments(), 'enctype -> "multipart/form-data") {
+            @helper.form(action = controllers.admin.routes.DocumentAdminController.uploadDocuments(), 'enctype -> "multipart/form-data") {
               <input type="file" id="upload-documents" name="zip" accept=".zip">
             }
           </td>
@@ -82,7 +82,7 @@
             Upload User CSV
           </td>
           <td>
-            @helper.form(action = controllers.admin.routes.AdminController.uploadUsers(), 'enctype -> "multipart/form-data") {
+            @helper.form(action = controllers.admin.routes.BackupRestoreController.uploadUsers(), 'enctype -> "multipart/form-data") {
               <input type="file" id="upload-users" name="csv" accept=".csv">
             }
           </td>
@@ -96,7 +96,7 @@
             Upload Edit History CSV
           </td>
           <td>
-            @helper.form(action = controllers.admin.routes.AdminController.uploadEditHistory(), 'enctype -> "multipart/form-data") {
+            @helper.form(action = controllers.admin.routes.BackupRestoreController.uploadEditHistory(), 'enctype -> "multipart/form-data") {
               <input type="file" id="upload-history" name="csv" accept=".csv">
             }
           </td>
@@ -110,7 +110,7 @@
             Upload Daily Stats CSV
           </td>
           <td>
-            @helper.form(action = controllers.admin.routes.AdminController.uploadStatsTimeline(), 'enctype -> "multipart/form-data") {
+            @helper.form(action = controllers.admin.routes.BackupRestoreController.uploadStatsTimeline(), 'enctype -> "multipart/form-data") {
               <input type="file" id="upload-timeline" name="csv" accept=".csv">
             }
           </td>

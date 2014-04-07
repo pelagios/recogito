@@ -1,5 +1,6 @@
 @import "../globals.less";
 @import "../header.less";
+@import "../table.less";
 
 #content {
   padding:100px 60px 60px 60px;
@@ -27,6 +28,7 @@
   }
   
   button, input[type=submit]  {
+    outline:none;
     .rounded-corners(3px);
     font-size:11px;
     line-height: 1;
@@ -54,8 +56,45 @@
     box-shadow: inset 0 0 5px 2px #aaaaaa, 0 1px 0 0 #eeeeee;
   }
   
+  button.big {
+    padding:12px 20px;
+    font-size:20px;
+  }
+  
+  button.small {
+    padding:4px 5px 3px 5px;
+    margin:0;
+    font-size:10px;
+    
+    .icon {
+      font-size:10px;
+    }
+    
+  }
+  
+  button.red {
+    .gradient(#ff9a9a, #ff4040);
+    color:#fff;
+    border:1px solid #ff6262;
+    border-bottom:1px solid #ff6262;
+  }
+  
+  button.red:hover {
+    .gradient(#ff6767, #ff0d0d);
+    text-shadow: -1px -1px 0 rgba(0,0,0,0.3);
+  }
+  
+  button.red:active {
+    border:1px solid #ff6262;
+    border-bottom:1px solid #ff6262;
+    -webkit-box-shadow:none;
+    -moz-box-shadow:none;
+    box-shadow:none;
+  }
+  
   input[type=file] {
     display:none;
   }
   
 }
+

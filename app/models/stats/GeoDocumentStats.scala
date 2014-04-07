@@ -13,6 +13,10 @@ trait GeoDocumentStats {
   
   val id: Option[Int]
   
+  /** Total # of annotations in the document **/
+  def totalAnnotations()(implicit s: Session): Int =
+    Annotations.countForGeoDocument(id.get)
+  
   /** Total # of toponyms in the document, i.e. all that were not marked as 'false detection' **/
   def totalToponymCount()(implicit s: Session): Int =
     Annotations.countForGeoDocumentAndStatus(id.get, 

@@ -17,7 +17,7 @@
         <ul>
           <li class="active"><a href="#" onclick="return false;">Documents</a></li>
           <li><a href="#">Users</a></li>
-          <li><a href="@controllers.admin.routes.AdminController.backup()" >Backup &amp; Restore</a></li>
+          <li><a href="@controllers.admin.routes.BackupRestoreController.index()" >Backup &amp; Restore</a></li>
         </ul>
       </div>      
     </div>  
@@ -38,16 +38,40 @@
       }
 
 	  <div id="upload-new">
-        <button class="upload icon" data-input="upload-documents">&#xf093;</button>
+        <button class="upload big icon" data-input="upload-documents">&#xf093;</button>
         Upload Document ZIP
         
-        @helper.form(action = controllers.admin.routes.AdminController.uploadDocuments(), 'enctype -> "multipart/form-data") {
+        @helper.form(action = controllers.admin.routes.DocumentAdminController.uploadDocuments(), 'enctype -> "multipart/form-data") {
           <input type="file" id="upload-documents" name="zip" accept=".zip">
         }
 	  </div>
-		@for(document <- documents) {
-	    document.title.
-      }
+	    <table> 
+	      <thead>
+	        <tr>
+	          <th>ID</th>
+	          <th>Document</th>
+	          <th>Language</th>
+	          <th># Annotations</th>
+	          <th></th>
+	        </tr>
+	      </thead>
+          <tbody>
+		    @for(doc <- documents) {
+		      <tr>
+		        <td>@doc.id.get</td>
+		        <td>@doc.author.map(_ + ": ").getOrElse("") @doc.title @doc.dateComment.map("(" + _ + ")").getOrElse("")</td>
+		        <td class="center">@tags.lang(doc.language)</td>
+		        <td class="center">@doc.totalAnnotations</td>
+		        <td>
+		          <button class="small" title="Download Document (ZIP)"><span class="icon">&#xf019;</span></button>
+		          <button class="small">Import Annotations</button>
+		          <button class="small red">Delete Annotations</button>
+		          <button class="small red"><span class="icon">&#xf05e;</span></button>
+		        </td>
+	          </tr>
+            }
+          </tbody>
+        </table>
     </div>
      @tags.js_admin_upload()     
   </body>
