@@ -17,7 +17,7 @@
       function dropAnnotations(doc) {
         $.ajax({
           type: 'DELETE',
-          url: '@controllers.admin.routes.AdminController.index/annotations?doc=' + doc,
+          url: '@controllers.admin.routes.DocumentAdminController.listAll/annotations?doc=' + doc,
           success: function() { location.href = '@controllers.admin.routes.AdminController.index'; }
         });
       }
@@ -65,7 +65,7 @@
           <div class="import-annotations">
             <button onclick="toggleImportForm('@egd.id.get')">Import Annotations</button>
             <div class="import-annotations-form" id="@egd.id.get">
-              @helper.form(action = controllers.admin.routes.AdminController.uploadAnnotations(egd.id.get), 'enctype -> "multipart/form-data") {
+              @helper.form(action = controllers.admin.routes.DocumentAdminController.uploadAnnotations(egd.id.get), 'enctype -> "multipart/form-data") {
                 <input type="file" name="csv" value="Import CSV" />
                 <input type="submit" value="IMPORT!" />
               }

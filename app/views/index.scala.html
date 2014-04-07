@@ -59,7 +59,7 @@
     </div>
     
     <div id="container">    
-      <table>   
+      <table class="index">   
         <tbody>
           @for(doc <- models.GeoDocuments.listAll().sortBy(d => (d.language, d.date, d.author, d.title))) {
           	@defining(user.canEdit(doc.id.get)) { canEdit =>
@@ -85,7 +85,7 @@
           	  
           	    <!-- number of toponyms -->
           	    <td class="center">
-          	      @doc.totalToponymCount
+          	      @doc.countTotalToponyms
           	    </td>
           	  
           	    <td class="stats"> <!-- completion ratio -->
@@ -150,7 +150,7 @@
           
           @* We need to do some optimization here to avoid redundant DB access! *@
           <tr class="totals">
-            @defining(models.GeoDocuments.listAll().map(doc => (doc.totalToponymCount, doc.unverifiedToponymCount))) { totals =>
+            @defining(models.GeoDocuments.listAll().map(doc => (doc.countTotalToponyms, doc.countUnverifiedToponyms))) { totals =>
               @defining(totals.map(_._1).foldLeft(0)(_ + _)) { totalToponyms =>
                 <td colspan="4"></td>
                 <td class="center">@totalToponyms</td> <!-- Toponyms -->

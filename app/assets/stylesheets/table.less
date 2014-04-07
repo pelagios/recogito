@@ -1,0 +1,36 @@
+@import "globals.less";
+
+table.index {
+  border-collapse:collapse;
+  width:100%;
+
+  tr { border-bottom:1px solid #e2e2e2; }
+  tr:hover { background-color:#f2f2f2; } 
+
+  th, td {
+    font-size:13px;
+    padding:6px 10px 6px 10px;
+  }
+    
+  td.center { text-align:center; }
+  td.right { text-align:right; }
+    
+  .lang {
+    .rounded-corners(3px);
+    padding:2px 4px;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size:75%;
+    font-weight:bold;
+    color:#fff;
+    text-align:center;
+    background-color: #999;
+    width:14px;
+    display:inline-block;
+    cursor:default;
+  }
+
+  .lang.en { background-color:#1f77b4; }
+  .lang.es { background-color:#9467bd; }
+  .lang.la { background-color:#bcbd22; }
+  
+} /* table */

@@ -1,12 +1,14 @@
 package controllers.admin
 
 import controllers.{ Secure, Secured }
-import controllers.common.io.{ ZipExporter, ZipImporter }
+import controllers.common.io.{ CSVParser, ZipExporter, ZipImporter }
 import java.util.zip.ZipFile
 import models._
 import play.api.mvc.Controller
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
+import play.api.Play.current
+import play.api.Logger
 import scala.io.Source
 
 /** Controller for the 'Documents' section of the admin area.
@@ -67,6 +69,26 @@ object DocumentAdminController extends Controller with Secured {
     } else {
       BadRequest
     }
+  }
+  
+  /** Import annotations from a CSV file into the document with the specified ID **/
+  def uploadAnnotations(doc: Int) = DBAction(parse.multipartFormData) { implicit session =>
+    val gdoc = GeoDocuments.findById(doc)
+    if (gdoc.isDefined) {
+      session.request.body.file("csv").map(filePart => {
+        val parser = new CSVParser()
+        val annotations = parser.parseAnnotations(filePart.ref.file.getAbsolutePath, gdoc.get.id.get)
+        Logger.info("Importing " + annotations.size + " annotations to " + gdoc.get.title)
+        Annotations.insertAll(annotations:_*)
+      })
+    }
+    Redirect(routes.AdminController.index)
+  }
+  
+  /** Drop all annotations from the document with the specified ID **/
+  def deleteAnnotations(doc: Int) = adminAction { username => implicit session =>
+    Annotations.deleteForGeoDocument(doc)
+    Redirect(routes.AdminController.index)
   }
   
 }

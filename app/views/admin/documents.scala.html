@@ -5,6 +5,23 @@
     <title>PELAGIOS Geo-Resolution Correction Tool</title>
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/admin/main.css")" />
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
+    <script>
+      function dropAnnotations(doc) {
+        $.ajax({
+          type: 'DELETE',
+          url: '@controllers.admin.routes.DocumentAdminController.listAll/' + doc + '/annotations',
+          success: function() { location.href = '@controllers.admin.routes.DocumentAdminController.listAll'; }
+        });
+      }
+      
+      function dropDocument(doc) {
+        $.ajax({
+          type: 'DELETE',
+          url: '@controllers.admin.routes.DocumentAdminController.uploadDocuments/' + doc,
+          success: function() { location.href = '@controllers.admin.routes.DocumentAdminController.listAll'; }
+        });
+      }
+    </script>
   </head>
   
   <body>
@@ -23,6 +40,7 @@
     </div>  
     
     <div id="content">
+    
       @flash.get("error").map { message =>
       	<h2>Something's wrong with your uploaded file.</h2>
       	<p>Maybe this error message is of help.</p>
@@ -45,33 +63,37 @@
           <input type="file" id="upload-documents" name="zip" accept=".zip">
         }
 	  </div>
-	    <table> 
-	      <thead>
-	        <tr>
-	          <th>ID</th>
-	          <th>Document</th>
-	          <th>Language</th>
-	          <th># Annotations</th>
-	          <th></th>
+	  
+	  <table class="index"> 
+	    <thead>
+	      <tr>
+	        <th>ID</th>
+	        <th>Document</th>
+	        <th>Language</th>
+	        <th># Parts</th>
+	        <th># Annotations</th>
+	        <th></th>
+	      </tr>
+	    </thead>
+        <tbody>
+		  @for(doc <- documents) {
+		    <tr>
+		      <td>@doc.id.get</td>
+		      <td>@doc.author.map(_ + ": ").getOrElse("") @doc.title @doc.dateComment.map("(" + _ + ")").getOrElse("")</td>
+		      <td class="center">@tags.lang(doc.language)</td>
+		      <td class="center">@doc.countParts</td>
+		      <td class="center">@doc.countAnnotations</td>
+		      <td>
+		        <button class="small" title="Download Document (ZIP)" onclick="location.href='@controllers.admin.routes.DocumentAdminController.downloadDocument(doc.id.get)'"><span class="icon">&#xf019;</span></button>
+		        <button class="small" title="Import from CSV">Import Annotations</button>
+		        <button class="small red" title="Drop Document" onclick="if (confirm('Are you sure about that?')) dropDocument(@doc.id.get)"><span class="icon">&#xf05e;</span></button>
+		        <button class="small red" title="Drop All Annotations from Document" onclick="if (confirm('Are you sure about that?')) dropAnnotations(@doc.id.get)">Delete Annotations</button>
+		      </td>
 	        </tr>
-	      </thead>
-          <tbody>
-		    @for(doc <- documents) {
-		      <tr>
-		        <td>@doc.id.get</td>
-		        <td>@doc.author.map(_ + ": ").getOrElse("") @doc.title @doc.dateComment.map("(" + _ + ")").getOrElse("")</td>
-		        <td class="center">@tags.lang(doc.language)</td>
-		        <td class="center">@doc.totalAnnotations</td>
-		        <td>
-		          <button class="small" title="Download Document (ZIP)"><span class="icon">&#xf019;</span></button>
-		          <button class="small">Import Annotations</button>
-		          <button class="small red">Delete Annotations</button>
-		          <button class="small red"><span class="icon">&#xf05e;</span></button>
-		        </td>
-	          </tr>
-            }
-          </tbody>
-        </table>
+          }
+        </tbody>
+      </table>
+      
     </div>
      @tags.js_admin_upload()     
   </body>

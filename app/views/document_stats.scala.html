@@ -48,8 +48,8 @@
       @* Optimize - just fetch annotations from DB once and then compute all stats in mem *@
       @defining(Annotations.findByGeoDocumentAndStatus(doc.id.get, AnnotationStatus.VERIFIED, AnnotationStatus.NOT_IDENTIFYABLE)) { annotations =>    
         <div class="stats">
-          @doc.totalToponymCount Toponyms Total (not counting ignored and false matches)<br/>
-          @{doc.totalToponymCount - doc.unverifiedToponymCount} Toponyms Controlled (Verified + Not identifyable)</br>
+          @doc.countTotalToponyms Toponyms Total (not counting ignored and false matches)<br/>
+          @{doc.countTotalToponyms - doc.countUnverifiedToponyms} Toponyms Controlled (Verified + Not identifyable)</br>
           @annotations.filter(a => a.validGazetteerURI.isDefined && a.validGazetteerURI.get.trim.size > 0).size Toponyms mapped to Gazetteer URIs<br/>
           @{ "%.2f" format (doc.completionRatio * 100) } % Complete</br>
           @{ "%.2f" format (doc.identificiationRatio * 100) } % Identification rate (Verified vs. Not identifyable)<br/>

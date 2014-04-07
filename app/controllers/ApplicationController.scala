@@ -22,7 +22,7 @@ object ApplicationController extends Controller with Secured with CTSClient {
     } else {
       val docs = GeoDocuments.listAll
           .sortBy(d => (d.date, d.author, d.title))
-          .map(doc => (doc, doc.totalToponymCount, doc.unverifiedToponymCount))
+          .map(doc => (doc, doc.countTotalToponyms, doc.countUnverifiedToponyms))
           
       Ok(views.html.index_public(docs))
     }

@@ -25,25 +25,5 @@ object AdminController extends Controller with Secured {
   def index = adminAction { username => implicit session =>
     Ok(views.html.admin.index())
   }
-        
-  /** Import annotations from a CSV file into the document with the specified ID **/
-  def uploadAnnotations(doc: Int) = DBAction(parse.multipartFormData) { implicit session =>
-    val gdoc = GeoDocuments.findById(doc)
-    if (gdoc.isDefined) {
-      session.request.body.file("csv").map(filePart => {
-        val parser = new CSVParser()
-        val annotations = parser.parseAnnotations(filePart.ref.file.getAbsolutePath, gdoc.get.id.get)
-        Logger.info("Importing " + annotations.size + " annotations to " + gdoc.get.title)
-        Annotations.insertAll(annotations:_*)
-      })
-    }
-    Redirect(routes.AdminController.index)
-  }
-  
-  /** Drop all annotations from the document with the specified ID **/
-  def deleteAnnotations(doc: Int) = adminAction { username => implicit session =>
-    Annotations.deleteForGeoDocument(doc)
-    Redirect(routes.AdminController.index)
-  }
   
 }

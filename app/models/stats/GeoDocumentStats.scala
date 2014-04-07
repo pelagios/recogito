@@ -4,6 +4,7 @@ import models.Annotations
 import play.api.db.slick._
 import models.AnnotationStatus
 import play.api.Logger
+import models.GeoDocumentParts
 
 /** A helper trait that provides basic stats & metrics for a GeoDocument.
   *
@@ -13,12 +14,16 @@ trait GeoDocumentStats {
   
   val id: Option[Int]
   
-  /** Total # of annotations in the document **/
-  def totalAnnotations()(implicit s: Session): Int =
+  /** # of annotations in the document **/
+  def countAnnotations()(implicit s: Session): Int =
     Annotations.countForGeoDocument(id.get)
+   
+  /** # of parts the document consists of **/
+  def countParts()(implicit s: Session): Int =
+    GeoDocumentParts.countForGeoDocument(id.get)
   
   /** Total # of toponyms in the document, i.e. all that were not marked as 'false detection' **/
-  def totalToponymCount()(implicit s: Session): Int =
+  def countTotalToponyms()(implicit s: Session): Int =
     Annotations.countForGeoDocumentAndStatus(id.get, 
         AnnotationStatus.VERIFIED, 
         AnnotationStatus.NOT_VERIFIED, 
@@ -28,7 +33,7 @@ trait GeoDocumentStats {
         AnnotationStatus.NOT_IDENTIFYABLE)
     
   /** # of verified annotations in the document **/
-  def unverifiedToponymCount()(implicit s: Session): Int =
+  def countUnverifiedToponyms()(implicit s: Session): Int =
     Annotations.countForGeoDocumentAndStatus(id.get, AnnotationStatus.NOT_VERIFIED)
   
   /** Ratio of manually processed vs. total toponyms in the document **/
