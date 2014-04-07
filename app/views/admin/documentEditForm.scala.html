@@ -23,7 +23,7 @@
     </div>
   
     <div id="content">
-		@helper.form(controllers.admin.routes.DocumentAdminController.save()) {
+		@helper.form(controllers.admin.routes.DocumentAdminController.saveDocument()) {
 			<fieldset>
 				@helper.inputText(documentForm("title"), '_label -> "Title")
 				@helper.inputText(documentForm("author"), '_label -> "Author")

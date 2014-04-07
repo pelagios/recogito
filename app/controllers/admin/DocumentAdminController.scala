@@ -91,20 +91,20 @@ object DocumentAdminController extends Controller with Secured {
   
   /** Create a new document in the UI form **/
   def createDocument = adminAction { username => implicit session =>
-    Ok(views.html.admin.edit_document(documentForm))
+    Ok(views.html.admin.documentEditForm(documentForm))
   }
   
   /** Edit an existing document in the UI form **/
   def editDocument(id: Int) = DBAction { implicit session =>
     GeoDocuments.findById(id).map { doc =>
-      Ok(views.html.admin.edit_document(documentForm.fill(doc)))
+      Ok(views.html.admin.documentEditForm(documentForm.fill(doc)))
     }.getOrElse(NotFound)
   }
   
   /** Save a document from the UI form **/
   def saveDocument = protectedDBAction(Secure.REJECT) { implicit request => implicit session =>
     documentForm.bindFromRequest.fold(
-      formWithErrors => BadRequest(views.html.admin.edit_document(formWithErrors)),
+      formWithErrors => BadRequest(views.html.admin.documentEditForm(formWithErrors)),
       document => {
         GeoDocuments.insert(document)
         Redirect(routes.DocumentAdminController.listAll())
