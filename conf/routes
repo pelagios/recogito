@@ -75,6 +75,7 @@ POST    /recogito/admin/documents                  controllers.admin.DocumentAdm
 GET     /recogito/admin/documents                  controllers.admin.DocumentAdminController.listAll
 
 GET     /recogito/admin/users                      controllers.admin.UserAdminController.listAll
+DELETE  /recogito/admin/users/:username            controllers.admin.UserAdminController.deleteUser(username: String)
 
 
 # Index page (available in public and private version)

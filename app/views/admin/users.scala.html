@@ -1,10 +1,21 @@
-@(users: Seq[models.User])
+@(users: Seq[User])
 
 <html>
   <head>
     <title>Recogito > Admin > Users</title>
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/admin/main.css")" />
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
+    <script>
+      function deleteUser(username) {
+        if (confirm('Delete user "' + username + '". Are you sure about that?')) { 
+          $.ajax({
+            type: 'DELETE',
+            url: '@controllers.admin.routes.UserAdminController.listAll/' + encodeURIComponent(username),
+            success: function() { location.href = '@controllers.admin.routes.UserAdminController.listAll'; }
+          });
+        }
+      }
+    </script>
   </head>
   
   <body>
@@ -23,21 +34,34 @@
     </div>
   
     <div id="content">
-      
+      <table class="index" style="width:auto;">
+	      <thead>
+	        <tr>
+	          <th>Username</th>
+	          <th>Editable Documents</th>
+	          <th>Is Admin</th>
+	          <th></th>
+	        </tr>
+	      </thead>
+        <tbody>
+          @for(user <- users) {
+            <tr>
+              <td>@user.username</td>
+              <td>@user.editableDocuments</td>
+              <td class="center">
+                @if(user.isAdmin) {
+                  <span class="icon">&#xf00c;</span>
+                }
+              </td>
+              <td>
+                <button class="small red" onclick="deleteUser('@user.username')">
+                  <span class="icon">&#xf05e;</span> Delete User
+                </button>
+              </td>
+            </tr>  
+          }
+      </table>
     </div>
-
-    <!-- button class="big" onclick="toggleImportForm('upload-documents')">Upload Users</button> 
-    <div class="upload-documents-form" id="upload-documents">
-      @helper.form(action = controllers.admin.routes.BackupRestoreController.uploadUsers, 'enctype -> "multipart/form-data") {
-        <input type="file" name="users" value="Upload CSV" />
-        <input type="submit" value="Upload!" />
-      }
-    </div>
-    <div><button class="big" onclick="location.href='@controllers.admin.routes.BackupRestoreController.downloadAllUsers()'">Download All Users</button></div>
-    
-    @for(user <-users) {
-      <p>@user.username</p>
-    } -->
   </body>
 </html>
     
