@@ -43,7 +43,6 @@
     
       @flash.get("error").map { message =>
       	<h2>Something's wrong with your uploaded file.</h2>
-      	<p>Maybe this error message is of help.</p>
         <div class="error">
           @Html(message)
         </div>
@@ -57,12 +56,12 @@
 
 	  <div id="upload-new">
         <button class="upload big icon" data-input="upload-documents">&#xf093;</button>
-        Upload Document ZIP
-        
-        @helper.form(action = controllers.admin.routes.DocumentAdminController.uploadDocuments(), 'enctype -> "multipart/form-data") {
-          <input type="file" id="upload-documents" name="zip" accept=".zip">
-        }
+        <h4>Upload a New Document (ZIP)</h4>
 	  </div>
+	          
+      @helper.form(action = controllers.admin.routes.DocumentAdminController.uploadDocuments(), 'enctype -> "multipart/form-data") {
+        <input type="file" id="upload-documents" name="zip" accept=".zip">
+      }
 	  
 	  <table class="index"> 
 	    <thead>
@@ -83,7 +82,7 @@
 		      <td class="center">@tags.lang(doc.language)</td>
 		      <td class="center">@doc.countParts</td>
 		      <td class="center">@doc.countAnnotations</td>
-		      <td>
+		      <td class="right">
 		        <button class="small" title="Download Document (ZIP)" onclick="location.href='@controllers.admin.routes.DocumentAdminController.downloadDocument(doc.id.get)'"><span class="icon">&#xf019;</span></button>
 		        <button class="small" title="Import from CSV">Import Annotations</button>
 		        <button class="small red" title="Drop Document" onclick="if (confirm('Are you sure about that?')) dropDocument(@doc.id.get)"><span class="icon">&#xf05e;</span></button>
