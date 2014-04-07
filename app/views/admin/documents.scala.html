@@ -1,0 +1,56 @@
+@(documents: Seq[models.GeoDocument])(implicit s: play.api.db.slick.Config.driver.simple.Session, flash: Flash)
+
+<html>
+  <head>
+    <title>PELAGIOS Geo-Resolution Correction Tool</title>
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/admin/main.css")" />
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
+  </head>
+  
+  <body>
+    <div id="header">
+      <div id="title">ADMINISTRATION » Documents
+        <div id="home-button"><a href="@routes.ApplicationController.index()" class="icon">&#xf015;</a></div>
+      </div>
+      
+      <div id="menu">
+        <ul>
+          <li class="active"><a href="#" onclick="return false;">Documents</a></li>
+          <li><a href="#">Users</a></li>
+          <li><a href="@controllers.admin.routes.AdminController.backup()" >Backup &amp; Restore</a></li>
+        </ul>
+      </div>      
+    </div>  
+    
+    <div id="content">
+      @flash.get("error").map { message =>
+      	<h2>Something's wrong with your uploaded file.</h2>
+      	<p>Maybe this error message is of help.</p>
+        <div class="error">
+          @Html(message)
+        </div>
+      }
+      
+      @flash.get("success").map { message =>
+        <div class="success">
+          @message
+        </div>
+      }
+
+	  <div id="upload-new">
+        <button class="upload icon" data-input="upload-documents">&#xf093;</button>
+        Upload Document ZIP
+        
+        @helper.form(action = controllers.admin.routes.AdminController.uploadDocuments(), 'enctype -> "multipart/form-data") {
+          <input type="file" id="upload-documents" name="zip" accept=".zip">
+        }
+	  </div>
+		@for(document <- documents) {
+	    document.title.
+      }
+    </div>
+     @tags.js_admin_upload()     
+  </body>
+</html>
+    
+

@@ -58,6 +58,7 @@ GET     /recogito/documents/:id/stats            controllers.ApplicationControll
 GET     /recogito/admin/documents/:id/download   controllers.admin.AdminController.downloadDocument(id: Int)
 DELETE  /recogito/admin/documents/:id            controllers.admin.AdminController.deleteDocument(id: Int)
 GET     /recogito/admin/documents/download       controllers.admin.AdminController.downloadAllDocuments()
+GET     /recogito/admin/documents                controllers.admin.AdminController.documents()
 POST    /recogito/admin/documents                controllers.admin.AdminController.uploadDocuments
 GET     /recogito/admin/users/download           controllers.admin.AdminController.downloadUsers
 POST    /recogito/admin/users                    controllers.admin.AdminController.uploadUsers

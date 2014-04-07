@@ -57,8 +57,13 @@ object Global extends GlobalSettings {
   override def onStart(app: Application): Unit = {
     // Create DB tables if they don't exist
     database.withSession {
-      if (MTable.getTables("users").list().isEmpty)
+      if (MTable.getTables("users").list().isEmpty) {
         Users.ddl.create
+         
+        // Create default admin user        
+        val salt = User.randomSalt
+        Users.insert(User("admin", User.computeHash(salt + "admin"), salt, "*", true))
+      }
        
       if (MTable.getTables("gdocuments").list().isEmpty)
         GeoDocuments.ddl.create

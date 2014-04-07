@@ -26,6 +26,10 @@ object AdminController extends Controller with Secured {
     Ok(views.html.admin.index())
   }
   
+  def documents = adminAction { username => implicit session =>
+    Ok(views.html.admin.documents(GeoDocuments.listAll()))
+  }
+  
   /** Admin users page **/
   def backup = adminAction { username => implicit session =>
     Ok(views.html.admin.backup())
