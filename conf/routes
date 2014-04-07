@@ -29,7 +29,7 @@ PUT     /recogito/api/annotations/:id              controllers.AnnotationControl
 DELETE  /recogito/api/annotations/:id              controllers.AnnotationController.delete(id: java.util.UUID)
 GET     /recogito/api/annotations                  controllers.AnnotationController.forSource(ctsURI: String)
 POST    /recogito/api/annotations                  controllers.AnnotationController.create
-PUT     /recogito/api/annotations                  controllers.AnnotationController.updateBatch()
+PUT     /recogito/api/annotations                  controllers.AnnotationController.updateBatch
 
 # Search
 GET     /recogito/api/search/place                 controllers.SearchController.placeSearch(query: String)
@@ -56,22 +56,23 @@ GET     /recogito/documents/:id/stats              controllers.ApplicationContro
 
 # Admin
 GET     /recogito/admin/backup                     controllers.admin.BackupRestoreController.index
-GET     /recogito/admin/users/download             controllers.admin.BackupRestoreController.downloadUsers
-POST    /recogito/admin/users                      controllers.admin.BackupRestoreController.uploadUsers
 GET     /recogito/admin/history/download           controllers.admin.BackupRestoreController.downloadEditHistory
 POST    /recogito/admin/history                    controllers.admin.BackupRestoreController.uploadEditHistory
 GET     /recogito/admin/timeline/download          controllers.admin.BackupRestoreController.downloadStatsTimeline
 POST    /recogito/admin/timeline                   controllers.admin.BackupRestoreController.uploadStatsTimeline
-GET     /recogito/admin/documents/download         controllers.admin.BackupRestoreController.downloadAllDocuments()
+GET     /recogito/admin/documents/download         controllers.admin.BackupRestoreController.downloadAllDocuments
+GET     /recogito/admin/users/download             controllers.admin.BackupRestoreController.downloadAllUsers
+POST    /recogito/admin/users                      controllers.admin.BackupRestoreController.uploadUsers
 
 GET     /recogito/admin/documents/:id/download     controllers.admin.DocumentAdminController.downloadDocument(id: Int)
 DELETE  /recogito/admin/documents/:id              controllers.admin.DocumentAdminController.deleteDocument(id: Int)
 POST    /recogito/admin/documents/:id/annotations  controllers.admin.DocumentAdminController.uploadAnnotations(id: Int)
 DELETE  /recogito/admin/documents/:id/annotations  controllers.admin.DocumentAdminController.deleteAnnotations(id: Int)
 POST    /recogito/admin/documents                  controllers.admin.DocumentAdminController.uploadDocuments
-GET     /recogito/admin/documents                  controllers.admin.DocumentAdminController.listAll()
+GET     /recogito/admin/documents                  controllers.admin.DocumentAdminController.listAll
 
-GET     /recogito/admin                            controllers.admin.AdminController.index
+GET     /recogito/admin/users                      controllers.admin.UserAdminController.listAll
+
 
 # Index page (available in public and private version)
 GET     /recogito/                                 controllers.ApplicationController.index

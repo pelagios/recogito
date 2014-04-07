@@ -47,7 +47,7 @@ object BackupRestoreController extends Controller with Secured {
   }
   
   /** Download all user data as CSV **/
-  def downloadUsers = adminAction { username => implicit session =>
+  def downloadAllUsers = adminAction { username => implicit session =>
     val csv = new CSVSerializer().serializeUsers(Users.listAll)
     Ok(csv).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> "attachment; filename=recogito-users.csv")
   }
@@ -60,7 +60,7 @@ object BackupRestoreController extends Controller with Secured {
         val users = new CSVParser().parseUsers(filePart.ref.file.getAbsolutePath)
         Users.insertAll(users:_*)
       })
-      Redirect(routes.AdminController.index)
+      Redirect(routes.BackupRestoreController.index)
     } else {
       BadRequest
     }
@@ -92,7 +92,7 @@ object BackupRestoreController extends Controller with Secured {
         val history = new CSVParser().parseEditHistory(filePart.ref.file.getAbsolutePath)
         EditHistory.insertAll(history:_*)
       })
-      Redirect(routes.AdminController.index)
+      Redirect(routes.BackupRestoreController.index)
     } else {
       BadRequest
     }
@@ -112,7 +112,7 @@ object BackupRestoreController extends Controller with Secured {
         val timeline = new CSVParser().parseStatsTimeline(filePart.ref.file.getAbsolutePath)
         StatsHistory.insertAll(timeline:_*)
       })
-      Redirect(routes.AdminController.index)
+      Redirect(routes.BackupRestoreController.index)
     } else {
       BadRequest
     }

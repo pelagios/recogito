@@ -15,7 +15,7 @@
       <div id="menu">
         <ul>
           <li><a href="@controllers.admin.routes.DocumentAdminController.listAll()">Documents</a></li>
-          <li><a href="#">Users</a></li>
+          <li><a href="@controllers.admin.routes.UserAdminController.listAll()">Users</a></li>
           <li class="active"><a href="#" onclick="return false;">Backup &amp; Restore</a></li>
         </ul>
       </div>      
@@ -42,7 +42,7 @@
         </tr>
         
         <tr>
-          <td><button class="icon" onclick="location.href='@controllers.admin.routes.BackupRestoreController.downloadUsers()'">&#xf019;</button></td>
+          <td><button class="icon" onclick="location.href='@controllers.admin.routes.BackupRestoreController.downloadAllUsers()'">&#xf019;</button></td>
           <td>Download Users (CSV)</td>
         </tr>
         

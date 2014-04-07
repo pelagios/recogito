@@ -3,32 +3,41 @@
 <html>
   <head>
     <title>Recogito > Admin > Users</title>
-    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/admin.css")" />
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/admin/main.css")" />
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
-    <script>
-      function toggleImportForm(id) {
-        var el = document.getElementById(id);
-        if (el.style.display == 'block')
-            el.style.display = 'none';
-        else
-            el.style.display = 'block';
-      }
-    </script>
   </head>
   
   <body>
-    <button class="big" onclick="toggleImportForm('upload-documents')">Upload Users</button> 
+    <div id="header">
+      <div id="title">ADMINISTRATION » Users
+        <div id="home-button"><a href="@routes.ApplicationController.index()" class="icon">&#xf015;</a></div>
+      </div>
+      
+      <div id="menu">
+        <ul>
+          <li><a href="@controllers.admin.routes.DocumentAdminController.listAll()">Documents</a></li>
+          <li class="active"><a href="#" onclick="return false;">Users</a></li>
+          <li><a href="@controllers.admin.routes.BackupRestoreController.index()" >Backup &amp; Restore</a></li>
+        </ul>
+      </div>      
+    </div>
+  
+    <div id="content">
+      
+    </div>
+
+    <!-- button class="big" onclick="toggleImportForm('upload-documents')">Upload Users</button> 
     <div class="upload-documents-form" id="upload-documents">
       @helper.form(action = controllers.admin.routes.BackupRestoreController.uploadUsers, 'enctype -> "multipart/form-data") {
         <input type="file" name="users" value="Upload CSV" />
         <input type="submit" value="Upload!" />
       }
     </div>
-    <div><button class="big" onclick="location.href='@controllers.admin.routes.BackupRestoreController.downloadUsers()'">Download All Users</button></div>
+    <div><button class="big" onclick="location.href='@controllers.admin.routes.BackupRestoreController.downloadAllUsers()'">Download All Users</button></div>
     
     @for(user <-users) {
       <p>@user.username</p>
-    }
+    } -->
   </body>
 </html>
     
