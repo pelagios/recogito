@@ -17,7 +17,7 @@
       function dropDocument(doc) {
         $.ajax({
           type: 'DELETE',
-          url: '@controllers.admin.routes.DocumentAdminController.uploadDocuments/' + doc,
+          url: '@controllers.admin.routes.DocumentAdminController.listAll/' + doc,
           success: function() { location.href = '@controllers.admin.routes.DocumentAdminController.listAll'; }
         });
       }
