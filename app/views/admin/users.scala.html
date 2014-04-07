@@ -19,12 +19,12 @@
   <body>
     <button class="big" onclick="toggleImportForm('upload-documents')">Upload Users</button> 
     <div class="upload-documents-form" id="upload-documents">
-      @helper.form(action = routes.AdminController.uploadUsers, 'enctype -> "multipart/form-data") {
+      @helper.form(action = controllers.admin.routes.AdminController.uploadUsers, 'enctype -> "multipart/form-data") {
         <input type="file" name="users" value="Upload CSV" />
         <input type="submit" value="Upload!" />
       }
     </div>
-    <div><button class="big" onclick="location.href='@routes.AdminController.downloadUsers()'">Download All Users</button></div>
+    <div><button class="big" onclick="location.href='@controllers.admin.routes.AdminController.downloadUsers()'">Download All Users</button></div>
     
     @for(user <-users) {
       <p>@user.username</p>

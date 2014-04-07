@@ -17,16 +17,16 @@
       function dropAnnotations(doc) {
         $.ajax({
           type: 'DELETE',
-          url: '@routes.AdminController.index/annotations?doc=' + doc,
-          success: function() { location.href = '@routes.AdminController.index'; }
+          url: '@controllers.admin.routes.AdminController.index/annotations?doc=' + doc,
+          success: function() { location.href = '@controllers.admin.routes.AdminController.index'; }
         });
       }
       
       function dropDocument(doc) {
         $.ajax({
           type: 'DELETE',
-          url: '@routes.AdminController.uploadDocuments/' + doc,
-          success: function() { location.href = '@routes.AdminController.index'; }
+          url: '@controllers.admin.routes.AdminController.uploadDocuments/' + doc,
+          success: function() { location.href = '@controllers.admin.routes.AdminController.index'; }
         });
       }
     </script>
@@ -61,11 +61,11 @@
           } else {
             <p>@models.Annotations.countForGeoDocument(egd.id.get) Annotations</p>
           }
-          <button onclick="location.href='@routes.AdminController.downloadDocument(egd.id.get)'">Download Document as ZIP</button>
+          <button onclick="location.href='@controllers.admin.routes.AdminController.downloadDocument(egd.id.get)'">Download Document as ZIP</button>
           <div class="import-annotations">
             <button onclick="toggleImportForm('@egd.id.get')">Import Annotations</button>
             <div class="import-annotations-form" id="@egd.id.get">
-              @helper.form(action = routes.AdminController.uploadAnnotations(egd.id.get), 'enctype -> "multipart/form-data") {
+              @helper.form(action = controllers.admin.routes.AdminController.uploadAnnotations(egd.id.get), 'enctype -> "multipart/form-data") {
                 <input type="file" name="csv" value="Import CSV" />
                 <input type="submit" value="IMPORT!" />
               }

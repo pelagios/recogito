@@ -1,6 +1,8 @@
 package controllers
 
-import controllers.io.JSONSerializer
+import controllers.common.io.JSONSerializer
+import global.Global
+import java.io.ByteArrayOutputStream
 import java.sql.Timestamp
 import java.util.{ Date, UUID }
 import models._
@@ -10,21 +12,14 @@ import play.api.db.slick.Config.driver.simple._
 import play.api.libs.json.Json
 import play.api.Logger
 import play.api.mvc.{ Action, Controller }
-import play.api.libs.json.JsObject
-import play.api.libs.json.JsArray
+import play.api.libs.json.{JsArray, JsObject }
 import play.api.mvc.AnyContent
+import org.pelagios.api.{ Agent, AnnotatedThing, Transcription, TranscriptionType, SpecificResource }
 import org.pelagios.api.{ Annotation => OAnnotation }
-import org.pelagios.api.AnnotatedThing
-import java.io.ByteArrayOutputStream
-import org.pelagios.Scalagios
-import org.openrdf.rio.RDFFormat
-import org.pelagios.api.Agent
-import org.pelagios.api.Transcription
-import org.pelagios.api.TranscriptionType
 import org.pelagios.api.selectors.TextOffsetSelector
-import org.pelagios.api.SpecificResource
-import global.Global
+import org.pelagios.Scalagios
 import org.pelagios.gazetteer.Network
+import org.openrdf.rio.RDFFormat
 
 /** Annotation CRUD controller.
   *

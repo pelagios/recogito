@@ -1,4 +1,4 @@
-package controllers.io
+package controllers.common.io
 
 import collection.JavaConverters._
 import java.io.File

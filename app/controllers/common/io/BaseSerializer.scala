@@ -1,4 +1,4 @@
-package controllers.io
+package controllers.common.io
 
 import models._
 import play.api.db.slick._

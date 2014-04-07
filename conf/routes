@@ -55,20 +55,20 @@ GET     /recogito/stats                          controllers.ApplicationControll
 GET     /recogito/documents/:id/stats            controllers.ApplicationController.showDocumentStats(id: Int)
 
 # Admin
-GET     /recogito/admin/documents/:id/download   controllers.AdminController.downloadDocument(id: Int)
-DELETE  /recogito/admin/documents/:id            controllers.AdminController.deleteDocument(id: Int)
-GET     /recogito/admin/documents/download       controllers.AdminController.downloadAllDocuments()
-POST    /recogito/admin/documents                controllers.AdminController.uploadDocuments
-GET     /recogito/admin/users/download           controllers.AdminController.downloadUsers
-POST    /recogito/admin/users                    controllers.AdminController.uploadUsers
-GET     /recogito/admin/history/download         controllers.AdminController.downloadEditHistory
-POST    /recogito/admin/history                  controllers.AdminController.uploadEditHistory
-GET     /recogito/admin/timeline/download        controllers.AdminController.downloadStatsTimeline
-POST    /recogito/admin/timeline                 controllers.AdminController.uploadStatsTimeline
-POST    /recogito/admin/annotations              controllers.AdminController.uploadAnnotations(doc: Int)
-DELETE  /recogito/admin/annotations              controllers.AdminController.deleteAnnotations(doc: Int)
-GET     /recogito/admin/backup                   controllers.AdminController.backup
-GET     /recogito/admin                          controllers.AdminController.index
+GET     /recogito/admin/documents/:id/download   controllers.admin.AdminController.downloadDocument(id: Int)
+DELETE  /recogito/admin/documents/:id            controllers.admin.AdminController.deleteDocument(id: Int)
+GET     /recogito/admin/documents/download       controllers.admin.AdminController.downloadAllDocuments()
+POST    /recogito/admin/documents                controllers.admin.AdminController.uploadDocuments
+GET     /recogito/admin/users/download           controllers.admin.AdminController.downloadUsers
+POST    /recogito/admin/users                    controllers.admin.AdminController.uploadUsers
+GET     /recogito/admin/history/download         controllers.admin.AdminController.downloadEditHistory
+POST    /recogito/admin/history                  controllers.admin.AdminController.uploadEditHistory
+GET     /recogito/admin/timeline/download        controllers.admin.AdminController.downloadStatsTimeline
+POST    /recogito/admin/timeline                 controllers.admin.AdminController.uploadStatsTimeline
+POST    /recogito/admin/annotations              controllers.admin.AdminController.uploadAnnotations(doc: Int)
+DELETE  /recogito/admin/annotations              controllers.admin.AdminController.deleteAnnotations(doc: Int)
+GET     /recogito/admin/backup                   controllers.admin.AdminController.backup
+GET     /recogito/admin                          controllers.admin.AdminController.index
 
 # Index page (available in public and private version)
 GET     /recogito/                               controllers.ApplicationController.index

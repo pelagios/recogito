@@ -1,4 +1,4 @@
-package controllers.io
+package controllers.common.io
 
 import models._
 import java.io.{ BufferedInputStream, File, FileInputStream, FileOutputStream, PrintWriter }

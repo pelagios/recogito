@@ -1,6 +1,6 @@
 package controllers
 
-import controllers.io.{ CSVSerializer, JSONSerializer }
+import controllers.common.io.{ CSVSerializer, JSONSerializer }
 import models._
 import play.api.db.slick._
 import play.api.mvc.{ Action, Controller }

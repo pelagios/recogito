@@ -1,4 +1,4 @@
-package controllers.io
+package controllers.common.io
 
 import models.GeoDocumentParts
 import play.api.db.slick._

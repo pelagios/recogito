@@ -1,4 +1,4 @@
-package controllers.io
+package controllers.common.io
 
 import global.{ Global, CrossGazetteerUtils }
 import models._
