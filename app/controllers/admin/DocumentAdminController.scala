@@ -82,13 +82,13 @@ object DocumentAdminController extends Controller with Secured {
         Annotations.insertAll(annotations:_*)
       })
     }
-    Redirect(routes.AdminController.index)
+    Redirect(routes.DocumentAdminController.listAll)
   }
   
   /** Drop all annotations from the document with the specified ID **/
   def deleteAnnotations(doc: Int) = adminAction { username => implicit session =>
     Annotations.deleteForGeoDocument(doc)
-    Redirect(routes.AdminController.index)
+    Status(200)
   }
   
 }
