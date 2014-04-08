@@ -35,7 +35,7 @@ object ApplicationController extends Controller with Secured with CTSClient {
           (collection, CollectionMemberships.countDocumentsInCollection(collection))) :+
           ("Other", CollectionMemberships.getUnassignedGeoDocuments.size)
           
-        Ok(views.html.index(gdocs, docsPerCollection, currentUser.get))
+        Ok(views.html.index(gdocs, docsPerCollection, collection.get, currentUser.get))
       }
     } else {
       val gdocs = GeoDocuments.listAll
