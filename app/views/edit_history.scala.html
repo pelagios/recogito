@@ -1,4 +1,4 @@
-@(history: Seq[models.EditEvent])(implicit s: play.api.db.slick.Config.driver.simple.Session)
+@(history: Seq[(EditEvent, Option[Int])])(implicit s: play.api.db.slick.Config.driver.simple.Session)
 
 <html>
   <head>
@@ -15,10 +15,11 @@
        </tr>
       @for(event <- history) {
       	<tr>
-          <td>@event.username</td>
-      	  <td>@event.updatedURI</td>
-      	  <td>@event.updatedStatus</td>
-      	  <td>@event.timestamp</td>
+          <td>@event._1.username</td>
+      	  <td>@event._1.updatedURI</td>
+      	  <td>@event._1.updatedStatus</td>
+      	  <td>@event._1.timestamp</td>
+      	  <td>@event._2</td>
         </tr>
       }
     </table>

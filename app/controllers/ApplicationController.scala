@@ -182,7 +182,8 @@ object ApplicationController extends Controller with Secured with CTSClient {
   /** Shows the edit history overview page **/
   def showHistory() = DBAction { implicit session =>
     // TODO just a dummy for now
-    Ok(views.html.edit_history(EditHistory.getLastN(500))) 
+    val history = EditHistory.getLastN(200).map(event => (event, Annotations.findByUUID(event.annotationId).flatMap(_.gdocId)))
+    Ok(views.html.edit_history(history)) 
   }
   
   /** Shows the stats history page **/
