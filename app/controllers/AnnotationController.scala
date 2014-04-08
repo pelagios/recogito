@@ -204,7 +204,7 @@ object AnnotationController extends Controller with Secured {
   
   def forSource(source: String) = DBAction { implicit session =>    
     // Convert Recogito annotations to OA
-    val basePath = routes.ApplicationController.index.absoluteURL(false)
+    val basePath = routes.ApplicationController.index(None).absoluteURL(false)
     val thing = AnnotatedThing(basePath + "egd", source)
     
     Annotations.findBySource(source).foreach(a => {

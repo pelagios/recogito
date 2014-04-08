@@ -64,7 +64,7 @@ object AuthController extends Controller {
         if (destination.isDefined) {
           Redirect(destination.get).withSession(Security.username -> user._1)
         } else {
-          Redirect(routes.ApplicationController.index()).withSession(Security.username -> user._1)
+          Redirect(routes.ApplicationController.index(None)).withSession(Security.username -> user._1)
         }
       }
     )
@@ -72,7 +72,7 @@ object AuthController extends Controller {
 
   /** Logout handler **/
   def logout = Action {
-    Redirect(routes.ApplicationController.index).withNewSession
+    Redirect(routes.ApplicationController.index(None)).withNewSession
   }
 
 }

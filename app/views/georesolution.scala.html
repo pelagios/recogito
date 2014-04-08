@@ -18,14 +18,14 @@
     @if(texts.size > 1) { 
       @tags.js_text_menu() 
     }
-    <base href="@routes.ApplicationController.index()">
+    <base href="@routes.ApplicationController.index(None)">
   </head>
   
   <body>
     <div id="header">
       <div id="title">
         @doc.author.map(_ + ": ").getOrElse("") @doc.title @doc.dateComment.map("(" + _ + ")").getOrElse("")
-        <div id="home-button"><a href="@routes.ApplicationController.index()" class="icon">&#xf015;</a></div>
+        <div id="home-button"><a href="@routes.ApplicationController.index(None)" class="icon">&#xf015;</a></div>
       </div>
       
       <div id="menu">

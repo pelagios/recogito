@@ -50,7 +50,7 @@ object DocumentController extends Controller with Secured {
       if (format.isDefined && format.get.equalsIgnoreCase(CSV))
         get_CSV(doc.get)
       else if (format.isDefined && format.get.equalsIgnoreCase(RDF_XML))
-        get_RDF(doc.get, RDFFormat.RDFXML, routes.ApplicationController.index.absoluteURL(false))
+        get_RDF(doc.get, RDFFormat.RDFXML, routes.ApplicationController.index(None).absoluteURL(false))
       else
         get_JSON(doc.get)
     } else {

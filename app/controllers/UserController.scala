@@ -56,7 +56,7 @@ object UserController extends Controller with Secured {
       data => Global.database.withSession { implicit s: Session =>
         val salt = User.randomSalt
         Users.insert(User(data.username, User.computeHash(salt + data.password), salt))
-        Redirect(routes.ApplicationController.index()).withSession(Security.username -> data.username) 
+        Redirect(routes.ApplicationController.index(None)).withSession(Security.username -> data.username) 
       }
     )
   }

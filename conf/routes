@@ -79,5 +79,5 @@ DELETE  /recogito/admin/users/:username            controllers.admin.UserAdminCo
 
 
 # Index page (available in public and private version)
-GET     /recogito/                                 controllers.ApplicationController.index
-GET     /recogito                                  controllers.ApplicationController.index
+GET     /recogito/                                 controllers.ApplicationController.index(collection: Option[String])
+GET     /recogito                                  controllers.ApplicationController.index(collection: Option[String])

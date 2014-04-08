@@ -69,7 +69,19 @@ object GeoDocuments extends Table[GeoDocument]("gdocuments") {
   def findById(id: Int)(implicit s: Session): Option[GeoDocument] =
     Query(GeoDocuments).where(_.id === id).firstOption
     
+  def findAll(ids: Seq[Int])(implicit s: Session): Seq[GeoDocument] =
+    Query(GeoDocuments).where(_.id inSet ids).list
+    
   def delete(id: Int)(implicit s: Session) =
     Query(GeoDocuments).where(_.id === id).delete
+    
+  /** Helper method to find all IDs except those provided as argument.
+    *
+    * This method is used by the CollectionMembership class to determine
+    * documents that are not assigned to a collection. To avoid confusion,
+    * the method is not exposed outside of this package.  
+    */
+  private[models] def findAllExcept(ids: Seq[Int])(implicit s: Session): Seq[Int] =
+    Query(GeoDocuments).map(_.id).filter(id => !(id inSet ids)).list 
   
 }

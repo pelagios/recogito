@@ -10,7 +10,7 @@ import play.api.db.slick.Config.driver.simple._
 case class CollectionMembership(id: Option[Int], gdocId: Int, collection: String)
 
 /** Collections database table **/
-object Collections extends Table[CollectionMembership]("collection_memberships") {
+object CollectionMemberships extends Table[CollectionMembership]("collection_memberships") {
   
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   
@@ -18,15 +18,25 @@ object Collections extends Table[CollectionMembership]("collection_memberships")
   
   def collection = column[String]("collection", O.NotNull)
   
+  def collection_lowercase = column[String]("collection_lowercase", O.NotNull)
+  
   def * = id.? ~ gdocId ~ collection <> (CollectionMembership.apply _, CollectionMembership.unapply _)
 
-  def listAll()(implicit s: Session): Set[String] = 
-    Query(Collections).map(_.collection).list.toSet
-  
+  /** Lists all collection names **/
+  def listCollections()(implicit s: Session): Seq[String] = 
+    (Query(CollectionMemberships).map(_.collection)).list.distinct
+
+  /** Counts the number of documents in the specified collection **/
   def countDocumentsInCollection(collection: String)(implicit s: Session): Int =
-    Query(Collections).where(_.collection === collection).list.size
+    (Query(CollectionMemberships).where(_.collection.toLowerCase === collection.toLowerCase)).list.size
     
-  def getCollectionMemberships(gdocs: Seq[GeoDocument])(implicit s: Session): Seq[(GeoDocument, List[String])] =
-    gdocs.map(doc => (doc, Query(Collections).where(_.gdocId === doc.id.get).map(_.collection).list))
+  /** Returns the IDs of the documents in the specified collection **/
+  def getDocumentsInCollection(collection: String)(implicit s: Session): Seq[Int] =
+    (Query(CollectionMemberships).where(_.collection.toLowerCase === collection.toLowerCase).map(_.gdocId)).list
+        
+  def getUnassignedGeoDocuments()(implicit s: Session): Seq[Int] = {
+    val docsInCollections = Query(CollectionMemberships).map(_.id).list.distinct
+    GeoDocuments.findAllExcept(docsInCollections)
+  }
     
 }

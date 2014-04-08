@@ -16,20 +16,27 @@ object ApplicationController extends Controller with Secured with CTSClient {
   private val UTF8 = "UTF-8"
     
   /** Returns the index page for logged-in users **/
-  def index = DBAction { implicit rs => 
+  def index(collection: Option[String]) = DBAction { implicit rs =>
     if (currentUser.isDefined && isAuthorized) {
-      val gdocs = GeoDocuments.listAll
+      if (collection.isEmpty) {
+        // If no collection is selected, redirect to the first in the list
+        val allCollections = CollectionMemberships.listCollections :+ "other"
+        Redirect(routes.ApplicationController.index(Some(allCollections.head)))
+      } else {
+        // The documents for the selected collection
+        val gdocs = 
+          if (collection.get.equalsIgnoreCase("other"))
+            GeoDocuments.findAll(CollectionMemberships.getUnassignedGeoDocuments)
+          else
+            GeoDocuments.findAll(CollectionMemberships.getDocumentsInCollection(collection.get))
       
-      // Query the DB for the collection memberships of each doc
-      val collectionMemberships = Collections.getCollectionMemberships(gdocs)
-      
-      // Invert the membership map (without querying the dB), so we can build the 'facet' widget
-      val distinctCollections = collectionMemberships.flatMap(_._2).distinct   
-      val docsPerCollection = distinctCollections.map(collection => 
-        (collection, collectionMemberships.count(_._2.contains(collection)))) :+
-        ("Other", collectionMemberships.count(_._2.size == 0))
-      
-      Ok(views.html.index(gdocs, docsPerCollection, currentUser.get))
+        // The information required for the 'facet' widget
+        val docsPerCollection = CollectionMemberships.listCollections.map(collection =>
+          (collection, CollectionMemberships.countDocumentsInCollection(collection))) :+
+          ("Other", CollectionMemberships.getUnassignedGeoDocuments.size)
+          
+        Ok(views.html.index(gdocs, docsPerCollection, currentUser.get))
+      }
     } else {
       val gdocs = GeoDocuments.listAll
           .sortBy(d => (d.date, d.author, d.title))
