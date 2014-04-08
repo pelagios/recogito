@@ -73,6 +73,9 @@ object Global extends GlobalSettings {
       
       if (MTable.getTables("gdocument_texts").list().isEmpty)
         GeoDocumentTexts.ddl.create
+        
+      if (MTable.getTables("collection_memberships").list().isEmpty)
+        Collections.ddl.create
       
       if (MTable.getTables("annotations").list().isEmpty)
         Annotations.ddl.create

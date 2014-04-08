@@ -30,8 +30,7 @@ object DocumentAdminController extends Controller with Secured {
 		"dateComment" -> optional(text),
 		"language" -> optional(text),
 		"description" -> optional(text),
-		"source" -> optional(text),
-		"collections" -> optional(text)
+		"source" -> optional(text)
 	)(GeoDocument.apply)(GeoDocument.unapply)
   )
   

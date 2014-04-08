@@ -1,4 +1,4 @@
-@(user: models.User)(implicit s: play.api.db.slick.Config.driver.simple.Session)
+@(docs: Seq[GeoDocument], collections: Seq[(String, Int)], user: models.User)(implicit s: play.api.db.slick.Config.driver.simple.Session)
 
 @import tags.lang
 
@@ -48,7 +48,7 @@
         <table>
           <thead>
             <tr>
-              <th>Document</th>
+              <th class="title">Document</th>
               <th># of Parts</th>
               <th>Toponyms</th>
               <th>Complete</th>    
@@ -59,117 +59,111 @@
     </div>
     
     <div id="container">    
-      <table class="index">   
-        <tbody>
-          @for(doc <- models.GeoDocuments.listAll().sortBy(d => (d.language, d.date, d.author, d.title))) {
-          	@defining(user.canEdit(doc.id.get)) { canEdit =>
-          	  @if(canEdit) { <tr> } else { <tr class="locked-document"> }
-          	    <td> <!-- document title -->
-          	      @if(!canEdit) {
-          	        <span class="icon locked-document">&#xf023;</span>
-          	      }
-          	      @doc.author.map(_ + ": ").getOrElse("") @doc.title
-          	      @doc.dateComment.map("(" + _ + ")").getOrElse("") 
-          	    </td>
-          	    
-          	    <td>@lang(doc.language)</td>
-          	  
-          	    @defining(models.GeoDocumentParts.countForGeoDocument(doc.id.get)) { parts =>
-          	  	  <!-- number of parts -->
-                  @if(parts == 0) { 
-          	        <td colspan="2" class="center">-</td>
-          	      } else {
-          	        <td class="right">@parts</td><td><a class="icon toggle toggle-@doc.id.get" href="#" onclick="toggleDetails(@doc.id.get); return false;"></a></td>
-          	      }         	      
-          	    }
-          	  
-          	    <!-- number of toponyms -->
-          	    <td class="center">
-          	      @doc.countTotalToponyms
-          	    </td>
-          	  
-          	    <td class="stats"> <!-- completion ratio -->
-          	      @defining(doc.completionRatio * 100) { completionRatio =>
-          	        <div class="meter" title="@{ "%.2f" format (completionRatio) } %">
-	                  <span style="width: @completionRatio%"></span>
-                    </div>
-                  }
-          	    </td>
-          	    <td class="more-stats"><a href="@routes.ApplicationController.showDocumentStats(doc.id.get)" class="icon" title="Detailed Stats">&#xf080;</a></td>
-          	  
-          	    <td class="icons"> <!-- icons: map, public map, text -->
-          	      @defining(GeoDocumentTexts.getTextForGeoDocument(doc.id.get)) { text =>
-      	            @if(text.isDefined) {
-      	              <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(text.get.id, None)" title="Text Annotation">&#xf0f6;</a>
-      	            } else {
-      	              <span class="icon"></span>
-      	            }
-      	          }
-          	      <a class="icon" href="@routes.ApplicationController.showGeoResolutionUI(doc.id.get)" title="Geo-Resolution">&#xf0ac;</a>
-          	      <a class="icon" href="@routes.DocumentController.get(doc.id.get, Some("csv"))" title="Download CSV">&#xf0ce;</a>
-          	      <a class="icon" href="@routes.ApplicationController.showMap(doc.id.get)" title="Public Map">
-          	        &#xf0ac;
-          	        <span class="icon public">&#xf0c0;</span>
-          	      </a>
-          	    </td>
-          	  </tr>
-          	}
-          	
-          	@for(part <- models.GeoDocumentParts.findByGeoDocument(doc.id.get)) {
-              <tr class="document-part document-@doc.id.get">
-                <td class="title">@part.title</td>
-                
-                <td colspan="3"></td>
-                
-                <!-- number of toponyms -->
-                <td class="center">
-                  @part.totalToponymCount
-                </td>
-                
-          	    <td> <!-- completion ratio -->
-          	      @defining(part.completionRatio * 100) { completionRatio =>
-          	        <div class="meter meter-part" title="@{ "%.2f" format (completionRatio) } %">
-	                  <span style="width: @completionRatio%"></span>
-                    </div>
-                  }
-          	    </td>
-          	    <td></td>
-          	    
-                <td>
-      	          @defining(GeoDocumentTexts.getTextForGeoDocumentPart(part.id.get)) { text =>
-      	            @if(text.isDefined) {
-      	              <span class="icon"></span>
-      	              <span class="icon"></span>
-      	              <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(text.get.id, None)" title="Text">&#xf0f6;</a>
-      	            }
-      	          }
-                </td>
-          	  </tr>
-            }
+      <div id="collections-sidebar">
+        <h2>Collections</h2>
+        <ul>
+          @for(collection <- collections) {
+            <li><span class="collection-name">@collection._1</span><span class="collection-count">@collection._2</span></li>
           }
-          
-          @* We need to do some optimization here to avoid redundant DB access! *@
-          <tr class="totals">
-            @defining(models.GeoDocuments.listAll().map(doc => (doc.countTotalToponyms, doc.countUnverifiedToponyms))) { totals =>
-              @defining(totals.map(_._1).foldLeft(0)(_ + _)) { totalToponyms =>
-                <td colspan="4"></td>
-                <td class="center">@totalToponyms</td> <!-- Toponyms -->
-                <td>
-                  @defining(totals.map(_._2).foldLeft(0)(_ + _)) { totalUnverified =>
-                    <div class="meter">
-                      @defining(100 * (totalToponyms - totalUnverified).toDouble / totalToponyms) { ratio =>
-                        <span style="width:@{ratio}%" title="@{"%.2f" format (ratio)} % - @totalUnverified Toponyms to go!"></span>
-                      }
+          <!--  li class="disabled"><span class="collection-name">Other</span><span class="collection-count">0</span></li -->
+        </ul>  
+      </div>
+      
+      <div id="document-list">
+        <table class="index">  
+          <tbody>
+            @for(doc <- docs.sortBy(d => (d.language, d.date, d.author, d.title))) {
+            	@defining(user.canEdit(doc.id.get)) { canEdit =>
+            	  @if(canEdit) { <tr> } else { <tr class="locked-document"> }
+            	    <td class="title"> <!-- document title -->
+                    <div>
+            	        @if(!canEdit) {
+            	          <span class="icon locked-document">&#xf023;</span>
+            	        }
+          	      
+            	        <a href="@routes.ApplicationController.showDocumentStats(doc.id.get)">
+            	          @doc.author.map(_ + ": ").getOrElse("") @doc.title
+            	          @doc.dateComment.map("(" + _ + ")").getOrElse("") 
+          	          </a>
                     </div>
-                  }
-                </td>
-                <td></td>
-                <td></td>  
-              }         
+          	      </td>
+          	    
+            	    <td>@lang(doc.language)</td>
+          	  
+            	    @defining(models.GeoDocumentParts.countForGeoDocument(doc.id.get)) { parts =>
+            	  	  <!-- number of parts -->
+                    @if(parts == 0) { 
+            	        <td colspan="2" class="center">-</td>
+            	      } else {
+          	          <td class="right">@parts</td><td><a class="icon toggle toggle-@doc.id.get" href="#" onclick="toggleDetails(@doc.id.get); return false;"></a></td>
+          	        }         	      
+          	      }
+          	  
+          	      <!-- number of toponyms -->
+          	      <td class="center">@doc.countTotalToponyms</td>
+          	  
+            	    <td class="stats"> <!-- completion ratio -->
+            	      @defining(doc.completionRatio * 100) { completionRatio =>
+            	        <div class="meter" title="@{ "%.2f" format (completionRatio) } %">
+	                    <span style="width: @completionRatio%"></span>
+                      </div>
+                    }
+          	      </td>
+          	    </tr>
+          	  }
+          	
+            	@for(part <- models.GeoDocumentParts.findByGeoDocument(doc.id.get)) {
+                <tr class="document-part document-@doc.id.get">
+                  <td class="title">@part.title</td>
+                
+                  <td colspan="3"></td>
+                
+                  <!-- number of toponyms -->
+                  <td class="center">@part.totalToponymCount</td>
+                
+            	    <td> <!-- completion ratio -->
+            	      @defining(part.completionRatio * 100) { completionRatio =>
+            	        <div class="meter meter-part" title="@{ "%.2f" format (completionRatio) } %">
+	                    <span style="width: @completionRatio%"></span>
+                      </div>
+                    }
+          	      </td>
+          	      <td></td>
+          	    
+                  <td>
+      	            @defining(GeoDocumentTexts.getTextForGeoDocumentPart(part.id.get)) { text =>
+      	              @if(text.isDefined) {
+      	                <span class="icon"></span>
+      	                <span class="icon"></span>
+      	                <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(text.get.id, None)" title="Text">&#xf0f6;</a>
+      	              }
+      	            }
+                  </td>
+            	  </tr>
+              }
             }
-          </tr>
-        </tbody> 
-      </table>
+          
+            @* We need to do some optimization here to avoid redundant DB access! *@
+            <tr class="totals">
+              @defining(models.GeoDocuments.listAll().map(doc => (doc.countTotalToponyms, doc.countUnverifiedToponyms))) { totals =>
+                @defining(totals.map(_._1).foldLeft(0)(_ + _)) { totalToponyms =>
+                  <td colspan="4"></td>
+                  <td class="center">@totalToponyms</td> <!-- Toponyms -->
+                  <td>
+                    @defining(totals.map(_._2).foldLeft(0)(_ + _)) { totalUnverified =>
+                      <div class="meter">
+                        @defining(100 * (totalToponyms - totalUnverified).toDouble / totalToponyms) { ratio =>
+                          <span style="width:@{ratio}%" title="@{"%.2f" format (ratio)} % - @totalUnverified Toponyms to go!"></span>
+                        }
+                      </div>
+                    }
+                  </td>
+                }         
+              }
+            </tr>
+          </tbody> 
+        </table>
+      </div>
     </div>
     
     <!-- div id="footer">

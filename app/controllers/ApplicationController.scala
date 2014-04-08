@@ -18,13 +18,24 @@ object ApplicationController extends Controller with Secured with CTSClient {
   /** Returns the index page for logged-in users **/
   def index = DBAction { implicit rs => 
     if (currentUser.isDefined && isAuthorized) {
-      Ok(views.html.index(currentUser.get))
+      val gdocs = GeoDocuments.listAll
+      
+      // Query the DB for the collection memberships of each doc
+      val collectionMemberships = Collections.getCollectionMemberships(gdocs)
+      
+      // Invert the membership map (without querying the dB), so we can build the 'facet' widget
+      val distinctCollections = collectionMemberships.flatMap(_._2).distinct   
+      val docsPerCollection = distinctCollections.map(collection => 
+        (collection, collectionMemberships.count(_._2.contains(collection)))) :+
+        ("Other", collectionMemberships.count(_._2.size == 0))
+      
+      Ok(views.html.index(gdocs, docsPerCollection, currentUser.get))
     } else {
-      val docs = GeoDocuments.listAll
+      val gdocs = GeoDocuments.listAll
           .sortBy(d => (d.date, d.author, d.title))
           .map(doc => (doc, doc.countTotalToponyms, doc.countUnverifiedToponyms))
           
-      Ok(views.html.index_public(docs))
+      Ok(views.html.index_public(gdocs))
     }
   }
    
