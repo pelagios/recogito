@@ -35,7 +35,7 @@ object CollectionMemberships extends Table[CollectionMembership]("collection_mem
     (Query(CollectionMemberships).where(_.collection.toLowerCase === collection.toLowerCase).map(_.gdocId)).list
         
   def getUnassignedGeoDocuments()(implicit s: Session): Seq[Int] = {
-    val docsInCollections = Query(CollectionMemberships).map(_.id).list.distinct
+    val docsInCollections = Query(CollectionMemberships).map(_.gdocId).list.distinct
     GeoDocuments.findAllExcept(docsInCollections)
   }
     
