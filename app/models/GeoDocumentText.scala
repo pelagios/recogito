@@ -22,6 +22,13 @@ object GeoDocumentTexts extends Table[GeoDocumentText]("gdocument_texts") {
   
   def * = id.? ~ gdocId ~ gdocPartId.? ~ text <> (GeoDocumentText.apply _, GeoDocumentText.unapply _)
   
+  private def autoInc = gdocId ~ gdocPartId.? ~ text returning id
+    
+  def insert(text: GeoDocumentText)(implicit s: Session): Int =
+    autoInc.insert(text.gdocId, text.gdocPartId, text.text)
+    
+    
+  
   /** Retrieve a text with the specified ID (= primary key) **/
   def findById(id: Int)(implicit s: Session): Option[GeoDocumentText] =
     Query(GeoDocumentTexts).where(_.id === id).firstOption

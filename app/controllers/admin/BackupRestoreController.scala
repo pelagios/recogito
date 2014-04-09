@@ -110,7 +110,7 @@ object BackupRestoreController extends Controller with Secured {
     if (formData.isDefined) {
       formData.get.file("csv").map(filePart => {
         val timeline = new CSVParser().parseStatsTimeline(filePart.ref.file.getAbsolutePath)
-        StatsHistory.insertAll(timeline:_*)
+        StatsHistory.insertAll(timeline)
       })
       Redirect(routes.BackupRestoreController.index)
     } else {

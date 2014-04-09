@@ -53,8 +53,8 @@ object ZipImporter {
       
       // Insert the document
       Logger.info("... document")
-      val gdocId = GeoDocuments returning GeoDocuments.id insert
-        GeoDocument(None, docExtWorkID, docAuthor, docTitle, docDate, docDateComment, docLanguage, docDescription, docSource)
+      val gdocId = GeoDocuments.insert(
+        GeoDocument(None, docExtWorkID, docAuthor, docTitle, docDate, docDateComment, docLanguage, docDescription, docSource))
       
       // Insert text (if any)
       if (docText.isDefined) {
@@ -71,7 +71,7 @@ object ZipImporter {
         
           // Insert the document part          
           Logger.info("... part " + partTitle)
-          val gdocPartId = GeoDocumentParts returning GeoDocumentParts.id insert(GeoDocumentPart(None, gdocId, partTitle, partSource))
+          val gdocPartId = GeoDocumentParts.insert(GeoDocumentPart(None, gdocId, partTitle, partSource))
         
           if (partText.isDefined) {
             Logger.info("... text")

@@ -56,15 +56,25 @@ object GeoDocuments extends Table[GeoDocument]("gdocuments") {
   
   def language = column[String]("language", O.Nullable)
 
-  def description = column[String]("description", O.Nullable)
+  def description = column[String]("description", O.Nullable, O.DBType("text"))
   
   def source = column[String]("source", O.Nullable)
   
   def _collections = column[String]("collections", O.Nullable)
 
-  def * = id.? ~ externalWorkID.? ~ author.? ~ title ~ date.? ~ dateComment.? ~ language.? ~ 
+  def * =
+    id.? ~ externalWorkID.? ~ author.? ~ title ~ date.? ~ dateComment.? ~ language.? ~ 
     description.? ~ source.? <> (GeoDocument.apply _, GeoDocument.unapply _)
+    
+  private def autoInc = 
+    externalWorkID.? ~ author.? ~ title ~ date.? ~ dateComment.? ~ language.? ~ 
+    description.? ~ source.? returning id
+    
+  def insert(doc: GeoDocument)(implicit s: Session): Int =
+    autoInc.insert(doc.externalWorkID, doc.author, doc.title, doc.date, doc.dateComment, doc.language, doc.description, doc.source)
   
+    
+    
   def listAll()(implicit s: Session): Seq[GeoDocument] = Query(GeoDocuments).list
   
   def findById(id: Int)(implicit s: Session): Option[GeoDocument] =

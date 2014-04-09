@@ -25,6 +25,13 @@ object GeoDocumentParts extends Table[GeoDocumentPart]("gdocument_parts") {
   def source = column[String]("source", O.Nullable)
   
   def * = id.? ~ gdocId ~ title ~ source.? <> (GeoDocumentPart.apply _, GeoDocumentPart.unapply _)
+  
+  private def autoInc = gdocId ~ title ~ source.? returning id
+    
+  def insert(part: GeoDocumentPart)(implicit s: Session): Int =
+    autoInc.insert(part.gdocId, part.title, part.source)
+    
+    
 
   /** Retrieve a GeoDocumentPart with the specified ID (= primary key) **/
   def findById(id: Int)(implicit s: Session): Option[GeoDocumentPart] = {

@@ -143,9 +143,21 @@ class CSVParser extends BaseParser {
     val data = Source.fromFile(file).getLines
     val header = data.take(1).toSeq.head.split(SEPARATOR, -1).toSeq
 
-    // TODO implement
+    val idxTimestamp = idx(header, "timestamp")
+    val idxVerifiedToponyms = idx(header, "verified_toponyms")
+    val idxUnverifiedToponyms = idx(header, "unverified_toponyms")
+    val idxUnidentifiableToponyms = idx(header, "unidentifiable_toponyms")
+    val idxTotalEdits = idx(header, "total_edits")
     
-    Seq.empty[StatsRecord]
+    data.map(_.split(SPLIT_REGEX, -1)).map(fields => {
+      // All fields required - it's ok to fail if not
+      StatsRecord(None,
+          new Timestamp(fields(idxTimestamp.get).toLong),
+          fields(idxVerifiedToponyms.get).toInt,
+          fields(idxUnverifiedToponyms.get).toInt,
+          fields(idxUnidentifiableToponyms.get).toInt,
+          fields(idxTotalEdits.get).toInt)
+    }).toSeq
   }
   
   /** Helper method to find the row index of a specific header label 
