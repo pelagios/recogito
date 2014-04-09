@@ -16,6 +16,7 @@ libraryDependencies ++= Seq(
   "org.jsoup" % "jsoup" % "1.7.2",
   "com.typesafe.play" %% "play-slick" % "0.5.0.8",
   "org.xerial" % "sqlite-jdbc" % "3.7.2",
+  "postgresql" % "postgresql" % "9.1-901.jdbc4",
   "rome" % "rome" % "1.0"          
 )
 

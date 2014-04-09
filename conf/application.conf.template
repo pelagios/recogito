@@ -34,9 +34,15 @@ application.global=global.Global
 # By convention, the default datasource is named `default`
 #
 db.default.driver="org.sqlite.JDBC"
-db.default.url="jdbc:sqlite:db/sample.db"
+db.default.url="jdbc:sqlite:db/recogito.db"
 db.default.user="sa"
 db.default.password=""
+
+# Postgres configuration example
+# db.default.driver="org.postgresql.Driver"
+# db.default.url="jdbc:postgresql://localhost/recogito"
+# db.default.user="postgres"
+# db.default.password="postgres"
 
 # Evolutions
 # ~~~~~
