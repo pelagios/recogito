@@ -17,35 +17,36 @@ object ApplicationController extends Controller with Secured with CTSClient {
     
   /** Returns the index page for logged-in users **/
   def index(collection: Option[String]) = DBAction { implicit rs =>    
-    if (currentUser.isDefined && isAuthorized) {
-      if (collection.isEmpty) {
-        // If no collection is selected, redirect to the first in the list
-        val allCollections = CollectionMemberships.listCollections :+ "other"
-        Redirect(routes.ApplicationController.index(Some(allCollections.head.toLowerCase)))
-      } else {
-        // IDs of all documents NOT assigned to a collection
-        val unassigned = CollectionMemberships.getUnassignedGeoDocuments
-        
-        // Documents for the selected collection
-        val gdocs = 
-          if (collection.get.equalsIgnoreCase("other"))
-            GeoDocuments.findAll(unassigned)
-          else
-            GeoDocuments.findAll(CollectionMemberships.getDocumentsInCollection(collection.get))
-                  
-        // The information required for the collection selection widget
-        val docsPerCollection = CollectionMemberships.listCollections.map(collection =>
-          (collection, CollectionMemberships.countDocumentsInCollection(collection))) ++
-          { if (unassigned.size > 0) Seq(("Other", unassigned.size)) else Seq.empty[(String, Int)] }
-          
-        Ok(views.html.index(gdocs, docsPerCollection, collection.get, currentUser.get))
-      }
+    if (collection.isEmpty) {
+      // If no collection is selected, redirect to the first in the list
+      val allCollections = CollectionMemberships.listCollections :+ "other"
+      Redirect(routes.ApplicationController.index(Some(allCollections.head.toLowerCase)))
     } else {
-      val gdocs = GeoDocuments.listAll
+      // IDs of all documents NOT assigned to a collection
+      val unassigned = CollectionMemberships.getUnassignedGeoDocuments
+        
+      // Documents for the selected collection
+      val gdocs = 
+        if (collection.get.equalsIgnoreCase("other"))
+          GeoDocuments.findAll(unassigned)
+        else
+          GeoDocuments.findAll(CollectionMemberships.getDocumentsInCollection(collection.get))
+                  
+      // The information required for the collection selection widget
+      val docsPerCollection = CollectionMemberships.listCollections.map(collection =>
+        (collection, CollectionMemberships.countDocumentsInCollection(collection))) ++
+        { if (unassigned.size > 0) Seq(("Other", unassigned.size)) else Seq.empty[(String, Int)] }
+            
+      // Populate the correct template, depending on login state
+      if (currentUser.isDefined && isAuthorized) {      
+        Ok(views.html.index(gdocs, docsPerCollection, collection.get, currentUser.get))
+      } else {
+        val sorted = gdocs
           .sortBy(d => (d.date, d.author, d.title))
           .map(doc => (doc, doc.countTotalToponyms, doc.countUnverifiedToponyms))
           
-      Ok(views.html.index_public(gdocs))
+        Ok(views.html.index_public(sorted, docsPerCollection, collection.get))
+      }    
     }
   }
    

@@ -1,4 +1,5 @@
-@(documents: Seq[(GeoDocument, Int, Int)])
+@(docs: Seq[(GeoDocument, Int, Int)], collections: Seq[(String, Int)], currentCollection: String)
+
 
 @import tags.lang
 
@@ -33,55 +34,70 @@
       </div>
     </div>
     
-    <div id="container">    
-      <table class="index" style="width:100%"> 
-        <tbody>
-          @for(doc <- documents) {
-            <tr>
-              <td> <!-- document title -->
-                @doc._1.author.map(_ + ": ").getOrElse("") @doc._1.title
-                @doc._1.dateComment.map("(" + _ + ")").getOrElse("") 
-              </td>
-                
-              <td>@lang(doc._1.language)</td>
-                          
-              <td class="center">@doc._2</td>
-              
-              <td class="stats">
-                @defining(((doc._2 - doc._3).toDouble / doc._2) * 100) { completionRatio =>
-                  <div class="meter" title="@{ "%.2f" format (completionRatio) } %">
-                    <span style="width: @completionRatio%"></span>
-                  </div>
-                }
-              </td>
-              <td class="more-stats"><a href="@routes.ApplicationController.showDocumentStats(doc._1.id.get)" class="icon" title="Detailed Stats">&#xf080;</a></td>
-              
-              <td class="icons"> <!-- icons: public map -->
-                <a class="icon" href="@routes.ApplicationController.showMap(doc._1.id.get)" title="Public Map">
-                  &#xf0ac;
-                  <span class="icon public">&#xf0c0;</span>
-                </a>
-                <a class="icon" href="@routes.DocumentController.get(doc._1.id.get, Some("csv"))" title="Download CSV">&#xf0ce;</a>
-              </td>
-            </tr>
+    <div id="container">  
+      <div id="collections-sidebar">
+        <h2>Collections</h2>
+        <ul>
+          @for(collection <- collections) {
+          	@if(currentCollection.equalsIgnoreCase(collection._1)) { <li> } else { <li class="disabled"> }
+              <a href="@routes.ApplicationController.index(Some(collection._1.toLowerCase))">
+                <span class="collection-name">@collection._1</span>
+                <span class="collection-count">@collection._2</span>
+              </a>
+            </li>
           }
-          
-          <tr class="totals">
-            @defining(documents.foldLeft(0, 0)((sum, doc) => (sum._1 + doc._2, sum._2 + doc._3))) { sum =>
-              <td colspan="2"></td>
-              <td class="center">@sum._1</td> <!-- Total toponyms -->
-              <td>
-                <div class="meter">
-                  @defining(100 * (sum._1 - sum._2).toDouble / sum._1) { ratio =>
-                    <span style="width:@{ratio}%" title="@{"%.2f" format (ratio)} % - @sum._2 Toponyms to go!"></span>
+        </ul>  
+      </div>
+      
+      <div id="document-list">
+        <table class="index"> 
+          <tbody>
+            @for(doc <- docs) {
+              <tr>
+                <td> <!-- document title -->
+                  @doc._1.author.map(_ + ": ").getOrElse("") @doc._1.title
+                  @doc._1.dateComment.map("(" + _ + ")").getOrElse("") 
+                </td>
+                
+                <td>@lang(doc._1.language)</td>
+                          
+                <td class="center">@doc._2</td>
+              
+                <td class="stats">
+                  @defining(((doc._2 - doc._3).toDouble / doc._2) * 100) { completionRatio =>
+                    <div class="meter" title="@{ "%.2f" format (completionRatio) } %">
+                      <span style="width: @completionRatio%"></span>
+                    </div>
                   }
-                </div>
-              </td>
-              <td colspan="2"></td>
+                </td>
+                <td class="more-stats"><a href="@routes.ApplicationController.showDocumentStats(doc._1.id.get)" class="icon" title="Detailed Stats">&#xf080;</a></td>
+              
+                <td class="icons"> <!-- icons: public map -->
+                  <a class="icon" href="@routes.ApplicationController.showMap(doc._1.id.get)" title="Public Map">
+                    &#xf0ac;
+                  </a>
+                  <a class="icon" href="@routes.DocumentController.get(doc._1.id.get, Some("csv"))" title="Download CSV">&#xf0ce;</a>
+                </td>
+              </tr>
             }
-          </tr>
-        </tbody> 
-      </table>
+          
+            <tr class="totals">
+              @defining(docs.foldLeft(0, 0)((sum, doc) => (sum._1 + doc._2, sum._2 + doc._3))) { sum =>
+                <td colspan="2"></td>
+                <td class="center">@sum._1</td> <!-- Total toponyms -->
+                <td>
+                  <div class="meter">
+                    @defining(100 * (sum._1 - sum._2).toDouble / sum._1) { ratio =>
+                      <span style="width:@{ratio}%" title="@{"%.2f" format (ratio)} % - @sum._2 Toponyms to go!"></span>
+                    }
+                  </div>
+                </td>
+                <td colspan="2"></td>
+              }
+            </tr>
+          </tbody> 
+        </table>
+      </div>
     </div>
   </body>
 </html>
