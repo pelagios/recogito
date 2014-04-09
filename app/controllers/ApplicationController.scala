@@ -21,19 +21,22 @@ object ApplicationController extends Controller with Secured with CTSClient {
       if (collection.isEmpty) {
         // If no collection is selected, redirect to the first in the list
         val allCollections = CollectionMemberships.listCollections :+ "other"
-        Redirect(routes.ApplicationController.index(Some(allCollections.head)))
+        Redirect(routes.ApplicationController.index(Some(allCollections.head.toLowerCase)))
       } else {
-        // The documents for the selected collection
+        // IDs of all documents NOT assigned to a collection
+        val unassigned = CollectionMemberships.getUnassignedGeoDocuments
+        
+        // Documents for the selected collection
         val gdocs = 
           if (collection.get.equalsIgnoreCase("other"))
-            GeoDocuments.findAll(CollectionMemberships.getUnassignedGeoDocuments)
+            GeoDocuments.findAll(unassigned)
           else
             GeoDocuments.findAll(CollectionMemberships.getDocumentsInCollection(collection.get))
                   
-        // The information required for the 'facet' widget
+        // The information required for the collection selection widget
         val docsPerCollection = CollectionMemberships.listCollections.map(collection =>
-          (collection, CollectionMemberships.countDocumentsInCollection(collection))) :+
-          ("Other", CollectionMemberships.getUnassignedGeoDocuments.size)
+          (collection, CollectionMemberships.countDocumentsInCollection(collection))) ++
+          { if (unassigned.size > 0) Seq(("Other", unassigned.size)) else Seq.empty[(String, Int)] }
           
         Ok(views.html.index(gdocs, docsPerCollection, collection.get, currentUser.get))
       }
