@@ -11,8 +11,8 @@ libraryDependencies ++= Seq(jdbc, cache)
 /** Runtime dependencies **/
 libraryDependencies ++= Seq(
   "com.google.gdata" % "core" % "1.47.1",
-  "org.apache.lucene" % "lucene-analyzers-common" % "4.4.0",
-  "org.apache.lucene" % "lucene-queryparser" % "4.4.0",
+  "org.apache.lucene" % "lucene-analyzers-common" % "4.7.0",
+  "org.apache.lucene" % "lucene-queryparser" % "4.7.0",
   "org.jsoup" % "jsoup" % "1.7.2",
   "com.typesafe.play" %% "play-slick" % "0.6.0.1",
   "org.xerial" % "sqlite-jdbc" % "3.7.2",

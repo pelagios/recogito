@@ -65,11 +65,20 @@ object AnnotationController extends Controller with Secured {
         else
             Ok(Json.parse("{ \"success\": true }"))
       } else {
-        val errorMsg = createOne(body.get.as[JsObject], user.get.username)
-        if (errorMsg.isDefined)
-          BadRequest(Json.parse(errorMsg.get))
-        else
-          Ok(Json.parse("{ \"success\": true }"))
+        val json = body.get.as[JsObject]
+        try {
+          val errorMsg = createOne(json, user.get.username)
+          if (errorMsg.isDefined)
+            BadRequest(Json.parse(errorMsg.get))
+          else
+            Ok(Json.parse("{ \"success\": true }"))
+        } catch {
+          case t: Throwable => {
+            Logger.error("Error creating annotation: " + json)
+            t.printStackTrace
+            BadRequest("{ \"error\": \"" + t.getMessage + "\" }")
+          }
+        }
       }
     }  
   }
