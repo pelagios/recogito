@@ -18,8 +18,6 @@ class CollectionMemberships(tag: Tag) extends Table[CollectionMembership](tag, "
   
   def collection = column[String]("collection", O.NotNull)
   
-  def collection_lowercase = column[String]("collection_lowercase", O.NotNull)
-  
   def * = (id.?, gdocId, collection) <> (CollectionMembership.tupled, CollectionMembership.unapply)
 
 }

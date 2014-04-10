@@ -52,22 +52,22 @@ class CSVParser extends BaseParser {
     val idxSource = idx(header, "source")
     val idxSeeAlso = idx(header, "see_also")
     
-    data.map(_.split(SPLIT_REGEX, -1)).map(implicit fields => {
+    data.map(_.split(SPLIT_REGEX, -1)).map(fields => {
       Annotation(
           idxUUID.map(idx => UUID.fromString(fields(idx))).getOrElse(Annotations.newUUID),
           Some(gdocId),
           idxGdocPart.map(idx => getPartIdForTitle(gdocId, fields(idx))).flatten,
-          parseOptCol(idxStatus).map(AnnotationStatus.withName(_)).getOrElse(AnnotationStatus.NOT_VERIFIED),
-          parseOptCol(idxToponym),
-          parseOptCol(idxOffset).map(_.toInt),
-          parseOptCol(idxGazetteerURI),
-          parseOptCol(idxCorrectedToponym),
-          parseOptCol(idxCorrectedOffset).map(_.toInt),
-          parseOptCol(idxCorrectedGazetteerURI),
-          parseOptCol(idxTags),
-          parseOptCol(idxComment),
-          parseOptCol(idxSource),
-          parseOptCol(idxSeeAlso))
+          parseOptCol(idxStatus, fields).map(AnnotationStatus.withName(_)).getOrElse(AnnotationStatus.NOT_VERIFIED),
+          parseOptCol(idxToponym, fields),
+          parseOptCol(idxOffset, fields).map(_.toInt),
+          parseOptCol(idxGazetteerURI, fields),
+          parseOptCol(idxCorrectedToponym, fields),
+          parseOptCol(idxCorrectedOffset, fields).map(_.toInt),
+          parseOptCol(idxCorrectedGazetteerURI, fields),
+          parseOptCol(idxTags, fields),
+          parseOptCol(idxComment, fields),
+          parseOptCol(idxSource, fields),
+          parseOptCol(idxSeeAlso, fields))
     }).toSeq
   }
 
@@ -110,18 +110,18 @@ class CSVParser extends BaseParser {
     val idxUpdatedTags = idx(header, "updated_tags")
     val idxUpdatedComment = idx(header, "updated_comment")
     
-    data.map(_.split(SPLIT_REGEX, -1)).map(implicit fields => {
+    data.map(_.split(SPLIT_REGEX, -1)).map(fields => {
       // All fields must be there - it's ok to fail if not
       EditEvent(None,
         UUID.fromString(fields(idxAnnotationId.get)),
         fields(idxUsername.get),
         new Timestamp(fields(idxTimestamp.get).toLong),
-        parseOptCol(idxAnnotationBefore),
-        parseOptCol(idxUpdatedToponym),
-        parseOptCol(idxUpdatedStatus).map(AnnotationStatus.withName(_)),
-        parseOptCol(idxUpdatedURI),
-        parseOptCol(idxUpdatedTags),
-        parseOptCol(idxUpdatedComment))
+        parseOptCol(idxAnnotationBefore, fields),
+        parseOptCol(idxUpdatedToponym, fields),
+        parseOptCol(idxUpdatedStatus, fields).map(AnnotationStatus.withName(_)),
+        parseOptCol(idxUpdatedURI, fields),
+        parseOptCol(idxUpdatedTags, fields),
+        parseOptCol(idxUpdatedComment, fields))
     }).toSeq
   }
   
@@ -146,6 +146,28 @@ class CSVParser extends BaseParser {
     }).toSeq
   }
   
+  def parseCollectionMemberships(file: String)(implicit session: Session): Seq[CollectionMembership] = {
+    val data = Source.fromFile(file).getLines
+    val header = data.take(1).toSeq.head.split(SEPARATOR, -1).toSeq
+    
+    val idxTitle = idx(header, "gdoc_title")
+    val idxAuthor = idx(header, "gdoc_author")
+    val idxLang = idx(header, "gdoc_language")
+    val idxCollection = idx(header, "collection")
+    
+    data.map(_.split(SPLIT_REGEX, -1)).foldLeft(Seq.empty[CollectionMembership])((memberships, fields) => {
+      val doc = getDocument(
+        fields(idxTitle.get),
+        parseOptCol(idxAuthor, fields),
+        parseOptCol(idxLang, fields))
+        
+      if (doc.isDefined)
+        memberships :+ CollectionMembership(None, doc.get.id.get, fields(idxCollection.get))
+      else
+        memberships
+    })
+  }
+  
   /** Helper method to find the row index of a specific header label 
     *
     * @param header the CSV headers
@@ -159,7 +181,7 @@ class CSVParser extends BaseParser {
   }
   
   /** Helper method to turn optional fields to Option[String] **/
-  private def parseOptCol(idx: Option[Int])(implicit fields: Array[String]): Option[String] = {
+  private def parseOptCol(idx: Option[Int], fields: Array[String]): Option[String] = {
     if (idx.isDefined) {
       val string = fields(idx.get)
       if (string.trim.isEmpty) 

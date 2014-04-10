@@ -81,6 +81,9 @@ object GeoDocuments {
   def findById(id: Int)(implicit s: Session): Option[GeoDocument] =
     query.where(_.id === id).firstOption
     
+  def findByTitle(title: String)(implicit s: Session): Seq[GeoDocument] =
+    query.where(_.title === title).list
+    
   def findAll(ids: Seq[Int])(implicit s: Session): Seq[GeoDocument] =
     query.where(_.id inSet ids).list
     

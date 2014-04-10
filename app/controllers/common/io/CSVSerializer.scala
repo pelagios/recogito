@@ -77,7 +77,7 @@ class CSVSerializer extends BaseSerializer {
     * @param collectionMemberships the list of collection memberships  
     */
   def serializeCollectionMemberships(collectionMemberships: Seq[CollectionMembership])(implicit session: Session): String = {
-    val header = Seq("gdoc_title, gdoc_author, gdoc_language, collection").mkString(SEPARATOR) + SEPARATOR + "\n"
+    val header = Seq("gdoc_title", "gdoc_author", "gdoc_language", "collection").mkString(SEPARATOR) + SEPARATOR + "\n"
     
     collectionMemberships.foldLeft(header)((csv, membership) => {
       val doc = getDocument(membership.gdocId).get // Must exist, unless DB integrity is broken
