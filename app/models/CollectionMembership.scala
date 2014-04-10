@@ -26,24 +26,27 @@ class CollectionMemberships(tag: Tag) extends Table[CollectionMembership](tag, "
 
 object CollectionMemberships {
   
-  private val collectionMemberships = TableQuery[CollectionMemberships]
+  private val query = TableQuery[CollectionMemberships]
   
-  def create()(implicit s: Session) = collectionMemberships.ddl.create
+  def create()(implicit s: Session) = query.ddl.create
+  
+  def listAll()(implicit s: Session): Seq[CollectionMembership] =
+    query.list
   
   /** Lists all collection names **/
   def listCollections()(implicit s: Session): Seq[String] = 
-    collectionMemberships.map(_.collection).list.distinct
+    query.map(_.collection).list.distinct
 
   /** Counts the number of documents in the specified collection **/
   def countDocumentsInCollection(collection: String)(implicit s: Session): Int =
-    collectionMemberships.where(_.collection.toLowerCase === collection.toLowerCase).list.size
+    query.where(_.collection.toLowerCase === collection.toLowerCase).list.size
     
   /** Returns the IDs of the documents in the specified collection **/
   def getDocumentsInCollection(collection: String)(implicit s: Session): Seq[Int] =
-    collectionMemberships.where(_.collection.toLowerCase === collection.toLowerCase).map(_.gdocId).list
+    query.where(_.collection.toLowerCase === collection.toLowerCase).map(_.gdocId).list
         
   def getUnassignedGeoDocuments()(implicit s: Session): Seq[Int] = {
-    val docsInCollections = collectionMemberships.map(_.gdocId).list.distinct
+    val docsInCollections = query.map(_.gdocId).list.distinct
     GeoDocuments.findAllExcept(docsInCollections)
   }
     

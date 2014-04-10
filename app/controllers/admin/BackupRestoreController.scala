@@ -118,4 +118,10 @@ object BackupRestoreController extends Controller with Secured {
     }
   }
   
+  /** Download the collection memberships as CSV **/
+  def downloadCollectionMemberships = adminAction { username => implicit session =>
+    val csv = new CSVSerializer().serializeCollectionMemberships(CollectionMemberships.listAll)
+    Ok(csv).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> "attachment; filename=recogito-collection-memberships.csv")
+  }
+  
 }

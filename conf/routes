@@ -60,6 +60,7 @@ GET     /recogito/admin/history/download           controllers.admin.BackupResto
 POST    /recogito/admin/history                    controllers.admin.BackupRestoreController.uploadEditHistory
 GET     /recogito/admin/timeline/download          controllers.admin.BackupRestoreController.downloadStatsTimeline
 POST    /recogito/admin/timeline                   controllers.admin.BackupRestoreController.uploadStatsTimeline
+GET     /recogito/admin/collections/download       controllers.admin.BackupRestoreController.downloadCollectionMemberships
 GET     /recogito/admin/documents/download         controllers.admin.BackupRestoreController.downloadAllDocuments
 GET     /recogito/admin/users/download             controllers.admin.BackupRestoreController.downloadAllUsers
 POST    /recogito/admin/users                      controllers.admin.BackupRestoreController.uploadUsers
