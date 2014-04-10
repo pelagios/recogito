@@ -124,4 +124,18 @@ object BackupRestoreController extends Controller with Secured {
     Ok(csv).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> "attachment; filename=recogito-collection-memberships.csv")
   }
   
+  /** Batch-upload collection memberships to the database **/  
+  def uploadCollectionMemberships = adminAction { username => implicit session =>
+    val formData = session.request.body.asMultipartFormData
+    if (formData.isDefined) {
+      formData.get.file("csv").map(filePart => {
+        val collectionMemberships = new CSVParser().parseCollectionMemberships(filePart.ref.file.getAbsolutePath)
+        CollectionMemberships.insertAll(collectionMemberships)
+      })
+      Redirect(routes.BackupRestoreController.index)
+    } else {
+      BadRequest
+    }
+  }
+  
 }

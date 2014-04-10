@@ -61,6 +61,7 @@ POST    /recogito/admin/history                    controllers.admin.BackupResto
 GET     /recogito/admin/timeline/download          controllers.admin.BackupRestoreController.downloadStatsTimeline
 POST    /recogito/admin/timeline                   controllers.admin.BackupRestoreController.uploadStatsTimeline
 GET     /recogito/admin/collections/download       controllers.admin.BackupRestoreController.downloadCollectionMemberships
+POST    /recogito/admin/collections                controllers.admin.BackupRestoreController.uploadCollectionMemberships
 GET     /recogito/admin/documents/download         controllers.admin.BackupRestoreController.downloadAllDocuments
 GET     /recogito/admin/users/download             controllers.admin.BackupRestoreController.downloadAllUsers
 POST    /recogito/admin/users                      controllers.admin.BackupRestoreController.uploadUsers
