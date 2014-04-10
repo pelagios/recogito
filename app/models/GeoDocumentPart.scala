@@ -48,7 +48,7 @@ object GeoDocumentParts {
     
   /** Count all GeoDocumentParts for the specified GeoDocument **/
   def countForGeoDocument(id: Int)(implicit s: Session): Int =
-    query.where(_.gdocId === id).list.size
+    Query(query.where(_.gdocId === id).length).first
     
   def deleteForGeoDocument(id: Int)(implicit s: Session) =
     query.where(_.gdocId === id).delete

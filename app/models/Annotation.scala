@@ -145,7 +145,7 @@ object Annotations {
   
   /** Count all annotations on a specific GeoDocument **/
   def countForGeoDocument(id: Int)(implicit s: Session): Int = 
-    query.where(_.gdocId === id).list.size
+    Query(query.where(_.gdocId === id).length).first
     
   /** Update an annotation **/
   def update(annotation: Annotation)(implicit s: Session) =
@@ -167,7 +167,7 @@ object Annotations {
   
   /** Count all annotations on a specific GeoDocument that have (a) specific status(es) **/
   def countForGeoDocumentAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Int =
-    query.where(_.gdocId === id).filter(a => status.contains(a.status)).list.size
+    Query(query.where(_.gdocId === id).filter(a => status.contains(a.status)).length).first
     
     
     
@@ -177,7 +177,7 @@ object Annotations {
   
   /** Count all annotations on a specific GeoDocumentPart **/
   def countForGeoDocumentPart(id: Int)(implicit s: Session): Int =
-    query.where(_.gdocPartId === id).list.size
+    Query(query.where(_.gdocPartId === id).length).first
     
   
     
@@ -187,7 +187,7 @@ object Annotations {
     
   /** Count all annotations on a specific GeoDocumentPart that have (a) specific status(es) **/
   def countForGeoDocumentPartAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Int =
-    query.where(_.gdocPartId === id).filter(a => status.contains(a.status)).list.size
+    Query(query.where(_.gdocPartId === id).filter(a => status.contains(a.status)).length).first
     
     
     
