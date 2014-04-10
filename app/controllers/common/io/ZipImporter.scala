@@ -139,11 +139,25 @@ object ZipImporter {
     * @param gdocId the ID of the GeoDocument the annotations are associated with
     */  
   private def importAnnotations(zipFile: ZipFile, entryName: String, gdocId: Int)(implicit s: Session) = {
+    // Some rules for checking annotation sanity before import 
+    def isValid(annotation: Annotation): Boolean = annotation match {
+      case a if (a.toponym.isDefined && a.toponym.get.size > 254) => false
+      case a if (a.correctedToponym.isDefined && a.correctedToponym.get.size > 254) => false
+      case _ => true
+    }
+    
     val csv = getEntry(zipFile, entryName)
     if (csv.isDefined) {
       val parser = new CSVParser()
-      val annotations = parser.parseAnnotations(csv.get, gdocId)
-      Annotations.insertAll(annotations)
+      val all = parser.parseAnnotations(csv.get, gdocId)
+      
+      // Apply a few checks and discard those
+      val safe = all.filter(isValid(_))
+      if (safe.size > 0)
+        // Log warnings in case we have invalid annotations
+        all.diff(safe).foreach(a => Logger.warn("Discarding annotation: " + a.toString))
+      
+      Annotations.insertAll(safe)
     }
   }
   
