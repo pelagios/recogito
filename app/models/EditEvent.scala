@@ -83,7 +83,7 @@ class EditHistory(tag: Tag) extends Table[EditEvent](tag, "edit_history") with H
   
   def timestamp = column[Timestamp]("timestamp")
   
-  def annotationBefore = column[String]("annotation_before", O.Nullable)
+  def annotationBefore = column[String]("annotation_before", O.Nullable, O.DBType("text"))
   
   def updatedToponym = column[String]("updated_toponym", O.Nullable)
   

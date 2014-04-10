@@ -51,20 +51,6 @@ class CSVParser extends BaseParser {
     val idxComment = idx(header, "comment")
     val idxSource = idx(header, "source")
     val idxSeeAlso = idx(header, "see_also")
-        
-    // Helper function to turn optional fields to Option[String]
-    def parseOptCol(idx: Option[Int])(implicit fields: Array[String]): Option[String] = {
-      if (idx.isDefined) {
-        val string = fields(idx.get)
-        if (string.trim.isEmpty) 
-          None // The field is in the CSV, but the string is empty -> None 
-        else
-          Some(string) // Field is there & contains a string
-      } else {
-        // If the field is not in the CSV at all -> None
-        None
-      }
-    }
     
     data.map(_.split(SPLIT_REGEX, -1)).map(implicit fields => {
       Annotation(
@@ -124,18 +110,18 @@ class CSVParser extends BaseParser {
     val idxUpdatedTags = idx(header, "updated_tags")
     val idxUpdatedComment = idx(header, "updated_comment")
     
-    data.map(_.split(SPLIT_REGEX, -1)).map(fields => {
+    data.map(_.split(SPLIT_REGEX, -1)).map(implicit fields => {
       // All fields must be there - it's ok to fail if not
       EditEvent(None,
         UUID.fromString(fields(idxAnnotationId.get)),
         fields(idxUsername.get),
         new Timestamp(fields(idxTimestamp.get).toLong),
-        idxAnnotationBefore.map(fields(_)),
-        idxUpdatedToponym.map(fields(_)),
-        idxUpdatedStatus.map(s => AnnotationStatus.withName(fields(s))),
-        idxUpdatedURI.map(fields(_)),
-        idxUpdatedTags.map(fields(_)),
-        idxUpdatedComment.map(fields(_)))
+        parseOptCol(idxAnnotationBefore),
+        parseOptCol(idxUpdatedToponym),
+        parseOptCol(idxUpdatedStatus).map(AnnotationStatus.withName(_)),
+        parseOptCol(idxUpdatedURI),
+        parseOptCol(idxUpdatedTags),
+        parseOptCol(idxUpdatedComment))
     }).toSeq
   }
   
@@ -169,6 +155,20 @@ class CSVParser extends BaseParser {
     header.indexWhere(_.equalsIgnoreCase(label)) match {
       case -1 => None
       case idx => Some(idx)
+    }
+  }
+  
+  /** Helper method to turn optional fields to Option[String] **/
+  private def parseOptCol(idx: Option[Int])(implicit fields: Array[String]): Option[String] = {
+    if (idx.isDefined) {
+      val string = fields(idx.get)
+      if (string.trim.isEmpty) 
+        None // The field is in the CSV, but the string is empty -> None 
+      else
+        Some(string) // Field is there & contains a string
+    } else {
+      // If the field is not in the CSV at all -> None
+      None
     }
   }
   
