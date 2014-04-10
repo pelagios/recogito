@@ -4,14 +4,11 @@ import java.sql.Timestamp
 import java.util.{ Calendar, Date }
 import java.util.concurrent.TimeUnit
 import models._
-import play.api.db.DB
 import play.api.db.slick._
-import play.api.db.slick.Config.driver.simple._
 import play.api.Play.current
 import play.api.libs.concurrent.Akka
 import play.api.libs.concurrent.Execution.Implicits._
 import scala.concurrent.duration
-import scala.slick.session.Database
 import scala.concurrent.duration.Duration
 import play.api.Logger
 import play.api.Play
@@ -48,9 +45,7 @@ object StatsDemon {
   def start() = {    
     Akka.system.scheduler.schedule(delay, interval) {
       
-      import Database.threadLocalSession
-      
-      Database.forDataSource(DB.getDataSource()).withSession {
+      DB.withSession { implicit s: Session =>
         Logger.debug("Logging stats...")
         val statsPerDoc = GeoDocuments.listAll().map(doc => {
           val id = doc.id.get

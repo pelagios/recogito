@@ -1,10 +1,10 @@
 package models
 
 import play.api.Play.current
-import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import models.stats.GeoDocumentStats
 import play.api.Logger
+import scala.slick.lifted.Tag
 
 /** Geospatial Document case class.
   *
@@ -40,7 +40,7 @@ case class GeoDocument(
     source: Option[String] = None) extends GeoDocumentStats
 
 /** Geospatial Documents database table **/
-object GeoDocuments extends Table[GeoDocument]("gdocuments") {
+class GeoDocuments(tag: Tag) extends Table[GeoDocument](tag, "gdocuments") {
   
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   
@@ -62,29 +62,29 @@ object GeoDocuments extends Table[GeoDocument]("gdocuments") {
   
   def _collections = column[String]("collections", O.Nullable)
 
-  def * =
-    id.? ~ externalWorkID.? ~ author.? ~ title ~ date.? ~ dateComment.? ~ language.? ~ 
-    description.? ~ source.? <> (GeoDocument.apply _, GeoDocument.unapply _)
+  def * = (id.?, externalWorkID.?, author.?, title, date.?, dateComment.?, language.?,
+    description.?, source.?) <> (GeoDocument.tupled, GeoDocument.unapply)
     
-  private def autoInc = 
-    externalWorkID.? ~ author.? ~ title ~ date.? ~ dateComment.? ~ language.? ~ 
-    description.? ~ source.? returning id
+}
     
-  def insert(doc: GeoDocument)(implicit s: Session): Int =
-    autoInc.insert(doc.externalWorkID, doc.author, doc.title, doc.date, doc.dateComment, doc.language, doc.description, doc.source)
+object GeoDocuments {
   
-    
-    
-  def listAll()(implicit s: Session): Seq[GeoDocument] = Query(GeoDocuments).list
+  private val query = TableQuery[GeoDocuments]
+  
+  def create()(implicit s: Session) = query.ddl.create
+  
+  def insert(geoDocument: GeoDocument)(implicit s: Session) = query.insert(geoDocument)
+      
+  def listAll()(implicit s: Session): Seq[GeoDocument] = query.list
   
   def findById(id: Int)(implicit s: Session): Option[GeoDocument] =
-    Query(GeoDocuments).where(_.id === id).firstOption
+    query.where(_.id === id).firstOption
     
   def findAll(ids: Seq[Int])(implicit s: Session): Seq[GeoDocument] =
-    Query(GeoDocuments).where(_.id inSet ids).list
+    query.where(_.id inSet ids).list
     
   def delete(id: Int)(implicit s: Session) =
-    Query(GeoDocuments).where(_.id === id).delete
+    query.where(_.id === id).delete
     
   /** Helper method to find all IDs except those provided as argument.
     *
@@ -93,6 +93,6 @@ object GeoDocuments extends Table[GeoDocument]("gdocuments") {
     * the method is not exposed outside of this package.  
     */
   private[models] def findAllExcept(ids: Seq[Int])(implicit s: Session): Seq[Int] =
-    Query(GeoDocuments).map(_.id).filter(id => !(id inSet ids)).list 
+    query.map(_.id).filter(id => !(id inSet ids)).list 
   
 }

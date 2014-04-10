@@ -10,15 +10,11 @@ import org.pelagios.gazetteer.PlaceIndex
 import play.api.Play
 import play.api.Play.current
 import play.api.{ Application, GlobalSettings, Logger }
-import play.api.db.DB
-import play.api.db.slick.Config.driver.simple._
-import scala.slick.session.Database
+import play.api.db.slick._
 import scala.slick.jdbc.meta.MTable
 
 /** Play Global object **/
 object Global extends GlobalSettings {
-
-  import Database.threadLocalSession
   
   private val GAZETTEER_DIR = "gazetteer"
   
@@ -52,39 +48,54 @@ object Global extends GlobalSettings {
     idx
   }
 
-  lazy val database = Database.forDataSource(DB.getDataSource()) 
+  // lazy val database = DB.forDataSource(DB.getDataSource()) 
 
   override def onStart(app: Application): Unit = {
     // Create DB tables if they don't exist
-    database.withSession {
+    DB.withSession { implicit session: Session =>
       if (MTable.getTables("users").list().isEmpty) {
-        Users.ddl.create
+        Logger.info("Users DB table does not exist - creating")
+        Users.create
          
         // Create default admin user        
-        val salt = User.randomSalt
-        Users.insert(User("admin", User.computeHash(salt + "admin"), salt, "*", true))
+        val salt = Users.randomSalt
+        Users.insert(User("admin", Users.computeHash(salt + "admin"), salt, "*", true))
       }
        
-      if (MTable.getTables("gdocuments").list().isEmpty)
-        GeoDocuments.ddl.create
+      if (MTable.getTables("gdocuments").list().isEmpty) {
+        Logger.info("GeoDocuments DB table does not exist - creating")
+        GeoDocuments.create
+      }
       
-      if (MTable.getTables("gdocument_parts").list().isEmpty)
-        GeoDocumentParts.ddl.create
+      if (MTable.getTables("gdocument_parts").list().isEmpty) {
+        Logger.info("GeoDocumentParts DB table does not exist - creating")
+        GeoDocumentParts.create
+      }
       
-      if (MTable.getTables("gdocument_texts").list().isEmpty)
-        GeoDocumentTexts.ddl.create
+      if (MTable.getTables("gdocument_texts").list().isEmpty) {
+        Logger.info("GeoDocumentTexts DB table does not exist - creating")
+        GeoDocumentTexts.create
+      }
         
-      if (MTable.getTables("collection_memberships").list().isEmpty)
-        CollectionMemberships.ddl.create
+      if (MTable.getTables("collection_memberships").list().isEmpty) {
+        Logger.info("CollectionMemberships DB table does not exist - creating")
+        CollectionMemberships.create
+      }
       
-      if (MTable.getTables("annotations").list().isEmpty)
-        Annotations.ddl.create
-      
-      if (MTable.getTables("edit_history").list().isEmpty)
-        EditHistory.ddl.create
+      if (MTable.getTables("annotations").list().isEmpty) {
+        Logger.info("Annotations DB table does not exist - creating")
+        Annotations.create
+      } 
+       
+      if (MTable.getTables("edit_history").list().isEmpty) {
+        Logger.info("EditHistory DB table does not exist - creating")
+        EditHistory.create
+      }
         
-      if (MTable.getTables("stats_history").list().isEmpty)
-        StatsHistory.ddl.create
+      if (MTable.getTables("stats_history").list().isEmpty) {
+        Logger.info("StatsHistory DB table does not exist - creating")
+        StatsHistory.create
+      }
     }
     
     // Periodic stats logging

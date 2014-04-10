@@ -5,9 +5,9 @@ import java.io.{ BufferedInputStream, File, FileInputStream, FileOutputStream, P
 import java.util.UUID
 import java.util.zip.{ ZipEntry, ZipOutputStream }
 import play.api.Logger
+import play.api.db.slick._
 import play.api.libs.json.Json
 import play.api.libs.Files.TemporaryFile
-import scala.slick.session.Session
 
 /** Utility class to export GeoDocuments (with text and annotations) to a ZIP file **/
 class ZipExporter {

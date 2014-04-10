@@ -3,6 +3,7 @@ package models
 import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
+import scala.slick.lifted.Tag
 
 /** Geospatial Document source text case class.
   *
@@ -10,7 +11,7 @@ import play.api.db.slick.Config.driver.simple._
   */
 case class GeoDocumentText(id: Option[Int] = None, gdocId: Int, gdocPartId: Option[Int], text: Array[Byte])
 
-object GeoDocumentTexts extends Table[GeoDocumentText]("gdocument_texts") {
+class GeoDocumentTexts(tag: Tag) extends Table[GeoDocumentText](tag, "gdocument_texts") {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   
@@ -20,30 +21,33 @@ object GeoDocumentTexts extends Table[GeoDocumentText]("gdocument_texts") {
   
   def text = column[Array[Byte]]("text")
   
-  def * = id.? ~ gdocId ~ gdocPartId.? ~ text <> (GeoDocumentText.apply _, GeoDocumentText.unapply _)
+  def * = (id.?, gdocId, gdocPartId.?, text) <> (GeoDocumentText.tupled, GeoDocumentText.unapply)
   
-  private def autoInc = gdocId ~ gdocPartId.? ~ text returning id
+}
     
-  def insert(text: GeoDocumentText)(implicit s: Session): Int =
-    autoInc.insert(text.gdocId, text.gdocPartId, text.text)
-    
-    
+object GeoDocumentTexts {   
+  
+  private val query = TableQuery[GeoDocumentTexts]
+  
+  def create()(implicit s: Session) = query.ddl.create
+  
+  def insert(geoDocumentText: GeoDocumentText)(implicit s: Session) = query.insert(geoDocumentText)
   
   /** Retrieve a text with the specified ID (= primary key) **/
   def findById(id: Int)(implicit s: Session): Option[GeoDocumentText] =
-    Query(GeoDocumentTexts).where(_.id === id).firstOption
+    query.where(_.id === id).firstOption
     
     
     
   /** Deletes texts associated with a GeoDocument **/  
   def deleteForGeoDocument(id: Int)(implicit s: Session) =
-    Query(GeoDocumentTexts).where(_.gdocId === id).delete
+    query.where(_.gdocId === id).delete
     
     
     
   /** Retrieves all texts associated with a specific GeoDocument (or parts of it) **/
   def findByGeoDocument(gdocId: Int)(implicit s: Session): Seq[GeoDocumentText] =
-    Query(GeoDocumentTexts).where(_.gdocId === gdocId).list
+    query.where(_.gdocId === gdocId).list
     
     
     
@@ -53,17 +57,17 @@ object GeoDocumentTexts extends Table[GeoDocumentText]("gdocument_texts") {
     * the specified GeoDocument.  
     */
   def getTextForGeoDocument(gdocId: Int)(implicit s: Session): Option[GeoDocumentText] =
-    Query(GeoDocumentTexts).where(_.gdocId === gdocId).filter(_.gdocPartId.isNull).firstOption
+    query.where(_.gdocId === gdocId).filter(_.gdocPartId.isNull).firstOption
     
   /** Retrieves the text that is associated with the specified GeoDocument part **/
   def getTextForGeoDocumentPart(gdocPartId: Int)(implicit s: Session): Option[GeoDocumentText] =
-    Query(GeoDocumentTexts).where(_.gdocPartId === gdocPartId).firstOption
+    query.where(_.gdocPartId === gdocPartId).firstOption
     
   /** Retrieves the text that is associated with the specified annotation **/
   def getTextForAnnotation(annotation: Annotation)(implicit s: Session): Option[GeoDocumentText] =    
     if (annotation.gdocPartId.isDefined)
-      Query(GeoDocumentTexts).where(_.gdocPartId === annotation.gdocPartId.get).firstOption
+      query.where(_.gdocPartId === annotation.gdocPartId.get).firstOption
     else
-      Query(GeoDocumentTexts).where(_.gdocId === annotation.gdocId).filter(_.gdocPartId.isNull).firstOption
+      query.where(_.gdocId === annotation.gdocId).filter(_.gdocPartId.isNull).firstOption
   
 }

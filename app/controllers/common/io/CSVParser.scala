@@ -68,7 +68,7 @@ class CSVParser extends BaseParser {
     
     data.map(_.split(SPLIT_REGEX, -1)).map(implicit fields => {
       Annotation(
-          idxUUID.map(idx => UUID.fromString(fields(idx))).getOrElse(Annotation.newUUID),
+          idxUUID.map(idx => UUID.fromString(fields(idx))).getOrElse(Annotations.newUUID),
           Some(gdocId),
           idxGdocPart.map(idx => getPartIdForTitle(gdocId, fields(idx))).flatten,
           parseOptCol(idxStatus).map(AnnotationStatus.withName(_)).getOrElse(AnnotationStatus.NOT_VERIFIED),

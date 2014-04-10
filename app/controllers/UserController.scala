@@ -4,11 +4,9 @@ import global.Global
 import models.{ User, Users }
 import play.api.data._
 import play.api.data.Forms._
-import play.api.db.DB
-import play.api.db.slick.Config.driver.simple._
-import play.api.mvc.{ Action, Controller, Security }
+import play.api.mvc.{ Session => PlaySession, _ }
+import play.api.db.slick._
 import play.api.Play.current
-import scala.slick.session.Database
 
 case class SignupData(username: String, password: String, confirmPassword: String)
 
@@ -28,7 +26,7 @@ object UserController extends Controller with Secured {
     
     verifying
       ("Username not available", f => { 
-        Global.database.withSession { implicit s: Session =>
+        DB.withSession { implicit s: Session =>
           val existing = Users.findByUsername(f.username)
           existing.isEmpty
         }}
@@ -53,9 +51,9 @@ object UserController extends Controller with Secured {
   def processSignup = adminAction { username => implicit session =>
     signupForm.bindFromRequest.fold(
       formWithErrors => BadRequest(views.html.signup(formWithErrors)),
-      data => Global.database.withSession { implicit s: Session =>
-        val salt = User.randomSalt
-        Users.insert(User(data.username, User.computeHash(salt + data.password), salt))
+      data => DB.withSession { s: Session =>
+        val salt = Users.randomSalt
+        Users.insert(User(data.username, Users.computeHash(salt + data.password), salt))(s)
         Redirect(routes.ApplicationController.index(None)).withSession(Security.username -> data.username) 
       }
     )
@@ -68,19 +66,19 @@ object UserController extends Controller with Secured {
   def processChangePassword = adminAction { username => implicit session => 
     changePasswordForm.bindFromRequest.fold(
       formWithErrors => BadRequest(views.html.user_settings(formWithErrors)),
-      data => Global.database.withSession { implicit s: Session =>
-        val user = Users.findByUsername(username)
+      data => DB.withSession { s: Session =>
+        val user = Users.findByUsername(username)(s)
         val valid = 
           if (user.isDefined) {
-            val hash = User.computeHash(user.get.salt + data.oldPassword)
+            val hash = Users.computeHash(user.get.salt + data.oldPassword)
             user.get.hash.equals(hash)
           } else {
             false
           }
       
         if (valid) {
-          val newHash = User.computeHash(user.get.salt + data.newPassword)
-          Users.update(User(username, newHash, user.get.salt, user.get.editableDocuments, user.get.isAdmin))
+          val newHash = Users.computeHash(user.get.salt + data.newPassword)
+          Users.update(User(username, newHash, user.get.salt, user.get.editableDocuments, user.get.isAdmin))(s)
           Redirect(routes.UserController.changePassword).flashing("success" -> "Your password was successfully changed")
         } else {
           Redirect(routes.UserController.changePassword).flashing("error" -> "Invalid current password")

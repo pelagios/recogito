@@ -6,9 +6,6 @@ import java.io.ByteArrayOutputStream
 import java.sql.Timestamp
 import java.util.{ Date, UUID }
 import models._
-import play.api.Play.current
-import play.api.db.slick._
-import play.api.db.slick.Config.driver.simple._
 import play.api.libs.json.Json
 import play.api.Logger
 import play.api.mvc.{ Action, Controller }
@@ -20,6 +17,8 @@ import org.pelagios.api.selectors.TextOffsetSelector
 import org.pelagios.Scalagios
 import org.pelagios.gazetteer.Network
 import org.openrdf.rio.RDFFormat
+import play.api.db.slick._
+import play.api.Play.current
 
 /** Annotation CRUD controller.
   *
@@ -81,7 +80,7 @@ object AnnotationController extends Controller with Secured {
     val correctedOffset = (json \ "corrected_offset").as[Int]        
 
     val annotation = 
-      Annotation(Annotation.newUUID, None, None, 
+      Annotation(Annotations.newUUID, None, None, 
                  AnnotationStatus.NOT_VERIFIED, None, None, None, 
                  Some(correctedToponym), Some(correctedOffset), source = Some(source))
 
@@ -128,7 +127,7 @@ object AnnotationController extends Controller with Secured {
         }
         
         val annotation = 
-          Annotation(Annotation.newUUID, gdocId_verified, gdocPart.map(_.id).flatten, 
+          Annotation(Annotations.newUUID, gdocId_verified, gdocPart.map(_.id).flatten, 
                      AnnotationStatus.NOT_VERIFIED, None, None, automatch.map(_.uri), 
                      Some(correctedToponym), Some(correctedOffset))
           

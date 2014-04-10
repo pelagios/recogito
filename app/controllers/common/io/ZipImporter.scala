@@ -143,7 +143,7 @@ object ZipImporter {
     if (csv.isDefined) {
       val parser = new CSVParser()
       val annotations = parser.parseAnnotations(csv.get, gdocId)
-      Annotations.insertAll(annotations:_*)
+      Annotations.insertAll(annotations)
     }
   }
   

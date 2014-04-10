@@ -58,7 +58,7 @@ object BackupRestoreController extends Controller with Secured {
     if (formData.isDefined) {
       formData.get.file("csv").map(filePart => {
         val users = new CSVParser().parseUsers(filePart.ref.file.getAbsolutePath)
-        Users.insertAll(users:_*)
+        Users.insertAll(users)
       })
       Redirect(routes.BackupRestoreController.index)
     } else {
@@ -90,7 +90,7 @@ object BackupRestoreController extends Controller with Secured {
     if (formData.isDefined) {
       formData.get.file("csv").map(filePart => {
         val history = new CSVParser().parseEditHistory(filePart.ref.file.getAbsolutePath)
-        EditHistory.insertAll(history:_*)
+        EditHistory.insertAll(history)
       })
       Redirect(routes.BackupRestoreController.index)
     } else {

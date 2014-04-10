@@ -119,7 +119,7 @@ object DocumentAdminController extends Controller with Secured {
         val parser = new CSVParser()
         val annotations = parser.parseAnnotations(filePart.ref.file.getAbsolutePath, gdoc.get.id.get)
         Logger.info("Importing " + annotations.size + " annotations to " + gdoc.get.title)
-        Annotations.insertAll(annotations:_*)
+        Annotations.insertAll(annotations)
       })
     }
     Redirect(routes.DocumentAdminController.listAll)

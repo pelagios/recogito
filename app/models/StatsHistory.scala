@@ -4,6 +4,7 @@ import java.sql.Timestamp
 import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
+import scala.slick.lifted.Tag
 
 case class StatsRecord(id: Option[Int], timestamp: Timestamp, verifiedToponyms: Int, unverifiedToponyms: Int, unidentifiableToponyms: Int, totalEdits: Int) {
   
@@ -12,7 +13,7 @@ case class StatsRecord(id: Option[Int], timestamp: Timestamp, verifiedToponyms: 
 }
 
 /** Annotation database table **/
-object StatsHistory extends Table[StatsRecord]("stats_history") {
+class StatsHistory(tag: Tag) extends Table[StatsRecord](tag, "stats_history") {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   
@@ -26,19 +27,22 @@ object StatsHistory extends Table[StatsRecord]("stats_history") {
   
   def totalEdits = column[Int]("total_edits")
   
-  def * = id.? ~ timestamp ~ verifiedToponyms ~ unverifiedToponyms ~ 
-    unidentifiableToponyms ~ totalEdits <> (StatsRecord.apply _, StatsRecord.unapply _)
+  def * = (id.?, timestamp, verifiedToponyms, unverifiedToponyms, 
+    unidentifiableToponyms, totalEdits) <> (StatsRecord.tupled, StatsRecord.unapply)
     
-  private def autoInc = timestamp ~ verifiedToponyms ~ unverifiedToponyms ~ 
-    unidentifiableToponyms ~ totalEdits returning id
+}
     
-  def insertAll(history: Seq[StatsRecord])(implicit s: Session) =
-    history.foreach(r =>
-      autoInc.insert(r.timestamp, r.verifiedToponyms, r.unverifiedToponyms, r.unidentifiableToponyms, r.totalToponyms))
+object StatsHistory {   
     
-    
-    
+  private val query = TableQuery[StatsHistory]
+  
+  def create()(implicit s: Session) = query.ddl.create
+  
+  def insert(statsRecord: StatsRecord)(implicit s: Session) = query.insert(statsRecord)
+  
+  def insertAll(statsRecords: Seq[StatsRecord])(implicit s: Session) = query.insertAll(statsRecords:_*)
+  
   def listAll()(implicit s: Session): Seq[StatsRecord] =
-    Query(StatsHistory).list
+    query.list
   
 }

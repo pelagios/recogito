@@ -3,13 +3,10 @@ package controllers
 import global.Global
 import models.Users
 import play.api.data.Form
-import play.api.db.slick.{ DBAction, DBSessionRequest }
-import play.api.mvc._
+import play.api.mvc.{ Session => PlaySession, _ }
+import play.api.db.slick._
 import play.api.Play.current
 import play.api.libs.json.JsValue
-import play.api.db.slick.DBSessionRequest
-import scala.slick.session.Session
-import models.User
 import play.api.Logger
 
 /** Authentication based on username & password.
@@ -35,10 +32,10 @@ object AuthController extends Controller {
     * @param password the password
     */
   def check(username: String, password: String) = {
-    Global.database.withSession { implicit s: Session =>
+    DB.withSession { implicit s: Session =>
       val user = Users.findByUsername(username)
       if (user.isDefined) {
-        val hash = User.computeHash(user.get.salt + password)
+        val hash = Users.computeHash(user.get.salt + password)
         user.get.hash.equals(hash)
       } else {
         false

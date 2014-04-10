@@ -1,12 +1,12 @@
 package models
 
 import play.api.Play.current
-import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import java.security.MessageDigest
 import java.math.BigInteger
 import sun.security.provider.SecureRandom
 import org.apache.commons.codec.binary.Base64
+import scala.slick.lifted.Tag
 
 /** User case class.
   *
@@ -23,9 +23,45 @@ case class User(username: String, hash: String, salt: String, editableDocuments:
   
 }
 
-object User {
+/** User database table **/
+class Users(tag: Tag) extends Table[User](tag, "users") {
+  
+  def username = column[String]("username", O.PrimaryKey)
+  
+  def hash = column[String]("hash", O.NotNull)
+  
+  def salt = column[String]("salt", O.NotNull)
+  
+  def editableDocuments = column[String]("editable_documents", O.NotNull)
+  
+  def isAdmin = column[Boolean]("is_admin")
+  
+  def * = (username, hash, salt, editableDocuments, isAdmin) <> (User.tupled, User.unapply)
+  
+}
+
+object Users {
 
   private val MD5 = "MD5"
+      
+  private val query = TableQuery[Users]
+  
+  def create()(implicit s: Session) = query.ddl.create
+  
+  def insert(user: User)(implicit s: Session) = query.insert(user)
+  
+  def insertAll(users: Seq[User])(implicit s: Session) = query.insertAll(users:_*)
+  
+  def listAll()(implicit s: Session): Seq[User] = query.list
+  
+  def findByUsername(username: String)(implicit s: Session): Option[User] =
+    query.where(_.username === username).firstOption
+    
+  def update(user: User)(implicit s: Session) =
+    query.where(_.username === user.username).update(user)
+      
+  def delete(username: String)(implicit s: Session) =
+    query.where(_.username === username).delete
     
   def randomSalt = {
     val r = new SecureRandom()
@@ -38,33 +74,6 @@ object User {
     val md = MessageDigest.getInstance(MD5).digest(str.getBytes)
     new BigInteger(1, md).toString(16)
   }
-  
-}
 
-/** User database table **/
-object Users extends Table[User]("users") {
-  
-  def username = column[String]("username", O.PrimaryKey)
-  
-  def hash = column[String]("hash", O.NotNull)
-  
-  def salt = column[String]("salt", O.NotNull)
-  
-  def editableDocuments = column[String]("editable_documents", O.NotNull)
-  
-  def isAdmin = column[Boolean]("is_admin")
-  
-  def * = username ~ hash ~ salt ~ editableDocuments ~ isAdmin <> (User.apply _, User.unapply _)
-  
-  def listAll()(implicit s: Session): Seq[User] = Query(Users).list
-  
-  def findByUsername(username: String)(implicit s: Session): Option[User] =
-    Query(Users).where(_.username === username).firstOption
-    
-  def update(user: User)(implicit s: Session) =
-    Query(Users).where(_.username === user.username).update(user)
-      
-  def delete(username: String)(implicit s: Session) =
-    Query(Users).where(_.username === username).delete
   
 }

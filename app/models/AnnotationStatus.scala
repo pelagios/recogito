@@ -1,7 +1,7 @@
 package models
 
-import scala.slick.lifted.MappedTypeMapper
-
+import play.api.db.slick.Config.driver.simple._
+ 
 /** Possible annotation status values.
   * 
   * @author Rainer Simon <rainer.simon@ait.ac.at>
@@ -49,7 +49,7 @@ object AnnotationStatus extends Enumeration {
 
 trait HasStatusColumn {
   
-  implicit val statusMapper = MappedTypeMapper.base[AnnotationStatus.Value, String](
+  implicit val statusMapper = MappedColumnType.base[AnnotationStatus.Value, String](
     { status => status.toString },
     { status => AnnotationStatus.withName(status) })
     
