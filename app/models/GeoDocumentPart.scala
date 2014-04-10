@@ -35,7 +35,8 @@ object GeoDocumentParts {
   
   def create()(implicit s: Session) = query.ddl.create
   
-  def insert(geoDocumentPart: GeoDocumentPart)(implicit s: Session) = query.insert(geoDocumentPart)
+  def insert(geoDocumentPart: GeoDocumentPart)(implicit s: Session) =
+    query returning query.map(_.id) += geoDocumentPart
 
   /** Retrieve a GeoDocumentPart with the specified ID (= primary key) **/
   def findById(id: Int)(implicit s: Session): Option[GeoDocumentPart] = {

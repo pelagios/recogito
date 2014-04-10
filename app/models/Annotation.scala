@@ -111,7 +111,7 @@ class Annotations(tag: Tag) extends Table[Annotation](tag, "annotations") with H
     
 }
 
-object Annotations {
+object Annotations extends HasStatusColumn {
   
   private val query = TableQuery[Annotations]
   
@@ -163,11 +163,11 @@ object Annotations {
     
   /** Retrieve all annotations on a specific GeoDocument that have (a) specific status(es) **/
   def findByGeoDocumentAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Seq[Annotation] =
-    query.where(_.gdocId === id).filter(a => status.contains(a.status)).list.sortBy(sortByOffset)    
+    query.where(_.gdocId === id).filter(_.status inSet status).list.sortBy(sortByOffset)    
   
   /** Count all annotations on a specific GeoDocument that have (a) specific status(es) **/
   def countForGeoDocumentAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Int =
-    Query(query.where(_.gdocId === id).filter(a => status.contains(a.status)).length).first
+    Query(query.where(_.gdocId === id).filter(_.status inSet status).length).first
     
     
     
@@ -183,11 +183,11 @@ object Annotations {
     
   /** Retrieve all annotations on a specific GeoDocumentPart that have (a) specific status(es) **/
   def findByGeoDocumentPartAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Seq[Annotation] =
-    query.where(_.gdocPartId === id).filter(a => status.contains(a.status)).list.sortBy(sortByOffset)
+    query.where(_.gdocPartId === id).filter(_.status inSet status).list.sortBy(sortByOffset)
     
   /** Count all annotations on a specific GeoDocumentPart that have (a) specific status(es) **/
   def countForGeoDocumentPartAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Int =
-    Query(query.where(_.gdocPartId === id).filter(a => status.contains(a.status)).length).first
+    Query(query.where(_.gdocPartId === id).filter(_.status inSet status).length).first
     
     
     

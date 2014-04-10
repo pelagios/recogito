@@ -73,7 +73,8 @@ object GeoDocuments {
   
   def create()(implicit s: Session) = query.ddl.create
   
-  def insert(geoDocument: GeoDocument)(implicit s: Session) = query.insert(geoDocument)
+  def insert(geoDocument: GeoDocument)(implicit s: Session) =
+    query returning query.map(_.id) += geoDocument
       
   def listAll()(implicit s: Session): Seq[GeoDocument] = query.list
   
