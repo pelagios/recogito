@@ -2,7 +2,8 @@
 
 A Web-based tool for geo-annotating texts and/or validating the results of automated geo-parsing.
 
-![Recogito Geo-Resolution](http://github.com/pelagios/recogito/raw/master/screenshot-georesolution.jpg)
+You can read an introduction to Recogito [here](http://pelagios-project.blogspot.co.at/2014/01/from-bordeaux-to-jerusalem-and-back.html)
+and [here](http://pelagios-project.blogspot.co.at/2014/01/theres-pliny-of-room-at-bottom-1.html).
 
 ## Installation
 
