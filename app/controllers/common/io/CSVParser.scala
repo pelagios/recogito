@@ -8,6 +8,7 @@ import play.api.db.slick._
 import scala.io.Source
 import java.sql.Timestamp
 import models.stats.AnnotationStats
+import play.api.Logger
 
 /** Utility object to convert CSV input data to Annotation objects.
   * 
@@ -110,18 +111,30 @@ class CSVParser extends BaseParser {
     val idxUpdatedTags = idx(header, "updated_tags")
     val idxUpdatedComment = idx(header, "updated_comment")
     
-    data.map(_.split(SPLIT_REGEX, -1)).map(fields => {
-      // All fields must be there - it's ok to fail if not
-      EditEvent(None,
-        UUID.fromString(fields(idxAnnotationId.get)),
-        fields(idxUsername.get),
-        new Timestamp(fields(idxTimestamp.get).toLong),
-        parseOptCol(idxAnnotationBefore, fields),
-        parseOptCol(idxUpdatedToponym, fields),
-        parseOptCol(idxUpdatedStatus, fields).map(AnnotationStatus.withName(_)),
-        parseOptCol(idxUpdatedURI, fields),
-        parseOptCol(idxUpdatedTags, fields),
-        parseOptCol(idxUpdatedComment, fields))
+    data.map(_.split(SPLIT_REGEX, -1)).foldLeft(Seq.empty[EditEvent])((result, fields) => {
+      if (fields.size == 11) {
+        val updatedToponym = parseOptCol(idxUpdatedToponym, fields)
+        if (updatedToponym.isDefined && updatedToponym.get.size > 254) {
+          Logger.warn("Invalid edit history event (toponym exceeds length) - discarding")
+          Logger.info(fields.mkString(SEPARATOR))
+          result
+        } else {
+          result :+ EditEvent(None,
+            UUID.fromString(fields(idxAnnotationId.get)),
+            fields(idxUsername.get),
+            new Timestamp(fields(idxTimestamp.get).toLong),
+            parseOptCol(idxAnnotationBefore, fields),
+            updatedToponym,
+            parseOptCol(idxUpdatedStatus, fields).map(AnnotationStatus.withName(_)),
+            parseOptCol(idxUpdatedURI, fields),
+            parseOptCol(idxUpdatedTags, fields),
+            parseOptCol(idxUpdatedComment, fields))
+        }
+      } else {
+        Logger.warn("Invalid edit history event (wrong number of fields) - discarding")
+        Logger.info(fields.mkString(SEPARATOR))
+        result
+      }
     }).toSeq
   }
   
