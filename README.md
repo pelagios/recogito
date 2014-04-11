@@ -1,6 +1,6 @@
 # Recogito
 
-A Web-based tool for validating &amp; correcting geo-resolution results.
+A Web-based tool for geo-annotating texts and/or validating the results of automated geo-parsing.
 
 ## Installation
 
