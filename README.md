@@ -1,9 +1,8 @@
 # Recogito
 
-A Web-based tool for geo-annotating texts and/or validating the results of automated geo-parsing.
-
-You can read an introduction to Recogito [here](http://pelagios-project.blogspot.co.at/2014/01/from-bordeaux-to-jerusalem-and-back.html)
-and [here](http://pelagios-project.blogspot.co.at/2014/01/theres-pliny-of-room-at-bottom-1.html).
+A Web-based tool for geo-annotating texts and/or validating the results of automated geo-parsing. You can read an introduction
+to Recogito [here](http://pelagios-project.blogspot.co.at/2014/01/from-bordeaux-to-jerusalem-and-back.html) and
+[here](http://pelagios-project.blogspot.co.at/2014/01/theres-pliny-of-room-at-bottom-1.html).
 
 ## Installation
 
