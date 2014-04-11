@@ -2,6 +2,8 @@
 
 A Web-based tool for geo-annotating texts and/or validating the results of automated geo-parsing.
 
+![Recogito Geo-Resolution](http://github.com/pelagios/recogito/raw/master/screenshot-georesolution.jpg)
+
 ## Installation
 
 * Recogito requires Java 1.7 to be installed on your machine.
@@ -9,7 +11,7 @@ A Web-based tool for geo-annotating texts and/or validating the results of autom
   _classic_ distribution. (No need to use the version packaged with the _Typesafe Activator_.)
 * Recogito depends on the _scalagios-core_ and _scalagios-gazetteer_ utility libraries from the [Scalagios](http://github.com/pelagios/scalagios)
   project. These are not yet available through a Maven repository. You need to add them manually to a `lib` folder in the `recogito` root folder.
-  See the [Scalagios Readme](http://github.com/pelagios/scalagios) for instructions on building them from source, or drop us a line via
+  Build them from source using these [instructions](http://github.com/pelagios/scalagios), or drop us a line via 
   [@Pelagiosproject](https://twitter.com/pelagiosproject).
 * Create a copy of the file `conf/application.conf.template` named `conf/application.conf`, and adapt the settings according to your environment.
   For the most part, the default settings should be fine. Per default, Recogito will create an empty SQLite database. If you want to set up
