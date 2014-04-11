@@ -4,6 +4,7 @@ A Web-based tool for geo-annotating texts and/or validating the results of autom
 
 ## Installation
 
+* Recogito requires Java 1.7 to be installed on your machine.
 * Install the [Play Framework v2.2.2](http://www.playframework.com/download).
 * Recogito depends on the _scalagios-core_ and _scalagios-gazetteer_ utility libraries from the [Scalagios](http://github.com/pelagios/scalagios)
   project. These are not yet available through a Maven repository. You need to add them manually to a `lib` folder in the `recogito` root folder.
