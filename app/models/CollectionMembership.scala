@@ -33,6 +33,10 @@ object CollectionMemberships {
   def listAll()(implicit s: Session): Seq[CollectionMembership] =
     query.list
   
+  /** Get the collections the specified gdoc is part of **/
+  def findForDocument(gdocId: Int)(implicit s: Session): Seq[String] =
+    query.where(_.gdocId === gdocId).map(_.collection).list
+    
   /** Lists all collection names **/
   def listCollections()(implicit s: Session): Seq[String] = 
     query.map(_.collection).list.distinct

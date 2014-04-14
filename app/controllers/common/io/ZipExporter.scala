@@ -109,7 +109,7 @@ class ZipExporter {
     val gdocText = texts.find(t => t.gdocId == gdoc.id.get && t.gdocPartId == None)
     val annotations =
       if (Annotations.countForGeoDocument(gdoc.id.get) > 0) Some(gdocNamePrefix + ".csv") else None
-        
+      
     val jsonMeta = Json.obj(
       "title" -> gdoc.title,
       "author" -> gdoc.author,
@@ -117,6 +117,7 @@ class ZipExporter {
       "date_comment" -> gdoc.dateComment,
       "description" -> gdoc.description,
       "language" -> gdoc.language,
+      "collections" -> CollectionMemberships.findForDocument(gdoc.id.get),
       "source" -> gdoc.source,
       "text" -> gdocText.map(_ => gdocNamePrefix + File.separator + escapeTitle(gdoc.title) + ".txt"),
       "annotations" -> annotations,
