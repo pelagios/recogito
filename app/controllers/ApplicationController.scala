@@ -22,6 +22,28 @@ object ApplicationController extends Controller with Secured with CTSClient {
       val allCollections = CollectionMemberships.listCollections :+ "other"
       Redirect(routes.ApplicationController.index(Some(allCollections.head.toLowerCase)))
     } else {
+      
+      // Helper function to collapse multiple language versions of the same document into one 
+      def foldLanguageVersions(docs: Seq[GeoDocument]): Seq[(Option[String], Seq[GeoDocument])] = {
+        val groupedByExtID = docs.filter(_.externalWorkID.isDefined).groupBy(_.externalWorkID)
+        
+        // Creates a list of [Ext. Work ID -> Documents] mappings
+        docs.foldLeft(Seq.empty[(Option[String], Seq[GeoDocument])])((collapsedList, document) => {
+          if (document.externalWorkID.isEmpty) {
+            // No external work ID means we don't group this doc with other docs
+            collapsedList :+ (None, Seq(document))
+          } else {
+            val workIDsInList = collapsedList.filter(_._1.isDefined).map(_._1.get)
+            if (!workIDsInList.contains(document.externalWorkID.get))
+              // This is a doc that needs grouping, and it's not in the list yet
+              collapsedList :+ (document.externalWorkID, groupedByExtID.get(document.externalWorkID).get)
+            else
+              // This doc is already in the list
+              collapsedList
+          }
+        })
+      }
+      
       // IDs of all documents NOT assigned to a collection
       val unassigned = CollectionMemberships.getUnassignedGeoDocuments
         
