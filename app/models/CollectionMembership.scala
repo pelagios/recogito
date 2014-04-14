@@ -19,6 +19,8 @@ class CollectionMemberships(tag: Tag) extends Table[CollectionMembership](tag, "
   def collection = column[String]("collection", O.NotNull)
   
   def * = (id.?, gdocId, collection) <> (CollectionMembership.tupled, CollectionMembership.unapply)
+  
+  def gdoc = foreignKey("gdoc_fk", gdocId, TableQuery[GeoDocuments])(_.id)
 
 }
 

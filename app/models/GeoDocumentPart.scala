@@ -26,6 +26,8 @@ class GeoDocumentParts(tag: Tag) extends Table[GeoDocumentPart](tag, "gdocument_
   def source = column[String]("source", O.Nullable)
   
   def * = (id.?, gdocId, title, source.?) <> (GeoDocumentPart.tupled, GeoDocumentPart.unapply)
+  
+  def gdoc = foreignKey("gdoc_fk", gdocId, TableQuery[GeoDocuments])(_.id)
 
 }
 
