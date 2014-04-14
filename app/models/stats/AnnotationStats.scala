@@ -28,8 +28,16 @@ object AnnotationStats {
       Logger.warn("Annotation contains invalid URI: " + violation._1)
     })
     
-    uniquePlaces.map(tuple => (tuple._2.get, tuple._3)) // We should never have any undefined URIs in practice - if we do: fail early, fail often!
-      .sortBy(t => (-t._2, t._1.title))
+    // Normally, we shouldn't have place URIs that don't exist in the gazetteer
+    // But it could happen if anything changes about the gazetteer dataset - so we
+    // want to take precautions and log any occurrences
+    val undefinedPlaces = uniquePlaces.filter(_._2.isEmpty)
+    if (undefinedPlaces.size > 0) {
+      undefinedPlaces.foreach(p => Logger.warn("URI " + p._1 + " not found in index!"))
+      (uniquePlaces diff undefinedPlaces).map(tuple => (tuple._2.get, tuple._3)).sortBy(t => (-t._2, t._1.title))      
+    } else {
+      uniquePlaces.map(tuple => (tuple._2.get, tuple._3)).sortBy(t => (-t._2, t._1.title))
+    }
   }
   
   def uniquePlaceCategories(annotations: Iterable[Annotation]): Seq[(Option[PlaceCategory.Category], Int)] =
