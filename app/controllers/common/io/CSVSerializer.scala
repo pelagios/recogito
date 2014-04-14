@@ -73,6 +73,8 @@ class CSVSerializer extends BaseSerializer {
   }
   
   /** Serializes the collection membership table for backup purposes.
+    *  
+    * TODO eliminate this method once we have integrated collection backup & restore with the overall ZIP export  
     *
     * @param collectionMemberships the list of collection memberships  
     */

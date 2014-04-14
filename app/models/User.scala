@@ -74,6 +74,5 @@ object Users {
     val md = MessageDigest.getInstance(MD5).digest(str.getBytes)
     new BigInteger(1, md).toString(16)
   }
-
   
 }

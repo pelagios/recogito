@@ -159,6 +159,7 @@ class CSVParser extends BaseParser {
     }).toSeq
   }
   
+  /** TODO eliminate this method once we have integrated collection backup & restore with the overall ZIP export **/  
   def parseCollectionMemberships(file: String)(implicit session: Session): Seq[CollectionMembership] = {
     val data = Source.fromFile(file).getLines
     val header = data.take(1).toSeq.head.split(SEPARATOR, -1).toSeq
