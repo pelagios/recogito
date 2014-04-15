@@ -67,9 +67,11 @@
       
       @singleDoc(doc: GeoDocument, toponyms: Int, completionRatio: Double, langGroup: Option[Int] = None) = {
         @if(langGroup.isDefined) { <tr class="lang-group lang-group-@langGroup.get"> } else { <tr> }
-          <td colspan="2"> <!-- document title (and # of versions) -->
-            @doc.author.map(_ + ": ").getOrElse("") @doc.title
-            @doc.dateComment.map("(" + _ + ")").getOrElse("") 
+          <td class="title" colspan="2"> <!-- document title (and # of versions) -->
+            <div> <!-- We need this DIV for the CSS ellipsis truncation to work! -->
+              @doc.author.map(_ + ": ").getOrElse("") @doc.title
+              @doc.dateComment.map("(" + _ + ")").getOrElse("")
+            </div> 
           </td>
 
           <!-- languages -->                
@@ -93,10 +95,12 @@
       
       @languageGroup(docs: Seq[(GeoDocument, Int, Double)]) = {
         <tr class="lang-group-header lang-group-@docs.head._1.id.get" onclick="toggleVersions(@docs.head._1.id.get); return false;">
-          <td> <!-- document title -->
-            <span class="icon plus plus-@docs.head._1.id.get"></span>
-            @docs.head._1.author.map(_ + ": ").getOrElse("") @docs.head._1.title
-            @docs.head._1.dateComment.map("(" + _ + ")").getOrElse("")
+          <td class="title"> <!-- document title -->
+            <div> <!-- We need this DIV for the CSS ellipsis truncation to work! -->
+              <span class="icon plus plus-@docs.head._1.id.get"></span>
+              @docs.head._1.author.map(_ + ": ").getOrElse("") @docs.head._1.title
+              @docs.head._1.dateComment.map("(" + _ + ")").getOrElse("")
+            </div>
           </td>
           
           <!-- # of versions -->
