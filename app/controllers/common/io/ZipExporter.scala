@@ -119,6 +119,7 @@ class ZipExporter {
       "language" -> gdoc.language,
       "collections" -> CollectionMemberships.findForDocument(gdoc.id.get),
       "source" -> gdoc.source,
+      "ext_work_id" -> gdoc.externalWorkID,
       "text" -> gdocText.map(_ => gdocNamePrefix + File.separator + escapeTitle(gdoc.title) + ".txt"),
       "annotations" -> annotations,
       "parts" -> jsonParts
