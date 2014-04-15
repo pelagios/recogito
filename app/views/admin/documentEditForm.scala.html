@@ -1,4 +1,4 @@
-@(documentForm: Form[GeoDocument])
+@(docId: Int, form: Form[GeoDocument])
 
 <html>
   <head>
@@ -23,18 +23,55 @@
     </div>
   
     <div id="content">
-		@helper.form(controllers.admin.routes.DocumentAdminController.saveDocument()) {
-			<fieldset>
-				@helper.inputText(documentForm("title"), '_label -> "Title")
-				@helper.inputText(documentForm("author"), '_label -> "Author")
-				@helper.inputText(documentForm("title"), '_label -> "Date")
-				@helper.textarea(documentForm("title"), '_label -> "Description", 'rows -> 15, 'cols -> 50)
-			</fieldset>
-			
-			<div class="actions">
-            	<input type="submit" value="SAVE" class="btn primary">
-        	</div>
-		}      
+      @helper.form(controllers.admin.routes.DocumentAdminController.updateDocument(docId)) {
+      	<input name="id" id="id" type="hidden" value="@form("id").value">
+      	
+      	<ol>
+      	  <li>
+            <label for="title">Title <em>*</em></label>
+            <input name="title" id="title" type="text" placeholder="Title..." value="@form("title").value">
+          </li>
+          
+          <li>
+            <label for="author">Author</label>
+            <input name="author" id="author" type="text" placeholder="Author..." value="@form("author").value">
+          </li>
+          
+          <li>
+            <label for="description">Description</label>
+            <input name="description" id="description" type="text" placeholder="Description..." value="@form("description").value">
+          </li>
+          
+          <li>
+            <label for="date">Date (Numeric)</label>
+            <input name="date" id="date" type="text" placeholder="e.g. '-760'" value="@form("date").value">
+          </li>
+          
+          <li>   
+            <label for="date">Date (Freeform)</label>
+            <input name="dateComment" id="dateComment" type="text" placeholder="e.g. '760–710 BC'" value="@form("dateComment").value">
+          </li>
+          
+          <li>
+            <label for="date">Language</label>
+            <input name="language" id="language" type="text" placeholder="e.g. 'gr'" value="@form("language").value">
+          </li>
+          
+          <li>
+            <label for="date">External Identifier</label>
+            <input name="extWorkID" id="extWorkID" type="text" placeholder="e.g. 'http://www.wikidata.org/wiki/Q8275'" value="@form("extWorkID").value">
+          </li>
+          
+          <li>
+            <label for="source">Source</label>
+            <input name="source" id="source" type="text" placeholder="e.g. 'http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A1999.01.0133'" value="@form("source").value">
+	      </li>
+	      
+	      <li>
+		    <input type="submit" value="SAVE" class="btn primary">
+		  </li>
+        </ol>
+	  }      
     </div>
   </body>
 </html>

@@ -75,6 +75,9 @@ object GeoDocuments {
   
   def insert(geoDocument: GeoDocument)(implicit s: Session) =
     query returning query.map(_.id) += geoDocument
+    
+  def update(geoDocument: GeoDocument)(implicit s: Session) =
+    query.where(_.id === geoDocument.id).update(geoDocument)
       
   def listAll()(implicit s: Session): Seq[GeoDocument] = query.list
   
