@@ -1,4 +1,4 @@
-@(docs: Seq[GeoDocument], collections: Seq[(String, Int)], currentCollection: String, user: models.User)(implicit s: play.api.db.slick.Config.driver.simple.Session)
+@(documents: Seq[(Option[String], Seq[GeoDocument])], collections: Seq[(String, Int)], currentCollection: String, user: models.User)(implicit s: play.api.db.slick.Config.driver.simple.Session)
 
 @import tags.lang
 
@@ -7,19 +7,21 @@
     <title>RECOGITO</title>
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/index/main.css")" />
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
-    <script> 
-    function toggleDetails(docId) {
-      var toggle = $('.toggle-' + docId),
-          rows = $('.document-' + docId),
-          display = rows.css('display');
+    <script type="text/javascript">
+      function toggleVersions(id) {
+        var toggleIcon = $('.plus-' + id),
+          headerRow = $('.lang-group-header.lang-group-' + id),
+          versionRows = $('.lang-group.lang-group-' + id),
+          display = versionRows.css('display');
 
-      toggle.toggleClass('less');
-      if (display == 'none') {
-        rows.css('display', 'table-row');
-      } else {
-        rows.css('display', 'none');
+        toggleIcon.toggleClass('less');
+        headerRow.toggleClass('open');
+        if (display == 'none') {
+          versionRows.css('display', 'table-row');
+        } else {
+          versionRows.css('display', 'none');
+        }
       }
-    }
     </script>
   </head>
   
@@ -49,9 +51,10 @@
           <thead>
             <tr>
               <th class="title">Document</th>
-              <th># of Parts</th>
+              <th></th>
               <th>Toponyms</th>
-              <th>Complete</th>    
+              <th>Complete</th>
+              <th></th>    
             </tr>
           </thead>
         </table>
@@ -73,114 +76,104 @@
         </ul>  
       </div>
       
-      <div id="document-list">
-        <table class="index">  
-          <tbody>
-            @for(doc <- docs.sortBy(d => (d.language, d.date, d.author, d.title))) {
-            	@defining(user.canEdit(doc.id.get)) { canEdit =>
-            	  @if(canEdit) { <tr> } else { <tr class="locked-document"> }
-            	    <td class="title"> <!-- document title -->
-                    <div>
-            	        @if(!canEdit) {
-            	          <span class="icon locked-document">&#xf023;</span>
-            	        }
-          	      
-            	        <a href="@routes.ApplicationController.showDocumentStats(doc.id.get)">
-            	          @doc.author.map(_ + ": ").getOrElse("") @doc.title
-            	          @doc.dateComment.map("(" + _ + ")").getOrElse("") 
-          	          </a>
-                    </div>
-          	      </td>
-          	    
-            	    <td>@lang(doc.language)</td>
-          	  
-            	    @defining(models.GeoDocumentParts.countForGeoDocument(doc.id.get)) { parts =>
-            	  	  <!-- number of parts -->
-                    @if(parts == 0) { 
-            	        <td colspan="2" class="center">-</td>
-            	      } else {
-          	          <td class="right">@parts</td><td><a class="icon toggle toggle-@doc.id.get" href="#" onclick="toggleDetails(@doc.id.get); return false;"></a></td>
-          	        }         	      
-          	      }
-          	  
-          	      <!-- number of toponyms -->
-          	      <td class="center">@doc.countTotalToponyms</td>
-          	  
-            	    <td class="stats"> <!-- completion ratio -->
-            	      @defining(doc.completionRatio * 100) { completionRatio =>
-            	        <div class="meter" title="@{ "%.2f" format (completionRatio) } %">
-	                    <span style="width: @completionRatio%"></span>
-                      </div>
-                    }
-          	      </td>
-          	    </tr>
-          	  }
-          	
-            	@for(part <- models.GeoDocumentParts.findByGeoDocument(doc.id.get)) {
-                <tr class="document-part document-@doc.id.get">
-                  <td class="title">@part.title</td>
+      @singleDoc(doc: GeoDocument, toponyms: Int, completionRatio: Double, langGroup: Option[Int] = None) = {
+        @if(langGroup.isDefined) { <tr class="lang-group lang-group-@langGroup.get"> } else { <tr> }
+          <td> <!-- document title -->
+            @doc.author.map(_ + ": ").getOrElse("") @doc.title
+            @doc.dateComment.map("(" + _ + ")").getOrElse("") 
+          </td>
+          
+          <!-- # of parts -->
+          <td class="center"></td>
+
+          <!-- languages -->                
+          <td class="center">@lang(doc.language)</td>
                 
-                  <td colspan="3"></td>
-                
-                  <!-- number of toponyms -->
-                  <td class="center">@part.totalToponymCount</td>
-                
-            	    <td> <!-- completion ratio -->
-            	      @defining(part.completionRatio * 100) { completionRatio =>
-            	        <div class="meter meter-part" title="@{ "%.2f" format (completionRatio) } %">
-	                    <span style="width: @completionRatio%"></span>
-                      </div>
-                    }
-          	      </td>
-          	      <td></td>
-          	    
-                  <td>
-      	            @defining(GeoDocumentTexts.getTextForGeoDocumentPart(part.id.get)) { text =>
-      	              @if(text.isDefined) {
-      	                <span class="icon"></span>
-      	                <span class="icon"></span>
-      	                <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(text.get.id, None)" title="Text">&#xf0f6;</a>
-      	              }
-      	            }
-                  </td>
-            	  </tr>
+          <!-- # of toponyms -->
+          <td class="center">@toponyms</td>     
+               
+          <!-- completion ratio --> 
+          <td class="stats" title="@{ "%.2f" format (completionRatio * 100) } % Complete">
+            <div class="meter"><span style="width: @{completionRatio * 100}%"></span></div>
+          </td>
+          
+          <!-- shortcut icons -->
+          <td>
+            <!-- document stats short -->
+            <a href="@routes.ApplicationController.showDocumentStats(doc.id.get)" class="icon" title="Detailed Stats">&#xf080;</a>
+            
+            <!-- text shortcut -->
+            @defining(GeoDocumentTexts.findByGeoDocument(doc.id.get)) { texts =>
+              @if(texts.size > 0) {
+                <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(texts.head.id, None)" title="Text Annotation">&#xf0f6;</a>
+              } else {
+                <span class="icon disabled">&#xf0f6;</a>
               }
             }
+            
+            <!-- georesolution shortcut -->
+            <a class="icon" href="@routes.ApplicationController.showGeoResolutionUI(doc.id.get)" title="Geo-Resolution">&#xf0ac;</a>
+          </td>
+        </tr>      	
+      }
+      
+      @languageGroup(docs: Seq[(GeoDocument, Int, Double)]) = {
+        <tr class="lang-group-header lang-group-@docs.head._1.id.get" onclick="toggleVersions(@docs.head._1.id.get); return false;">
+          <td> <!-- document title -->
+            <span class="icon plus plus-@docs.head._1.id.get"></span>
+            @docs.head._1.author.map(_ + ": ").getOrElse("") @docs.head._1.title
+            @docs.head._1.dateComment.map("(" + _ + ")").getOrElse("")
+          </td>
           
-            @* We need to do some optimization here to avoid redundant DB access! *@
-            <tr class="totals">
-              @defining(docs.map(doc => (doc.countTotalToponyms, doc.countUnverifiedToponyms))) { totals =>
-                @defining(totals.map(_._1).foldLeft(0)(_ + _)) { totalToponyms =>
-                  <td colspan="4"></td>
-                  <td class="center">@totalToponyms</td> <!-- Toponyms -->
-                  <td>
-                    @defining(totals.map(_._2).foldLeft(0)(_ + _)) { totalUnverified =>
-                      <div class="meter">
-                        @defining(100 * (totalToponyms - totalUnverified).toDouble / totalToponyms) { ratio =>
-                          <span style="width:@{ratio}%" title="@{"%.2f" format (ratio)} % - @totalUnverified Toponyms to go!"></span>
-                        }
-                      </div>
-                    }
-                  </td>
-                }         
+          <!-- # of versions -->
+          <td class="versions center">@docs.size Versions</td>
+
+          <!-- languages -->                
+          <td></td>
+                
+          <!-- # of toponyms -->
+          @defining((docs.map(_._2).min, docs.map(_._2).max)) { toponyms =>
+            <td class="center">
+              @if(toponyms._1 == toponyms._2) {
+                @toponyms._1	
+              } else {
+                @toponyms._1 - @toponyms._2
               }
-            </tr>
+            </td>
+          }     
+          
+          <!-- completion ratio -->
+          @defining(docs.map(_._3 * 100).foldLeft(0.0)(_ + _) / docs.size) { completionRatio =>
+            <td class="stats" title="@{ "%.2f" format (completionRatio) } % Complete">
+              <div class="meter"><span style="width: @completionRatio%"></span></div>
+            </td>
+          }         
+          
+          <!-- shortcut icons -->
+          <td></td>
+        </tr>  
+        
+        <!-- individual language entries -->
+        @for((doc, toponyms, completionRatio) <- docs) {
+          @singleDoc(doc, toponyms, completionRatio, Some(docs.head._1.id.get))
+        }         	
+      }
+      
+      <div id="document-list">
+        <h2>Documents</h2>
+        <table class="index"> 
+          <tbody>
+            @for((extWorkId, docs) <- documents) {
+              @if(docs.size > 1) {
+                @languageGroup(docs.map(d => (d, d.countTotalToponyms, d.completionRatio)))
+              } else {
+                @singleDoc(docs.head, docs.head.countTotalToponyms, docs.head.completionRatio)
+              }
+            }
           </tbody> 
         </table>
       </div>
-    </div>
-    
-    <!-- div id="footer">
-      <615 Annotations  
-      <span class="icon">&#xf14a;</span> 577  
-      <span class="icon">&#xf024;</span> 21   
-      <span class="icon">&#xf057;</span> 0  
-      <span class="icon">&#xf05e;</span> 0
-      -   97.1% Complete>
       
-      <div id="user">
-        You are logged in as <span id="username">@user.username</span> <a href="@routes.AuthController.logout" class="icon">&#xf011;</a>
-      </div>
-    </div -->
+    </div>
   </body>
 </html>

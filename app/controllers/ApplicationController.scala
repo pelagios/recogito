@@ -58,18 +58,14 @@ object ApplicationController extends Controller with Secured with CTSClient {
       val docsPerCollection = CollectionMemberships.listCollections.map(collection =>
         (collection, CollectionMemberships.countDocumentsInCollection(collection))) ++
         { if (unassigned.size > 0) Seq(("Other", unassigned.size)) else Seq.empty[(String, Int)] }
+      
+      val groupedDocs = foldLanguageVersions(gdocs.sortBy(d => (d.date, d.author, d.title)))
             
       // Populate the correct template, depending on login state
-      if (currentUser.isDefined && isAuthorized) {      
-        Ok(views.html.index(gdocs, docsPerCollection, collection.get, currentUser.get))
-      } else {
-        val sorted = gdocs
-          .sortBy(d => (d.date, d.author, d.title))
-          // .map(doc => (doc, doc.countTotalToponyms, doc.countUnverifiedToponyms))
-          
-        // Ok(views.html.index_public(sorted, docsPerCollection, collection.get))
-        Ok(views.html.index_public(foldLanguageVersions(sorted), docsPerCollection, collection.get))
-      }    
+      if (currentUser.isDefined && isAuthorized)      
+        Ok(views.html.index(groupedDocs, docsPerCollection, collection.get, currentUser.get))
+      else
+        Ok(views.html.index_public(groupedDocs, docsPerCollection, collection.get))    
     }
   }
    
