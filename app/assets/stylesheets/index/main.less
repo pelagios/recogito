@@ -141,21 +141,22 @@
   width:100%;
   max-width:1100px;
   margin:0 auto;
+  
+  h2 {
+    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-weight:500;
+    font-size:18px;
+    color:#333;
+    margin:0 2px 12px 0;
+    padding:0;
+  }
 
   #collections-sidebar {
     position:fixed;
     width:150px;
     min-height:1px;
     
-    h2 {
-      text-align:right;
-      font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
-      font-weight:500;
-      font-size:18px;
-      color:#333;
-      margin:0 2px 12px 0;
-      padding:0;
-    }
+    h2 { text-align: right }
     
     ul {
       list-style-type:none;
@@ -223,7 +224,7 @@
   
     table {
       width:920px;
-  
+
       tr { 
       
         .icon {
@@ -239,11 +240,36 @@
           left:-12px;
         }
 
-        .icon.toggle:after { content: '\f0d7'; }
+        .icon.plus:after { content: '\f196'; }
 
-        .icon.toggle.less:after { content: '\f0d8'; }
+        .icon.plus.less:after { content: '\f147'; }
+        
+        .icon.plus, .icon.empty {
+          font-weight:500;
+          width:12px;
+          font-size:11px;
+        }
        
       } /* tr */
+      
+      tr.lang-group-header { cursor:pointer; }
+      tr.lang-group-header.open { 
+        background-color:#f0f0f0; 
+      }
+      
+      tr.lang-group { 
+        background-color:#f4f4f4;
+        display:none;
+        border-style:dotted;
+        border-color:#efefef;
+        td { color:#424242; }
+      }
+      
+      tr.lang-group td:first-child {
+        padding-left:30px;
+      }
+      
+      tr.lang-group:hover { background-color:#f7f7f7; }
 
       tr.totals { border-bottom-width:2px; }
 
@@ -261,6 +287,10 @@
         white-space:nowrap;
         overflow:hidden;
         text-overflow: ellipsis;
+      }
+      
+      td.versions {
+        font-weight:bold;
       }
 
       td.stats { width: 150px; }

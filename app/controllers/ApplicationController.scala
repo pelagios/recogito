@@ -65,9 +65,10 @@ object ApplicationController extends Controller with Secured with CTSClient {
       } else {
         val sorted = gdocs
           .sortBy(d => (d.date, d.author, d.title))
-          .map(doc => (doc, doc.countTotalToponyms, doc.countUnverifiedToponyms))
+          // .map(doc => (doc, doc.countTotalToponyms, doc.countUnverifiedToponyms))
           
-        Ok(views.html.index_public(sorted, docsPerCollection, collection.get))
+        // Ok(views.html.index_public(sorted, docsPerCollection, collection.get))
+        Ok(views.html.index_public(foldLanguageVersions(sorted), docsPerCollection, collection.get))
       }    
     }
   }

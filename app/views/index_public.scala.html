@@ -1,5 +1,6 @@
-@(docs: Seq[(GeoDocument, Int, Int)], collections: Seq[(String, Int)], currentCollection: String)
+@(documents: Seq[(Option[String], Seq[GeoDocument])], collections: Seq[(String, Int)], currentCollection: String)(implicit s: play.api.db.slick.Config.driver.simple.Session)
 
+@* (docs: Seq[(GeoDocument, Int, Int)], collections: Seq[(String, Int)], currentCollection: String) *@
 
 @import tags.lang
 
@@ -8,6 +9,22 @@
     <title>RECOGITO</title>
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/index/main.css")" />
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
+    <script type="text/javascript">
+      function toggleVersions(id) {
+        var toggleIcon = $('.plus-' + id),
+          headerRow = $('.lang-group-header.lang-group-' + id),
+          versionRows = $('.lang-group.lang-group-' + id),
+          display = versionRows.css('display');
+
+        toggleIcon.toggleClass('less');
+        headerRow.toggleClass('open');
+        if (display == 'none') {
+          versionRows.css('display', 'table-row');
+        } else {
+          versionRows.css('display', 'none');
+        }
+      }
+    </script>
   </head>
   
   <body>
@@ -26,6 +43,7 @@
           <thead>
             <tr>
               <th>Document</th>
+              <th>Language(s)</th>
               <th>Toponyms</th>
               <th>Complete</th>    
             </tr>
@@ -49,52 +67,85 @@
         </ul>  
       </div>
       
+      @singleDoc(doc: GeoDocument, toponyms: Int, completionRatio: Double, langGroup: Option[Int] = None) = {
+        @if(langGroup.isDefined) { <tr class="lang-group lang-group-@langGroup.get"> } else { <tr> }
+          <td colspan="2"> <!-- document title (and # of versions) -->
+            @doc.author.map(_ + ": ").getOrElse("") @doc.title
+            @doc.dateComment.map("(" + _ + ")").getOrElse("") 
+          </td>
+
+          <!-- languages -->                
+          <td class="center">@lang(doc.language)</td>
+                
+          <!-- # of toponyms -->
+          <td class="center">@toponyms</td>     
+               
+          <!-- completion ratio --> 
+          <td class="stats" title="@{ "%.2f" format (completionRatio * 100) } % Complete">
+            <div class="meter"><span style="width: @{completionRatio * 100}%"></span></div>
+          </td>
+          
+          <!-- icons -->
+          <td>
+            <a class="icon" href="@routes.ApplicationController.showMap(doc.id.get)" title="Public Map">&#xf0ac;</a>
+            <a class="icon" href="@routes.DocumentController.get(doc.id.get, Some("csv"))" title="Download CSV">&#xf0ce;</a>
+          </td>
+        </tr>      	
+      }
+      
+      @languageGroup(docs: Seq[(GeoDocument, Int, Double)]) = {
+        <tr class="lang-group-header lang-group-@docs.head._1.id.get" onclick="toggleVersions(@docs.head._1.id.get); return false;">
+          <td> <!-- document title -->
+            <span class="icon plus plus-@docs.head._1.id.get"></span>
+            @docs.head._1.author.map(_ + ": ").getOrElse("") @docs.head._1.title
+            @docs.head._1.dateComment.map("(" + _ + ")").getOrElse("")
+          </td>
+          
+          <!-- # of versions -->
+          <td class="versions">@docs.size Versions</td>
+
+          <!-- languages -->                
+          <td></td>
+                
+          <!-- # of toponyms -->
+          @defining((docs.map(_._2).min, docs.map(_._2).max)) { toponyms =>
+            <td class="center">
+              @if(toponyms._1 == toponyms._2) {
+                @toponyms._1	
+              } else {
+                @toponyms._1 - @toponyms._2
+              }
+            </td>
+          }     
+          
+          <!-- completion ratio -->
+          @defining(docs.map(_._3 * 100).foldLeft(0.0)(_ + _) / docs.size) { completionRatio =>
+            <td class="stats" title="@{ "%.2f" format (completionRatio) } % Complete">
+              <div class="meter"><span style="width: @completionRatio%"></span></div>
+            </td>
+          }         
+          
+          <!-- icons -->
+          <td></td>
+        </tr>  
+        
+        <!-- individual language entries -->
+        @for((doc, toponyms, completionRatio) <- docs) {
+          @singleDoc(doc, toponyms, completionRatio, Some(docs.head._1.id.get))
+        }         	
+      }
+      
       <div id="document-list">
+        <h2>Documents</h2>
         <table class="index"> 
           <tbody>
-            @for(doc <- docs) {
-              <tr>
-                <td> <!-- document title -->
-                  @doc._1.author.map(_ + ": ").getOrElse("") @doc._1.title
-                  @doc._1.dateComment.map("(" + _ + ")").getOrElse("") 
-                </td>
-                
-                <td>@lang(doc._1.language)</td>
-                          
-                <td class="center">@doc._2</td>
-              
-                <td class="stats">
-                  @defining(((doc._2 - doc._3).toDouble / doc._2) * 100) { completionRatio =>
-                    <div class="meter" title="@{ "%.2f" format (completionRatio) } %">
-                      <span style="width: @completionRatio%"></span>
-                    </div>
-                  }
-                </td>
-                <td class="more-stats"><a href="@routes.ApplicationController.showDocumentStats(doc._1.id.get)" class="icon" title="Detailed Stats">&#xf080;</a></td>
-              
-                <td class="icons"> <!-- icons: public map -->
-                  <a class="icon" href="@routes.ApplicationController.showMap(doc._1.id.get)" title="Public Map">
-                    &#xf0ac;
-                  </a>
-                  <a class="icon" href="@routes.DocumentController.get(doc._1.id.get, Some("csv"))" title="Download CSV">&#xf0ce;</a>
-                </td>
-              </tr>
-            }
-          
-            <tr class="totals">
-              @defining(docs.foldLeft(0, 0)((sum, doc) => (sum._1 + doc._2, sum._2 + doc._3))) { sum =>
-                <td colspan="2"></td>
-                <td class="center">@sum._1</td> <!-- Total toponyms -->
-                <td>
-                  <div class="meter">
-                    @defining(100 * (sum._1 - sum._2).toDouble / sum._1) { ratio =>
-                      <span style="width:@{ratio}%" title="@{"%.2f" format (ratio)} % - @sum._2 Toponyms to go!"></span>
-                    }
-                  </div>
-                </td>
-                <td colspan="2"></td>
+            @for((extWorkId, docs) <- documents) {
+              @if(docs.size > 1) {
+                @languageGroup(docs.map(d => (d, d.countTotalToponyms, d.completionRatio)))
+              } else {
+                @singleDoc(docs.head, docs.head.countTotalToponyms, docs.head.completionRatio)
               }
-            </tr>
+            }
           </tbody> 
         </table>
       </div>
