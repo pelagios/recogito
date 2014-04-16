@@ -109,6 +109,8 @@ class Annotations(tag: Tag) extends Table[Annotation](tag, "annotations") with H
   def * = (uuid, gdocId.?, gdocPartId.?, status, toponym.?, offset.?, gazetteerURI.?, correctedToponym.?, 
     correctedOffset.?, correctedGazetteerURI.?, tags.?, comment.?, source.?, _seeAlso.?) <> (Annotation.tupled, Annotation.unapply)
     
+  def idx_gdocId = index("idx_gdoc", gdocId, unique = false)
+    
 }
 
 object Annotations extends HasStatusColumn {
