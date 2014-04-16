@@ -38,6 +38,10 @@ object CollectionMemberships {
   /** Get the collections the specified gdoc is part of **/
   def findForDocument(gdocId: Int)(implicit s: Session): Seq[String] =
     query.where(_.gdocId === gdocId).map(_.collection).list
+   
+  /** Delete all collection memberships for a specific document **/
+  def clearForDocument(gdocId: Int)(implicit s: Session) =
+    query.where(_.gdocId === gdocId).delete
     
   /** Lists all collection names **/
   def listCollections()(implicit s: Session): Seq[String] = 

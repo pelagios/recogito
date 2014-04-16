@@ -101,11 +101,29 @@ object DocumentAdminController extends Controller with Secured {
   }
   
   /** Save a document from the UI form **/
-  def updateDocument(id: Int) = protectedDBAction(Secure.REJECT) { implicit request => implicit session =>
+  def updateDocument(id: Int) = protectedDBAction(Secure.REJECT) { implicit username => implicit session =>
     documentForm.bindFromRequest.fold(
       formWithErrors => BadRequest(views.html.admin.documentEditForm(id, formWithErrors)),
       document => {
+        // Update the document
         GeoDocuments.update(document)
+        
+        // Get contents of unmapped collections field (conveniently converted to Option[Seq[String]])
+        val collections = (session.request.body.asFormUrlEncoded.get.get("collections").get match {
+          case c if (c.size == 0) => None
+          case c if (c.head.isEmpty) => None
+          case c => Some(c.head)
+        }).map(_.split(",").toSeq)
+
+        if (collections.isDefined) {
+          val currentMemberships = CollectionMemberships.findForDocument(document.id.get).toSet
+          if (currentMemberships != collections.get.toSet) {
+            // Change detected! Update collection memberships
+            CollectionMemberships.clearForDocument(document.id.get)
+            CollectionMemberships.insertAll(collections.get.map(CollectionMembership(None, document.id.get, _)))
+          }
+        }        
+        
         Redirect(routes.DocumentAdminController.listAll())
       }
     )
