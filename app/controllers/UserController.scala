@@ -59,11 +59,11 @@ object UserController extends Controller with Secured {
     )
   }
   
-  def changePassword = adminAction { username => implicit session =>
+  def changePassword = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit session =>
     Ok(views.html.user_settings(changePasswordForm))
   }
   
-  def processChangePassword = adminAction { username => implicit session => 
+  def processChangePassword = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit session => 
     changePasswordForm.bindFromRequest.fold(
       formWithErrors => BadRequest(views.html.user_settings(formWithErrors)),
       data => DB.withSession { s: Session =>
@@ -77,8 +77,9 @@ object UserController extends Controller with Secured {
           }
       
         if (valid) {
-          val newHash = Users.computeHash(user.get.salt + data.newPassword)
-          Users.update(User(username, newHash, user.get.salt, user.get.editableDocuments, user.get.isAdmin))(s)
+          val newSalt = Users.randomSalt
+          val newHash = Users.computeHash(newSalt + data.newPassword)
+          Users.update(User(username, newHash, newSalt, user.get.editableDocuments, user.get.isAdmin))(s)
           Redirect(routes.UserController.changePassword).flashing("success" -> "Your password was successfully changed")
         } else {
           Redirect(routes.UserController.changePassword).flashing("error" -> "Invalid current password")
