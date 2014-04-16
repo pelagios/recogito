@@ -19,7 +19,7 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, opt_gdocPartId, opt_source
     '    <span class="message"></span>' +
     '    <div class="buttons">' +
     '      <button class="button blue button-ok">OK</button>' +
-    '      <button class="button grey button-cancel">Cancel</button>' +
+    '      <button class="button dark button-cancel">Cancel</button>' +
     '    </div>' +
     '  </div>' +
     '<div>';

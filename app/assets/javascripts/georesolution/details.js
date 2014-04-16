@@ -64,7 +64,7 @@ define(['georesolution/common'], function(common) {
           '        </div>' +
           '        <div id="details-content-comment">' +
           '          <h3><span class="icon">&#xf075;</span>&nbsp;&nbsp;Comment</h3>' +
-          '          <button class="details-comment-button button grey" type="button">SAVE</button>' +
+          '          <button class="details-comment-button button dark" type="button">SAVE</button>' +
           '          <textarea class="details-comment-textarea"></textarea>' + 
           '        </div>' +
           '        <div id="details-content-history">' +

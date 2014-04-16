@@ -39,7 +39,7 @@ define(function() {
     var self = this,
         ul = $('<ul></ul>'),
         tagEditor = false,
-        addButton =  $('<button class="button grey">Add Tag</button>');
+        addButton =  $('<button class="button dark">Add Tag</button>');
 
     // Helper function to add a tag to the list
     var addTag = function(idx, tag) {
