@@ -54,10 +54,10 @@
         </div>
       }
 
-	    <div id="upload-new">
+	  <div id="admin-actions">
         <button class="upload big icon" data-input="upload-documents">&#xf093;</button>
         <h4>Upload Documents (ZIP)</h4>
-	    </div>
+	  </div>
 	          
       @helper.form(action = controllers.admin.routes.DocumentAdminController.uploadDocuments(), 'enctype -> "multipart/form-data") {
         <input type="file" id="upload-documents" name="zip" accept=".zip">
