@@ -9,7 +9,11 @@ import play.api.Logger
 
 case class GDocIndexEntry(doc: GeoDocument, verified: Int, unidentifiable: Int, total: Int, texts: Seq[Int]) {
   
-  val completionRatio = (verified + unidentifiable).toDouble / total
+  val percentVerified = verified.toDouble / total
+  
+  val percentUnidentifiable = unidentifiable.toDouble /total
+  
+  val percentComplete = percentVerified + percentUnidentifiable
   
 }
 

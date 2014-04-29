@@ -81,8 +81,11 @@
           <td class="center">@entry.total</td>     
                
           <!-- completion ratio --> 
-          <td class="stats" title="@{ "%.2f" format (entry.completionRatio * 100) } % Complete">
-            <div class="meter"><span style="width: @{entry.completionRatio * 100}%"></span></div>
+          <td class="stats" title="@{ "%.2f" format (entry.percentComplete * 100) } % Complete">
+            <div class="meter">
+              <span class="yellow" style="width: @{(entry.percentVerified + entry.percentUnidentifiable) * 100}%"></span>
+              <span class="green@if(entry.percentUnidentifiable == 0) { full}" style="width: @{entry.percentVerified * 100}%"></span>
+            </div>
           </td>
           
           <!-- icons -->
@@ -121,7 +124,7 @@
           }     
           
           <!-- completion ratio -->
-          @defining(entries.map(_.completionRatio * 100).foldLeft(0.0)(_ + _) / entries.size) { completionRatio =>
+          @defining(entries.map(_.percentComplete * 100).foldLeft(0.0)(_ + _) / entries.size) { completionRatio =>
             <td class="stats" title="@{ "%.2f" format (completionRatio) } % Complete">
               <div class="meter"><span style="width: @completionRatio%"></span></div>
             </td>

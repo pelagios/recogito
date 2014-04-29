@@ -299,24 +299,33 @@
       td.more-stats { width:20px; }
     
       .meter {
+        position:relative;
         .rounded-corners(3px);
         .gradient(#ccc, #eee);
         width:150px;
         height:8px;
       
-        span {
+        span.yellow {
+          position:absolute;
+          top:0;
           .rounded-corners(3px);
+          .gradient(#fff000, #e3d600);
+          display:inline-block;
+          height:100%;
+        }
+        
+        span.green {
+          position:absolute;
+          top:0;
+          .rounded-corners-left(3px);
           .gradient(#83c783, #008a00);
           display:inline-block;
           height:100%;
         }
+        
+        span.green.full { .rounded-corners(3px); }
       
       } /* .meter */
-
-      .meter-part {
-        width:130px;
-        margin-left:10px;
-      }
 
     } /* table */
     
