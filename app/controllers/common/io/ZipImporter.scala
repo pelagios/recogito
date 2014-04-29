@@ -37,7 +37,7 @@ object ZipImporter {
             
       val json = Json.parse(Source.fromInputStream(zipFile.getInputStream(metafile)).getLines.mkString("\n"))
       
-      val docExtWorkID = (json \ "external_work_id").as[Option[String]]
+      val docExtWorkID = (json \ "ext_work_id").as[Option[String]]
       val docAuthor = (json \ "author").as[Option[String]]
       val docTitle = (json \ "title").as[String]
       val docDate = (json \ "date").as[Option[Int]]
