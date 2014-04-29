@@ -7,6 +7,12 @@ import play.api.libs.json.Json
 import play.api.mvc.{ Action, Controller }
 import play.api.Logger
 
+case class GDocIndexEntry(doc: GeoDocument, verified: Int, unidentifiable: Int, total: Int, texts: Seq[Int]) {
+  
+  val completionRatio = (verified + unidentifiable).toDouble / total
+  
+}
+
 /** Main application entrypoint.
   *
   * @author Rainer Simon <rainer.simon@ait.ac.at>
@@ -24,19 +30,19 @@ object ApplicationController extends Controller with Secured with CTSClient {
     } else {
       
       // Helper function to collapse multiple language versions of the same document into one 
-      def foldLanguageVersions(docs: Seq[GeoDocument]): Seq[(Option[String], Seq[GeoDocument])] = {
-        val groupedByExtID = docs.filter(_.externalWorkID.isDefined).groupBy(_.externalWorkID)
+      def foldLanguageVersions(docs: Seq[GDocIndexEntry]): Seq[(Option[String], Seq[GDocIndexEntry])] = {
+        val groupedByExtID = docs.filter(_.doc.externalWorkID.isDefined).groupBy(_.doc.externalWorkID)
         
         // Creates a list of [Ext. Work ID -> Documents] mappings
-        docs.foldLeft(Seq.empty[(Option[String], Seq[GeoDocument])])((collapsedList, document) => {
-          if (document.externalWorkID.isEmpty) {
+        docs.foldLeft(Seq.empty[(Option[String], Seq[GDocIndexEntry])])((collapsedList, document) => {
+          if (document.doc.externalWorkID.isEmpty) {
             // No external work ID means we don't group this doc with other docs
             collapsedList :+ (None, Seq(document))
           } else {
             val workIDsInList = collapsedList.filter(_._1.isDefined).map(_._1.get)
-            if (!workIDsInList.contains(document.externalWorkID.get))
+            if (!workIDsInList.contains(document.doc.externalWorkID.get))
               // This is a doc that needs grouping, and it's not in the list yet
-              collapsedList :+ (document.externalWorkID, groupedByExtID.get(document.externalWorkID).get)
+              collapsedList :+ (document.doc.externalWorkID, groupedByExtID.get(document.doc.externalWorkID).get)
             else
               // This doc is already in the list
               collapsedList
@@ -48,18 +54,30 @@ object ApplicationController extends Controller with Secured with CTSClient {
       val unassigned = CollectionMemberships.getUnassignedGeoDocuments
         
       // Documents for the selected collection
-      val gdocs = 
+      val gdocs = {
         if (collection.get.equalsIgnoreCase("other"))
           GeoDocuments.findAll(unassigned)
         else
-          GeoDocuments.findAll(CollectionMemberships.getDocumentsInCollection(collection.get))
+          GeoDocuments.findAll(CollectionMemberships.getDocumentsInCollection(collection.get)) 
+        }
+        // Sort by date -> author -> title
+        .sortBy(doc => (doc.date, doc.author, doc.title))
+        
+        // Get stats for each document
+        .map(doc => { 
+          val greens = doc.countVerifiedToponyms
+          val yellows = doc.countUnidentifiableToponyms
+          val total = greens + yellows + doc.countUnverifiedToponyms
+          val texts = GeoDocumentTexts.findByGeoDocument(doc.id.get).map(_.id.get)
+          GDocIndexEntry(doc, greens, yellows, total, texts) 
+        })
                   
-      // The information required for the collection selection widget
+      // The information require for the collection selection widget
       val docsPerCollection = CollectionMemberships.listCollections.map(collection =>
         (collection, CollectionMemberships.countDocumentsInCollection(collection))) ++
         { if (unassigned.size > 0) Seq(("Other", unassigned.size)) else Seq.empty[(String, Int)] }
       
-      val groupedDocs = foldLanguageVersions(gdocs.sortBy(d => (d.date, d.author, d.title)))
+      val groupedDocs = foldLanguageVersions(gdocs)
             
       // Populate the correct template, depending on login state
       if (currentUser.isDefined && isAuthorized)      

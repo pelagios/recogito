@@ -22,17 +22,29 @@ trait GeoDocumentStats {
   def countParts()(implicit s: Session): Int =
     GeoDocumentParts.countForGeoDocument(id.get)
   
-  /** Total # of toponyms in the document, i.e. all that were not marked as 'false detection' **/
+  /** Total # of toponyms in the document, i.e. all that were not marked as 'false detection' or 'ignore' **/
   def countTotalToponyms()(implicit s: Session): Int =
     Annotations.countForGeoDocumentAndStatus(id.get, 
-        AnnotationStatus.VERIFIED, 
-        AnnotationStatus.NOT_VERIFIED, 
-        AnnotationStatus.AMBIGUOUS,
-        AnnotationStatus.NO_SUITABLE_MATCH,
-        AnnotationStatus.MULTIPLE,
-        AnnotationStatus.NOT_IDENTIFYABLE)
+      AnnotationStatus.VERIFIED, 
+      AnnotationStatus.NOT_VERIFIED, 
+      AnnotationStatus.AMBIGUOUS,
+      AnnotationStatus.NO_SUITABLE_MATCH,
+      AnnotationStatus.MULTIPLE,
+      AnnotationStatus.NOT_IDENTIFYABLE)
     
-  /** # of verified annotations in the document **/
+  /** # of verified (i.e. 'green') annotations in the document **/
+  def countVerifiedToponyms()(implicit s: Session): Int =
+    Annotations.countForGeoDocumentAndStatus(id.get, AnnotationStatus.VERIFIED)
+        
+  /** # of unidentifiable (i.e. 'yellow') annotations in the document **/
+  def countUnidentifiableToponyms()(implicit s: Session): Int =
+    Annotations.countForGeoDocumentAndStatus(id.get,
+      AnnotationStatus.AMBIGUOUS,
+      AnnotationStatus.NO_SUITABLE_MATCH,
+      AnnotationStatus.MULTIPLE,
+      AnnotationStatus.NOT_IDENTIFYABLE)
+    
+  /** # of unverified annotations in the document **/
   def countUnverifiedToponyms()(implicit s: Session): Int =
     Annotations.countForGeoDocumentAndStatus(id.get, AnnotationStatus.NOT_VERIFIED)
   
