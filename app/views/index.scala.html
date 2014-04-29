@@ -108,12 +108,15 @@
               @if(texts.size > 0) {
                 <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(texts.head.id, None)" title="Text Annotation">&#xf0f6;</a>
               } else {
-                <span class="icon disabled">&#xf0f6;</a>
+                <span class="icon disabled">&#xf0f6;</span>
               }
             }
             
             <!-- georesolution shortcut -->
             <a class="icon" href="@routes.ApplicationController.showGeoResolutionUI(doc.id.get)" title="Geo-Resolution">&#xf0ac;</a>
+            
+            <!-- CSV download shortcut -->
+            <a class="icon" href="@routes.DocumentController.get(doc.id.get, Some("csv"))" title="Download CSV">&#xf0ce;</a>
           </td>
         </tr>      	
       }
