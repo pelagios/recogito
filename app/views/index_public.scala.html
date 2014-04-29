@@ -124,11 +124,16 @@
           }     
           
           <!-- completion ratio -->
-          @defining(entries.map(_.percentComplete * 100).foldLeft(0.0)(_ + _) / entries.size) { completionRatio =>
-            <td class="stats" title="@{ "%.2f" format (completionRatio) } % Complete">
-              <div class="meter"><span style="width: @completionRatio%"></span></div>
-            </td>
-          }         
+          @defining(entries.map(_.percentComplete).foldLeft(0.0)(_ + _) / entries.size) { percentComplete =>
+            @defining(entries.map(_.percentVerified).foldLeft(0.0)(_ + _) / entries.size) { percentVerified =>
+              <td class="stats" title="@{ "%.2f" format (percentComplete * 100)} % Complete">
+                <div class="meter">
+                  <span class="yellow" style="width: @{percentComplete * 100}%"></span>
+                  <span class="green@if(percentComplete == percentVerified) { full}" style="width: @{percentVerified * 100}%"></span>
+                </div>
+              </td>
+            }         
+          }                 
           
           <!-- icons -->
           <td></td>
