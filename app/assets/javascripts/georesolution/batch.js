@@ -18,15 +18,17 @@ define(['georesolution/common'], function(common) {
           '<div class="clicktrap">' +
           '  <div class="popup">' +
           '    <div class="popup-header">' +
-          '     <span id="batch-header-title"></span>' +
-          '      <a class="popup-exit">&#xf00d;</a>' +
+          '      <span id="batch-header-title"></span>' +
+          '      <span class="popup-header-icons">' + 
+          '        <a class="popup-exit">&#xf00d;</a>' +
+          '      </span>' +
           '    </div>' +
           '    <div class="popup-content">' +
           '      <div class="popup-content-inner">' +
           '        <p><strong>Unique toponyms:</strong> <span id="batch-unique-toponyms"></span></p>' + 
           '        <p><strong>Unique gazetteer IDs:</strong> <span id="batch-unique-uris"></span></p>' + 
           '        <p><strong>Tags in Common:</strong></p>' + 
-          '        <div class="popup-tags">' +
+          '        <div class="tag-list">' +
           '        </div>' +      
           '      </div>' +
           '    </div>' +
@@ -46,7 +48,7 @@ define(['georesolution/common'], function(common) {
   
     // Tags
     var originalTags = commonTags(annotations);
-    var tagList = new common.TagList($('.popup-tags'), commonTags(annotations));  
+    var tagList = new common.TagList($('.tag-list'), commonTags(annotations));  
     
     tagList.on('update', function(updatedTags) {
       var diff = diffTags(originalTags, updatedTags);
@@ -68,7 +70,6 @@ define(['georesolution/common'], function(common) {
       });
       
       originalTags = updatedTags.slice();
-      
       self.fireEvent('update', annotations);
     });
   }

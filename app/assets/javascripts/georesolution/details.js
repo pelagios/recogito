@@ -29,7 +29,6 @@ define(['georesolution/common'], function(common) {
           '      </span>' +
           '    </div>' +
           '    <div class="popup-content">' +
-          
           '      <div id="details-content-topsection">' +
           '        <div id="details-map"></div>' +
           '        <div id="details-content-search">' +
@@ -41,7 +40,6 @@ define(['georesolution/common'], function(common) {
           '        <div id="details-content-placeinfo">' +
           '          <p id="details-content-automatch"></p>' +
           '          <p id="details-content-correction"></p>' +
-          
           '          <div id="details-content-status">' +
           '            <div class="status-button status-button-verified" title="Verified"><span class="icon">&#xf14a;</span></div>' +        
           '            <div class="status-button status-button-not-verified" title="Not Verified"><span class="icon">&#xf059;</span></div>' +     
@@ -55,7 +53,6 @@ define(['georesolution/common'], function(common) {
           '        </div>' +
           '        <div class="details-content-preview"></div>' +
           '      </div>' + // details-content-topsection
-          
           '      <div id="details-content-bottomsection">' +
           '        <table id="details-content-searchresults"></table>' +          
           '        <div id="details-content-tags">' +
@@ -71,7 +68,6 @@ define(['georesolution/common'], function(common) {
           '          <h3><span class="icon">&#xf040;</span>&nbsp;&nbsp;Edit History</h3>' +
           '        </div>' +
           '      </div>' + // details-content-bottomsection
-          
           '    </div>' + // popup-content
           '  </div>' + // details
           '</div>'; // clicktrap

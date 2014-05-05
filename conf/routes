@@ -29,7 +29,7 @@ PUT     /recogito/api/annotations/:id              controllers.AnnotationControl
 DELETE  /recogito/api/annotations/:id              controllers.AnnotationController.delete(id: java.util.UUID)
 GET     /recogito/api/annotations                  controllers.AnnotationController.forSource(ctsURI: String)
 POST    /recogito/api/annotations                  controllers.AnnotationController.create
-PUT     /recogito/api/annotations                  controllers.AnnotationController.updateBatch
+PUT     /recogito/api/annotations/                 controllers.AnnotationController.updateBatch
 
 # Search
 GET     /recogito/api/search/place                 controllers.SearchController.placeSearch(query: String)
