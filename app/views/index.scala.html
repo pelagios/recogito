@@ -169,6 +169,20 @@
       }
       
       <div id="document-list">
+        <div id="total-progress">
+          <div class="label">Total Collection Progress</div>
+          @defining(documents.flatMap(_._2).filter(e => !(e.percentComplete.isNaN() || e.percentVerified.isNaN()))) { entries =>
+          	@defining(entries.map(_.percentComplete).foldLeft(0.0)(_ + _) / entries.size) { percentComplete =>
+          	  @defining(entries.map(_.percentVerified).foldLeft(0.0)(_ + _) / entries.size) { percentVerified =>
+                <div class="meter" title="@{ "%.2f" format (percentComplete * 100)} % Complete">
+                  <span class="yellow" style="width:@{percentComplete * 100}%"></span>
+                  <span class="green@if(percentComplete == percentVerified) { full}" style="width: @{percentVerified * 100}%"></span>
+                </div>
+              }
+            }
+          }
+        </div>
+        
         <table class="index"> 
           <tbody>
             @for((extWorkId, docs) <- documents) {
