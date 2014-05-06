@@ -63,7 +63,7 @@ object DocumentController extends Controller with Secured {
     val id = doc.id.get
     val annotations = Annotations.findByGeoDocumentAndStatus(id, AnnotationStatus.VERIFIED)
     val serializer = new CSVSerializer()
-    Ok(serializer.serializeAnnotationsConsolidated(annotations))
+    Ok(serializer.serializeAnnotationsConsolidated(doc, annotations))
       .withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=" + doc.title.replace(" ", "_") + ".csv"))
   }
   

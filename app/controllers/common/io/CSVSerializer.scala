@@ -23,9 +23,19 @@ class CSVSerializer extends BaseSerializer {
     * @param annotations the annotations
     * @return the CSV
     */
-  def serializeAnnotationsConsolidated(annotations: Seq[Annotation])(implicit s: Session): String = {
+  def serializeAnnotationsConsolidated(gdoc: GeoDocument, annotations: Seq[Annotation])(implicit s: Session): String = {
+    val meta = {
+        Seq("title" -> gdoc.title) ++
+        Seq("author" -> gdoc.author,
+            "language" -> gdoc.language,
+            "date" -> gdoc.dateComment,
+            "description" -> gdoc.description,
+            "external ID" -> gdoc.externalWorkID).filter(_._2.isDefined).map(tuple => (tuple._1, tuple._2.get))
+      }.map(tuple => "# " + tuple._1 + ": " + tuple._2).mkString("\n")
+    
     val header = Seq("toponym","gazetteer_uri","lat","lng", "place_category", "document_part", "tags", "source").mkString(SEPARATOR) + SEPARATOR + "\n"
-    annotations.foldLeft(header)((csv, annotation) => {
+    
+    annotations.foldLeft(meta + "\n" + header)((csv, annotation) => {
       val uri = if (annotation.correctedGazetteerURI.isDefined && !annotation.correctedGazetteerURI.get.isEmpty) annotation.correctedGazetteerURI else annotation.gazetteerURI
       val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
       
