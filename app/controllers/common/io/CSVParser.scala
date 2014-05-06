@@ -159,29 +159,6 @@ class CSVParser extends BaseParser {
     }).toSeq
   }
   
-  /** TODO eliminate this method once we have integrated collection backup & restore with the overall ZIP export **/  
-  def parseCollectionMemberships(file: String)(implicit session: Session): Seq[CollectionMembership] = {
-    val data = Source.fromFile(file).getLines
-    val header = data.take(1).toSeq.head.split(SEPARATOR, -1).toSeq
-    
-    val idxTitle = idx(header, "gdoc_title")
-    val idxAuthor = idx(header, "gdoc_author")
-    val idxLang = idx(header, "gdoc_language")
-    val idxCollection = idx(header, "collection")
-    
-    data.map(_.split(SPLIT_REGEX, -1)).foldLeft(Seq.empty[CollectionMembership])((memberships, fields) => {
-      val doc = getDocument(
-        fields(idxTitle.get),
-        parseOptCol(idxAuthor, fields),
-        parseOptCol(idxLang, fields))
-        
-      if (doc.isDefined)
-        memberships :+ CollectionMembership(None, doc.get.id.get, fields(idxCollection.get))
-      else
-        memberships
-    })
-  }
-  
   /** Helper method to find the row index of a specific header label 
     *
     * @param header the CSV headers

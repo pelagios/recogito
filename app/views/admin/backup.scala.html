@@ -55,11 +55,6 @@
           <td><button class="icon" onclick="location.href='@controllers.admin.routes.BackupRestoreController.downloadStatsTimeline()'">&#xf019;</button></td>
           <td>Download Daily Stats Timeline (CSV)</td>
         </tr>
-        
-        <tr>
-          <td><button class="icon" onclick="location.href='@controllers.admin.routes.BackupRestoreController.downloadCollectionMemberships()'">&#xf019;</button></td>
-          <td>Download Collection Membership Data (CSV)</td>
-        </tr>
       </table>
       
       <h2>Upload to Database</h2>
@@ -116,20 +111,6 @@
           <td>
             @helper.form(action = controllers.admin.routes.BackupRestoreController.uploadStatsTimeline(), 'enctype -> "multipart/form-data") {
               <input type="file" id="upload-timeline" name="csv" accept=".csv">
-            }
-          </td>
-        </tr>
-        
-        <tr>
-          <td>
-            <button class="upload icon" data-input="upload-collections">&#xf093;</button>
-          </td>
-          <td>
-            Upload Collection Membership CSV
-          </td>
-          <td>
-            @helper.form(action = controllers.admin.routes.BackupRestoreController.uploadCollectionMemberships(), 'enctype -> "multipart/form-data") {
-              <input type="file" id="upload-collections" name="csv" accept=".csv">
             }
           </td>
         </tr>

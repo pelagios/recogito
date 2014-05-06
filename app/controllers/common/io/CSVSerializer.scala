@@ -72,26 +72,6 @@ class CSVSerializer extends BaseSerializer {
     })
   }
   
-  /** Serializes the collection membership table for backup purposes.
-    *  
-    * TODO eliminate this method once we have integrated collection backup & restore with the overall ZIP export  
-    *
-    * @param collectionMemberships the list of collection memberships  
-    */
-  def serializeCollectionMemberships(collectionMemberships: Seq[CollectionMembership])(implicit session: Session): String = {
-    val header = Seq("gdoc_title", "gdoc_author", "gdoc_language", "collection").mkString(SEPARATOR) + SEPARATOR + "\n"
-    
-    collectionMemberships.foldLeft(header)((csv, membership) => {
-      val doc = getDocument(membership.gdocId).get // Must exist, unless DB integrity is broken
-      
-      csv +
-      doc.title + SEPARATOR +
-      doc.author.getOrElse("") + SEPARATOR +
-      doc.language.getOrElse("") + SEPARATOR +
-      membership.collection + SEPARATOR + "\n"
-    })
-  }
-  
   /** Generates 'consolidated output' for public consumption.
     *
     * This version of the CSV data exposes *only* the verified annotations,
