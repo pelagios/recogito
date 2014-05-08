@@ -63,8 +63,12 @@ object DocumentController extends Controller with Secured {
     val id = doc.id.get
     val annotations = Annotations.findByGeoDocumentAndStatus(id, AnnotationStatus.VERIFIED)
     val serializer = new CSVSerializer()
+    
+    def escapeTitle(title: String) = 
+      title.replace(" ", "_").replace(",", "_")
+    
     Ok(serializer.serializeAnnotationsConsolidated(doc, annotations))
-      .withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=" + doc.title.replace(" ", "_") + ".csv"))
+      .withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=" + escapeTitle(doc.title) + ".csv"))
   }
   
   private def get_RDF(doc: GeoDocument, format: RDFFormat, basePath: String)(implicit session: Session) = {
