@@ -17,9 +17,10 @@
   
   <body>
     <div id="map"></div>
-    <div id="meta">
+    <div id="meta" class="overlay">
       <h1>@doc.author.map(_ + ": ").getOrElse("") @doc.title @doc.dateComment.map("(" + _ + ")").getOrElse("")</h1>
       @Html(doc.description.map("<p>" + _ + "</p>").getOrElse(""))
     </div>
+    <div id="beta-badge" class="overlay">BETA!</div>
   </body>
 </html>

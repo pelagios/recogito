@@ -5,20 +5,23 @@ html, body, #map {
   padding:0;
 }
 
-#meta {
+.overlay {
   position:absolute;
   background-color:#fff;
   padding:12px 14px;
-  bottom:20px;
-  left:20px;
   font-family:Arial, Sans, Verdana;
   font-size:12px;
   color:#000;
-  max-width:40%; 
   -moz-box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
   -webkit-box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
   box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
   border:1px solid #595959;
+}
+
+#meta {
+  bottom:20px;
+  left:20px;
+  max-width:40%; 
 }
       
 #meta h1 {
@@ -26,6 +29,22 @@ html, body, #map {
   padding:0;
   margin:0;
 }   
+
+#beta-badge {
+  top:14px;
+  left:60px;
+  height:16;
+  -moz-border-radius:5px;
+  -webkit-border-radius:5px;
+  -khtml-border-radius:5px;
+  border-width:1px;
+  border-radius:5px;
+  background-color:#fff000;
+  color:#333;
+  font-family:Arial, Sans;
+  font-size:16px;
+  font-weight:bold;
+}
 
 .publicmap-layerswitcher {
   position:absolute;
