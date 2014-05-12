@@ -21,7 +21,7 @@ object JSONSerializer {
     * @param a the annotation
     * @param includeContext whether to include fulltext context or not
     */
-  def toJson(a: Annotation, includePlaces: Boolean, includeContext: Boolean)(implicit session: Session): JsObject = {
+  def toJson(a: Annotation, includePlaces: Boolean, includeContext: Boolean)(implicit session: Session): JsObject = {    
     val toponym = if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym
     val offset = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
     val context = if (includeContext) { 
@@ -48,20 +48,15 @@ object JSONSerializer {
       None
     }
     
-    val source = if (includeContext) {
-                   if (a.gdocPartId.isDefined) {
-                     val part = GeoDocumentParts.findById(a.gdocPartId.get)
-                     part.map(_.source).flatten
-                   } else if (a.gdocId.isDefined) {
-                     val doc = GeoDocuments.findById(a.gdocId.get)
-                     doc.map(_.source).flatten
-                   } else {
-                     None
-                   }
-                 } else {
+    val source = if (a.source.isDefined)
+                   a.source
+                 else if (a.gdocPartId.isDefined)
+                   GeoDocumentParts.findById(a.gdocPartId.get).flatMap(_.source)
+                 else if (a.gdocId.isDefined)
+                   GeoDocuments.findById(a.gdocId.get).flatMap(_.source)
+                 else
                    None
-                 } 
-       
+
     Json.obj(
       "id" -> a.uuid.toString,
       "toponym" -> { if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym },

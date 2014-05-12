@@ -55,7 +55,6 @@ require(["georesolution/map", "georesolution/table", "georesolution/footer"], fu
     if (data.annotations) {
       $.each(data.annotations, function(idx, annotation) {
         annotation.idx = runningIdx;
-        annotation.source = data.source;
         annotation.part = "";
         annotations.push(annotation);
         runningIdx++;
@@ -64,7 +63,6 @@ require(["georesolution/map", "georesolution/table", "georesolution/footer"], fu
       $.each(data.parts, function(idx, part) {
         $.each(part.annotations, function(idx, annotation) {
           annotation.idx = runningIdx;
-          annotation.source = part.source;
           annotation.part = part.title;
           annotations.push(annotation);
           runningIdx++;
