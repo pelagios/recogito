@@ -14,8 +14,14 @@ define(['georesolution/common'], function(common) {
     common.HasEvents.call(this);
   
     var self = this,
-        baseLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
+        dareLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
           attribution: 'Tiles: <a href="http://imperium.ahlfeldt.se/">DARE 2014</a>'
+        }),
+        awmcLayer = L.tileLayer('http://a.tiles.mapbox.com/v3/isawnyu.map-knmctlkh/{z}/{x}/{y}.png', {
+          attribution: 'Tiles &copy; <a href="http://mapbox.com/" target="_blank">MapBox</a> | ' +
+                       'Data &copy; <a href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> and contributors, CC-BY-SA | '+
+                       'Tiles and Data &copy; 2013 <a href="http://www.awmc.unc.edu" target="_blank">AWMC</a> ' +
+                       '<a href="http://creativecommons.org/licenses/by-nc/3.0/deed.en_US" target="_blank">CC-BY-NC 3.0</a>'
         }),
         selector_template = 
           '<div class="map-selector">' +
@@ -24,10 +30,14 @@ define(['georesolution/common'], function(common) {
     this._map = new L.Map(mapDiv, {
       center: new L.LatLng(41.893588, 12.488022),
       zoom: 5,
-      layers: [baseLayer],
+      layers: [dareLayer],
       minZoom: 3,
       maxZoom: 11
     });
+    
+    var baseLayers = { 'Empty Base Map (<a href="http://awmc.unc.edu/wordpress/tiles/map-tile-information" target="_blank">AWMC</a>)': awmcLayer, 
+                       'Roman Empire Base Map (<a href="http://imperium.ahlfeldt.se/" target="_blank">DARE</a>)': dareLayer };
+    this._map.addControl(new L.Control.Layers(baseLayers, null, { position: 'topleft' }));
 
     // List of current EGD parts
     // [{ name: { visible: true | false, tags: [ { name: ..., visible: true | false }] }]
