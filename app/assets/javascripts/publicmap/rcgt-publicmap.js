@@ -14,7 +14,7 @@ recogito.PublicMap = function(mapDiv, dataURL) {
       });
       bingLayer = new L.BingLayer("Au8CjXRugayFe-1kgv1kR1TiKwUhu7aIqQ31AjzzOQz0DwVMjkF34q5eVgsLU5Jn"),
       gdocpart_switcher_template = 
-        '<div class="publicmap-layerswitcher">' +
+        '<div class="publicmap-layerswitcher publicmap-infobox ">' +
         '  <div class="publicmap-layerswitcher-all">' +
         '    <table>' +
         '      <tr>' + 
@@ -54,7 +54,11 @@ recogito.PublicMap = function(mapDiv, dataURL) {
       layerGroup.addTo(self._map);
       $.each(data.annotations, function(annotationIdx, annotation) {
         self.addPlaceMarker(annotation, layerGroup);
-      });     
+      });    
+      
+      var legend = $(legend_template);
+      legend.addClass('publicmap-infobox');
+      legend.appendTo(mapDiv); 
     } else { 
       var layers = '<table>' +
                  '  <tr class="table-header"><td></td><td>Title</td><td># Toponyms</td><td></td>';

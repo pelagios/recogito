@@ -64,7 +64,7 @@ html, body, #map {
   border-style:solid;
 }
 
-.publicmap-layerswitcher {
+.publicmap-infobox {
   position:absolute;
   top:20px;
   right:20px;
@@ -77,26 +77,26 @@ html, body, #map {
   border:1px solid #595959;
 }
 
-.publicmap-layerswitcher table {
+.publicmap-infobox table {
   margin:0px 14px;
   padding:10px 0px;
 }
 
-.publicmap-layerswitcher .table-header td {
+.publicmap-infobox .table-header td {
   font-weight:bold;
   padding-bottom:5px;
 }
 
-.publicmap-layerswitcher td {
+.publicmap-infobox td {
   font-size:12px;
   padding-right:4px;
 }
 
-.publicmap-layerswitcher td a {
+.publicmap-infobox td a {
   color:#555;
 }
 
-.publicmap-layerswitcher .part-title {
+.publicmap-infobox .part-title {
   padding:2px 8px 0px 8px; 
   margin:2px 0px 4px 0px;
   display:inline-block;
@@ -106,7 +106,7 @@ html, body, #map {
   border-radius:3px;
 }
 
-.publicmap-layerswitcher .centered {
+.publicmap-infobox .centered {
   text-align:center;
 }
 
