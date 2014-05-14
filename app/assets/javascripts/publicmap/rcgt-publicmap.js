@@ -14,7 +14,9 @@ recogito.PublicMap = function(mapDiv, dataURL) {
       });
       bingLayer = new L.BingLayer("Au8CjXRugayFe-1kgv1kR1TiKwUhu7aIqQ31AjzzOQz0DwVMjkF34q5eVgsLU5Jn"),
       gdocpart_switcher_template = 
-        '<div class="publicmap-layerswitcher publicmap-infobox ">' +
+        '<div class="publicmap-infobox ">' +
+        '  <div class="publicmap-layerswitcher">' +
+        '  </div>' +
         '  <div class="publicmap-layerswitcher-all">' +
         '    <table>' +
         '      <tr>' + 
@@ -85,7 +87,7 @@ recogito.PublicMap = function(mapDiv, dataURL) {
       layers += '</table>';
     
       var layer_switcher = $(gdocpart_switcher_template);
-      layer_switcher.prepend(layers);
+      layer_switcher.find('.publicmap-layerswitcher').append(layers);
       layer_switcher.prepend($(legend_template));
       layer_switcher.appendTo(mapDiv);
     

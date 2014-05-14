@@ -110,6 +110,11 @@ html, body, #map {
   text-align:center;
 }
 
+.publicmap-layerswitcher {
+  max-height:400px;
+  overflow-y:scroll;
+}
+
 .publicmap-layerswitcher-all {
   background-color:#ddd;
   border-top:1px solid #ccc;
