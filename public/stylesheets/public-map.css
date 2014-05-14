@@ -46,6 +46,24 @@ html, body, #map {
   font-weight:bold;
 }
 
+.legend {
+  background-color:#ddd;
+  border-bottom:1px solid #ccc;
+}
+
+.legend .dot {
+  display:block;
+  width:8px;
+  height:8px;
+  -moz-border-radius:10px;
+  -webkit-border-radius:10px;
+  -khtml-border-radius:10px;
+  border-radius:10px;
+  margin:0 10px 0 3px;
+  border-width:2px;
+  border-style:solid;
+}
+
 .publicmap-layerswitcher {
   position:absolute;
   top:20px;
@@ -61,7 +79,7 @@ html, body, #map {
 
 .publicmap-layerswitcher table {
   margin:0px 14px;
-  padding:12px 0px;
+  padding:10px 0px;
 }
 
 .publicmap-layerswitcher .table-header td {
@@ -79,7 +97,6 @@ html, body, #map {
 }
 
 .publicmap-layerswitcher .part-title {
-  color:#fff;
   padding:2px 8px 0px 8px; 
   margin:2px 0px 4px 0px;
   display:inline-block;

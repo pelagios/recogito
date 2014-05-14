@@ -13,16 +13,26 @@ recogito.PublicMap = function(mapDiv, dataURL) {
                      '<a href="http://creativecommons.org/licenses/by-nc/3.0/deed.en_US" target="_blank">CC-BY-NC 3.0</a>'
       });
       bingLayer = new L.BingLayer("Au8CjXRugayFe-1kgv1kR1TiKwUhu7aIqQ31AjzzOQz0DwVMjkF34q5eVgsLU5Jn"),
-      layer_switcher_template = 
+      gdocpart_switcher_template = 
         '<div class="publicmap-layerswitcher">' +
         '  <div class="publicmap-layerswitcher-all">' +
         '    <table>' +
         '      <tr>' + 
-        '        <td><input type="checkbox" checked="true" class="switch-all"></input></td>' +
+        '        <td><input type="checkbox" checked="checked" class="switch-all" /></td>' +
         '        <td>All</td>'
         '      </tr>' +
         '    </table>' +
-        '  </div>' +
+        '  </div>' + 
+        '</div>',
+      legend_template = 
+        '<div class="legend">' +
+        '  <table>' +
+        '    <tr><td><span class="dot" style="background-color:' + this.ColorPalette.getLightColor(0) + "; border-color:" + this.ColorPalette.getDarkColor(0) + ';"></span></td><td>Settlement</td></tr>' +
+        '    <tr><td><span class="dot" style="background-color:' + this.ColorPalette.getLightColor(1) + "; border-color:" + this.ColorPalette.getDarkColor(1) + ';"></span></td><td>Region</td></tr>' +
+        '    <tr><td><span class="dot" style="background-color:' + this.ColorPalette.getLightColor(2) + "; border-color:" + this.ColorPalette.getDarkColor(2) + ';"></span></td><td>Natural Feature</td></tr>' +
+        '    <tr><td><span class="dot" style="background-color:' + this.ColorPalette.getLightColor(4) + "; border-color:" + this.ColorPalette.getDarkColor(4) + ';"></span></td><td>Artifical Structure</td></tr>' +
+        '    <tr><td><span class="dot" style="background-color:' + this.ColorPalette.getLightColor(5) + "; border-color:" + this.ColorPalette.getDarkColor(5) + ';"></span></td><td>Ethnos</td></tr>' +
+        '  </table>' +
         '</div>';
         
   this._map = new L.Map(mapDiv, {
@@ -39,13 +49,11 @@ recogito.PublicMap = function(mapDiv, dataURL) {
   
   // Fetch JSON data
   $.getJSON(dataURL, function(data) {
-    var palette = new recogito.ColorPalette();
-    
     if (data.annotations) {
       var layerGroup = L.layerGroup();
       layerGroup.addTo(self._map);
       $.each(data.annotations, function(annotationIdx, annotation) {
-        self.addPlaceMarker(annotation, layerGroup, palette.getDarkColor(0), palette.getLightColor(0));
+        self.addPlaceMarker(annotation, layerGroup);
       });     
     } else { 
       var layers = '<table>' +
@@ -55,7 +63,7 @@ recogito.PublicMap = function(mapDiv, dataURL) {
       $.each(data.parts, function(partIdx, part) {
         layers += '<tr>' +
                     '<td><input type="checkbox" checked="true" data-part="' + partIdx + '" class="switch"></input></td>' +
-                    '<td class="part-title" style="background-color:' + palette.getDarkColor(partIdx) + '">' + part.title + '</td>' +
+                    '<td class="part-title">' + part.title + '</td>' +
                     '<td class="centered">' + part.annotations.length + '</td>';
         if (part.source)
           layers += '<td><a href="' + part.source + '" target="_blank">Text Online</a></td>';
@@ -67,13 +75,14 @@ recogito.PublicMap = function(mapDiv, dataURL) {
         layerGroups.push(layerGroup);
       
         $.each(part.annotations, function(annotationIdx, annotation) {
-          self.addPlaceMarker(annotation, layerGroup, palette.getDarkColor(partIdx), palette.getLightColor(partIdx));
+          self.addPlaceMarker(annotation, layerGroup);
         });
       });
       layers += '</table>';
     
-      var layer_switcher = $(layer_switcher_template);
+      var layer_switcher = $(gdocpart_switcher_template);
       layer_switcher.prepend(layers);
+      layer_switcher.prepend($(legend_template));
       layer_switcher.appendTo(mapDiv);
     
       layer_switcher.on('change', '.switch', function(e) {
@@ -100,8 +109,9 @@ recogito.PublicMap = function(mapDiv, dataURL) {
   
 }
 
-recogito.PublicMap.prototype.addPlaceMarker = function(annotation, layerGroup, stroke, fill) {
-  var popupTemplate = 
+recogito.PublicMap.prototype.addPlaceMarker = function(annotation, layerGroup) {
+  var self = this,
+      popupTemplate = 
     '<div class="publicmap-popup">' + 
     '  <span class="toponym">»{{toponym}}«</span> ({{title}})' +
     '  <p class="context">{{context}}</p>' +
@@ -143,7 +153,21 @@ recogito.PublicMap.prototype.addPlaceMarker = function(annotation, layerGroup, s
   
   if (annotation.status == 'VERIFIED') {
     var place = (annotation.place_fixed) ? annotation.place_fixed : annotation.place;
+    
     if (place && place.coordinate) {
+      var colIdx = 0;
+      if (place.category == 'REGION')
+        colIdx = 1;
+      else if (place.category == 'ETHNOS')
+        colIdx = 5;
+      else if (place.category == 'NATURAL_FEATURE')
+        colIdx = 2;
+      else if (place.category == 'MAN_MADE_STRUCTURE')
+        colIdx = 4;
+
+      var stroke = self.ColorPalette.getDarkColor(colIdx),
+          fill = self.ColorPalette.getLightColor(colIdx);
+        
       var style = { color: stroke, fillColor:fill, radius: 4, weight:2, opacity:1, fillOpacity: 1 }
       var marker = L.circleMarker(place.coordinate, style);
       marker.on('click', function() { loadDetails(annotation.id, marker); });
@@ -152,17 +176,15 @@ recogito.PublicMap.prototype.addPlaceMarker = function(annotation, layerGroup, s
   }
 }
 
-recogito.ColorPalette = function() {
-  this.dark = [ '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf' ];
-  this.light = [ '#aec7e8', '#ffbb78', '#98df8a', '#ff9896', '#c5b0d5', '#c49c94', '#f7b6d2', '#c7c7c7', '#dbdb8d', '#9edae5' ];
+recogito.PublicMap.prototype.ColorPalette = {
+  
+  _dark: [ '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf' ],  
+  
+  _light: [ '#aec7e8', '#ffbb78', '#98df8a', '#ff9896', '#c5b0d5', '#c49c94', '#f7b6d2', '#c7c7c7', '#dbdb8d', '#9edae5' ],
+  
+  getDarkColor: function(idx) { return this._dark[idx % this._dark.length]; },
+  
+  getLightColor: function(idx) { return this._light[idx % this._light.length] }
+  
 }
-
-recogito.ColorPalette.prototype.getDarkColor = function(idx) {
-  return this.dark[idx % this.dark.length];
-}
-
-recogito.ColorPalette.prototype.getLightColor = function(idx) {
-  return this.light[idx % this.light.length]
-}
-
 
