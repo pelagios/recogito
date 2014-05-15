@@ -147,7 +147,9 @@
       
       <div id="document-list">
         <div id="total-progress">
-          <div class="label">Total Collection Progress</div>
+          <div class="label">
+            @{ documents.flatMap(_._2).foldLeft(0)((total, entry) => total + entry.total) } Toponyms Total
+          </div>
           @defining(documents.flatMap(_._2).filter(e => !(e.percentComplete.isNaN() || e.percentVerified.isNaN()))) { entries =>
           	@defining(entries.map(_.percentComplete).foldLeft(0.0)(_ + _) / entries.size) { percentComplete =>
           	  @defining(entries.map(_.percentVerified).foldLeft(0.0)(_ + _) / entries.size) { percentVerified =>
