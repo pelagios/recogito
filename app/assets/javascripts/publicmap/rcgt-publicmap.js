@@ -50,6 +50,9 @@ recogito.PublicMap = function(mapDiv, dataURL) {
   this._map.addControl(new L.Control.Layers(baseLayers, null, { position: 'topleft' }));
   
   // Fetch JSON data
+  var loadIndicator = new recogito.LoadIndicator();
+  loadIndicator.show();
+  
   $.getJSON(dataURL, function(data) {
     if (data.annotations) {
       var layerGroup = L.layerGroup();
@@ -61,6 +64,8 @@ recogito.PublicMap = function(mapDiv, dataURL) {
       var legend = $(legend_template);
       legend.addClass('publicmap-infobox');
       legend.appendTo(mapDiv); 
+      
+      loadIndicator.hide();
     } else { 
       var layers = '<table>' +
                  '  <tr class="table-header"><td></td><td>Title</td><td># Toponyms</td><td></td>';
@@ -104,6 +109,8 @@ recogito.PublicMap = function(mapDiv, dataURL) {
         var checked = $(e.target).prop('checked');
         $('.switch').prop('checked', checked).trigger('change');
       });
+      
+      loadIndicator.hide();
     }
   });
   
@@ -192,5 +199,38 @@ recogito.PublicMap.prototype.ColorPalette = {
   
   getLightColor: function(idx) { return this._light[idx % this._light.length] }
   
+}
+
+/**
+ * The load indicator, backed by a plain old DIV. Will
+ * be hidden after creation.
+ * @constructor
+ */
+recogito.LoadIndicator = function() {
+  this.element = document.createElement('div');
+  this.element.className = 'load-indicator';
+  this.element.style.visibility = 'hidden';
+  this._deferredIndicator;
+  document.body.appendChild(this.element);
+}
+
+/**
+ * Shows the load indicator.
+ */
+recogito.LoadIndicator.prototype.show = function() {
+  var self = this;
+  this._deferredIndicator = setTimeout(function() {
+    self.element.style.visibility = 'visible';
+    delete self._deferredIndicator;
+  }, 200); 
+}
+
+/**
+ * Hides the load indicator.
+ */
+recogito.LoadIndicator.prototype.hide = function() {
+  if (this._deferredIndicator)
+    clearTimeout(this._deferredIndicator);
+  this.element.style.visibility = 'hidden';
 }
 

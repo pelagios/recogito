@@ -144,3 +144,23 @@ html, body, #map {
 .publicmap-popup .link {
   padding:0;
 } 
+
+.load-indicator {
+  margin:auto;
+  position:absolute;
+  top:0;
+  right:0;
+  bottom:0;
+  left:0;
+  width:240px;
+  height:120px;
+  background:url('../images/load.gif');
+  background-repeat:no-repeat;
+  background-position:center;
+  background-color:rgba(255, 255, 255, 0.8);
+  border:1px solid #fff;
+  -moz-border-radius: 8px;
+  -webkit-border-radius: 8px;
+  -khtml-border-radius: 8px;
+  border-radius: 8px;
+}
