@@ -1,0 +1,11 @@
+@()(implicit request: RequestHeader)
+
+@defining(request.headers.get("User-Agent").map(_.toLowerCase)) { userAgent =>
+  @if(userAgent.isDefined && (userAgent.get.contains("msie 8.0") || userAgent.get.contains("msie 7.0"))) {
+    <div class="browser-warning">
+      <strong>You are using an outdated Browser!</strong><br/>
+      Recogito requires an up-to-date browser, such as recent versions of <a href="http://www.mozilla.org/firefox">Firefox</a>, 
+      <a href="http://www.google.com/chrome/">Chrome</a> or <a href="http://www.apple.com/safari">Safari</a> for full functionality.
+    </div>
+  }
+}

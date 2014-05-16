@@ -1,4 +1,4 @@
-@(documents: Seq[(Option[String], Seq[GDocIndexEntry])], collections: Seq[(String, Int)], currentCollection: String)
+@(documents: Seq[(Option[String], Seq[GDocIndexEntry])], collections: Seq[(String, Int)], currentCollection: String)(implicit request: RequestHeader)
 
 @import tags.lang
 
@@ -26,6 +26,7 @@
   </head>
   
   <body>
+    @tags.browser_warning()
     <div id="header">
       <div id="header-top">
         <div id="title">
