@@ -8,14 +8,10 @@ import play.api.libs.json.{ Json, JsObject }
 import play.api.Play.current
 import org.openrdf.rio.RDFFormat
 import org.pelagios.Scalagios
-import org.pelagios.api.{ Annotation => OAnnotation }
+import org.pelagios.api.annotation.{ AnnotatedThing, Annotation => OAnnotation, Transcription, TranscriptionType, SpecificResource }
 import java.io.ByteArrayOutputStream
-import org.pelagios.api.AnnotatedThing
 import play.api.Logger
-import org.pelagios.api.selectors.TextOffsetSelector
-import org.pelagios.api.Transcription
-import org.pelagios.api.TranscriptionType
-import org.pelagios.api.SpecificResource
+import org.pelagios.api.annotation.selector.TextOffsetSelector
 
 /** GeoDocument JSON API.
   *

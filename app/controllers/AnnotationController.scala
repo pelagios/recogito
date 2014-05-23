@@ -11,9 +11,10 @@ import play.api.Logger
 import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.{JsArray, JsObject }
 import play.api.mvc.AnyContent
-import org.pelagios.api.{ Agent, AnnotatedThing, Transcription, TranscriptionType, SpecificResource }
-import org.pelagios.api.{ Annotation => OAnnotation }
-import org.pelagios.api.selectors.TextOffsetSelector
+import org.pelagios.api.Agent
+import org.pelagios.api.annotation.{ AnnotatedThing, Transcription, TranscriptionType, SpecificResource }
+import org.pelagios.api.annotation.{ Annotation => OAnnotation }
+import org.pelagios.api.annotation.selector.TextOffsetSelector
 import org.pelagios.Scalagios
 import org.pelagios.gazetteer.Network
 import org.openrdf.rio.RDFFormat
@@ -63,7 +64,7 @@ object AnnotationController extends Controller with Secured {
         if (errorMsg.isDefined)
           BadRequest(Json.parse(errorMsg.get))
         else
-            Ok(Json.parse("{ \"success\": true }"))
+          Ok(Json.parse("{ \"success\": true }"))
       } else {
         val json = body.get.as[JsObject]
         try {

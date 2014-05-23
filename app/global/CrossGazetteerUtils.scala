@@ -1,7 +1,7 @@
 package global
 
 import org.pelagios.gazetteer.GazetteerUtils
-import org.pelagios.api.Place
+import org.pelagios.api.gazetteer.Place
 import com.vividsolutions.jts.geom.Coordinate
 
 /**

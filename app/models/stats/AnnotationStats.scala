@@ -2,7 +2,7 @@ package models.stats
 
 import global.Global
 import models.Annotation
-import org.pelagios.api.{ Place, PlaceCategory }
+import org.pelagios.api.gazetteer.{ Place, PlaceCategory }
 import org.pelagios.gazetteer.GazetteerUtils
 import play.api.Logger
 

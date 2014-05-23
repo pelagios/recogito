@@ -123,8 +123,8 @@ object JSONSerializer {
       Some(Json.obj(
         "uri" -> p.uri,
         "title" -> p.title,
-        "description" -> p.descriptions.map(_.label).mkString(", "),
-        "names" -> p.names.map(_.label).mkString(", "),
+        "description" -> p.descriptions.map(_.chars).mkString(", "),
+        "names" -> p.names.map(_.chars).mkString(", "),
         "category" -> p.category.map(_.toString),
         "coordinate" -> place.get._2.map(coords => Json.toJson(Seq(coords.y, coords.x)))
       ))      

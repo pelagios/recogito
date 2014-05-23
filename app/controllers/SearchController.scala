@@ -5,10 +5,7 @@ import play.api.db.slick._
 import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.Json
 import play.api.Play.current
-import models.{ Annotation, Annotations, AnnotationStatus }
-import org.pelagios.gazetteer.PlaceDocument
 import org.pelagios.gazetteer.Network
-import org.pelagios.api.Place
 
 /** Toponym search API controller.
   *
@@ -29,8 +26,8 @@ object SearchController extends Controller {
     Ok(Json.obj("query" -> query, "results" -> results.map(place => Json.obj(
         "uri" -> place.uri,
         "title" -> place.title,
-        "names" -> place.names.map(_.label).mkString(", "),
-        "description" -> place.descriptions.map(_.label).mkString(", "),
+        "names" -> place.names.map(_.chars).mkString(", "),
+        "description" -> place.descriptions.map(_.chars).mkString(", "),
         "category" -> place.category.map(_.toString),
         "coordinate" -> place.getCentroid.map(coords => Json.toJson(Seq(coords.y, coords.x)))))))
   }
