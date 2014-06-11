@@ -35,7 +35,7 @@ object ZipImporter {
     metafiles.foreach(metafile => {
       Logger.info("Importing " + metafile)
             
-      val json = Json.parse(Source.fromInputStream(zipFile.getInputStream(metafile)).getLines.mkString("\n"))
+      val json = Json.parse(Source.fromInputStream(zipFile.getInputStream(metafile), UTF8).getLines.mkString("\n"))
       
       val docExtWorkID = (json \ "ext_work_id").as[Option[String]]
       val docAuthor = (json \ "author").as[Option[String]]
