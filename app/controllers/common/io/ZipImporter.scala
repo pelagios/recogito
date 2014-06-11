@@ -25,7 +25,7 @@ object ZipImporter {
     * @param zipFile the ZIP file
     */
   def importZip(zipFile: ZipFile)(implicit s: Session) = {
-    val entries = zipFile.entries.asScala.toSeq
+    val entries = zipFile.entries.asScala.toSeq.filter(!_.getName.startsWith("__MACOSX"))
  
     // We can have multiple JSON files in the Zip, one per document
     val metafiles= entries.filter(_.getName.endsWith(".json"))
@@ -96,7 +96,7 @@ object ZipImporter {
   }
   
   def validateZip(zipFile: ZipFile): Seq[String] = {
-    val entries = zipFile.entries.asScala.toSeq
+    val entries = zipFile.entries.asScala.toSeq.filter(!_.getName.startsWith("__MACOSX"))
  
     // We can have multiple JSON files in the Zip, one per document
     val metafiles = entries.filter(_.getName.endsWith(".json"))
