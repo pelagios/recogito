@@ -37,7 +37,16 @@ case class GeoDocument(
     description: Option[String] = None, 
     
     /** Online or bibliographic source from where the text was obtained **/
-    source: Option[String] = None) extends GeoDocumentStats
+    source: Option[String] = None,
+    
+    /** The geographical origin of the source (gazetteer URI) **/
+    origin: Option[String] = None,
+    
+    /** The findspot of the document or source (gazetteer URI) **/
+    findspot: Option[String] = None,
+    
+    /** A geographical location associated with the author (gazetteer URI) **/
+    authorLocation: Option[String]) extends GeoDocumentStats
 
 /** Geospatial Documents database table **/
 class GeoDocuments(tag: Tag) extends Table[GeoDocument](tag, "gdocuments") {
@@ -60,10 +69,16 @@ class GeoDocuments(tag: Tag) extends Table[GeoDocument](tag, "gdocuments") {
   
   def source = column[String]("source", O.Nullable)
   
+  def origin = column[String]("geo_origin", O.Nullable)
+  
+  def findspot = column[String]("geo_findspot", O.Nullable)
+  
+  def authorLocation = column[String]("geo_author_location", O.Nullable)
+  
   def _collections = column[String]("collections", O.Nullable)
 
   def * = (id.?, externalWorkID.?, author.?, title, date.?, dateComment.?, language.?,
-    description.?, source.?) <> (GeoDocument.tupled, GeoDocument.unapply)
+    description.?, source.?, origin.?, findspot.?, authorLocation.?) <> (GeoDocument.tupled, GeoDocument.unapply)
     
 }
     

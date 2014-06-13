@@ -45,6 +45,9 @@ object ZipImporter {
       val docLanguage = (json \ "language").as[Option[String]]
       val docDescription = (json \ "description").as[Option[String]]
       val docSource = (json \ "source").as[Option[String]]
+      val docOrigin = (json \ "origin").as[Option[String]]
+      val docFindspot = (json \ "findspot").as[Option[String]]
+      val docAuthorLocation = (json \ "author_location").as[Option[String]]
       val docCollections = (json \ "collections").as[Option[Seq[String]]]
       
       val docText = (json \ "text").as[Option[String]]
@@ -54,7 +57,8 @@ object ZipImporter {
       // Insert the document
       Logger.info("... document")
       val gdocId = GeoDocuments.insert(
-        GeoDocument(None, docExtWorkID, docAuthor, docTitle, docDate, docDateComment, docLanguage, docDescription, docSource))
+        GeoDocument(None, docExtWorkID, docAuthor, docTitle, docDate, docDateComment,
+          docLanguage, docDescription, docSource, docOrigin, docFindspot, docAuthorLocation))
         
       // Assign to collections, if any
       if (docCollections.isDefined)
