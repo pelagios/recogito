@@ -16,6 +16,7 @@ html, body, #map {
   -webkit-box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
   box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
   border:1px solid #595959;
+  z-index:999; /* Needed for IE */
 }
 
 #meta {
@@ -123,6 +124,7 @@ html, body, #map {
 .publicmap-popup {
   font-family:"Times New Roman", Times, serif;
   font-size:14px;
+  z-index:999; /* Needed for IE */
 }
 
 .publicmap-popup .toponym {
@@ -163,4 +165,5 @@ html, body, #map {
   -webkit-border-radius: 8px;
   -khtml-border-radius: 8px;
   border-radius: 8px;
+  z-index:999; /* Needed for IE */
 }

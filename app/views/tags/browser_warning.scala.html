@@ -1,7 +1,7 @@
 @()(implicit request: RequestHeader)
 
 @defining(request.headers.get("User-Agent").map(_.toLowerCase)) { userAgent =>
-  @if(userAgent.isDefined && (userAgent.get.contains("msie"))) {
+  @if(userAgent.isDefined && (userAgent.get.contains("msie") || (userAgent.get.contains("trident") && userAgent.get.contains("rv:")))) {
     <div class="browser-warning">
       <strong>Internet Explorer Warning</strong><br/>
       Recogito is not fully compatible with Internet Explorer. Please use a recent version of <a href="http://www.mozilla.org/firefox">Firefox</a>, 
