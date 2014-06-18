@@ -70,7 +70,7 @@ object DocumentController extends Controller with Secured {
       title.replace(" ", "_").replace(",", "_")
     
     Ok(serializer.serializeAnnotationsConsolidated(doc, annotations))
-      .withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=" + escapeTitle(doc.title) + ".csv"))
+      .withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=" + escapeTitle(doc.title) + doc.language.map("_" + _).getOrElse("") + ".csv"))
   }
   
   private def get_RDF(doc: GeoDocument, format: RDFFormat, basePath: String)(implicit session: Session) = {
