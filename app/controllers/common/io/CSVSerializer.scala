@@ -39,23 +39,19 @@ class CSVSerializer extends BaseSerializer {
       val uri = if (annotation.correctedGazetteerURI.isDefined && !annotation.correctedGazetteerURI.get.isEmpty) annotation.correctedGazetteerURI else annotation.gazetteerURI
       val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
       
-      if (uri.isDefined && !uri.get.isEmpty) {
-        val queryResult = CrossGazetteerUtils.getPlace(uri.get)
-        val category = queryResult.map(_._1.category).flatten
-        val coord = queryResult.map(_._2).flatten
+      val queryResult = uri.flatMap(CrossGazetteerUtils.getPlace(_))
+      val category = queryResult.flatMap(_._1.category)
+      val coord = queryResult.flatMap(_._2)
         
-        csv + 
-        esc(toponym.getOrElse("")) + SEPARATOR + 
-        GazetteerUtils.normalizeURI(uri.get) + SEPARATOR + 
-        coord.map(_.y).getOrElse("") + SEPARATOR +
-        coord.map(_.x).getOrElse("") + SEPARATOR +
-        category.map(_.toString).getOrElse("") + SEPARATOR +
-        annotation.gdocPartId.map(getPart(_).map(_.title)).flatten.getOrElse("") + SEPARATOR +
-        { if (annotation.tags.size > 0) "\"" + annotation.tags.mkString(",") + "\"" else "" } + SEPARATOR + 
-        getSourceForAnnotation(annotation).getOrElse("") + SEPARATOR + "\n"
-      } else {
-        csv
-      }
+      csv + 
+      esc(toponym.getOrElse("")) + SEPARATOR + 
+      uri.map(uri => GazetteerUtils.normalizeURI(uri)).getOrElse("") + SEPARATOR + 
+      coord.map(_.y).getOrElse("") + SEPARATOR +
+      coord.map(_.x).getOrElse("") + SEPARATOR +
+      category.map(_.toString).getOrElse("") + SEPARATOR +
+      annotation.gdocPartId.map(getPart(_).map(_.title)).flatten.getOrElse("") + SEPARATOR +
+      { if (annotation.tags.size > 0) "\"" + annotation.tags.mkString(",") + "\"" else "" } + SEPARATOR + 
+      getSourceForAnnotation(annotation).getOrElse("") + SEPARATOR + "\n"
     })
   }
   

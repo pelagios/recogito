@@ -32,7 +32,7 @@ object DocumentController extends Controller with Secured {
     Ok(Json.toJson(documents))
   }
 
-  /** Returns the JSON data for a specific document in the specified format.
+  /** Returns the data for a specific document in the specified format.
     *
     * The format parameter supports either 'json' or 'csv' (case-insensitive). If
     * neither is provided, or no format is provided at all, the format defaults to
@@ -57,7 +57,13 @@ object DocumentController extends Controller with Secured {
   
   private def get_CSV(doc: GeoDocument)(implicit session: Session) = {
     val id = doc.id.get
-    val annotations = Annotations.findByGeoDocumentAndStatus(id, AnnotationStatus.VERIFIED)
+    val annotations = Annotations.findByGeoDocumentAndStatus(id, 
+      AnnotationStatus.VERIFIED, 
+      AnnotationStatus.AMBIGUOUS,
+      AnnotationStatus.NO_SUITABLE_MATCH,
+      AnnotationStatus.MULTIPLE,
+      AnnotationStatus.NOT_IDENTIFYABLE)
+      
     val serializer = new CSVSerializer()
     
     def escapeTitle(title: String) = 
