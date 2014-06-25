@@ -6,7 +6,7 @@ to Recogito on the Pelagios project blog [here](http://pelagios-project.blogspot
 
 ## Installation
 
-* Recogito requires Java 1.7 to be installed on your machine.
+* Recogito requires Java 1.7 installed on your machine.
 * Install the [Play Framework v2.2.2](http://www.playframework.com/download). This should normally be a matter of downloading and unzipping the
   _classic_ distribution. (No need to use the version packaged with the _Typesafe Activator_.)
 * Recogito depends on the _scalagios-core_ and _scalagios-gazetteer_ utility libraries from the [Scalagios](http://github.com/pelagios/scalagios)
