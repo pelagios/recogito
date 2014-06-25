@@ -6,6 +6,8 @@ import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.Json
 import play.api.Play.current
 import org.pelagios.gazetteer.Network
+import play.api.Logger
+import net.sf.junidecode.Junidecode
 
 /** Toponym search API controller.
   *

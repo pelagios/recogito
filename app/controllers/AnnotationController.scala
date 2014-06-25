@@ -17,7 +17,6 @@ import org.pelagios.api.annotation.{ Annotation => OAnnotation }
 import org.pelagios.api.annotation.selector.TextOffsetSelector
 import org.pelagios.Scalagios
 import org.pelagios.gazetteer.Network
-import org.openrdf.rio.RDFFormat
 import play.api.db.slick._
 import play.api.Play.current
 
@@ -232,7 +231,7 @@ object AnnotationController extends Controller with Secured {
     })
 
     val out = new ByteArrayOutputStream()
-    Scalagios.writeAnnotations(Seq(thing), out, RDFFormat.RDFXML)
+    Scalagios.writeAnnotations(Seq(thing), out, Scalagios.RDFXML)
     Ok(new String(out.toString(UTF8))).withHeaders(CONTENT_TYPE -> "application/rdf+xml", CONTENT_DISPOSITION -> ("attachment; filename=pelagios-egd.rdf"))      
   }
   

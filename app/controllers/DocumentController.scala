@@ -6,7 +6,6 @@ import play.api.db.slick._
 import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.{ Json, JsObject }
 import play.api.Play.current
-import org.openrdf.rio.RDFFormat
 import org.pelagios.Scalagios
 import org.pelagios.api.annotation.{ AnnotatedThing, Annotation => OAnnotation, Transcription, TranscriptionType, SpecificResource }
 import java.io.ByteArrayOutputStream
@@ -46,7 +45,7 @@ object DocumentController extends Controller with Secured {
       if (format.isDefined && format.get.equalsIgnoreCase(CSV))
         get_CSV(doc.get)
       else if (format.isDefined && format.get.equalsIgnoreCase(RDF_XML))
-        get_RDF(doc.get, RDFFormat.RDFXML, routes.ApplicationController.index(None).absoluteURL(false))
+        get_RDF(doc.get, Scalagios.RDFXML, routes.ApplicationController.index(None).absoluteURL(false))
       else
         get_JSON(doc.get)
     } else {
@@ -73,7 +72,7 @@ object DocumentController extends Controller with Secured {
       .withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=" + escapeTitle(doc.title) + doc.language.map("_" + _).getOrElse("") + ".csv"))
   }
   
-  private def get_RDF(doc: GeoDocument, format: RDFFormat, basePath: String)(implicit session: Session) = {
+  private def get_RDF(doc: GeoDocument, format: String, basePath: String)(implicit session: Session) = {
     val thing = AnnotatedThing(basePath + "egd", doc.title)
     val annotations = Annotations.findByGeoDocumentAndStatus(doc.id.get, AnnotationStatus.VERIFIED)
     
