@@ -126,8 +126,11 @@ button.red:hover, .button.red:hover {
 /** Globals **/
 
 @font-face { 
-  font-family: "Font Awesome";
-  src: url("/recogito/static/stylesheets/fontawesome-webfont.ttf") format('truetype'); 
+  font-family: "FontAwesome";
+  src: url('/recogito/static/stylesheets/fontawesome-webfont.ttf') format('truetype'),
+       url('/recogito/static/stylesheets/fontawesome-webfont.eot?#iefix&v=4.1.0') format('embedded-opentype');
+  font-weight: normal;
+  font-style: normal;
 }
 
 @font-face { 
@@ -145,7 +148,7 @@ html, body {
 }
 
 .icon {
-  font-family:'Font Awesome' !important;
+  font-family:'FontAwesome' !important;
   text-decoration:none;
   font-weight:normal;
 }
