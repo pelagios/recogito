@@ -160,6 +160,7 @@ html, body, #map {
   background-repeat:no-repeat;
   background-position:center;
   background-color:rgba(255, 255, 255, 0.8);
+  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#aaffffff, endColorstr=#aaffffff);
   border:1px solid #fff;
   -moz-border-radius: 8px;
   -webkit-border-radius: 8px;
