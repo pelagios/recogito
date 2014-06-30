@@ -14,13 +14,18 @@ define(function() {
    */
   Footer.prototype.setData = function(data) {
     var count = function(status) {
-      var list = $.grep(data, function(annotation, idx) { return annotation.status == status; });
+      var list;
+      if ($.isArray(status)) {
+        list = $.grep(data, function(annotation, idx) { return status.indexOf(annotation.status) > -1; });
+      } else {
+        list = $.grep(data, function(annotation, idx) { return annotation.status == status; });
+      }
       return list.length;
     }
   
     var total = data.length;
     var verified = count('VERIFIED');
-    var not_identifyable = count('NOT_IDENTIFYABLE');
+    var not_identifyable = count(['NO_SUITABLE_MATCH', 'AMBIGUOUS', 'MULTIPLE', 'NOT_IDENTIFYABLE']);
     var false_detection = count('FALSE_DETECTION');
     var ignore = count('IGNORE');
     var complete = verified / (total - not_identifyable - false_detection - ignore);

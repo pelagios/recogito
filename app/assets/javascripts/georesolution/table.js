@@ -18,7 +18,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
     var self = this,
         rightClickMenu = new RightClickMenu(),
         contextTooltip = new ContextTooltip(),
-        statusValues = [ false, 'VERIFIED', 'NOT_VERIFIED', 'IGNORE', 'FALSE_DETECTION', 'NOT_IDENTIFYABLE' ],
+        statusValues = [ false, ['VERIFIED'], ['NOT_VERIFIED'], ['IGNORE'], ['FALSE_DETECTION'], ['NO_SUITABLE_MATCH', 'AMBIGUOUS', 'MULTIPLE', 'NOT_IDENTIFYABLE'] ],
         statusIcons = [ '', '&#xf14a;', '&#xf059;', '&#xf05e;', '&#xf057;', '&#xf024;'],
         currentStatusFilterVal = 0,
         options = { enableCellNavigation: true, enableColumnReorder: false, forceFitColumns: true, autoEdit: false },
@@ -390,7 +390,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
       if (!args['status'])
         return true;
     
-      return (item.status == args['status'])
+      return (args['status'].indexOf(item.status) > -1)
     }
   };
 
