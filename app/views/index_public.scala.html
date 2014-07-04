@@ -91,8 +91,12 @@
           
           <!-- icons -->
           <td>
-            <a class="icon" href="@routes.ApplicationController.showMap(entry.doc.id.get)" title="Public Map">&#xf0ac;</a>
-            <a class="icon" href="@routes.DocumentController.get(entry.doc.id.get, Some("csv"))" title="Download CSV">&#xf0ce;</a>
+            <a class="button small" href="@routes.ApplicationController.showMap(entry.doc.id.get)" title="View on Map">
+              Map
+            </a>
+            <a class="button small" href="@routes.DocumentController.get(entry.doc.id.get, Some("csv"))" title="Download Data as CSV">
+              Download
+            </a>
           </td>
         </tr>      	
       }
