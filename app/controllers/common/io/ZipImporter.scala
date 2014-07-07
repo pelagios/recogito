@@ -37,22 +37,22 @@ object ZipImporter {
             
       val json = Json.parse(Source.fromInputStream(zipFile.getInputStream(metafile), UTF8).getLines.mkString("\n"))
       
-      val docExtWorkID = (json \ "ext_work_id").as[Option[String]]
-      val docAuthor = (json \ "author").as[Option[String]]
-      val docTitle = (json \ "title").as[String]
-      val docDate = (json \ "date").as[Option[Int]]
-      val docDateComment = (json \ "date_comment").as[Option[String]]
-      val docLanguage = (json \ "language").as[Option[String]]
-      val docDescription = (json \ "description").as[Option[String]]
-      val docSource = (json \ "source").as[Option[String]]
-      val docOrigin = (json \ "origin").as[Option[String]]
-      val docFindspot = (json \ "findspot").as[Option[String]]
-      val docAuthorLocation = (json \ "author_location").as[Option[String]]
-      val docCollections = (json \ "collections").as[Option[Seq[String]]]
+      val docExtWorkID = (json \ "ext_work_id").asOpt[String].map(_.trim)
+      val docAuthor = (json \ "author").asOpt[String].map(_.trim)
+      val docTitle = (json \ "title").as[String].trim
+      val docDate = (json \ "date").asOpt[Int]
+      val docDateComment = (json \ "date_comment").asOpt[String].map(_.trim)
+      val docLanguage = (json \ "language").asOpt[String].map(_.trim)
+      val docDescription = (json \ "description").asOpt[String].map(_.trim)
+      val docSource = (json \ "source").asOpt[String].map(_.trim)
+      val docOrigin = (json \ "origin").asOpt[String].map(_.trim)
+      val docFindspot = (json \ "findspot").asOpt[String].map(_.trim)
+      val docAuthorLocation = (json \ "author_location").asOpt[String].map(_.trim)
+      val docCollections = (json \ "collections").asOpt[Seq[String]]
       
-      val docText = (json \ "text").as[Option[String]]
-      val docAnnotations = (json \ "annotations").as[Option[String]]
-      val docParts = (json \ "parts").as[Option[List[JsObject]]]
+      val docText = (json \ "text").asOpt[String]
+      val docAnnotations = (json \ "annotations").asOpt[String]
+      val docParts = (json \ "parts").asOpt[List[JsObject]]
       
       // Insert the document
       Logger.info("... document")
