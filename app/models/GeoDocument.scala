@@ -1,9 +1,8 @@
 package models
 
+import models.stats.GeoDocumentStats
 import play.api.Play.current
 import play.api.db.slick.Config.driver.simple._
-import models.stats.GeoDocumentStats
-import play.api.Logger
 import scala.slick.lifted.Tag
 
 /** Geospatial Document case class.
@@ -39,6 +38,9 @@ case class GeoDocument(
     /** Online or bibliographic source from where the text was obtained **/
     source: Option[String] = None,
     
+    /** Online resources that contain additional information about the document (Wikipedia page, etc.) **/ 
+    private val _primaryTopicOf: Option[String],
+    
     /** The geographical origin of the source (gazetteer URI) **/
     origin: Option[String] = None,
     
@@ -46,10 +48,19 @@ case class GeoDocument(
     findspot: Option[String] = None,
     
     /** A geographical location associated with the author (gazetteer URI) **/
-    authorLocation: Option[String]) extends GeoDocumentStats
+    authorLocation: Option[String]) extends GeoDocumentStats {
+  
+  /** Wraps the comma-separated URL list to a proper Seq **/
+  val primaryTopicOf = _primaryTopicOf.map(_.split(",").toSeq.map(_.trim)).getOrElse(Seq.empty[String])
+  
+}
 
 /** Geospatial Documents database table **/
 class GeoDocuments(tag: Tag) extends Table[GeoDocument](tag, "gdocuments") {
+  
+  implicit val stringSeqMapper = MappedColumnType.base[Seq[String],String](
+    seq => seq.mkString(","),
+    str => str.split(',').toList)
   
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   
@@ -69,6 +80,8 @@ class GeoDocuments(tag: Tag) extends Table[GeoDocument](tag, "gdocuments") {
   
   def source = column[String]("source", O.Nullable)
   
+  def primaryTopicOf = column[String]("primary_topic_of", O.Nullable)
+  
   def origin = column[String]("geo_origin", O.Nullable)
   
   def findspot = column[String]("geo_findspot", O.Nullable)
@@ -78,7 +91,7 @@ class GeoDocuments(tag: Tag) extends Table[GeoDocument](tag, "gdocuments") {
   def _collections = column[String]("collections", O.Nullable)
 
   def * = (id.?, externalWorkID.?, author.?, title, date.?, dateComment.?, language.?,
-    description.?, source.?, origin.?, findspot.?, authorLocation.?) <> (GeoDocument.tupled, GeoDocument.unapply)
+    description.?, source.?, primaryTopicOf.?, origin.?, findspot.?, authorLocation.?) <> (GeoDocument.tupled, GeoDocument.unapply)
     
 }
     

@@ -18,6 +18,12 @@ import play.api.data.Forms._
   * @author Rainer Simon <rainer.simon@ait.ac.at> 
   */
 object DocumentAdminController extends Controller with Secured {
+   
+  implicit def join(seq: Seq[String]): Option[String] = 
+    if (seq.size > 0)
+      None
+    else
+      Some(seq.mkString(", "))  
   
   /** The document form (used in both create and edit documents) **/
   private val documentForm = Form(
@@ -31,6 +37,7 @@ object DocumentAdminController extends Controller with Secured {
 		"language" -> optional(text),
 		"description" -> optional(text),
 		"source" -> optional(text),
+		"primaryTopicOf" -> optional(text),
 		"origin" -> optional(text),
 		"findspot" -> optional(text),
 		"authorLocation" -> optional(text)
