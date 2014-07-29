@@ -13,7 +13,7 @@
       </div>
       
       <div id="subtitle">
-        <h2>Beginner's Tutorial</h2>
+        <h2>First Steps</h2>
       </div>
     </div>
     
@@ -44,12 +44,46 @@
           geo-located toponyms in the document on a Web map <a href="#">[Skip to 'Public Map']</a>, and to download the raw toponym data as a CSV file.</li>
       </ol>
     
-      <h3>First Steps</h3>
-    
       <p>Log in to Recogito through the button in the upper right hand corner. You will notice a small change in the landing page: instead of the 'Map' and
-        'Download' buttons, you will see a small row of icons. These icons provide access to Recogito's different document views.</p>
+        'Download' buttons, there is now row of icons. These icons provide access to Recogito's different document views (from left to right): 
+        <a href="#"><span class="icon">&#xf080;</span> Document Stats</a>, <a href="#"><span class="icon">&#xf0f6;</span> Text View</a> and 
+        <a href="#"><span class="icon">&#xf0ac;</span> Geo-Resoution</a>. The fourth icon in the list <span class="icon">&#xf0ce;</span> 
+        again allows you to download the raw toponym data as CSV.</p>
     
       <div class="figure"><img src="images/icons-idx.png"></div>
+      
+      <h3>Document Stats</h3>
+      
+      <p>This page lists a some basic statistics about the annotations on the document.</p>
+      
+      <h3>Text View</h3>
+      
+      <p>When you start working on a new document, the text view is usually where you will want to begin. This view is where you annotate toponyms in the text by 
+        selecting them. Like in any word processing tool, you can select a text by clicking and dragging with your mouse, or by double clicking on a word.
+        After selecting a piece of text, a confirmation dialog will pop up to verify wether your want to mark up the selected text as a toponym or not.</p>
+        
+      <p>To delete an existing annotation simply select it again. The popup dialog will now ask for confirmation whether you want to delete or not. Modifying
+        an annotation - i.e. changing start, end, or merging multiple annotations into one - is equally straightforward. Just select the toponym,
+        the way you want it, and the popup dialog will ask you to confirm the change.</p>
+       
+      <p>Some documents consist of multiple text parts. In this case, you can use
+        the menu bar in the header to switch between them. (It is also possible for documents to have not text at all. In this case text view will not be available. 
+        This, however, is the exception rather than the norm.) The menu bar also allows you to switch to the <a href="#">Document Stats</a> and
+        <a href="#">Geo-Resoultion</a> views directly, without having to go back to the landing page.</p>
+        
+      <p>Underneath the menu bar is the <strong>tool bar</strong>. This allows you to switch between different modes of operation. Per default, you will start
+        off in normal 'Toponym Annotation' mode. In Recogito's second annotation mode, 'Quick Toponym Annotation', you will get no popup dialog - every
+        action you make will be performed without the need to confirm. You will see that, with a little bit of practice, this mode will greatly speed up your work.</p> 
+        
+      <p>There are a few <strong>helper functions</strong> hidden in the text view:</p>
+      
+      <ul>
+        <li>When you annotate a toponym, Recogito will search for additional exact matches in the text and ask whether you want to mark those automatically, too.</li>
+        <li>Recogito will always (also in Quick Mode) popup up a confirmation dialog in case your selection is very long. This is to avoid loss of 
+          annotations in case you accidentially select a whole paragraph. (In which case Recogito would merge all existing annotations into one.)
+        <li>A similar confirmation will popup for very short selections. This is primarily to avoid an excessive number of annotation being created 
+          in case you accidentially select a very common word ('and') and are too quick confirming the automatic annotation of exact matches.</li>
+      </ul>
     </div>
   </body>
 </html>
