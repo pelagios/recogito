@@ -237,6 +237,10 @@ object ApplicationController extends Controller with Secured with CTSClient {
     Ok(views.html.stats(StatsHistory.listAll())) 
   }
   
+  def showDocs() = Action {
+    Redirect("/recogito/static/docs/index.html")
+  }
+  
   /** Helper method to get the texts (and titles) for a specific GeoDocument **/
   private def textsForGeoDocument(docId: Int)(implicit session: Session): Seq[(GeoDocumentText, Option[String])] =
     GeoDocumentTexts.findByGeoDocument(docId).map(text =>

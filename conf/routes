@@ -45,6 +45,7 @@ GET     /recogito/feeds/recent                     controllers.FeedController.re
 
 # Public views
 GET     /recogito/map                              controllers.ApplicationController.showMap(doc: Int)
+GET     /recogito/docs                             controllers.ApplicationController.showDocs
 
 # Private views - TODO needs a little cleanup
 GET     /recogito/edit/annotation                  controllers.ApplicationController.showTextAnnotationUI(text: Option[Int], ctsURI: Option[String])
