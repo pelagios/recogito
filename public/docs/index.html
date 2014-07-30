@@ -13,12 +13,12 @@
       </div>
       
       <div id="subtitle">
-        <h2>First Steps</h2>
+        <h2>Beginner's Tutorial</h2>
       </div>
     </div>
     
     <div id="content">
-      <h3>The Landing Page</h3>
+      <h3>Landing Page</h3>
       <p>The first thing you will see of Recogito is the <strong>landing page</strong> (Fig.1). This page provides an overview of the documents
         currently available in the system.</p>
       
@@ -28,62 +28,82 @@
       </div>
       
       <ol>
-        <li>Documents can be grouped into different <strong>collections</strong>. You can navigate between them 
+        <li>Documents are grouped into different <strong>collections</strong>. You can navigate between them 
         with the <strong>collections menu</strong> on the left-hand side.</li>
     
         <li>The <strong>document list</strong> shows author, title and date information for each document. It also indicates
-        the language of the document (e.g. 'en' for English, 'la' for Latin, etc.). For some documents, there is a small <span class="icon">&#xf196;</span> 
-        symbol at the start of the row. This means the document is available in multiple languages. Click the row to view all available versions.</li>
+        the language of the document. (E.g. 'en' for English, 'la' for Latin, etc.) For some documents, there is a small <span class="icon">&#xf196;</span> 
+        symbol at the start of the row. This means the document is available in multiple versions - typically translations in different languages. Click
+        the row to view all available versions.</li>
       
-        <li>Next to each document there document list shows the <strong>total number of toponyms tagged</strong> in the text; and the <strong>rate of 
-          completion</strong>, i.e. the percentage of toponyms which have been successfully geo-located through a gazetteer (green) vs. those where 
-          no gazetteer match could be identified (yellow) vs. those that have not yet been verified. Above the document list, there is a graph that 
-          shows this information for the entire collection.</li>
+        <li>The number next to the language label is the <strong>total number of toponyms</strong> that have been tagged in the text. Next to that, a 
+          colour-coded progress bar illustrates the <strong>rate of completion</strong>, i.e. the percentage of toponyms which have been successfully
+          geo-located through a gazetteer (green) vs. those where no gazetteer match could be found (yellow) vs. those toponyms that have not yet 
+          been verified. Above the document list, there is a similar, larger bar that shows this information for the entire collection.</li>
         
-        <li>At the right-hand end of the document list, two buttons labeled <strong>Map</strong> and <strong>Download</strong> allow you to view the 
-          geo-located toponyms in the document on a Web map <a href="#">[Skip to 'Public Map']</a>, and to download the raw toponym data as a CSV file.</li>
+        <li>At the right-hand side of the document list, two buttons labeled <strong>Map</strong> and <strong>Download</strong> allow you to view the 
+          geo-located toponyms for each document on a Web map, and to download the raw toponym data as a CSV file.</li>
       </ol>
     
-      <p>Log in to Recogito through the button in the upper right hand corner. You will notice a small change in the landing page: instead of the 'Map' and
-        'Download' buttons, there is now row of icons. These icons provide access to Recogito's different document views (from left to right): 
-        <a href="#"><span class="icon">&#xf080;</span> Document Stats</a>, <a href="#"><span class="icon">&#xf0f6;</span> Text View</a> and 
-        <a href="#"><span class="icon">&#xf0ac;</span> Geo-Resoution</a>. The fourth icon in the list <span class="icon">&#xf0ce;</span> 
-        again allows you to download the raw toponym data as CSV.</p>
-    
-      <div class="figure"><img src="images/icons-idx.png"></div>
+      <p>Log in to Recogito through the <strong>button in the upper right hand corner</strong>. You will notice a small change in the landing page: instead of the 'Map' and
+        'Download' buttons, there is now a row of icons. These icons provide access to Recogito's different areas (from left to right): 
+        <a href="#document-stats"><span class="icon">&#xf080;</span> Document Stats</a>, <a href="#text-annotation"><span class="icon">&#xf0f6;</span> Text Annotation</a> and 
+        <a href="#geo-resolution"><span class="icon">&#xf0ac;</span> Geo-Resoution</a>. The table icon <span class="icon">&#xf0ce;</span> again allows you to download
+        the raw toponym data as a CSV file. Note that it is possible for documents to have no text at all. In this case Text Annotation icon will be
+        greyed out.</p>
       
-      <h3>Document Stats</h3>
+      <a class="internal-anchor" name="document-stats"></a>
+      <h3><span class="icon">&#xf080;</span> Document Stats</h3>
       
-      <p>This page lists a some basic statistics about the annotations on the document.</p>
+      <p>This page lists a basic statistics about the annotations on the document. At the moment, it is still a work in progress.</p>
       
-      <h3>Text View</h3>
+      <a class="internal-anchor" name="text-annotation"></a>
+      <h3><span class="icon">&#xf0f6;</span> Text Annotation</h3>
       
-      <p>When you start working on a new document, the text view is usually where you will want to begin. This view is where you annotate toponyms in the text by 
-        selecting them. Like in any word processing tool, you can select a text by clicking and dragging with your mouse, or by double clicking on a word.
-        After selecting a piece of text, a confirmation dialog will pop up to verify wether your want to mark up the selected text as a toponym or not.</p>
+      <p>When you start working on a new document, this is usually where you will want to begin (Fig.2). You can annotate toponyms in the text by selecting
+        them. Like in any word processing tool, you select by clicking and dragging with your mouse, or by double clicking on a word.
+        After selecting a piece of text, a confirmation dialog will pop up to verify wether your want to mark up the selected text as a toponym or not
+        <span class="image-marker">1</span>.</p>
         
-      <p>To delete an existing annotation simply select it again. The popup dialog will now ask for confirmation whether you want to delete or not. Modifying
-        an annotation - i.e. changing start, end, or merging multiple annotations into one - is equally straightforward. Just select the toponym,
+      <div class="figure">
+        <img class="screenshot" src="images/screenshot-annotation.png">  
+        <p>Fig.2 Text Annotation Area.</p>
+      </div>
+        
+      <p>To delete an annotation simply select it again. A popup dialog will ask for confirmation whether you want to delete or not. Modifying
+        an annotation (i.e. changing its start or end, or merging multiple annotations into one) is equally straightforward. Just select the toponym
         the way you want it, and the popup dialog will ask you to confirm the change.</p>
-       
-      <p>Some documents consist of multiple text parts. In this case, you can use
-        the menu bar in the header to switch between them. (It is also possible for documents to have not text at all. In this case text view will not be available. 
-        This, however, is the exception rather than the norm.) The menu bar also allows you to switch to the <a href="#">Document Stats</a> and
-        <a href="#">Geo-Resoultion</a> views directly, without having to go back to the landing page.</p>
         
-      <p>Underneath the menu bar is the <strong>tool bar</strong>. This allows you to switch between different modes of operation. Per default, you will start
-        off in normal 'Toponym Annotation' mode. In Recogito's second annotation mode, 'Quick Toponym Annotation', you will get no popup dialog - every
-        action you make will be performed without the need to confirm. You will see that, with a little bit of practice, this mode will greatly speed up your work.</p> 
+      <div class="figure"><img src="images/popup-merge.png"></div>
+       
+      <p>Some documents consist of multiple texts. In this case, you can use the <strong>menu bar</strong> in the header to switch between them
+        <span class="image-marker">2</span>. The menu bar also allows you to switch to the <a href="#document-stats">Document Stats</a> and
+        <a href="#geo-resolution">Geo-Resolution</a> areas directly without having to go back to the landing page.</p>
+        
+      <p>Underneath the menu bar is the <strong>tool bar</strong> <span class="image-marker">3</span>. This allows you to switch between different modes 
+        of operation. Per default, you will start off in normal <span class="icon">&#xf040;</span> <strong>Toponym Annotation</strong> mode. Recogito's
+        second annotation mode, <span class="icon">&#xf135;</span> <strong>Quick Toponym Annotation</strong>, will suppress the popup dialog. Every
+        action you make is performed without the need to confirm. You will see that with a little bit of practice, this mode will greatly speed up your
+        work.</p> 
         
       <p>There are a few <strong>helper functions</strong> hidden in the text view:</p>
       
       <ul>
-        <li>When you annotate a toponym, Recogito will search for additional exact matches in the text and ask whether you want to mark those automatically, too.</li>
-        <li>Recogito will always (also in Quick Mode) popup up a confirmation dialog in case your selection is very long. This is to avoid loss of 
-          annotations in case you accidentially select a whole paragraph. (In which case Recogito would merge all existing annotations into one.)
-        <li>A similar confirmation will popup for very short selections. This is primarily to avoid an excessive number of annotation being created 
-          in case you accidentially select a very common word ('and') and are too quick confirming the automatic annotation of exact matches.</li>
+        <li>When you annotate a toponym, Recogito will search for <strong>additional exact matches</strong> in the text and propose to tag them
+          automatically.</li>
+          
+        <li>Recogito will always (also in Quick Annotation Mode) pop up a confirmation dialog in case your selection is very long. This is to
+          avoid loss of annotations that would occur if you accidentially select an entire paragraph (in which case all annotations in the paragraph
+          would be merged into one).
+          
+        <li>Likewise, a confirmation dialog will pop up for very short selections. This is to avoid an excessive number of annotations being created 
+          in case of accidentially selecting a very common word ('and') and being too quick confirming the automatic annotation of exact matches.</li>
       </ul>
+      
+      <a class="internal-anchor" name="geo-resolution"></a>
+      <h3><span class="icon">&#xf0ac;</span> Geo-Resolution</h3>
+      
+      <p>TODO...</p>
     </div>
   </body>
 </html>
