@@ -25,7 +25,7 @@
       
       <div class="figure">
         <img class="screenshot" src="images/screenshot-public-idx.png">  
-        <p>Fig.1 Landing Page.</p>
+        <p>Fig.1 Landing Page</p>
       </div>
       
       <p>Documents are grouped into different <strong>collections</strong>. You can navigate between them with the 
@@ -69,7 +69,7 @@
         
       <div class="figure">
         <img class="screenshot" src="images/screenshot-annotation.png">  
-        <p>Fig.2 Text Annotation Area.</p>
+        <p>Fig.2 Text Annotation Area</p>
       </div>
         
       <p>To delete an annotation, simply select it again. A popup dialog will ask for confirmation. Modifying an annotation (i.e. changing its
@@ -114,7 +114,7 @@
         
       <div class="figure">
         <img class="screenshot" src="images/screenshot-georesolution.jpg">  
-        <p>Fig.3 Geo-Resolution Area.</p>
+        <p>Fig.3 Geo-Resolution Area</p>
       </div>
       
       <p>The Geo-Resolution area is divided into two major sections: the <strong>toponym table</strong> <span class="image-marker">1</span> which lists
@@ -144,8 +144,7 @@
       
       <div class="figure"><img src="images/sequence-line.jpg"></div>
         
-      <p>
-        Selection between map and toponym table is synchronized: clicking a marker on a map will highlight all occurrences of this place in the toponym table (and scroll
+      <p>Selection between map and toponym table is synchronized: clicking a marker on a map will highlight all occurrences of this place in the toponym table (and scroll
         the table to the first occurence in the text); clicking a row in the table will select the corresponding marker on the map. When a place is selected, the map 
         will display a <strong>sequence line</strong> that connects it with it's previous and next two geo-resolved neighbours in the text. That way it is often much easier
         to spot outliers (which may be due to incorrect geo-resolution), especially if you use your up and down arrow keys to step through place names sequentially, after
@@ -153,10 +152,23 @@
       
       <h4>Editing a Place Name's Details</h4>
       
+      <p>Double-clicking on a table row will open a <strong>window with details</strong> about the place name, how it appears in the text,
+        and how it is linked to a place in Recogito (Fig. 4). This window also allows you to change incorrect links, and add additional
+        information about the place name, e.g. tags or comments.</p>
+      
       <div class="figure">
         <img class="screenshot" src="images/screenshot-details.jpg">  
-        <p>Fig.4 Toponym Details.</p>
+        <p>Fig.4 Toponym Details</p>
       </div>
+      
+      <p>The main component of the details window is a map <span class="image-marker">1</span>. If the place name is already geo-resolved, the
+        map shows the corresponding place (again connected to it's nearest neighbour places in the text through a sequence line). Underneath
+        the map, Recogito suggests other potential places that may match the place name <span class="image-marker">2</span>. You can link the 
+        place name to one of the alternative suggestions by simply clicking on it. If no find that none of the suggestions is correct, you
+        can try to find a match using the text search field <span class="image-marker">3</span>.</p>
+        
+      <p>The top-right of the details window shows information about the automatic link that has initially been assigned by Recogito, if any
+        <span class="image-marker">4</span>, as well as the latest manual assignment <span class="image-marker">5</span></p>
     </div>
   </body>
 </html>
