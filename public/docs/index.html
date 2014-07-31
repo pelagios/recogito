@@ -122,8 +122,38 @@
         of those place names that are already linked to a place. At the bottom, there's a footer <span class="image-marker">3</span> showing some basic
         completion stats.</p>
         
-      <h4>Toponym Table</h4>
+      <p>The <strong>toponym table</strong> lists all place names in sequence. (Initally in the order they appear in the text. But it is also possible 
+        to change the sort order to alphabetic by clicking on the <em>Toponym</em> column header field, and back to sequential order by clicking 
+        the <em>#</em> column header). You can adapt the width of each column by clicking and dragging the border of its column header field. The columns
+        list:</p>
+      
+      <ul>
+        <li>the <strong>place name</strong> as it appears in the text. Hover over the text to get a preview snippet that shows the toponym in the context of the source text.</li>
+        <li>the <strong>document part</strong> (if the document consists of multiple texts).</li>
+        <li>any <strong>tags</strong> you may have added to the place name (see below for more information on tags).</li>
+        <li>the <strong>automatic geo-resolution</strong> produced by Recogito, if any. The geo-resolution is typically displayed as a Gazetteer shortcode. Hover 
+          over the code with your mouse to see the place title as recorded in Recogito's internal place directory.</li>
+        <li>the <strong>manual (or corrected) geo-resolution</strong>, if any.</li>
+        <li>the <strong>verification status</strong> of the place name. If you hover the mouse over the status, a small 'quick access' menu will allow you to
+          change the verification status with a single click (see below for more information about verification status)</li>
+      </ul> 
+      
+      <p>The <strong>map</strong> shows markers for the geo-resolved place names. Click and drag the map to pan it, use your mouse wheel or the plus/minus control
+        (top left) to zoom it. Use the basemap control underneath the plus/minus control to change between different background maps. If your 
+        document consists of multiple parts, a layer switcher (top right) allows you to switch markers for different document parts on and off individually.</p>
+      
+      <div class="figure"><img src="images/sequence-line.jpg"></div>
         
+      <p>
+        Selection between map and toponym table is synchronized: clicking a marker on a map will highlight all occurrences of this place in the toponym table (and scroll
+        the table to the first occurence in the text); clicking a row in the table will select the corresponding marker on the map. When a place is selected, the map 
+        will display a <strong>sequence line</strong> that connects it with it's previous and next two geo-resolved neighbours in the text. That way it is often much easier
+        to spot outliers (which may be due to incorrect geo-resolution), especially if you use your up and down arrow keys to step through place names sequentially, after
+        selecting one in the toponym table.</p>
+      
+      <h4>Editing a Place Name's Details</h4>
+      
+      <p>Coming soon...</p>
     </div>
   </body>
 </html>
