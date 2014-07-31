@@ -106,39 +106,6 @@
     
   }
   
-  ol {
-    list-style-type:none;
-    list-style-type:decimal !ie; /*IE 7- hack*/
-    margin:0;
-    margin-left:2em;
-    padding:0 0 20px 0;
-    counter-reset:li-counter;
-  }
-  
-  ol > li{
-    position:relative;
-    margin-bottom:20px;
-    padding-left:20px;
-    min-height:3em;
-  }
-  
-  ol > li:before {
-    position:absolute;
-    top:0;
-    left:-1.33em;
-    width:1.5em;
-    height:1.5em;
-    font-size:1.35em;
-    line-height: 1.55;
-    text-align: center;
-    color: #ff8000;
-    border:3px solid #ff8000;
-    border-radius: 50%;
-    background-color:#ffeddb;
-    content:counter(li-counter);
-    counter-increment:li-counter;
-  }
-  
   .image-marker {
     display:inline-block;
     color:#ff8000;

@@ -20,31 +20,32 @@
     
     <div id="content">
       <h3>Landing Page</h3>
-      <p>The first thing you will see of Recogito is the <strong>landing page</strong> (Fig.1). This page, which is the <strong>'public view'</strong>, provides an overview of the documents
-        currently available in the system.</p>
+      <p>The first thing you will see of Recogito is the <strong>landing page</strong> (Fig.1). This page, which is the 
+        <strong>'public view'</strong>, provides an overview of the documents currently available in the system.</p>
       
       <div class="figure">
         <img class="screenshot" src="images/screenshot-public-idx.png">  
         <p>Fig.1 Landing Page.</p>
       </div>
       
-      <ol>
-        <li>Documents are grouped into different <strong>collections</strong>. You can navigate between them 
-        with the <strong>collections menu</strong> on the left-hand side.</li>
-    
-        <li>The <strong>document list</strong> shows author, title and date information for each document. It also indicates
-        the language of the document. (E.g. 'en' for English, 'la' for Latin, etc.) For some documents, there is a small <span class="icon">&#xf196;</span> 
-        symbol at the start of the row. This means the document is available in multiple versions - typically translations in different languages. Click
-        the row to view all available versions.</li>
+      <p>Documents are grouped into different <strong>collections</strong>. You can navigate between them with the 
+        <strong>collections menu</strong> on the left-hand side <span class="image-marker">1</span>. The <strong>document
+        list</strong> <span class="image-marker">2</span> shows author, title and date information
+        for each document. It also indicates the <strong>language</strong> of the document with a small label. (E.g. 'en'
+        for English, 'la' for Latin, etc.) For some documents, there is a small <span class="icon">&#xf196;</span> 
+        symbol at the start of the row. This means the document is available in multiple versions - typically translations 
+        in different languages. Click the row to view all available versions.</p>
       
-        <li>The number next to the language label is the <strong>total number of place names (toponyms)</strong> that have been tagged in the text. Next to that, a 
-          colour-coded progress bar illustrates the <strong>rate of completion</strong>, i.e. the percentage of those place names which have been successfully
-          geo-located through a gazetteer (green) vs. those where no gazetteer match could be found (yellow) vs. those place names that have not yet 
-          been verified. Above the document list, there is a similar, larger bar that shows this information for the entire collection.</li>
+      <p>The number next to the language label is the <strong>total number of place names (toponyms)</strong> that have 
+        been tagged in the text. Next to that, a colour-coded progress bar illustrates the <strong>rate of completion</strong>, 
+        i.e. the percentage of those place names which have been successfully geo-located through a gazetteer (green) vs. 
+        those where no gazetteer match could be found (yellow) vs. those place names that have not yet been verified. 
+        Above the document list, there is a similar, larger bar that shows this information for the entire collection
+        <span class="image-marker">3</span>.</p>
         
-        <li>At the right-hand side of the document list, two buttons labeled <strong>Map</strong> and <strong>Download</strong> allow you to view the 
-          geo-located place names for each document on a Web map, and to download the raw data as a CSV file.</li>
-      </ol>
+      <p>At the right-hand side of the document list, two buttons labeled <strong>Map</strong> and <strong>Download</strong>
+        <span class="image-marker">4</span> allow you to view the geo-located place names for each document on a Web map, 
+        and to download the raw data as a CSV file.</p>
     
       <p>If you now log in to Recogito through the <strong>button in the upper right hand corner</strong>, you will notice a small change in the landing page: instead of the 'Map' and
         'Download' buttons, there is now a row of icons. This means that you are now in the <strong>'editing suite'</strong>, which is where the annotation and geo-resolution of documents takes place. The icons here provide access to Recogito's different areas of activity (from left to right): 
@@ -87,18 +88,19 @@
         action you make is performed immediately, without the need to confirm. You will see that with a little bit of practice, this 'Rocket' mode will greatly speed up your
         work.</p> 
         
-      <p>There are a few <strong>helper functions</strong> hidden in the text view:</p>
+      <p>There are a few <strong>helper functions</strong> behind the scenes:</p>
       
       <ul>
         <li>When you annotate a place name, Recogito will search for <strong>additional exact matches</strong> in the text and propose tagging them
           automatically.</li>
           
-        <li>Recogito will always (even in the Quick Annotation Mode) provide a confirmation dialog in those cases where your selection is very long. This is to
+        <li>Recogito will always (even in the Quick Annotation Mode) pop up a confirmation dialog in cases where your selection is very long. This is to
           avoid the loss of annotations that would occur should you accidentially have selected an entire paragraph (in which case all annotations in the paragraph
           would be merged into one).
           
         <li>Likewise, a confirmation dialog will pop up for very short selections. This is to avoid an excessive number of annotations being created 
-          in cases where a very common word (such as 'and') has been selected accidentially and the automatic annotation of exact matches too quickly confirmed.</li>
+          in cases where a very common word (such as 'and') has been selected accidentially and the automatic annotation of exact matches was too quickly
+          confirmed.</li>
       </ul>
       
       <a class="internal-anchor" name="geo-resolution"></a>
@@ -108,7 +110,7 @@
         of linking <em>place names</em> in a document to <em>places</em> in Recogito's internal place directory, so that they can be drawn on a map.
         Underneath the hood, Recogito attempts to establish such links automatically while place names are being tagged in the
         <a href="#text-annotation">Text Annotation area</a>. But these automatic mappings are not necessarily correct. The <strong>Geo-Resolution
-        area</strong> is the place where you can verify or correct them, or establish mappings manually in case they are missing altogether.</p>
+        area</strong> (Fig. 3) is the place where you can verify or correct them, or establish mappings manually in case they are missing altogether.</p>
         
       <div class="figure">
         <img class="screenshot" src="images/screenshot-georesolution.jpg">  
