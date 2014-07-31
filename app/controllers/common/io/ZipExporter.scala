@@ -45,7 +45,7 @@ class ZipExporter {
     * @param zipStream the ZIP output stream
     */
   private def exportOne(gdoc: GeoDocument, zipStream: ZipOutputStream)(implicit session: Session) = {   
-    val gdocNamePrefix = escapeTitle(gdoc.title) + gdoc.language.map("_" + _).getOrElse("")
+    val gdocNamePrefix = gdoc.author.map(escapeTitle(_) + "_").getOrElse("") + escapeTitle(gdoc.title) + gdoc.language.map("_" + _).getOrElse("")
     
     // Get GeoDocument parts & texts from the DB
     val parts = GeoDocumentParts.findByGeoDocument(gdoc.id.get)
