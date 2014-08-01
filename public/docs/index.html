@@ -21,7 +21,9 @@
     <div id="content">
       <h3>Landing Page</h3>
       <p>The first thing you will see of Recogito is the <strong>landing page</strong> (Fig.1). This page, which is the 
-        <strong>'public view'</strong>, provides an overview of the documents currently available in the system.</p>
+        <strong>'public view'</strong>, provides an overview of the documents currently available in the system. Inside
+        Recogito, you can always go back to the landing page with the <span class="icon">&#xf015;</span> icon in the
+        header bar.</p>
       
       <div class="figure">
         <img class="screenshot" src="images/screenshot-public-idx.png">  
@@ -204,17 +206,17 @@
             original texts).</td>
         </tr>
         <tr>
-          <td class="icon"></td>
+          <td class="status-nomatch"><span class="icon">&#xf024;</span></td>
           <td class="status-val">No Suitable Match</td>
           <td>No suitable match could not be found.</td>
         </tr>
         <tr>
-          <td class="icon"></td>
+          <td class="status-ambiguous"><span class="icon">&#xf024;</span></td>
           <td class="status-val">Ambiguous</td>
           <td>More than one possible matches were found, and it was not possible to disambiguate.</td>
         </tr>
         <tr>
-          <td class="icon"></td>
+          <td class="status-multiple"><span class="icon">&#xf024;</span></td>
           <td class="status-val">Multiple</td>
           <td>The place name refers to multiple places - e.g. "the four Gallias"</td>
         </tr>
@@ -224,6 +226,22 @@
           <td>A catch-all status for place references that could not be matched for other reasons.</td>
         </tr>
       </table>
+      
+      <p>In addition to the verification status, you can add extra informaion to a place reference in the form of 
+        <strong>tags</strong> <span class="image-marker">8</span> and <strong>comments</strong> 
+        <span class="image-marker">9</span>. We normally use tags to identify the role of the place 
+        <strong>within</strong> the context of the document</strong>. E.g. <em>change</em> or <em>halt</em> could be good tags to 
+        denote the role of a place in a particular itinerary. Whereas we discourage the use of tags to express general properties 
+        of the place itself: e.g. we would discourage tags like <em>continent</em> or <em>mountain</em> because
+        they express a property <strong>independent</strong> from the document context.</p>
+      
+      <p>Comments, obviously, allow you to attach any kind of note or remark to the place reference. For easier findability,
+        every place reference that has a comment will be marked with a <span class="icon">&#xf075;</span> icon in the 
+        toponym table.</p>
+        
+      <p>You can <strong>close the details window</strong> with the X icon in the header bar, or <strong>skip to the previous and
+        next</strong> place references with the arrow icons <span class="image-marker">11</span>. Note that when you assign a new 
+        geo-resolution to a place, Recogito will automatically step to the next place in the list.</p>
     </div>
   </body>
 </html>

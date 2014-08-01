@@ -158,6 +158,37 @@
     }
     
   }
+  
+  .status-nomatch,
+  .status-ambiguous,
+  .status-multiple {
+    position:relative;
+    font-family:"Font Awesome";
+  
+    .icon:after {
+      position:absolute;
+      font-size:68%;
+      top:9px;
+      left:19px;
+    }
+    
+  }
+  
+  .status-nomatch .icon:after {
+    content:'\f05e';
+  }
+      
+  .status-ambiguous .icon:after {
+    content:'\f059';
+  }  
+  
+  .status-multiple .icon:after {
+    content:'2+';
+    font-weight:bold;
+    font-size:60%;
+    bottom:0px;
+    right:5px;
+  }
 
 } /* #content */
 
