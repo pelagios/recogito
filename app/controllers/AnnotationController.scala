@@ -90,8 +90,8 @@ object AnnotationController extends Controller with Secured {
 
     val annotation = 
       Annotation(Annotations.newUUID, None, None, 
-                 AnnotationStatus.NOT_VERIFIED, None, None, None, 
-                 Some(correctedToponym), Some(correctedOffset), source = Some(source))
+                 AnnotationStatus.NOT_VERIFIED, None, None, None, None, 
+                 Some(correctedToponym), Some(correctedOffset), None, source = Some(source))
 
     Annotations.insert(annotation)
     
@@ -103,9 +103,9 @@ object AnnotationController extends Controller with Secured {
   }
     
   private def createOne(json: JsObject, username: String)(implicit s: Session): Option[String] = {
-    val jsonGdocId = (json\ "gdocId").as[Option[Int]] 
-    val jsonGdocPartId = (json \ "gdocPartId").as[Option[Int]]  
-    val jsonSource = (json \ "source").as[Option[String]]
+    val jsonGdocId = (json\ "gdocId").asOpt[Int] 
+    val jsonGdocPartId = (json \ "gdocPartId").asOpt[Int]  
+    val jsonSource = (json \ "source").asOpt[String]
     
     if (jsonSource.isDefined) {
       createOneCTS(json, username)
@@ -137,7 +137,7 @@ object AnnotationController extends Controller with Secured {
         
         val annotation = 
           Annotation(Annotations.newUUID, gdocId_verified, gdocPart.map(_.id).flatten, 
-                     AnnotationStatus.NOT_VERIFIED, None, None, automatch.map(_.uri), 
+                     AnnotationStatus.NOT_VERIFIED, None, None, None, automatch.map(_.uri), 
                      Some(correctedToponym), Some(correctedOffset))
           
         if (!isValid(annotation)) {
@@ -322,8 +322,8 @@ object AnnotationController extends Controller with Secured {
       val updated = 
         Annotation(annotation.get.uuid, annotation.get.gdocId, annotation.get.gdocPartId, 
                    updatedStatus,
-                   annotation.get.toponym, annotation.get.offset, annotation.get.gazetteerURI, 
-                   updatedToponym, updatedOffset, updatedURI, updatedTags, updatedComment, annotation.get.source)
+                   annotation.get.toponym, annotation.get.offset, None, annotation.get.gazetteerURI, 
+                   updatedToponym, updatedOffset, None, updatedURI, updatedTags, updatedComment, annotation.get.source)
                    
       // Important: if an annotation was created manually, and someone marks it as 'false detection',
       // We delete it instead!

@@ -25,10 +25,13 @@ case class Annotation(
     status: AnnotationStatus.Value,
     
     /** Toponym identified by the geoparser **/
-    toponym: Option[String],
+    toponym: Option[String] = None,
     
-    /** Offset of the toponym in the text **/
-    offset: Option[Int],
+    /** Character offset of the toponym in the text **/
+    offset: Option[Int] = None,
+    
+    /** Anchor of the toponym in the document - this is used instead of 'offset' for images **/
+    anchor: Option[String] = None,
     
     /** Gazetteer URI identified by the georesolver **/
     gazetteerURI: Option[String] = None, 
@@ -38,6 +41,9 @@ case class Annotation(
     
     /** Offset of the fixed toponym **/ 
     correctedOffset: Option[Int] = None,
+
+    /** Anchor of the toponym in the document - this is used instead of 'offset' for images **/
+    correctedAnchor: Option[String] = None,
     
     /** Gazetteer URI identified by human expert **/
     correctedGazetteerURI: Option[String] = None,
@@ -90,11 +96,15 @@ class Annotations(tag: Tag) extends Table[Annotation](tag, "annotations") with H
 
   def offset = column[Int]("offset", O.Nullable)
   
+  def anchor = column[String]("anchor", O.Nullable)
+  
   def gazetteerURI = column[String]("gazetteer_uri", O.Nullable)
   
   def correctedToponym = column[String]("toponym_corrected", O.Nullable)
 
   def correctedOffset = column[Int]("offset_corrected", O.Nullable)
+  
+  def correctedAnchor = column[String]("anchor_corrected", O.Nullable)
   
   def correctedGazetteerURI = column[String]("gazetteer_uri_corrected", O.Nullable)
   
@@ -106,8 +116,8 @@ class Annotations(tag: Tag) extends Table[Annotation](tag, "annotations") with H
   
   def _seeAlso = column[String]("see_also", O.Nullable)
   
-  def * = (uuid, gdocId.?, gdocPartId.?, status, toponym.?, offset.?, gazetteerURI.?, correctedToponym.?, 
-    correctedOffset.?, correctedGazetteerURI.?, tags.?, comment.?, source.?, _seeAlso.?) <> (Annotation.tupled, Annotation.unapply)
+  def * = (uuid, gdocId.?, gdocPartId.?, status, toponym.?, offset.?, anchor.?, gazetteerURI.?, correctedToponym.?, 
+    correctedOffset.?, correctedAnchor.?, correctedGazetteerURI.?, tags.?, comment.?, source.?, _seeAlso.?) <> (Annotation.tupled, Annotation.unapply)
     
   def idx_gdocId = index("idx_gdoc", gdocId, unique = false)
     
