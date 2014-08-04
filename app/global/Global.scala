@@ -76,7 +76,12 @@ object Global extends GlobalSettings {
         Logger.info("GeoDocumentTexts DB table does not exist - creating")
         GeoDocumentTexts.create
       }
-        
+      
+      if (MTable.getTables("gdocument_images").list().isEmpty) {
+        Logger.info("GeoDocumentImages DB table does not exist - creating")
+        GeoDocumentImages.create
+      }
+      
       if (MTable.getTables("collection_memberships").list().isEmpty) {
         Logger.info("CollectionMemberships DB table does not exist - creating")
         CollectionMemberships.create

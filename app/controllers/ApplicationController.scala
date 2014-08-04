@@ -87,7 +87,7 @@ object ApplicationController extends Controller with Secured with CTSClient {
       if (currentUser.isDefined && isAuthorized)      
         Ok(views.html.index(groupedDocs, docsPerCollection, collection.get, currentUser.get))
       else 
-        Ok(views.html.index_public(groupedDocs, docsPerCollection, collection.get))
+        Ok(views.html.public_index(groupedDocs, docsPerCollection, collection.get))
     }
   }
    
@@ -133,7 +133,7 @@ object ApplicationController extends Controller with Secured with CTSClient {
       
       val html = buildHTML(somePlaintext.get, someAnnotations.get)
       
-      Ok(views.html.annotation(gdoc, gdoc.map(gdoc => textsForGeoDocument(gdoc.id.get)).getOrElse(Seq.empty[(models.GeoDocumentText, Option[String])]), username, gdocPart, html, ctsURI))
+      Ok(views.html.annotation_text(gdoc, gdoc.map(gdoc => textsForGeoDocument(gdoc.id.get)).getOrElse(Seq.empty[(models.GeoDocumentText, Option[String])]), username, gdocPart, html, ctsURI))
     } else {
       NotFound(Json.parse("{ \"success\": false, \"message\": \"Annotation not found\" }")) 
     }

@@ -9,8 +9,6 @@ GET     /recogito/static/*file                     controllers.Assets.at(path="/
 GET     /recogito/login                            controllers.AuthController.login(destination: Option[String])
 POST    /recogito/login                            controllers.AuthController.authenticate
 GET     /recogito/logout                           controllers.AuthController.logout
-GET     /recogito/signup                           controllers.UserController.signup
-POST    /recogito/signup                           controllers.UserController.processSignup
 GET     /recogito/settings                         controllers.UserController.changePassword
 POST    /recogito/settings                         controllers.UserController.processChangePassword
 
@@ -73,9 +71,10 @@ POST    /recogito/admin/documents/:id/annotations  controllers.admin.DocumentAdm
 DELETE  /recogito/admin/documents/:id/annotations  controllers.admin.DocumentAdminController.deleteAnnotations(id: Int)
 GET     /recogito/admin/documents                  controllers.admin.DocumentAdminController.listAll
 
-GET     /recogito/admin/users                      controllers.admin.UserAdminController.listAll
+GET     /recogito/admin/users/signup               controllers.admin.UserAdminController.signup
+POST    /recogito/admin/users/signup               controllers.admin.UserAdminController.processSignup
 DELETE  /recogito/admin/users/:username            controllers.admin.UserAdminController.deleteUser(username: String)
-
+GET     /recogito/admin/users                      controllers.admin.UserAdminController.listAll
 
 # Index page (available in public and private version)
 GET     /recogito/                                 controllers.ApplicationController.index(collection: Option[String])

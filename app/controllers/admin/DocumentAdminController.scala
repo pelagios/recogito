@@ -9,9 +9,9 @@ import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import play.api.Play.current
 import play.api.Logger
-import scala.io.Source
 import play.api.data.Form
 import play.api.data.Forms._
+import scala.io.Source
 
 /** Controller for the 'Documents' section of the admin area.
   * 
@@ -106,14 +106,14 @@ object DocumentAdminController extends Controller with Secured {
   /** Edit an existing document in the UI form **/
   def editDocument(id: Int) = DBAction { implicit session =>
     GeoDocuments.findById(id).map { doc =>
-      Ok(views.html.admin.documentEditForm(id, documentForm.fill(doc)))
+      Ok(views.html.admin.edit_document_details(id, documentForm.fill(doc)))
     }.getOrElse(NotFound)
   }
   
   /** Save a document from the UI form **/
   def updateDocument(id: Int) = protectedDBAction(Secure.REJECT) { implicit username => implicit session =>
     documentForm.bindFromRequest.fold(
-      formWithErrors => BadRequest(views.html.admin.documentEditForm(id, formWithErrors)),
+      formWithErrors => BadRequest(views.html.admin.edit_document_details(id, formWithErrors)),
       document => {
         // Update the document
         GeoDocuments.update(document)
