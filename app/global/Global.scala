@@ -47,8 +47,13 @@ object Global extends GlobalSettings {
     }
     idx
   }
-
-  // lazy val database = DB.forDataSource(DB.getDataSource()) 
+  
+  val uploadDir = {
+    val dir = new File("public/uploads")
+    if (!dir.exists)
+      dir.mkdir
+    dir
+  }
 
   override def onStart(app: Application): Unit = {
     // Create DB tables if they don't exist

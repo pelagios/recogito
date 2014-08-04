@@ -10,6 +10,10 @@ import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import scala.io.Source
 import play.api.libs.json.JsValue
+import java.io.BufferedOutputStream
+import java.io.FileOutputStream
+import global.Global
+import org.apache.commons.io.IOUtils
 
 /** Utility object to import data from a ZIP file.
   *
@@ -52,6 +56,7 @@ object ZipImporter {
       val docCollections = (json \ "collections").asOpt[Seq[String]]
       
       val docText = (json \ "text").asOpt[String]
+      val docImage = (json \ "image").asOpt[String]
       val docAnnotations = (json \ "annotations").asOpt[String]
       val docParts = (json \ "parts").asOpt[List[JsObject]]
       
@@ -72,12 +77,19 @@ object ZipImporter {
         importText(zipFile, docText.get, gdocId, None)
       }
       
+      // Insert image (if any)
+      if (docImage.isDefined) {
+        Logger.info("... image")
+        importImage(zipFile, docImage.get, gdocId, None)
+      }
+      
       // Insert parts
       if (docParts.isDefined) {
         docParts.get.foreach(docPart => {
           val partTitle = (docPart \ "title").as[String]
-          val partSource = (docPart \ "source").as[Option[String]]
-          val partText = (docPart \ "text").as[Option[String]]
+          val partSource = (docPart \ "source").asOpt[String]
+          val partText = (docPart \ "text").asOpt[String]
+          val partImage = (docPart \ "image").asOpt[String]
         
           // Insert the document part          
           Logger.info("... part " + partTitle)
@@ -86,6 +98,11 @@ object ZipImporter {
           if (partText.isDefined) {
             Logger.info("... text")
             importText(zipFile, partText.get, gdocId, Some(gdocPartId))
+          }
+          
+          if (partImage.isDefined) {
+            Logger.info("... image")
+            importImage(zipFile, partImage.get, gdocId, Some(gdocPartId))
           }
         })
       }
@@ -111,12 +128,14 @@ object ZipImporter {
       val name = metafile.getName()
       val json = Json.parse(Source.fromInputStream(zipFile.getInputStream(metafile)).getLines.mkString("\n"))
 
-      val docText = (json \ "text").as[Option[String]]
-      val docAnnotations = (json \ "annotations").as[Option[String]]
-      val docParts = (json \ "parts").as[Option[List[JsObject]]].getOrElse(List.empty[JsObject]).toSeq
+      val docText = (json \ "text").asOpt[String]
+      val docImage = (json \ "image").asOpt[String]
+      val docAnnotations = (json \ "annotations").asOpt[String]
+      val docParts = (json \ "parts").asOpt[List[JsObject]].getOrElse(List.empty[JsObject]).toSeq
 
       val warnings = Seq(
         docText.flatMap(txt => if (entryExists(txt, zipFile)) None else Some(name + ": referenced text file " + txt + " is missing from ZIP")),
+        docImage.flatMap(img => if (entryExists(img, zipFile)) None else Some(name + ": referenced image file" + img + " is missing from ZIP")),
         docAnnotations.flatMap(csv => if (entryExists(csv, zipFile)) None else Some(name + ": referenced annotations file " + csv + " is missing from ZIP pacakge"))
       ) ++ docParts.map(part => {
         val partText = (part \ "text").as[Option[String]]
@@ -135,11 +154,28 @@ object ZipImporter {
     * @param gdocPartId the ID of the GeoDocumentPart the text is associated with (if any) 
     */
   private def importText(zipFile: ZipFile, entryName: String, gdocId: Int, gdocPartId: Option[Int])(implicit s: Session) = {
-    val text = getEntry(zipFile, entryName)    
-    if (text.isDefined) {
-      val plainText = text.get.getLines.mkString("\n")
-      GeoDocumentTexts.insert(GeoDocumentText(None, gdocId, gdocPartId, plainText.getBytes(UTF8)))
-    }
+    val text = getEntry(zipFile, entryName).get    
+    val plainText = text.getLines.mkString("\n")
+    GeoDocumentTexts.insert(GeoDocumentText(None, gdocId, gdocPartId, plainText.getBytes(UTF8)))
+  }
+
+  /** Imports an image file.
+    *
+    * @param zipFile the ZIP file
+    * @param entryName the name of the image file within the ZIP
+    * @param gdocId the ID of the GeoDocument the image is associated with
+    * @param gdocPartId the ID of the GeoDocumentPart the image is associated with (if any) 
+    */
+  private def importImage(zipFile: ZipFile, entryName: String, gdocId: Int, gdocPartId: Option[Int])(implicit s: Session) = {
+    val entry = zipFile.getEntry(entryName)
+    val input = zipFile.getInputStream(entry)
+    
+    // Store the image file
+    val output = new BufferedOutputStream(new FileOutputStream(new File(Global.uploadDir, entryName)))
+    IOUtils.copy(input, output)
+    
+    // Create DB record
+    GeoDocumentImages.insert(GeoDocumentImage(None, gdocId, gdocPartId, entryName))
   }
   
   /** Imports annotations from a CSV.
