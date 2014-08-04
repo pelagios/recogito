@@ -1,19 +1,18 @@
 package controllers.common.io
 
 import collection.JavaConverters._
-import java.io.File
+import global.Global
+import java.io.{ BufferedOutputStream, FileOutputStream, File }
 import java.util.zip.ZipFile
+import javax.imageio.ImageIO
 import models._
+import org.apache.commons.io.IOUtils
 import play.api.Logger
 import play.api.libs.json.{ Json, JsObject }
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import scala.io.Source
-import play.api.libs.json.JsValue
-import java.io.BufferedOutputStream
-import java.io.FileOutputStream
-import global.Global
-import org.apache.commons.io.IOUtils
+
 
 /** Utility object to import data from a ZIP file.
   *
@@ -168,14 +167,16 @@ object ZipImporter {
     */
   private def importImage(zipFile: ZipFile, entryName: String, gdocId: Int, gdocPartId: Option[Int])(implicit s: Session) = {
     val entry = zipFile.getEntry(entryName)
-    val input = zipFile.getInputStream(entry)
     
     // Store the image file
     val output = new BufferedOutputStream(new FileOutputStream(new File(Global.uploadDir, entryName)))
-    IOUtils.copy(input, output)
+    IOUtils.copy(zipFile.getInputStream(entry), output)
+    
+    // Determine image dimensions
+    val img = ImageIO.read(zipFile.getInputStream(entry))
     
     // Create DB record
-    GeoDocumentImages.insert(GeoDocumentImage(None, gdocId, gdocPartId, entryName))
+    GeoDocumentImages.insert(GeoDocumentImage(None, gdocId, gdocPartId, entryName, img.getWidth, img.getHeight))
   }
   
   /** Imports annotations from a CSV.
