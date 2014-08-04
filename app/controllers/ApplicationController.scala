@@ -7,7 +7,9 @@ import play.api.libs.json.Json
 import play.api.mvc.{ Action, Controller }
 import play.api.Logger
 
-case class GDocIndexEntry(doc: GeoDocument, verified: Int, unidentifiable: Int, total: Int, texts: Seq[Int]) {
+case class GDocFile(text: Option[GeoDocumentText], image: Option[GeoDocumentImage])
+
+case class GDocIndexEntry(doc: GeoDocument, verified: Int, unidentifiable: Int, total: Int, file: Option[GDocFile]) {
   
   val percentVerified = verified.toDouble / total
   
@@ -72,8 +74,18 @@ object ApplicationController extends Controller with Secured with CTSClient {
           val greens = doc.countVerifiedToponyms
           val yellows = doc.countUnidentifiableToponyms
           val total = greens + yellows + doc.countUnverifiedToponyms
-          val texts = GeoDocumentTexts.findByGeoDocument(doc.id.get).map(_.id.get)
-          GDocIndexEntry(doc, greens, yellows, total, texts) 
+          
+          // TODO for better performance, we should add those in via a Join query
+          val firstText = GeoDocumentTexts.findByGeoDocument(doc.id.get).headOption
+          val firstImage = GeoDocumentImages.findByGeoDocument(doc.id.get).headOption
+          
+          val file = 
+            if (firstText.isDefined || firstImage.isDefined)
+              Some(GDocFile(firstText, firstImage))
+            else
+              None
+              
+          GDocIndexEntry(doc, greens, yellows, total, file) 
         })
                   
       // The information require for the collection selection widget
@@ -126,11 +138,9 @@ object ApplicationController extends Controller with Secured with CTSClient {
     
     if (somePlaintext.isDefined && someAnnotations.isDefined) {
       val gdoc = someGDocText.map(text => GeoDocuments.findById(text.gdocId)).flatten
-      val gdocPart = someGDocText.map(text => text.gdocPartId.map(id => GeoDocumentParts.findById(id))).flatten.flatten
+      val gdocPart = someGDocText.flatMap(text => text.gdocPartId.map(id => GeoDocumentParts.findById(id))).flatten
           
-      val texts = gdoc.map(doc => textsForGeoDocument(doc.id.get)).getOrElse(Seq.empty[(GeoDocumentText, Option[String])])
-      // val title = gdoc.get.title s gdocPart.map(" - " + _.title).getOrElse("")      
-      
+      val texts = gdoc.map(doc => textsForGeoDocument(doc.id.get)).getOrElse(Seq.empty[(GeoDocumentText, Option[String])])     
       val html = buildHTML(somePlaintext.get, someAnnotations.get)
       
       Ok(views.html.annotation_text(gdoc, gdoc.map(gdoc => textsForGeoDocument(gdoc.id.get)).getOrElse(Seq.empty[(models.GeoDocumentText, Option[String])]), username, gdocPart, html, ctsURI))
@@ -201,6 +211,16 @@ object ApplicationController extends Controller with Secured with CTSClient {
     Logger.error("Offending annotation: #" + annotation.uuid + " - " + annotation)
     Annotations.getOverlappingAnnotations(annotation).foreach(a => Logger.error("Overlaps with: #" + a.uuid))
   }
+  
+  def showImageAnnotationUI(imageId: Int) = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit request =>
+    val gdocImage = GeoDocumentImages.findById(imageId)
+    if (gdocImage.isDefined) {
+      val gdoc = GeoDocuments.findById(gdocImage.get.gdocId)
+      Ok(views.html.annotation_image(gdoc.get, gdocImage.get, username))
+    } else {
+      NotFound
+    }
+  }
 
   /** Shows the map-based georesolution correction UI for the specified document.
     *
@@ -218,26 +238,26 @@ object ApplicationController extends Controller with Secured with CTSClient {
   def showDocumentStats(docId: Int) = DBAction { implicit session =>
     val doc = GeoDocuments.findById(docId)
     if (doc.isDefined) {        
-      Ok(views.html.document_stats(doc.get, textsForGeoDocument(docId), currentUser.map(_.username)))
+      Ok(views.html.stats.document_stats(doc.get, textsForGeoDocument(docId), currentUser.map(_.username)))
     } else {
       NotFound(Json.parse("{ \"success\": false, \"message\": \"Document not found\" }"))
     }
   }
   
   /** Shows the edit history overview page **/
-  def showHistory() = DBAction { implicit session =>
+  def showEditHistory() = DBAction { implicit session =>
     // TODO just a dummy for now
     val history = EditHistory.getLastN(200).map(event => (event, Annotations.findByUUID(event.annotationId).flatMap(_.gdocId)))
-    Ok(views.html.edit_history(history)) 
+    Ok(views.html.stats.edit_history(history)) 
   }
   
   /** Shows the stats history page **/
-  def showStats() = DBAction { implicit session =>
+  def showTimeline() = DBAction { implicit session =>
     // TODO just a dummy for now
-    Ok(views.html.stats(StatsHistory.listAll())) 
+    Ok(views.html.stats.stats(StatsHistory.listAll())) 
   }
   
-  def showDocs() = Action {
+  def showDocumentation() = Action {
     Redirect("/recogito/static/docs/index.html")
   }
   

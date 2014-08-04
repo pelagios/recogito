@@ -29,4 +29,14 @@ object GeoDocumentImages {
   
   def insert(geoDocumentImage: GeoDocumentImage)(implicit s: Session) = query.insert(geoDocumentImage)
   
+  /** Retrieve a text with the specified ID (= primary key) **/
+  def findById(id: Int)(implicit s: Session): Option[GeoDocumentImage] =
+    query.where(_.id === id).firstOption
+    
+    
+  
+  /** Retrieves all image records associated with a specific GeoDocument (or parts of it) **/
+  def findByGeoDocument(gdocId: Int)(implicit s: Session): Seq[GeoDocumentImage] =
+    query.where(_.gdocId === gdocId).list
+  
 }

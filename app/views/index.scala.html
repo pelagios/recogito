@@ -37,7 +37,7 @@
               <p id="user-links">
                 @if(user.isAdmin) { <a href="@controllers.admin.routes.DocumentAdminController.listAll" title="Administration Access to Recogito">Administration</a> }
                 <a href="@routes.UserController.changePassword" title="Edit User Settings">My Settings</a>
-                <a href="@routes.ApplicationController.showDocs">Tutorial</a>
+                <a href="@routes.ApplicationController.showDocumentation">Tutorial</a>
               </p>
             </div> 
             
@@ -102,18 +102,22 @@
           
           <!-- shortcut icons -->
           <td>
-            <!-- document stats short -->
-            <a href="@routes.ApplicationController.showDocumentStats(entry.doc.id.get)" class="icon" title="Detailed Stats">&#xf080;</a>
-            
             <!-- text shortcut -->
-            @if(entry.texts.size > 0) {
-              <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(Some(entry.texts.head), None)" title="Text Annotation">&#xf0f6;</a>
+            @if(entry.file.isDefined) {
+              @if(entry.file.get.text.isDefined) {
+                <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(Some(entry.file.get.text.get.id.get), None)" title="Text Annotation">&#xf0f6;</a>
+              } else {
+                <a class="icon" href="@routes.ApplicationController.showImageAnnotationUI(entry.file.get.image.get.id.get)" title="Image Annotation">&#xf1c5;</a>
+              }
             } else {
-              <span class="icon disabled">&#xf0f6;</span>
+              <span class="icon disabled">&#xf016;</span>
             }
             
             <!-- georesolution shortcut -->
             <a class="icon" href="@routes.ApplicationController.showGeoResolutionUI(entry.doc.id.get)" title="Geo-Resolution">&#xf0ac;</a>
+            
+            <!-- document stats shortcut -->
+            <a href="@routes.ApplicationController.showDocumentStats(entry.doc.id.get)" class="icon" title="Document Stats">&#xf080;</a>
             
             <!-- CSV download shortcut -->
             <a class="icon" href="@routes.DocumentController.get(entry.doc.id.get, Some("csv"))" title="Download CSV">&#xf0ce;</a>

@@ -32,7 +32,6 @@ PUT     /recogito/api/annotations/                 controllers.AnnotationControl
 GET     /recogito/api/search/place                 controllers.SearchController.placeSearch(query: String)
 
 
-
 # ATOM Feed
 # ~~~~
 GET     /recogito/feeds/recent                     controllers.FeedController.recentVerifications
@@ -43,14 +42,17 @@ GET     /recogito/feeds/recent                     controllers.FeedController.re
 
 # Public views
 GET     /recogito/map                              controllers.ApplicationController.showMap(doc: Int)
-GET     /recogito/docs                             controllers.ApplicationController.showDocs
+GET     /recogito/docs                             controllers.ApplicationController.showDocumentation
 
 # Private views - TODO needs a little cleanup
-GET     /recogito/edit/annotation                  controllers.ApplicationController.showTextAnnotationUI(text: Option[Int], ctsURI: Option[String])
-GET     /recogito/edit/georesolution               controllers.ApplicationController.showGeoResolutionUI(doc: Int)
-GET     /recogito/history                          controllers.ApplicationController.showHistory
-GET     /recogito/stats                            controllers.ApplicationController.showStats
-GET     /recogito/documents/:id/stats              controllers.ApplicationController.showDocumentStats(id: Int)
+GET     /recogito/annotation/text                  controllers.ApplicationController.showTextAnnotationUI(text: Option[Int], ctsURI: Option[String])
+GET     /recogito/annotation/image                 controllers.ApplicationController.showImageAnnotationUI(image: Int)
+GET     /recogito/georesolution                    controllers.ApplicationController.showGeoResolutionUI(doc: Int)
+GET     /recogito/stats/document/:id               controllers.ApplicationController.showDocumentStats(id: Int)
+
+# TODO clean up the following two pages
+GET     /recogito/history                          controllers.ApplicationController.showEditHistory
+GET     /recogito/timeline                         controllers.ApplicationController.showTimeline
 
 # Admin
 GET     /recogito/admin/backup                     controllers.admin.BackupRestoreController.index

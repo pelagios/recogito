@@ -1,4 +1,4 @@
-@(doc: GeoDocument, username: String)
+@(doc: GeoDocument, image: GeoDocumentImage, username: String)
 <!DOCTYPE html>
 <html>
   <head>
@@ -17,9 +17,9 @@
       
       <div id="menu">
         <ul>
-          <li><a href="@routes.ApplicationController.showDocumentStats(doc.id.get)">Document Stats</a></li>
           <li><a href="#" id="dropdown-text-trigger" onclick="return false;">Text <span class="icon">&#xf0d7;</span></a>   
           <li><a href="@routes.ApplicationController.showGeoResolutionUI(doc.id.get)">Geo-Resolution</a></li>
+          <li><a href="@routes.ApplicationController.showDocumentStats(doc.id.get)">Document Stats</a></li>
         </ul>
       </div>
       
