@@ -9,10 +9,12 @@
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/openlayers/OpenLayers.js")"></script>
     <script type="text/javascript" src="http://annotorious.github.io/latest/annotorious.min.js"></script>
-    <script type="text/javascript" src="@routes.Assets.at("javascripts/annotation/anno-vanilla-rest-plugin.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/annotation/anno-recogito-storage-plugin.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/annotation/rcgt-image-annotation.js")"></script>
     <script>
-      anno.addPlugin('VanillaREST', { endpoint_url: '/recogito/api/foo' });
+      anno.addPlugin('Recogito',
+        { 'gdoc_id': @doc.id,
+          'gdoc_part_id': null });
     
       $(document).ready(function() {
         new recogito.ImageAnnotationUI(
