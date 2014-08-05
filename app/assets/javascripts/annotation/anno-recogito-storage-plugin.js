@@ -63,7 +63,7 @@ annotorious.plugin.Recogito.prototype._create = function(annotation) {
     data: JSON.stringify(annotation),
     contentType: 'application/json',
     success: function(response) {
-      annotation.id = response.id;
+      annotation.uuid = response.uuid;
       annotation.user = response.user;
       annotation.created = response.created;
       annotation.lastModified = response.lastModified;
@@ -90,7 +90,7 @@ annotorious.plugin.Recogito.prototype._update = function(annotation) {
  */
 annotorious.plugin.Recogito.prototype._delete = function(annotation) {
   jQuery.ajax({
-    url: this.STORE_URI + '/' + annotation.id,
+    url: this.STORE_URI + '/' + annotation.uuid,
     type: 'DELETE'
   });
 }
