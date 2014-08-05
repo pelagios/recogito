@@ -1,16 +1,15 @@
 package controllers.common.annotation
 
+import controllers.{ Secure, Secured }
 import controllers.common.io.JSONSerializer
 import java.sql.Timestamp
 import java.util.{ Date, UUID }
 import models._
 import play.api.Logger
-import play.api.libs.json.Json
-import play.api.mvc.{ AnyContent, Controller }
-import play.api.libs.json.{ JsArray, JsObject }
 import play.api.db.slick._
-import controllers.Secure
-import controllers.Secured
+import play.api.mvc.{ AnyContent, Controller }
+import play.api.libs.json.{ Json, JsArray, JsObject }
+import scala.util.{ Try, Success, Failure }
 
 /** Annotation CRUD controller.
   *
@@ -36,11 +35,10 @@ trait AbstractAnnotationController extends Controller with Secured {
           if (toInsert.size == 0) {
             None
           } else {
-            val errorMsg = createOne(toInsert.head, username)
-            if (errorMsg.isDefined)
-              errorMsg
-            else
-              insertNext(toInsert.tail, username)
+            createOne(toInsert.head, username) match {
+              case Success(annotation) => insertNext(toInsert.tail, username)
+              case Failure(exception) => Some(exception.getMessage) 
+            }
           }
         }
  
@@ -53,11 +51,10 @@ trait AbstractAnnotationController extends Controller with Secured {
       } else {
         val json = body.get.as[JsObject]
         try {
-          val errorMsg = createOne(json, user.get.username)
-          if (errorMsg.isDefined)
-            BadRequest(Json.parse(errorMsg.get))
-          else
-            Ok(Json.parse("{ \"success\": true }"))
+          createOne(json, user.get.username) match {
+            case Success(annotation) => Ok(JSONSerializer.toJson(annotation, false, false))
+            case Failure(exception) => BadRequest(Json.parse("{ \"success\": false, \"message\": \"" + exception.getMessage + "\" }"))
+          }
         } catch {
           case t: Throwable => {
             Logger.error("Error creating annotation: " + json)
@@ -74,7 +71,7 @@ trait AbstractAnnotationController extends Controller with Secured {
     * The implementation of this method depends on whether we are dealing
     * with a text or image document 
     */
-  protected def createOne(json: JsObject, username: String)(implicit s: Session): Option[String]
+  protected def createOne(json: JsObject, username: String)(implicit s: Session): Try[Annotation]
   
   /** Get a specific annotation **/
   def get(uuid: UUID) = DBAction { implicit session =>

@@ -1,15 +1,16 @@
 package controllers.common.annotation
 
 import java.sql.Timestamp
-import java.util.Date
+import java.util.{ Date, UUID }
 import models._
 import play.api.db.slick._
 import play.api.Play.current
 import play.api.libs.json.{ Json, JsArray, JsObject }
+import scala.util.{ Try, Success, Failure }
 
 trait ImageAnnotationController {
   
-  protected def createOneImageAnnotation(json: JsObject, username: String)(implicit s: Session): Option[String] = {
+  protected def createOneImageAnnotation(json: JsObject, username: String)(implicit s: Session): Try[Annotation] = {
     val jsonGdocId = (json \ "gdocId").asOpt[Int] 
     val jsonGdocPartId = (json \ "gdocPartId").asOpt[Int]  
 
@@ -18,7 +19,7 @@ trait ImageAnnotationController {
     
     if (gdocPart.isEmpty && gdocId_verified.isEmpty) {
       // Annotation specifies neither valid GDocPart nor valid GDoc - invalid annotation
-      Some("{ \"success\": false, \"message\": \"Invalid GDoc or GDocPart ID\" }")
+      Failure(new RuntimeException("Invalid GDoc or GDocPart ID"))
         
     } else {
       // Create new annotation
@@ -45,8 +46,13 @@ trait ImageAnnotationController {
       EditHistory.insert(EditEvent(None, annotation.uuid, username, new Timestamp(new Date().getTime),
             None, None, None, None, None, None))
       
-      None // TODO must contain error message if anything goes wrong
+      Success(annotation)
     }
+  }
+  
+  protected def updateOneImageAnnotation(json: JsObject, uuid: Option[UUID], username: String)(implicit s: Session): Option[String] = {
+    // TODO implement
+    None
   }
 
 }

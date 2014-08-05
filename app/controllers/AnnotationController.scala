@@ -1,13 +1,14 @@
 package controllers
 
 import controllers.common.annotation._
+import controllers.common.io.JSONSerializer
 import java.util.UUID
 import play.api.Logger
 import play.api.db.slick._
 import play.api.libs.json.{ Json, JsArray, JsObject }
 import play.api.mvc.RequestHeader
-import models.Annotations
-import controllers.common.io.JSONSerializer
+import models.{ Annotation, Annotations }
+import scala.util.Try
 
 object AnnotationController extends AbstractAnnotationController with TextAnnotationController with ImageAnnotationController {
   
@@ -16,18 +17,25 @@ object AnnotationController extends AbstractAnnotationController with TextAnnota
       .filter(_._1.toLowerCase.equals(name))
       .headOption.flatMap(_._2.headOption)
   
-  override protected def createOne(json: JsObject, username: String)(implicit s: Session): Option[String] = {
+  override protected def createOne(json: JsObject, username: String)(implicit s: Session): Try[Annotation] = {
     // For the time being, we simply distinguish between text- & image-annotation based on the fact 
     // that the latter includes a 'shapes' property in the JSON
-    val jsonShapes = (json\ "shapes").asOpt[JsArray]
+    val jsonShapes = (json \ "shapes").asOpt[JsArray]
     if (jsonShapes.isDefined)
       createOneImageAnnotation(json, username)
     else    
       createOneTextAnnotation(json, username)
   }
   
-  override protected def updateOne(json: JsObject, uuid: Option[UUID], username: String)(implicit s: Session): Option[String] =
-    updateOneTextAnnotation(json, uuid, username)
+  override protected def updateOne(json: JsObject, uuid: Option[UUID], username: String)(implicit s: Session): Option[String] = {
+    // For the time being, we simply distinguish between text- & image-annotation based on the fact 
+    // that the latter includes a 'shapes' property in the JSON
+    val jsonShapes = (json \ "shapes").asOpt[JsArray]
+    if (jsonShapes.isDefined)
+      updateOneImageAnnotation(json, uuid, username)
+    else
+      updateOneTextAnnotation(json, uuid, username)
+  }
     
   def listAnnotations() = DBAction { implicit session =>
     val gdocPartId = getParam(session.request, "gdocPart")

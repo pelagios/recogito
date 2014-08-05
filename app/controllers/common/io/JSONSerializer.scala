@@ -19,9 +19,7 @@ object JSONSerializer {
       val anchor = if (a.correctedAnchor.isDefined) a.correctedAnchor else a.anchor
       
       Json.obj(
-        "uuid" -> a.uuid.toString,
-        "gdoc_id" -> a.gdocId,
-        "gdoc_part_id" -> a.gdocPartId,
+        "id" -> a.uuid.toString,
         "status" -> a.status.toString,
         "comment" -> a.comment,
         "shapes" -> anchor.map(anchor => Json.toJson(Seq(Json.parse(anchor)))))

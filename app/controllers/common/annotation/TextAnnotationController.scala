@@ -14,6 +14,7 @@ import org.pelagios.Scalagios
 import org.pelagios.api.Agent
 import org.pelagios.api.annotation.{ Annotation => OAnnotation, AnnotatedThing, Transcription, TranscriptionType, SpecificResource }
 import org.pelagios.api.annotation.selector.TextOffsetSelector
+import scala.util.{ Try, Success, Failure }
 
 trait TextAnnotationController extends AbstractAnnotationController {
   
@@ -23,7 +24,7 @@ trait TextAnnotationController extends AbstractAnnotationController {
   
   private val UTF8 = "UTF-8"
     
-  protected def createOneTextAnnotation(json: JsObject, username: String)(implicit s: Session): Option[String] = {
+  protected def createOneTextAnnotation(json: JsObject, username: String)(implicit s: Session): Try[Annotation] = {
     val jsonGdocId = (json\ "gdocId").asOpt[Int] 
     val jsonGdocPartId = (json \ "gdocPartId").asOpt[Int]  
     val jsonSource = (json \ "source").asOpt[String]
@@ -36,7 +37,7 @@ trait TextAnnotationController extends AbstractAnnotationController {
         
       if (!gdocPart.isDefined && !(jsonGdocId.isDefined && gdocId_verified.isDefined)) {
         // Annotation specifies neither valid GDocPart nor valid GDoc - invalid annotation
-        Some("{ \"success\": false, \"message\": \"Invalid GDoc or GDocPart ID\" }")
+        Failure(new RuntimeException("Invalid GDoc or GDocPart ID"))
         
       } else {
         // Create new annotation
@@ -64,13 +65,13 @@ trait TextAnnotationController extends AbstractAnnotationController {
         if (!isValid(annotation)) {
           // Annotation is mis-aligned with source text or has zero toponym length - something is wrong
           Logger.info("Invalid annotation error: " + correctedToponym + " - " + correctedOffset + " GDoc Part: " + gdocPart.map(_.id))
-          Some("{ \"success\": false, \"message\": \"Invalid annotation error (invalid offset or toponym).\" }")
+          Failure(new RuntimeException("Invalid annotation error (invalid offset or toponym)."))
           
         } else if (Annotations.getOverlappingAnnotations(annotation).size > 0) {
           // Annotation overlaps with existing ones - something is wrong
           Logger.info("Overlap error: " + correctedToponym + " - " + correctedOffset + " GDoc Part: " + gdocPart.get.id)
           Annotations.getOverlappingAnnotations(annotation).foreach(a => Logger.warn("Overlaps with " + a.uuid))
-          Some("{ \"success\": false, \"message\": \"Annotation overlaps with an existing one (details were logged).\" }")
+          Failure(new RuntimeException("Annotation overlaps with an existing one (details were logged)."))
           
         } else {
           Annotations.insert(annotation)
@@ -79,13 +80,13 @@ trait TextAnnotationController extends AbstractAnnotationController {
           EditHistory.insert(EditEvent(None, annotation.uuid, username, new Timestamp(new Date().getTime),
             None, Some(correctedToponym), None, None, None, None))
                                                       
-          None
+          Success(annotation)
         }
       }
     }   
   }
   
-  private def createOneCTS(json: JsObject, username: String)(implicit s: Session): Option[String] = {
+  private def createOneCTS(json: JsObject, username: String)(implicit s: Session): Try[Annotation] = {
     val source = (json \ "source").as[String]
     val correctedToponym = (json \ "corrected_toponym").as[String]
     val correctedOffset = (json \ "corrected_offset").as[Int]        
@@ -101,7 +102,7 @@ trait TextAnnotationController extends AbstractAnnotationController {
     EditHistory.insert(EditEvent(None, annotation.uuid, username, new Timestamp(new Date().getTime),
       None, Some(correctedToponym), None, None, None, None))
                                                       
-    None
+    Success(annotation)
   }
   
   /** Checks whether the annotation offset is properly aligned with the source text.
