@@ -159,7 +159,7 @@ trait TextAnnotationController extends AbstractAnnotationController {
     Ok(new String(out.toString(UTF8))).withHeaders(CONTENT_TYPE -> "application/rdf+xml", CONTENT_DISPOSITION -> ("attachment; filename=pelagios-egd.rdf"))      
   }
     
-  def updateOneTextAnnotation(json: JsObject, uuid: Option[UUID], username: String)(implicit s: Session): Option[String] = {    
+  protected def updateOneTextAnnotation(json: JsObject, uuid: Option[UUID], username: String)(implicit s: Session): Option[String] = {    
     val annotation = if (uuid.isDefined) {
         Annotations.findByUUID(uuid.get)        
       } else {
