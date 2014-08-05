@@ -36,8 +36,10 @@ object GeoDocumentImages {
   /** Retrieve a text with the specified ID (= primary key) **/
   def findById(id: Int)(implicit s: Session): Option[GeoDocumentImage] =
     query.where(_.id === id).firstOption
-    
-    
+
+  /** Deletes texts associated with a GeoDocument **/  
+  def deleteForGeoDocument(id: Int)(implicit s: Session) =
+    query.where(_.gdocId === id).delete
   
   /** Retrieves all image records associated with a specific GeoDocument (or parts of it) **/
   def findByGeoDocument(gdocId: Int)(implicit s: Session): Seq[GeoDocumentImage] =

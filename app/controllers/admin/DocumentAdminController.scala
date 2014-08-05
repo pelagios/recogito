@@ -67,6 +67,7 @@ object DocumentAdminController extends Controller with Secured {
   def deleteDocument(id: Int) = protectedDBAction(Secure.REJECT) { username => implicit session =>
     Annotations.deleteForGeoDocument(id)
     GeoDocumentTexts.deleteForGeoDocument(id)
+    GeoDocumentImages.deleteForGeoDocument(id)
     GeoDocumentParts.deleteForGeoDocument(id)    
     GeoDocuments.delete(id)
     Status(200)
