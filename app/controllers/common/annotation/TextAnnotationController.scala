@@ -134,7 +134,7 @@ trait TextAnnotationController extends AbstractAnnotationController {
     }
   }
   
-  def forSource(source: String) = DBAction { implicit session =>    
+  protected def forCtsURI(source: String)(implicit s: DBSessionRequest[_]): String = { 
     // Convert Recogito annotations to OA
     val basePath = controllers.routes.ApplicationController.index(None).absoluteURL(false)
     val thing = AnnotatedThing(basePath + "egd", source)
@@ -156,7 +156,7 @@ trait TextAnnotationController extends AbstractAnnotationController {
 
     val out = new ByteArrayOutputStream()
     Scalagios.writeAnnotations(Seq(thing), out, Scalagios.RDFXML)
-    Ok(new String(out.toString(UTF8))).withHeaders(CONTENT_TYPE -> "application/rdf+xml", CONTENT_DISPOSITION -> ("attachment; filename=pelagios-egd.rdf"))      
+    new String(out.toString(UTF8))   
   }
     
   protected def updateOneTextAnnotation(json: JsObject, uuid: Option[UUID], username: String)(implicit s: Session): Option[String] = {    

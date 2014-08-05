@@ -17,6 +17,14 @@
           'gdoc_part_id': null });
     
       $(document).ready(function() {
+        var header = $('#header'),
+            footer = $('#footer'),
+            annotationArea = $('#annotation-area');
+            
+        annotationArea.css({
+          'top': header.height(), 
+          'bottom': footer.height() });
+        
         new recogito.ImageAnnotationUI(
           'ol', 
           '@routes.Assets.at("uploads/" + image.imageFilePath)',
@@ -53,13 +61,14 @@
       </div>
     </div>   
     
-    <div id="content">
-      <div id="ol"></div>
-    </div>
+    <div id="annotation-area">
     
-    <div id="footer">
-      <div id="user">
-        You are logged in as <span id="username">@username</span> <a href="@routes.AuthController.logout" class="icon">&#xf011;</a>
+      <div id="ol"></div>
+      
+      <div id="footer">
+        <div id="user">
+          You are logged in as <span id="username">@username</span> <a href="@routes.AuthController.logout" class="icon">&#xf011;</a>
+        </div>
       </div>
     </div>
   </body>

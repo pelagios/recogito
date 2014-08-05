@@ -24,7 +24,7 @@ GET     /recogito/api/documents                    controllers.DocumentControlle
 GET     /recogito/api/annotations/:id              controllers.AnnotationController.get(id: java.util.UUID)
 PUT     /recogito/api/annotations/:id              controllers.AnnotationController.updateSingle(id: java.util.UUID)
 DELETE  /recogito/api/annotations/:id              controllers.AnnotationController.delete(id: java.util.UUID)
-GET     /recogito/api/annotations                  controllers.AnnotationController.forSource(ctsURI: String)
+GET     /recogito/api/annotations                  controllers.AnnotationController.listAnnotations
 POST    /recogito/api/annotations                  controllers.AnnotationController.create
 PUT     /recogito/api/annotations/                 controllers.AnnotationController.updateBatch
 

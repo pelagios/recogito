@@ -23,6 +23,7 @@ trait ImageAnnotationController {
     } else {
       // Create new annotation
       val jsonAnchor = (json \ "shapes").as[JsArray]
+      val jsonText = (json \ "text").asOpt[String]
       
       val annotation = 
         Annotation(Annotations.newUUID, gdocId_verified, gdocPart.map(_.id).flatten, 
@@ -33,7 +34,10 @@ trait ImageAnnotationController {
                    None, // gazetteer URI (automatch) 
                    None, // corrected toponym
                    None, // corrected offset
-                   Some(Json.stringify(jsonAnchor(0))))
+                   Some(Json.stringify(jsonAnchor(0))),
+                   None, // corrected gazetteer URI
+                   None, // tags
+                   jsonText) // comment
                    
       Annotations.insert(annotation)
     

@@ -13,6 +13,20 @@ object JSONSerializer {
    
   private val UTF8 = "UTF-8"  
   private val CONTEXT_SIZE = 80
+  
+  def toJson(annotations: Seq[Annotation]): Seq[JsObject] = {
+    annotations.map(a => {
+      val anchor = if (a.correctedAnchor.isDefined) a.correctedAnchor else a.anchor
+      
+      Json.obj(
+        "uuid" -> a.uuid.toString,
+        "gdoc_id" -> a.gdocId,
+        "gdoc_part_id" -> a.gdocPartId,
+        "status" -> a.status.toString,
+        "comment" -> a.comment,
+        "shapes" -> anchor.map(anchor => Json.toJson(Seq(Json.parse(anchor)))))
+    })
+  }
 
   /** Serializes a single annotation, with optional fulltext context.
     *  

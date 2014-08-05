@@ -35,7 +35,17 @@ annotorious.plugin.Recogito.prototype._showError = function(error) {
 
 /** @private **/
 annotorious.plugin.Recogito.prototype._loadAnnotations = function(anno) {
-
+  var self = this;
+	jQuery.getJSON(this.STORE_URI + '?gdoc=' + this.GDOC_ID, function(data) {
+	  jQuery.each(data, function(idx, annotation) {
+      annotation.src = 'map://openlayers/something';
+      if (annotation.comment) {
+        annotation.text =  annotation.comment;
+        delete annotation.comment;
+      }
+	    anno.addAnnotation(annotation);
+	  });
+  });
 }
 
 /** @private **/
