@@ -1,6 +1,6 @@
 package controllers
 
-import controllers.common.annotation._
+import controllers.annotation._
 import controllers.common.io.JSONSerializer
 import java.util.UUID
 import play.api.Logger

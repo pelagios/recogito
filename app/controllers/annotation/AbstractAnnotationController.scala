@@ -1,4 +1,4 @@
-package controllers.common.annotation
+package controllers.annotation
 
 import controllers.{ Secure, Secured }
 import controllers.common.io.JSONSerializer

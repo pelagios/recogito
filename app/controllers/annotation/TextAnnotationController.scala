@@ -1,4 +1,4 @@
-package controllers.common.annotation
+package controllers.annotation
 
 import global.Global
 import java.io.ByteArrayOutputStream

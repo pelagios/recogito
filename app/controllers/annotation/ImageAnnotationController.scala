@@ -1,4 +1,4 @@
-package controllers.common.annotation
+package controllers.annotation
 
 import java.sql.Timestamp
 import java.util.{ Date, UUID }

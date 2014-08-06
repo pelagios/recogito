@@ -44,6 +44,8 @@ GET     /recogito/feeds/recent                     controllers.FeedController.re
 GET     /recogito/map                              controllers.ApplicationController.showMap(doc: Int)
 GET     /recogito/docs                             controllers.ApplicationController.showDocumentation
 
+GET     /recogito/stats/users/:user                controllers.StatsController.showUserStats(user: String)
+
 # Private views - TODO needs a little cleanup
 GET     /recogito/annotation/text                  controllers.ApplicationController.showTextAnnotationUI(text: Option[Int], ctsURI: Option[String])
 GET     /recogito/annotation/image/:id             controllers.ApplicationController.showImageAnnotationUI(id: Int)
