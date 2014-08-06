@@ -1,0 +1,18 @@
+@(scores: Seq[(User, Int)])
+<html>
+  <head>
+    <title>RECOGITO User Stats</title>
+  </head>
+  
+  <body>
+    <table>
+      @for(score <- scores) {
+        <tr>
+          <td>@score._1.username</td>
+          <td>@score._2</td>
+        </tr>
+      }
+    </table>
+  </body>
+</html>
+    

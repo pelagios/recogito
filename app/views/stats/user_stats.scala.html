@@ -1,4 +1,4 @@
-@(user: User)
+@(user: User, numberOfEdits: Int)
 <html>
   <head>
     <title>RECOGITO User Stats &raquo; @user.username</title>
@@ -6,6 +6,8 @@
   
   <body>
     <h1>@user.username</h1>
+    <p>Member since @user.memberSince</p>
+    <p>Number of contributions: @numberOfEdits</p>
   </body>
 </html>
     

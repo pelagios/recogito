@@ -10,7 +10,7 @@ libraryDependencies ++= Seq(jdbc, cache)
 
 /** Runtime dependencies **/
 libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play-slick" % "0.6.0.1",
+  "com.typesafe.play" %% "play-slick" % "0.6.1",
   "commons-codec" % "commons-codec" % "1.9",
   "org.xerial" % "sqlite-jdbc" % "3.7.2",
   "postgresql" % "postgresql" % "9.1-901.jdbc4",

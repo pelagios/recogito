@@ -125,4 +125,16 @@ object EditHistory {
   def countSince(time: Timestamp)(implicit s: Session): Int = 
     query.where(_.timestamp > time).list.size
     
+  def countForUser(username: String)(implicit s: Session): Int =
+    Query(query.where(_.username === username).length).first
+    
+  def listHighscores(limit: Int)(implicit s: Session): Seq[(User, Int)] = {
+    val q = for {
+      (username, numberOfEdits) <- query.groupBy(_.username).map(tuple => (tuple._1, tuple._2.length))
+      user <- Users.query.where(_.username === username)
+    } yield (user, numberOfEdits)
+    
+    q.sortBy(_._2.desc).take(limit).list
+  }
+    
 }

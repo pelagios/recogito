@@ -47,7 +47,7 @@ object Users {
 
   private val MD5 = "MD5"
       
-  private val query = TableQuery[Users]
+  private[models] val query = TableQuery[Users]
   
   def create()(implicit s: Session) = query.ddl.create
   

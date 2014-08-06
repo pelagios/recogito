@@ -104,12 +104,13 @@ class CSVSerializer extends BaseSerializer {
     * @param users the users to serialize to CSV  
     */
   def serializeUsers(users: Seq[User]): String = {
-    val header = Seq("username","hash","salt","editable_documents","is_admin").mkString(SEPARATOR) + SEPARATOR + "\n"
+    val header = Seq("username","hash","salt","member_since","editable_documents","is_admin").mkString(SEPARATOR) + SEPARATOR + "\n"
     users.foldLeft(header)((csv, user) => {
       csv +
       esc(user.username) + SEPARATOR +
       user.hash + SEPARATOR +
       user.salt + SEPARATOR +
+      user.memberSince + SEPARATOR +
       user.editableDocuments + SEPARATOR +
       user.isAdmin.toString + SEPARATOR + "\n"
     })
