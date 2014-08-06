@@ -10,7 +10,8 @@ object StatsController extends Controller {
     val user = Users.findByUsername(username)
     if (user.isDefined) {
       val numberOfEdits = EditHistory.countForUser(username)
-      Ok(views.html.stats.user_stats(user.get, numberOfEdits))
+      val numberOfEditsPerDocument = EditHistory.countForUserPerDocument(username)
+      Ok(views.html.stats.user_stats(user.get, numberOfEdits, numberOfEditsPerDocument))
     } else {
       NotFound
     } 

@@ -125,7 +125,7 @@ class Annotations(tag: Tag) extends Table[Annotation](tag, "annotations") with H
 
 object Annotations extends HasStatusColumn {
   
-  private val query = TableQuery[Annotations]
+  private[models] val query = TableQuery[Annotations]
   
   private val sortByOffset = { a: Annotation =>
     val offset = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset

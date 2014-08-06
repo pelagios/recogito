@@ -128,6 +128,24 @@ object EditHistory {
   def countForUser(username: String)(implicit s: Session): Int =
     Query(query.where(_.username === username).length).first
     
+  def countForUserPerDocument(username: String)(implicit s: Session): Seq[(GeoDocument, Int)] = {
+    // A list where each event is mapped to the affected annotation
+    // Note: annotations can appear multiple times in this list! Since we're interested
+    // in the number of events (not number of unique annotations) this is what we're intending!
+    val annotationsForEvent = for {
+      annotationUUID <- query.where(_.username === username).map(_.annotationId)
+      annotation <- Annotations.query.where(_.uuid === annotationUUID)
+    } yield annotation
+    
+    // Now we group by the GDocID, and map the result to a pair (GDoc, numberOfEvents) 
+    val second = for {
+      (gdocId, numberOfEvents) <- annotationsForEvent.groupBy(_.gdocId).map(t => (t._1, t._2.length))
+      gdoc <- GeoDocuments.query.where(_.id === gdocId)
+    } yield (gdoc, numberOfEvents)
+
+    second.sortBy(_._2.desc).list
+  }
+    
   def listHighscores(limit: Int)(implicit s: Session): Seq[(User, Int)] = {
     val q = for {
       (username, numberOfEdits) <- query.groupBy(_.username).map(tuple => (tuple._1, tuple._2.length))

@@ -97,7 +97,7 @@ class GeoDocuments(tag: Tag) extends Table[GeoDocument](tag, "gdocuments") {
     
 object GeoDocuments {
   
-  private val query = TableQuery[GeoDocuments]
+  private[models] val query = TableQuery[GeoDocuments]
   
   def create()(implicit s: Session) = query.ddl.create
   
