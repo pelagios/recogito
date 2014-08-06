@@ -85,6 +85,7 @@ class CSVParser extends BaseParser {
     val idxUsername = idx(header, "username")
     val idxHash = idx(header, "hash")
     val idxSalt = idx(header, "salt")
+    val idxMemberSince = idx(header, "member_since")
     val idxEditableDocuments = idx(header, "editable_documents")
     val idxIsAdmin = idx(header, "is_admin")
     
@@ -94,6 +95,7 @@ class CSVParser extends BaseParser {
         fields(idxUsername.get),
         fields(idxHash.get),
         fields(idxSalt.get),
+        new Timestamp(fields(idxMemberSince.get).toLong),
         fields(idxEditableDocuments.get),
         fields(idxIsAdmin.get).toBoolean)
     }).toSeq

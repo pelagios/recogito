@@ -3,6 +3,7 @@ package global
 import akka.actor.Cancellable
 import models._
 import java.io.{ File, FileInputStream }
+import java.sql.Timestamp
 import java.util.zip.GZIPInputStream
 import org.openrdf.rio.RDFFormat
 import org.pelagios.Scalagios
@@ -64,7 +65,7 @@ object Global extends GlobalSettings {
          
         // Create default admin user        
         val salt = Users.randomSalt
-        Users.insert(User("admin", Users.computeHash(salt + "admin"), salt, "*", true))
+        Users.insert(User("admin", Users.computeHash(salt + "admin"), salt, new Timestamp(System.currentTimeMillis), "*", true))
       }
        
       if (MTable.getTables("gdocuments").list().isEmpty) {

@@ -1,18 +1,19 @@
 package models
 
+import java.math.BigInteger
+import java.sql.Timestamp
+import java.security.MessageDigest
+import org.apache.commons.codec.binary.Base64
 import play.api.Play.current
 import play.api.db.slick.Config.driver.simple._
-import java.security.MessageDigest
-import java.math.BigInteger
-import sun.security.provider.SecureRandom
-import org.apache.commons.codec.binary.Base64
 import scala.slick.lifted.Tag
+import sun.security.provider.SecureRandom
 
 /** User case class.
   *
   * @author Rainer Simon <rainer.simon@ait.ac.at>
   */ 
-case class User(username: String, hash: String, salt: String, editableDocuments: String = "*", isAdmin: Boolean = false) {
+case class User(username: String, hash: String, salt: String, memberSince: Timestamp, editableDocuments: String = "*", isAdmin: Boolean = false) {
 
   def canEdit(docId: Int): Boolean = {
     if (editableDocuments.trim.equals("*"))
@@ -32,11 +33,13 @@ class Users(tag: Tag) extends Table[User](tag, "users") {
   
   def salt = column[String]("salt", O.NotNull)
   
+  def memberSince = column[Timestamp]("member_since", O.NotNull)
+  
   def editableDocuments = column[String]("editable_documents", O.NotNull)
   
   def isAdmin = column[Boolean]("is_admin")
   
-  def * = (username, hash, salt, editableDocuments, isAdmin) <> (User.tupled, User.unapply)
+  def * = (username, hash, salt, memberSince, editableDocuments, isAdmin) <> (User.tupled, User.unapply)
   
 }
 

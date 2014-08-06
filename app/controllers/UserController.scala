@@ -43,7 +43,7 @@ object UserController extends Controller with Secured {
         if (valid) {
           val newSalt = Users.randomSalt
           val newHash = Users.computeHash(newSalt + data.newPassword)
-          Users.update(User(username, newHash, newSalt, user.get.editableDocuments, user.get.isAdmin))(s)
+          Users.update(User(username, newHash, newSalt, user.get.memberSince, user.get.editableDocuments, user.get.isAdmin))(s)
           Redirect(routes.UserController.changePassword).flashing("success" -> "Your password was successfully changed")
         } else {
           Redirect(routes.UserController.changePassword).flashing("error" -> "Invalid current password")

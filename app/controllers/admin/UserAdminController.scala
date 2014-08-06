@@ -1,6 +1,7 @@
 package controllers.admin
 
 import controllers.{ Secure, Secured }
+import java.sql.Timestamp
 import models.{ User, Users }
 import play.api.data._
 import play.api.data.Forms._
@@ -59,7 +60,7 @@ object UserAdminController extends Controller with Secured {
       formWithErrors => BadRequest(views.html.admin.signup(formWithErrors)),
       data => DB.withSession { s: Session =>
         val salt = Users.randomSalt
-        Users.insert(User(data.username, Users.computeHash(salt + data.password), salt))(s)
+        Users.insert(User(data.username, Users.computeHash(salt + data.password), salt, new Timestamp(System.currentTimeMillis)))(s)
         Redirect(controllers.routes.ApplicationController.index(None)).withSession(Security.username -> data.username) 
       }
     )
