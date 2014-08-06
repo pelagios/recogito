@@ -160,23 +160,24 @@ trait TextAnnotationController extends AbstractAnnotationController {
     new String(out.toString(UTF8))   
   }
     
-  protected def updateOneTextAnnotation(json: JsObject, uuid: Option[UUID], username: String)(implicit s: Session): Option[String] = {    
+  protected def updateOneTextAnnotation(json: JsObject, uuid: Option[UUID], username: String)(implicit s: Session): Try[Annotation] = {    
     val annotation = if (uuid.isDefined) {
         Annotations.findByUUID(uuid.get)        
       } else {
-        (json \ "id").as[Option[String]].map(uuid => Annotations.findByUUID(UUID.fromString(uuid))).flatten
+        (json \ "id").as[Option[String]].flatMap(uuid => Annotations.findByUUID(UUID.fromString(uuid)))
       }
       
     if (!annotation.isDefined) {
       // Someone tries to update an annotation that's not in the DB
-      Some("{ \"success\": false, \"message\": \"Annotation not found\" }")      
+      Failure(new RuntimeException("Annotation not found"))
+      
     } else { 
-      val correctedStatus = (json \ "status").as[Option[String]].map(AnnotationStatus.withName(_))
-      val correctedToponym = (json \ "corrected_toponym").as[Option[String]]
-      val correctedOffset = (json \ "corrected_offset").as[Option[Int]]
-      val correctedURI = (json \ "corrected_uri").as[Option[String]]
-      val correctedTags = (json \ "tags").as[Option[String]].map(_.toLowerCase)
-      val correctedComment = (json \ "comment").as[Option[String]]
+      val correctedStatus = (json \ "status").asOpt[String].map(AnnotationStatus.withName(_))
+      val correctedToponym = (json \ "corrected_toponym").asOpt[String]
+      val correctedOffset = (json \ "corrected_offset").asOpt[Int]
+      val correctedURI = (json \ "corrected_uri").asOpt[String]
+      val correctedTags = (json \ "tags").asOpt[String].map(_.toLowerCase)
+      val correctedComment = (json \ "comment").asOpt[String]
         
       val updatedStatus = correctedStatus.getOrElse(annotation.get.status)
       val updatedToponym = if (correctedToponym.isDefined) correctedToponym else annotation.get.correctedToponym
@@ -189,10 +190,22 @@ trait TextAnnotationController extends AbstractAnnotationController {
       val offset = if (updatedOffset.isDefined) updatedOffset else annotation.get.offset
                      
       val updated = 
-        Annotation(annotation.get.uuid, annotation.get.gdocId, annotation.get.gdocPartId, 
+        Annotation(annotation.get.uuid,
+                   annotation.get.gdocId,
+                   annotation.get.gdocPartId, 
                    updatedStatus,
-                   annotation.get.toponym, annotation.get.offset, None, annotation.get.gazetteerURI, 
-                   updatedToponym, updatedOffset, None, updatedURI, updatedTags, updatedComment, annotation.get.source)
+                   annotation.get.toponym,
+                   annotation.get.offset, 
+                   annotation.get.anchor, 
+                   annotation.get.gazetteerURI, 
+                   updatedToponym,
+                   updatedOffset,
+                   annotation.get.correctedAnchor, 
+                   updatedURI,
+                   updatedTags,
+                   updatedComment,
+                   annotation.get.source,
+                   { if (annotation.get.seeAlso.size > 0) Some(annotation.get.seeAlso.mkString(",")) else None })
                    
       // Important: if an annotation was created manually, and someone marks it as 'false detection',
       // We delete it instead!
@@ -207,7 +220,8 @@ trait TextAnnotationController extends AbstractAnnotationController {
       // Record edit event
       val user = Users.findByUsername(username) // The user is logged in, so we can assume the Option is defined
       EditHistory.insert(createDiffEvent(annotation.get, updated, user.get.username))
-      None
+      
+      Success(updated)
     }
   }
   

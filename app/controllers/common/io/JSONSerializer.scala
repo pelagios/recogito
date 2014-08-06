@@ -21,6 +21,7 @@ object JSONSerializer {
       Json.obj(
         "id" -> a.uuid.toString,
         "status" -> a.status.toString,
+        "toponym" -> { if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym },
         "comment" -> a.comment,
         "shapes" -> anchor.map(anchor => Json.toJson(Seq(Json.parse(anchor)))))
     })

@@ -39,10 +39,8 @@ annotorious.plugin.Recogito.prototype._loadAnnotations = function(anno) {
 	jQuery.getJSON(this.STORE_URI + '?gdoc=' + this.GDOC_ID, function(data) {
 	  jQuery.each(data, function(idx, annotation) {
       annotation.src = 'map://openlayers/something';
-      if (annotation.comment) {
-        annotation.text =  annotation.comment;
-        delete annotation.comment;
-      }
+      annotation.text =  annotation.toponym;
+      delete annotation.toponym;
 	    anno.addAnnotation(annotation);
 	  });
   });

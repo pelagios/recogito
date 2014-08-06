@@ -105,11 +105,10 @@ trait AbstractAnnotationController extends Controller with Secured {
           if (toUpdate.size == 0) {
             None
           } else {
-            val errorMsg = updateOne(toUpdate.head, None, username)
-            if (errorMsg.isDefined)
-              errorMsg
-            else
-              updateNext(toUpdate.tail, username)
+            updateOne(toUpdate.head, None, username) match {
+              case Success(annotation) => updateNext(toUpdate.tail, username)
+              case Failure(exception) => Some(exception.getMessage)
+            }
           }
         }
  
@@ -124,11 +123,10 @@ trait AbstractAnnotationController extends Controller with Secured {
           // Single annotation in JSON body, but no UUID provided - bad request
           BadRequest(Json.parse("{ \"success\": false, \"message\": \"Missing JSON body\" }"))
         } else {
-          val errorMsg = updateOne(body.get.as[JsObject], uuid, username)
-          if (errorMsg.isDefined)
-            BadRequest(Json.parse(errorMsg.get))
-          else
-            Ok(Json.parse("{ \"success\": true }"))
+          updateOne(body.get.as[JsObject], uuid, username) match {
+            case Success(annotation) => Ok(JSONSerializer.toJson(annotation, false, false))
+            case Failure(exception) => BadRequest(Json.parse("{ \"success\": false, \"message\": \"" + exception.getMessage + "\" }"))
+          }
         }
       }
     } 
@@ -139,7 +137,7 @@ trait AbstractAnnotationController extends Controller with Secured {
     * The implementation of this method depends on whether we are dealing
     * with a text or image document 
     */
-  protected def updateOne(json: JsObject, uuid: Option[UUID], username: String)(implicit s: Session): Option[String]
+  protected def updateOne(json: JsObject, uuid: Option[UUID], username: String)(implicit s: Session): Try[Annotation]
   
   /** Deletes an annotation.
     *  

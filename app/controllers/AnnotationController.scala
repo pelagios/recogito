@@ -27,7 +27,7 @@ object AnnotationController extends AbstractAnnotationController with TextAnnota
       createOneTextAnnotation(json, username)
   }
   
-  override protected def updateOne(json: JsObject, uuid: Option[UUID], username: String)(implicit s: Session): Option[String] = {
+  override protected def updateOne(json: JsObject, uuid: Option[UUID], username: String)(implicit s: Session): Try[Annotation] = {
     // For the time being, we simply distinguish between text- & image-annotation based on the fact 
     // that the latter includes a 'shapes' property in the JSON
     val jsonShapes = (json \ "shapes").asOpt[JsArray]
