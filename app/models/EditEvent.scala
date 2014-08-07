@@ -113,8 +113,13 @@ object EditHistory {
   def findByAnnotation(uuid: UUID)(implicit s: Session): Seq[EditEvent] =
     query.where(_.annotationId === uuid.bind).list
     
-  def getLastN(n: Int)(implicit s: Session): Seq[EditEvent] =
-    query.sortBy(_.timestamp.desc).take(n).list
+  def getLastN(n: Int)(implicit s: Session): Seq[(EditEvent, Option[Int])] = {
+    val q = for {
+      (event, annotation) <- query leftJoin Annotations.query on (_.annotationId === _.uuid)
+    } yield (event, annotation.gdocId.?)
+      
+    q.sortBy(_._1.timestamp.desc).take(n).list
+  }
     
   def getLastN(n: Int, status: AnnotationStatus.Value*)(implicit s: Session): Seq[EditEvent] =
     query.sortBy(_.timestamp.desc).filter(e => status.contains(e.updatedStatus)).take(n).list

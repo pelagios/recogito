@@ -1,45 +1,63 @@
-@(stats: Seq[models.StatsRecord])
-
+@(scores: Seq[(User, Int)], editHistory: Seq[(EditEvent, Option[GeoDocument])])
 <html>
   <head>
-    <title>RECOGITO Stats</title>
-    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/chart/chart.min.js")"></script>
-    <script>
-      window.onload = function() {
-        var data = {
-          labels: [@Html(stats.map(_ => "''").mkString(","))],
-    	  datasets : [
-    	    { // Unverified
-    		  fillColor : "rgba(220,220,220,0.3)",
-    		  strokeColor : "rgba(220,220,220,1)",
-    		  pointColor : "rgba(220,220,220,1)",
-    		  pointStrokeColor : "#fff",
-    		  data : [@stats.map(s => s.verifiedToponyms + s.unverifiedToponyms + s.unidentifiableToponyms).mkString(",")]    
-    		}, { // Verified
-    		  fillColor : "rgba(0,128,0,0.5)",
-    		  strokeColor : "rgba(0,128,0,1)",
-    		  pointColor : "rgba(0,128,0,1)",
-    		  pointStrokeColor : "#fff",
-    		  data : [@stats.map(s => s.verifiedToponyms + s.unidentifiableToponyms).mkString(",")]
-    		},{ // Unidentifiable
-    		  fillColor : "rgba(255,255,0,0.5)",
-    		  strokeColor : "rgba(255,255,0,1)",
-    		  pointColor : "rgba(255,255,0,1)",
-    		  pointStrokeColor : "#fff",
-    		  data : [@stats.map(_.unidentifiableToponyms).mkString(",")]		  
-    		}
-          ]
-    	};
-	
-        var ctx = document.getElementById('chart').getContext('2d');
-        var statsChart = new Chart(ctx).Line(data);
-      }
-    </script>
+    <title>RECOGITO User Stats</title>
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/stats/main.css")" />
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-1.11.1.min.js")"></script>   
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/numeral/numeral.min.js")"></script>   
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/timeago/jquery.timeago.js")"></script>   
   </head>
   
   <body>
-    <canvas id="chart" width="600" height="400"></canvas>
+    <div class="column">
+      <div id="title">
+        <h1>Recogito</h1>
+      </div>
+      
+      <div id="content">
+        <div class="box">
+          <h2>Top Contributors</h2>
+      
+          <table>
+            @for((user, score) <- scores) {
+              @defining(100 * score.toDouble / scores(0)._2) { percentage =>
+                <tr>
+                  <td><a href="@routes.StatsController.showUserStats(user.username)">@user.username</a></td>
+                  <td class="score">
+                    <div class="meter">
+                      <div class="bar" style="width:@percentage%"></div><span><span class="number">@score</span> Edits</span>
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </table>
+        </div> <!-- .box -->
+        
+        <div class="box">
+          <h2>Recogito Right Now...</h2>
+          <table>
+            @for((event, gdoc) <- editHistory) {
+              <tr>
+                <td>@event.username</td>
+                <td class="timeago" title="@event.timestamp.format("yyyy-MM-dd'T'HH:mm:ssZ")">@event.timestamp.format("yyyy-MM-dd'T'HH:mm:ssZ")</td>
+                <td>@gdoc.flatMap(_.author.map(_ + ": ")) @gdoc.map(_.title)</td>
+              </tr>
+            }
+          </table>
+        </div>
+      </div> <!-- #content -->
+    </div> <!-- .column -->
+    <script>
+      $(document).ready(function() {
+        $.each($('.number'), function(idx, el) {
+          var formatted = numeral($(el).text()).format('0,0');
+          $(el).html(formatted);
+        });
+
+        $('.timeago').timeago();
+      });
+    </script>
   </body>
 </html>
     
-
