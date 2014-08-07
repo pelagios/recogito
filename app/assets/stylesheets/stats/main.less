@@ -23,20 +23,41 @@
   } /** h1 **/
   
   h2 {
-    margin:0;
+    margin:3px 0;
     padding:0;
     color:#676767;
     font-weight:300;
     font-size:20px;
     padding-left:3px;
   } /** h2 **/
+  
+  .user-meta {
+    padding:3px 0 2px 3px;
+    margin:0;
+    font-size:14px;
+  }
 
 }
 
 #content {
   position:absolute;
-  top:30px;
+  top:22px;
   left:280px;
+
+  p { text-align:right; }
+  
+  p.large {
+    font-size:14px;
+    
+    em {
+      color:#676767;
+      font-size:30px;
+      font-weight:bold;
+      font-style:normal;
+      text-shadow:1px 1px rgba(0,0,0,0.4);
+    }
+    
+  }
 
   .box {
     border:1px solid #d5d5d5;
@@ -72,7 +93,16 @@
         
       }
       
+      .compact { 
+        max-width:210px; 
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow: ellipsis;
+      }
+      
       .score {
+        .compact { overflow:visible }
+        
         .meter {
           width:380px;
           white-space:nowrap;

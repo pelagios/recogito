@@ -2,21 +2,50 @@
 <html>
   <head>
     <title>RECOGITO User Stats &raquo; @user.username</title>
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/stats/main.css")" />
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-1.11.1.min.js")"></script>   
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/numeral/numeral.min.js")"></script> 
   </head>
   
   <body>
-    <h1>@user.username</h1>
-    <p>Member since @user.memberSince</p>
-    <p>Number of contributions: @numberOfEdits (includes deletions!)</p>
+    <div class="column">
+      <div id="title">
+        <h1>Recogito</h1>
+        <h2>@user.username</h2>
+        <p class="user-meta">Joined on @user.memberSince.format("MMM dd, YYYY")</p>
+      </div>
     
-    <table>
-      @for((doc, numberOfEdits) <- numberOfEditsPerDocument) {
-      	<tr>
-      	  <td>@doc.title</td>
-      	  <td>@numberOfEdits</td>
-      	</tr>
-      }
-    </table>
+      <div id="content">
+        <p class="large"><em class="number">@numberOfEdits</em> contributions (deletions included)</p>
+
+        <div class="box">
+          <h2>@user.username's Top Documents</h2>    
+          <table>
+            @for((doc, numberOfEdits) <- numberOfEditsPerDocument) {
+              @defining(100 * numberOfEdits.toDouble / numberOfEditsPerDocument(0)._2) { percentage =>
+      	        <tr>
+      	          <td class="compact">
+                    @doc.author.map(_ + ": ").getOrElse("")
+                    @doc.title
+                  </td>
+                  <td class="score">
+                    <div class="meter compact">
+                      <div class="bar" style="width:@percentage%"></div><span><span class="number">@numberOfEdits</span> Edits</span>
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </table>
+        </div>
+      </div>
+    </div>
+    <script>
+      $.each($('.number'), function(idx, el) {
+        var formatted = numeral($(el).text()).format('0,0');
+        $(el).html(formatted);
+      });
+    </script>
   </body>
 </html>
     
