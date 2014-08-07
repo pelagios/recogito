@@ -3,6 +3,8 @@
   <head>
     <title>RECOGITO User Stats</title>
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/stats/main.css")" />
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-1.11.1.min.js")"></script>   
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/numeral/numeral.min.js")"></script>   
   </head>
   
   <body>
@@ -23,7 +25,7 @@
                   <td><a href="@routes.StatsController.showUserStats(user.username)">@user.username</a></td>
                   <td class="score">
                     <div class="meter">
-                      <div class="bar" style="width:@percentage%"></div><span>@score Edits</span>
+                      <div class="bar" style="width:@percentage%"></div><span><span class="number">@score</span> Edits</span>
                     </div>
                   </td>
                 </tr>
@@ -33,6 +35,12 @@
         </div>
       </div>
     </div>
+    <script>
+      $.each($('.number'), function(idx, el) {
+        var formatted = numeral($(el).text()).format('0,0');
+        $(el).html(formatted);
+      });
+    </script>
   </body>
 </html>
     
