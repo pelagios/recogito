@@ -2,17 +2,37 @@
 <html>
   <head>
     <title>RECOGITO User Stats</title>
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/stats/main.css")" />
   </head>
   
   <body>
-    <table>
-      @for(score <- scores) {
-        <tr>
-          <td>@score._1.username</td>
-          <td>@score._2</td>
-        </tr>
-      }
-    </table>
+    <div class="column">
+      <div id="title">
+        <h1>Recogito</h1>
+        <!-- h2>Highscores</h2 -->
+      </div>
+      
+      <div id="content">
+        <div class="box">
+          <h2>Top Contributors</h2>
+      
+          <table>
+            @for((user, score) <- scores) {
+              @defining(100 * score.toDouble / scores(0)._2) { percentage =>
+                <tr>
+                  <td><a href="@routes.StatsController.showUserStats(user.username)">@user.username</a></td>
+                  <td class="score">
+                    <div class="meter">
+                      <div class="bar" style="width:@percentage%"></div><span>@score Edits</span>
+                    </div>
+                  </td>
+                </tr>
+              }
+            }
+          </table>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
     

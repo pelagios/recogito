@@ -18,7 +18,7 @@ object StatsController extends Controller {
   }
   
   def showHighscores() = DBAction { implicit request =>
-   Ok(views.html.stats.highscores(EditHistory.listHighscores(100)))
+   Ok(views.html.stats.highscores(EditHistory.listHighscores(20)))
   }
 
 }

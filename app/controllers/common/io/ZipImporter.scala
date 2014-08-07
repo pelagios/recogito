@@ -171,6 +171,8 @@ object ZipImporter {
     // Store the image file
     val output = new BufferedOutputStream(new FileOutputStream(new File(Global.uploadDir, entryName)))
     IOUtils.copy(zipFile.getInputStream(entry), output)
+    output.flush()
+    output.close()
     
     // Determine image dimensions
     val img = ImageIO.read(zipFile.getInputStream(entry))
