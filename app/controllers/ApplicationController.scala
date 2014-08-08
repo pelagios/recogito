@@ -97,7 +97,7 @@ object ApplicationController extends Controller with Secured with CTSClient {
             
       // Populate the correct template, depending on login state
       if (currentUser.isDefined && isAuthorized)      
-        Ok(views.html.index(groupedDocs, docsPerCollection, collection.get, currentUser.get))
+        Ok(views.html.index(groupedDocs, docsPerCollection, collection.get, EditHistory.listHighscores(5), currentUser.get))
       else 
         Ok(views.html.public_index(groupedDocs, docsPerCollection, collection.get))
     }

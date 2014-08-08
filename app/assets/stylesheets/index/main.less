@@ -149,7 +149,7 @@
 #container {
   position:relative;
   padding:140px 30px 80px 30px;
-  width:1100px;
+  width:1150px;
   margin:0 auto;
   
   h2 {
@@ -161,9 +161,9 @@
     padding:0;
   }
 
-  #collections-sidebar {
+  #sidebar {
     position:absolute;
-    width:150px;
+    width:200px;
     min-height:1px;
     
     h2 { text-align: right }
@@ -171,7 +171,7 @@
     ul {
       list-style-type:none;
       margin:0;
-      padding:0;
+      padding:0 0 30px 0;
       
       li {
         position:relative;
@@ -225,12 +225,57 @@
         color:#5f5f5f;
       }
       
-    }
+    } /* ul */
+    
+    #highscores {
+      width:100%;
+      
+      table { 
+        border-collapse:collapse; 
+        float:right;
+      }
+      
+      .score {
+        text-align:right;
+        
+        .meter {
+          width:120px;
+        
+          .bar {
+            .rounded-corners(3px);
+            .gradient(#feb300, #de7d00);
+            .box-shadow(2px, 2px, 4px, 0, rgba(0, 0, 0, 0.3));
+            display:inline-block;
+            height:10px;
+            background-color:#2a4c77;
+          }
+          
+        } /* .meter */
+        
+      } /* .score */
+      
+      .username { 
+        padding-left:5px;
+        position:relative;
+        bottom:1px;
+      }
+      
+      .stats-link {
+        padding-top:10px;
+        float:right;
+        display:block;
+        clear:both;
+        color:#777;
+        font-weight:300;
+        text-decoration:none;
+      }
+      
+    } /* #highscores */
     
   }
 
   #document-list {
-    margin-left:180px;
+    margin-left:230px;
     
     .meter {
       position:relative;

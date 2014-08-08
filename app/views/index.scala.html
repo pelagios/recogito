@@ -1,4 +1,4 @@
-@(documents: Seq[(Option[String], Seq[GDocIndexEntry])], collections: Seq[(String, Int)], currentCollection: String, user: models.User)(implicit request: RequestHeader)
+@(documents: Seq[(Option[String], Seq[GDocIndexEntry])], collections: Seq[(String, Int)], currentCollection: String, scores: Seq[(User, Int)], user: models.User)(implicit request: RequestHeader)
 
 @import tags.lang
 
@@ -63,7 +63,7 @@
     </div>
     
     <div id="container">    
-      <div id="collections-sidebar">
+      <div id="sidebar">
         <h2>Collections</h2>
         <ul>
           @for(collection <- collections) {
@@ -75,6 +75,25 @@
             </li>
           }
         </ul>  
+        
+        <h2>Top Contributors</h2>
+        <div id="highscores">
+          <table>
+            @for((user, score) <- scores) {
+              @defining(100 * score.toDouble / scores(0)._2) { percentage =>
+          	    <tr>
+                  <td class="score">
+                    <div class="meter">
+                      <div class="bar" title="@score Edits" style="width:@percentage%"></div>
+                    </div>
+                  </td>
+          	      <td class="username">@user.username</td>
+          	    <tr>
+              }
+            }
+          </table>
+          <a class="stats-link" href="@routes.StatsController.showStats()">More...</a>
+        </div>
       </div>
       
       @singleDoc(entry: GDocIndexEntry, langGroup: Option[Int] = None) = {
