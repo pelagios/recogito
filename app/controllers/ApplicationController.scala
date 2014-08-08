@@ -62,22 +62,22 @@ object ApplicationController extends Controller with Secured with CTSClient {
       // Documents for the selected collection
       val gdocs = {
         if (collection.get.equalsIgnoreCase("other"))
-          GeoDocuments.findAll(unassigned)
+          GeoDocuments.findAllWithStats(unassigned)
         else
-          GeoDocuments.findAll(CollectionMemberships.getDocumentsInCollection(collection.get)) 
+          GeoDocuments.findAllWithStats(CollectionMemberships.getDocumentsInCollection(collection.get)) 
         }
         // Sort by date -> author -> title
-        .sortBy(doc => (doc.date, doc.author, doc.title))
+        .sortBy(doc => (doc._1.date, doc._1.author, doc._1.title))
         
         // Get stats for each document
         .map(doc => { 
-          val greens = doc.countVerifiedToponyms
-          val yellows = doc.countUnidentifiableToponyms
-          val total = greens + yellows + doc.countUnverifiedToponyms
+          val greens = doc._2
+          val yellows = doc._3
+          val total = doc._4
           
           // TODO for better performance, we should add those in via a Join query
-          val firstText = GeoDocumentTexts.findByGeoDocument(doc.id.get).headOption
-          val firstImage = GeoDocumentImages.findByGeoDocument(doc.id.get).headOption
+          val firstText = GeoDocumentTexts.findByGeoDocument(doc._1.id.get).headOption
+          val firstImage = GeoDocumentImages.findByGeoDocument(doc._1.id.get).headOption
           
           val file = 
             if (firstText.isDefined || firstImage.isDefined)
@@ -85,7 +85,7 @@ object ApplicationController extends Controller with Secured with CTSClient {
             else
               None
               
-          GDocIndexEntry(doc, greens, yellows, total, file) 
+          GDocIndexEntry(doc._1, greens, yellows, total, file) 
         })
                   
       // The information require for the collection selection widget
