@@ -3,8 +3,10 @@
 <html>
   <head>
     <title>RECOGITO Stats</title>
-    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/chart/chart.min.js")"></script>
-    <script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/d3/d3.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/d3/rickshaw.min.js")"></script>
+
+    <!--script>
       window.onload = function() {
         var data = {
           labels: [@Html(stats.map(_ => "''").mkString(","))],
@@ -34,11 +36,41 @@
         var ctx = document.getElementById('chart').getContext('2d');
         var statsChart = new Chart(ctx).Line(data);
       }
-    </script>
+    </script -->
+    <script>
+      window.onload = function() {
+        var data = 
+          [@{ stats.takeRight(50).zipWithIndex.map { case (record, idx) => "{ x:" + idx + ",y:" + (record.totalEdits + 1) + "}" }.mkString(",") }];
+
+        var graph = new Rickshaw.Graph({
+          element: document.querySelector("#chart"),
+          interpolation: 'basis',
+          width: 580,
+          height: 250,
+          series: [{
+                data: data
+          }]
+        });
+
+        graph.render();
+var y_axis = new Rickshaw.Graph.Axis.Y( {
+        graph: graph,
+        orientation: 'left',
+        tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+        element: document.getElementById('y_axis'),
+} );
+    }
+</script>
+<style>
+  #chart svg path.path {
+    stroke:steelblue;
+    fill:#ccccff;
+  }
+</style>
   </head>
   
   <body>
-    <canvas id="chart" width="600" height="400"></canvas>
+    <div id="chart" width="600" height="400"></div>
   </body>
 </html>
     

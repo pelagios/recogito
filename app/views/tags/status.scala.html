@@ -1,0 +1,13 @@
+@(status: AnnotationStatus.Value)
+
+@{ status match {
+  case s: AnnotationStatus.Value if s == AnnotationStatus.NOT_VERIFIED => <span title="Not Verified" class="icon">&#xf059;</span>
+  case s: AnnotationStatus.Value if s == AnnotationStatus.VERIFIED => <span title="Verified" class="icon">&#xf14a;</span>
+  case s: AnnotationStatus.Value if s == AnnotationStatus.FALSE_DETECTION => <span title="False Match" class="icon">&#xf057;</span>
+  case s: AnnotationStatus.Value if s == AnnotationStatus.IGNORE => <span title="Ignore" class="icon">&#xf05e;</span>
+  case s: AnnotationStatus.Value if s == AnnotationStatus.NO_SUITABLE_MATCH => <span title="Ignore" class="icon">&#xf024;</span>      
+  case s: AnnotationStatus.Value if s == AnnotationStatus.AMBIGUOUS => <span title="Ignore" class="icon">&#xf024;</span>
+  case s: AnnotationStatus.Value if s == AnnotationStatus.MULTIPLE => <span title="Ignore" class="icon">&#xf024;</span>
+  case s: AnnotationStatus.Value if s == AnnotationStatus.NOT_IDENTIFYABLE => <span title="Ignore" class="icon">&#xf024;</span>                        
+  case s: AnnotationStatus.Value => s.toString
+}}

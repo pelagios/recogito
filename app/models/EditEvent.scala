@@ -46,6 +46,37 @@ case class EditEvent(
     
 )  {
   
+  private lazy val annotationBeforeJson = annotationBefore.map(Json.parse(_)) 
+  
+  private def getPropertyBefore(property: String): Option[String] =
+    annotationBeforeJson.flatMap(json => (json \ property).asOpt[String])
+    
+  lazy val toponymChange: Option[(Option[String], String)] = updatedToponym map {
+    newToponym => (getPropertyBefore("toponym"), newToponym)
+  } 
+  
+  lazy val statusChange: Option[(Option[AnnotationStatus.Value], AnnotationStatus.Value)] = updatedStatus map {
+    newStatus => (getPropertyBefore("status").map(AnnotationStatus.withName(_)), newStatus)
+  } 
+  
+  lazy val uriChange: Option[(Option[String], String)] = updatedURI map {
+    newURI => {
+      val place = getPropertyBefore("place")
+      val placeFixed = getPropertyBefore("place_fixed")
+      
+      val oldURI = if (placeFixed.isDefined) placeFixed else place
+      (oldURI, newURI)
+    }
+  }    
+  
+  lazy val tagChange: Option[(Option[String], String)] = updatedTags map {
+    newTags => (getPropertyBefore("tags"), newTags)
+  } 
+  
+  lazy val commentChange: Option[(Option[String], String)] = updatedComment map {
+    newComment => (getPropertyBefore("comment"), newComment)
+  } 
+  
   lazy val annotationAfter: Option[Annotation] = {
     if (annotationBefore.isEmpty) {
       None

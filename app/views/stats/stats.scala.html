@@ -38,11 +38,7 @@
           <h2>Recogito Right Now...</h2>
           <table>
             @for((event, gdoc) <- editHistory) {
-              <tr>
-                <td>@event.username</td>
-                <td class="timeago" title="@event.timestamp.format("yyyy-MM-dd'T'HH:mm:ssZ")">@event.timestamp.format("yyyy-MM-dd'T'HH:mm:ssZ")</td>
-                <td>@gdoc.flatMap(_.author.map(_ + ": ")) @gdoc.map(_.title)</td>
-              </tr>
+              @tags.edit_event(event, gdoc)
             }
           </table>
         </div>

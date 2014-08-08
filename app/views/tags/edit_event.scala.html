@@ -1,0 +1,22 @@
+@(event: EditEvent, gdoc: Option[GeoDocument])
+<tr>
+  <td><a href=""@routes.StatsController.showUserStats(event.username)">@event.username</a></td>
+  <td>
+    @if(event.toponymChange.isDefined) {
+      @event.toponymChange.get._1 match {
+        case Some(oldToponym) => { @oldToponym to @event.toponymChange.get._2 }
+        case None => { @event.toponymChange.get._2 }
+      }
+    } else { @if(event.statusChange.isDefined) {
+      @event.statusChange.get._1 match {
+        case Some(oldStatus) => { Status from @tags.status(oldStatus) to @tags.status(event.statusChange.get._2) }
+        case None => { Status to @event.statusChange.get._2 }
+      }
+    }}
+  </td>
+  <td>
+    @gdoc.flatMap(_.author.map(_ + ": "))
+    @gdoc.map(_.title)
+  </td>
+  <td class="timeago" title="@event.timestamp.format("yyyy-MM-dd'T'HH:mm:ssZ")">@event.timestamp.format("yyyy-MM-dd'T'HH:mm:ssZ")</td>
+</tr>
