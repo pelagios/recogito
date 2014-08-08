@@ -1,4 +1,4 @@
-@(documents: Seq[(Option[String], Seq[GDocIndexEntry])], collections: Seq[(String, Int)], currentCollection: String)(implicit request: RequestHeader)
+@(documents: Seq[(Option[String], Seq[GDocIndexEntry])], collections: Seq[(String, Int)], scores: Seq[(User, Int)], currentCollection: String)(implicit request: RequestHeader)
 
 @import tags.lang
 
@@ -65,6 +65,27 @@
             </li>
           }
         </ul>
+        
+        <h2>Top 5 Contributors</h2>
+        <div id="highscores">
+          <table>
+            @for((user, score) <- scores) {
+              @defining(100 * score.toDouble / scores(0)._2) { percentage =>
+          	    <tr>
+                  <td class="score">
+                    <div class="meter">
+                      <div class="bar" title="@score Edits" style="width:@percentage%"></div>
+                    </div>
+                  </td>
+          	      <td class="username">
+                    <a href="@routes.StatsController.showUserStats(user.username)"">@user.username</a>
+                  </td>
+          	    <tr>
+              }
+            }
+          </table>
+          <a class="stats-link" href="@routes.StatsController.showStats()">All Stats</a>
+        </div>
       </div>
       
       @singleDoc(entry: GDocIndexEntry, langGroup: Option[Int] = None) = {

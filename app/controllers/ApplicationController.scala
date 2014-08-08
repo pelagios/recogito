@@ -99,7 +99,7 @@ object ApplicationController extends Controller with Secured with CTSClient {
       if (currentUser.isDefined && isAuthorized)      
         Ok(views.html.index(groupedDocs, docsPerCollection, collection.get, EditHistory.listHighscores(5), currentUser.get))
       else 
-        Ok(views.html.public_index(groupedDocs, docsPerCollection, collection.get))
+        Ok(views.html.public_index(groupedDocs, docsPerCollection, EditHistory.listHighscores(5), collection.get))
     }
   }
    
