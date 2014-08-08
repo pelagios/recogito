@@ -76,7 +76,7 @@
           }
         </ul>  
         
-        <h2>Top Contributors</h2>
+        <h2>Top 5 Contributors</h2>
         <div id="highscores">
           <table>
             @for((user, score) <- scores) {
@@ -87,12 +87,14 @@
                       <div class="bar" title="@score Edits" style="width:@percentage%"></div>
                     </div>
                   </td>
-          	      <td class="username">@user.username</td>
+          	      <td class="username">
+                    <a href="@routes.StatsController.showUserStats(user.username)"">@user.username</a>
+                  </td>
           	    <tr>
               }
             }
           </table>
-          <a class="stats-link" href="@routes.StatsController.showStats()">More...</a>
+          <a class="stats-link" href="@routes.StatsController.showStats()">All Stats</a>
         </div>
       </div>
       

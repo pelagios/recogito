@@ -235,6 +235,10 @@
         float:right;
       }
       
+      td {
+        padding:2px;
+      }
+      
       .score {
         text-align:right;
         
@@ -243,7 +247,7 @@
         
           .bar {
             .rounded-corners(3px);
-            .gradient(#feb300, #de7d00);
+            .gradient(#a1a1a1, #838383);
             .box-shadow(2px, 2px, 4px, 0, rgba(0, 0, 0, 0.3));
             display:inline-block;
             height:10px;
@@ -258,16 +262,24 @@
         padding-left:5px;
         position:relative;
         bottom:1px;
-      }
+        
+        a { 
+          color:#555;
+          text-decoration:none;
+        }
+        
+      } /* .username */
       
       .stats-link {
-        padding-top:10px;
+        padding-top:5px;
         float:right;
         display:block;
         clear:both;
         color:#777;
+        font-size:11px;
         font-weight:300;
         text-decoration:none;
+        border-bottom:1px dotted #777;
       }
       
     } /* #highscores */
