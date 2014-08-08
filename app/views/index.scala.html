@@ -125,10 +125,10 @@
           <td>
             <!-- text shortcut -->
             @if(entry.file.isDefined) {
-              @if(entry.file.get.text.isDefined) {
-                <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(Some(entry.file.get.text.get.id.get), None)" title="Text Annotation">&#xf0f6;</a>
+              @if(entry.file.get.textId.isDefined) {
+                <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(Some(entry.file.get.textId.get), None)" title="Text Annotation">&#xf0f6;</a>
               } else {
-                <a class="icon" href="@routes.ApplicationController.showImageAnnotationUI(entry.file.get.image.get.id.get)" title="Image Annotation">&#xf1c5;</a>
+                <a class="icon" href="@routes.ApplicationController.showImageAnnotationUI(entry.file.get.imageId.get)" title="Image Annotation">&#xf1c5;</a>
               }
             } else {
               <span class="icon disabled">&#xf016;</span>

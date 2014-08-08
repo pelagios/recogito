@@ -7,7 +7,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{ Action, Controller }
 import play.api.Logger
 
-case class GDocFile(text: Option[GeoDocumentText], image: Option[GeoDocumentImage])
+case class GDocFile(textId: Option[Int], imageId: Option[Int])
 
 case class GDocIndexEntry(doc: GeoDocument, verified: Int, unidentifiable: Int, total: Int, file: Option[GDocFile]) {
   
@@ -66,26 +66,17 @@ object ApplicationController extends Controller with Secured with CTSClient {
         else
           GeoDocuments.findAllWithStats(CollectionMemberships.getDocumentsInCollection(collection.get)) 
         }
-        // Sort by date -> author -> title
         .sortBy(doc => (doc._1.date, doc._1.author, doc._1.title))
         
         // Get stats for each document
         .map(doc => { 
-          val greens = doc._2
-          val yellows = doc._3
-          val total = doc._4
-          
-          // TODO for better performance, we should add those in via a Join query
-          val firstText = GeoDocumentTexts.findByGeoDocument(doc._1.id.get).headOption
-          val firstImage = GeoDocumentImages.findByGeoDocument(doc._1.id.get).headOption
-          
           val file = 
-            if (firstText.isDefined || firstImage.isDefined)
-              Some(GDocFile(firstText, firstImage))
+            if (doc._5.isDefined || doc._6.isDefined)
+              Some(GDocFile(doc._5, doc._6))
             else
               None
               
-          GDocIndexEntry(doc._1, greens, yellows, total, file) 
+          GDocIndexEntry(doc._1, doc._2, doc._3, doc._4, file) 
         })
                   
       // The information require for the collection selection widget

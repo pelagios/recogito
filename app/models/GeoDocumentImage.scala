@@ -27,7 +27,7 @@ class GeoDocumentImages(tag: Tag) extends Table[GeoDocumentImage](tag, "gdocumen
 
 object GeoDocumentImages {
   
-  private val query = TableQuery[GeoDocumentImages]
+  private[models] val query = TableQuery[GeoDocumentImages]
   
   def create()(implicit s: Session) = query.ddl.create
   
