@@ -29,7 +29,7 @@ object StatsController extends Controller {
 
     // Retrieve the GeoDocuments for which we have IDs
     val gdocIds = editHistory.map(_._2).filter(_.isDefined).map(_.get).distinct
-    val gdocs = GeoDocuments.findAll(gdocIds)
+    val gdocs = GeoDocuments.findAll(gdocIds).map(_._1) 
 
     // Now zip the data
     val eventsWithDocuments: Seq[(EditEvent, Option[GeoDocument])] =

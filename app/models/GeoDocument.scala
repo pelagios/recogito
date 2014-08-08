@@ -116,26 +116,49 @@ object GeoDocuments {
   def findByTitle(title: String)(implicit s: Session): Seq[GeoDocument] =
     query.where(_.title === title).list
     
-  def findAll(ids: Seq[Int])(implicit s: Session): Seq[GeoDocument] =
-    query.where(_.id inSet ids).list
+  def findAll(ids: Seq[Int])(implicit s: Session): Seq[(GeoDocument, Option[Int], Option[Int])] = {
+	val q = for {
+      ((gdocId, firstText), firstImage) <- query leftJoin GeoDocumentTexts.query on (_.id === _.gdocId) leftJoin GeoDocumentImages.query on (_._1.id === _.gdocId)
+    } yield (gdocId, firstText.id.?, firstImage.id.?)
+    
+    q.list
+  }
     
   def findAllWithStats(ids: Seq[Int])(implicit s: Session): Seq[(GeoDocument, Int, Int, Int, Option[Int], Option[Int])] = {
-    val unidentifiables = 
-      Set(AnnotationStatus.AMBIGUOUS, AnnotationStatus.NO_SUITABLE_MATCH, AnnotationStatus.MULTIPLE, AnnotationStatus.NOT_IDENTIFYABLE)
+    // Step 1 - get stats for all docs with annotation in a single query    
+    // val unidentifiables = 
+    //  Set(AnnotationStatus.AMBIGUOUS, AnnotationStatus.NO_SUITABLE_MATCH, AnnotationStatus.MULTIPLE, AnnotationStatus.NOT_IDENTIFYABLE)
       
     val q = for {
       (gdocId, status, numberOfAnnotations) <- Annotations.query.where(_.gdocId inSet ids).groupBy(t => (t.gdocId, t.status)).map(t => (t._1._1, t._1._2, t._2.length))
-      gdoc <- query.where(_.id === gdocId)
-    } yield (gdoc, status, numberOfAnnotations)
+      // gdoc <- query.where(_.id === gdocId)
+    } yield (gdocId, status, numberOfAnnotations)
     
+    /*
     val subq = for {
-      (((gdoc, status, numberOfAnnotations), firstText), firstImage) <- q leftJoin GeoDocumentTexts.query on (_._1.id === _.gdocId) leftJoin GeoDocumentImages.query on (_._1._1.id === _.gdocId)
-    } yield (gdoc, status, numberOfAnnotations, firstText.id.?, firstImage.id.?)
+      (((gdocId, status, numberOfAnnotations), firstText), firstImage) <- q leftJoin GeoDocumentTexts.query on (_._1 === _.gdocId) leftJoin GeoDocumentImages.query on (_._1._1 === _.gdocId)
+    } yield (gdocId, status, numberOfAnnotations, firstText.id.?, firstImage.id.?)
+    */
     
-    val flattenedResult = subq.list.groupBy(t => (t._1, t._2, t._3)).map { case ((gdoc, status, numberOfAnnotations), allVals) => 
-      (gdoc, status, numberOfAnnotations, allVals(0)._4, allVals(0)._5) } groupBy (_._1)
+    /*
+    val flattenedResult = subq.list.groupBy(t => (t._1, t._2, t._3)).map { case ((gdocId, status, numberOfAnnotations), allVals) => 
+      (gdocId, status, numberOfAnnotations, allVals(0)._4, allVals(0)._5) } groupBy (_._1)
+     */
      
-    flattenedResult.map { case (gdoc, joinedValues) => {
+    val stats = q.list.groupBy(_._1).map { case (gdocId, statusDistribution) => {
+      val verified = statusDistribution.find(_._2 == AnnotationStatus.VERIFIED).map(_._3).getOrElse(0)
+      val unidentifiable = statusDistribution.find(t => 
+        Set(AnnotationStatus.AMBIGUOUS, 
+            AnnotationStatus.NO_SUITABLE_MATCH, 
+            AnnotationStatus.MULTIPLE,
+            AnnotationStatus.NOT_IDENTIFYABLE).contains(t._2)).map(_._3).getOrElse(0)
+      val total = statusDistribution.foldLeft(0)((count, tuple) => count + tuple._3)
+      
+      (gdocId, verified, unidentifiable, total)      
+    }}
+    
+    /*
+    val stats = flattenedResult.map { case (gdocId, joinedValues) => {
       val joinedValSeq = joinedValues.toSeq
       
       val verified = joinedValSeq.find(_._2 == AnnotationStatus.VERIFIED).map(_._3).getOrElse(0)
@@ -149,8 +172,17 @@ object GeoDocuments {
       val firstTextId = joinedValSeq(0)._4
       val firstImageId = joinedValSeq(0)._5
       
-      (gdoc, verified, unidentifiable, total, firstTextId, firstImageId)      
+      (gdocId, verified, unidentifiable, total, firstTextId, firstImageId)      
     }} toSeq
+    */
+    
+    findAll(ids).map { case (doc, firstText, firstImage) => {
+	  val s = stats.find(_._1 == doc.id.get)
+	  if (s.isDefined)
+	    (doc, s.get._2, s.get._3, s.get._4, firstText, firstImage)
+	  else
+	    (doc, 0, 0, 0, firstText, firstImage)
+	}}
   }
     
   def delete(id: Int)(implicit s: Session) =
