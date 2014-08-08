@@ -118,10 +118,11 @@ object GeoDocuments {
     
   def findAll(ids: Seq[Int])(implicit s: Session): Seq[(GeoDocument, Option[Int], Option[Int])] = {
 	val q = for {
-      ((gdocId, firstText), firstImage) <- query leftJoin GeoDocumentTexts.query on (_.id === _.gdocId) leftJoin GeoDocumentImages.query on (_._1.id === _.gdocId)
-    } yield (gdocId, firstText.id.?, firstImage.id.?)
-    
-    q.list
+      ((gdoc, text), image) <- query where (_.id inSet ids) leftJoin GeoDocumentTexts.query on (_.id === _.gdocId) leftJoin GeoDocumentImages.query on (_._1.id === _.gdocId)
+    } yield (gdoc, text.id.?, image.id.?)
+
+    q.list.groupBy(_._1).map { case (gdoc, allValues) => 
+      (gdoc, allValues(0)._2, allValues(0)._2) } toSeq
   }
     
   def findAllWithStats(ids: Seq[Int])(implicit s: Session): Seq[(GeoDocument, Int, Int, Int, Option[Int], Option[Int])] = {
