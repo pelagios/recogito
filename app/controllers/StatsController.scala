@@ -29,7 +29,7 @@ object StatsController extends Controller {
 
     // Retrieve the GeoDocuments for which we have IDs
     val gdocIds = editHistory.map(_._2).filter(_.isDefined).map(_.get).distinct
-    val gdocs = GeoDocuments.findAll(gdocIds).map(_._1) 
+    val gdocs = GeoDocuments.findByIds(gdocIds)
 
     // Now zip the data
     val eventsWithDocuments: Seq[(EditEvent, Option[GeoDocument])] =
@@ -37,15 +37,5 @@ object StatsController extends Controller {
     
     Ok(views.html.stats.stats(scores, eventsWithDocuments))
   }
-  
-
-  /** Shows the edit history overview page *
-  def showEditHistory() = DBAction { implicit session =>
-    // TODO just a dummy for now
-    val history = EditHistory.getLastN(200).map(event => (event, Annotations.findByUUID(event.annotationId).flatMap(_.gdocId)))
-    Ok(views.html.stats.edit_history(history)) 
-  }
-  * 
-  */
 
 }

@@ -59,10 +59,6 @@ case class GeoDocument(
 /** Geospatial Documents database table **/
 class GeoDocuments(tag: Tag) extends Table[GeoDocument](tag, "gdocuments") {
   
-  implicit val stringSeqMapper = MappedColumnType.base[Seq[String],String](
-    seq => seq.mkString(","),
-    str => str.split(',').toList)
-  
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   
   def externalWorkID = column[String]("ext_work_id", O.Nullable)
@@ -112,79 +108,58 @@ object GeoDocuments {
   
   def findById(id: Int)(implicit s: Session): Option[GeoDocument] =
     query.where(_.id === id).firstOption
+
+  def findByIds(ids: Seq[Int])(implicit s: Session): Seq[GeoDocument] =
+    query.where(_.id inSet ids).list
     
   def findByTitle(title: String)(implicit s: Session): Seq[GeoDocument] =
     query.where(_.title === title).list
     
-  def findAll(ids: Seq[Int])(implicit s: Session): Seq[(GeoDocument, Option[Int], Option[Int])] = {
+  def findByIdsWithContent(ids: Seq[Int])(implicit s: Session): Seq[(GeoDocument, Seq[Int], Seq[Int])] = {
 	val q = for {
       ((gdoc, text), image) <- query where (_.id inSet ids) leftJoin GeoDocumentTexts.query on (_.id === _.gdocId) leftJoin GeoDocumentImages.query on (_._1.id === _.gdocId)
     } yield (gdoc, text.id.?, image.id.?)
 
     q.list.groupBy(_._1).map { case (gdoc, allValues) => 
-      (gdoc, allValues(0)._2, allValues(0)._2) } toSeq
+      (gdoc, 
+       allValues.filter(_._2.isDefined).map(_._2.get),
+       allValues.filter(_._3.isDefined).map(_._3.get)) } toSeq
   }
-    
-  def findAllWithStats(ids: Seq[Int])(implicit s: Session): Seq[(GeoDocument, Int, Int, Int, Option[Int], Option[Int])] = {
-    // Step 1 - get stats for all docs with annotation in a single query    
-    // val unidentifiables = 
-    //  Set(AnnotationStatus.AMBIGUOUS, AnnotationStatus.NO_SUITABLE_MATCH, AnnotationStatus.MULTIPLE, AnnotationStatus.NOT_IDENTIFYABLE)
-      
+  
+  /*  
+  def findByIdsWithStats(ids: Seq[Int])(implicit s: Session): Seq[(GeoDocument, Int, Int, Int, Option[Int], Option[Int])] = {
+    // Step 1 - pull the stats for all annotated documents from the annotation table          
     val q = for {
-      (gdocId, status, numberOfAnnotations) <- Annotations.query.where(_.gdocId inSet ids).groupBy(t => (t.gdocId, t.status)).map(t => (t._1._1, t._1._2, t._2.length))
-      // gdoc <- query.where(_.id === gdocId)
+      (gdocId, status, numberOfAnnotations) <- Annotations.query
+        .where(_.gdocId inSet ids)
+        .groupBy(t => (t.gdocId, t.status))
+        .map(t => (t._1._1, t._1._2, t._2.length))
     } yield (gdocId, status, numberOfAnnotations)
     
-    /*
-    val subq = for {
-      (((gdocId, status, numberOfAnnotations), firstText), firstImage) <- q leftJoin GeoDocumentTexts.query on (_._1 === _.gdocId) leftJoin GeoDocumentImages.query on (_._1._1 === _.gdocId)
-    } yield (gdocId, status, numberOfAnnotations, firstText.id.?, firstImage.id.?)
-    */
-    
-    /*
-    val flattenedResult = subq.list.groupBy(t => (t._1, t._2, t._3)).map { case ((gdocId, status, numberOfAnnotations), allVals) => 
-      (gdocId, status, numberOfAnnotations, allVals(0)._4, allVals(0)._5) } groupBy (_._1)
-     */
-     
     val stats = q.list.groupBy(_._1).map { case (gdocId, statusDistribution) => {
-      val verified = statusDistribution.find(_._2 == AnnotationStatus.VERIFIED).map(_._3).getOrElse(0)
+      val verified = statusDistribution.find(_._2 == AnnotationStatus.VERIFIED)
+        .map(_._3).getOrElse(0)
+        
       val unidentifiable = statusDistribution.find(t => 
         Set(AnnotationStatus.AMBIGUOUS, 
             AnnotationStatus.NO_SUITABLE_MATCH, 
             AnnotationStatus.MULTIPLE,
             AnnotationStatus.NOT_IDENTIFYABLE).contains(t._2)).map(_._3).getOrElse(0)
+      
       val total = statusDistribution.foldLeft(0)((count, tuple) => count + tuple._3)
       
       (gdocId, verified, unidentifiable, total)      
     }}
     
-    /*
-    val stats = flattenedResult.map { case (gdocId, joinedValues) => {
-      val joinedValSeq = joinedValues.toSeq
-      
-      val verified = joinedValSeq.find(_._2 == AnnotationStatus.VERIFIED).map(_._3).getOrElse(0)
-      val unidentifiable = joinedValSeq.find(t => 
-        Set(AnnotationStatus.AMBIGUOUS, 
-            AnnotationStatus.NO_SUITABLE_MATCH, 
-            AnnotationStatus.MULTIPLE,
-            AnnotationStatus.NOT_IDENTIFYABLE).contains(t._2)).map(_._3).getOrElse(0)
-      val total = joinedValSeq.foldLeft(0)((count, tuple) => count + tuple._3)
-      
-      val firstTextId = joinedValSeq(0)._4
-      val firstImageId = joinedValSeq(0)._5
-      
-      (gdocId, verified, unidentifiable, total, firstTextId, firstImageId)      
-    }} toSeq
-    */
-    
+    // Step 2 - get the documents (including un-annotated ones) 
     findAll(ids).map { case (doc, firstText, firstImage) => {
-	  val s = stats.find(_._1 == doc.id.get)
-	  if (s.isDefined)
-	    (doc, s.get._2, s.get._3, s.get._4, firstText, firstImage)
-	  else
-	    (doc, 0, 0, 0, firstText, firstImage)
+	  stats.find(_._1 == doc.id.get) match {
+	    case Some(s) => (doc, s._2, s._3, s._4, firstText, firstImage)
+	    case None => (doc, 0, 0, 0, firstText, firstImage)
+      }
 	}}
   }
+  */
     
   def delete(id: Int)(implicit s: Session) =
     query.where(_.id === id).delete

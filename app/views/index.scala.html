@@ -1,4 +1,4 @@
-@(documents: Seq[(Option[String], Seq[GDocIndexEntry])], collections: Seq[(String, Int)], currentCollection: String, scores: Seq[(User, Int)], user: models.User)(implicit request: RequestHeader)
+@(documents: Seq[(Option[String], Seq[DocumentIndexRow])], collections: Seq[(String, Int)], currentCollection: String, scores: Seq[(User, Int)], user: models.User)(implicit request: RequestHeader)
 
 @import tags.lang
 
@@ -98,7 +98,7 @@
         </div>
       </div>
       
-      @singleDoc(entry: GDocIndexEntry, langGroup: Option[Int] = None) = {
+      @singleDoc(entry: DocumentIndexRow, langGroup: Option[Int] = None) = {
         @if(langGroup.isDefined) { <tr class="lang-group lang-group-@langGroup.get"> } else { <tr> }
           <td class="title" colspan="2"> <!-- document title -->
             <div> <!-- We need this DIV for the CSS ellipsis truncation to work! -->
@@ -111,28 +111,26 @@
           <td class="center">@lang(entry.doc.language)</td>
                 
           <!-- # of toponyms -->
-          <td class="center">@entry.total</td>     
+          <td class="center">@entry.stats.total</td>     
                
           <!-- completion ratio --> 
-          <td class="stats" title="@{ "%.2f" format (entry.percentComplete * 100) } % Complete">
+          <td class="stats" title="@{ "%.2f" format (entry.stats.percentComplete * 100) } % Complete">
             <div class="meter">
-              <span class="yellow" style="width: @{(entry.percentVerified + entry.percentUnidentifiable) * 100}%"></span>
-              <span class="green@if(entry.percentUnidentifiable == 0) { full}" style="width: @{entry.percentVerified * 100}%"></span>
+              <span class="yellow" style="width: @{(entry.stats.percentVerified + entry.stats.percentUnidentifiable) * 100}%"></span>
+              <span class="green@if(entry.stats.percentUnidentifiable == 0) { full}" style="width: @{entry.stats.percentVerified * 100}%"></span>
             </div>
           </td>
           
           <!-- shortcut icons -->
           <td>
             <!-- text shortcut -->
-            @if(entry.file.isDefined) {
-              @if(entry.file.get.textId.isDefined) {
-                <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(Some(entry.file.get.textId.get), None)" title="Text Annotation">&#xf0f6;</a>
-              } else {
-                <a class="icon" href="@routes.ApplicationController.showImageAnnotationUI(entry.file.get.imageId.get)" title="Image Annotation">&#xf1c5;</a>
-              }
+            @if(entry.firstText.isDefined) {
+              <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(Some(entry.firstText.get), None)" title="Text Annotation">&#xf0f6;</a>
+            } else { @if(entry.firstImage.isDefined) {
+              <a class="icon" href="@routes.ApplicationController.showImageAnnotationUI(entry.firstImage.get)" title="Image Annotation">&#xf1c5;</a>
             } else {
               <span class="icon disabled">&#xf016;</span>
-            }
+            }}
             
             <!-- georesolution shortcut -->
             <a class="icon" href="@routes.ApplicationController.showGeoResolutionUI(entry.doc.id.get)" title="Geo-Resolution">&#xf0ac;</a>
@@ -146,7 +144,7 @@
         </tr>      	
       }
       
-      @languageGroup(entries: Seq[GDocIndexEntry]) = {
+      @languageGroup(entries: Seq[DocumentIndexRow]) = {
         <tr class="lang-group-header lang-group-@entries.head.doc.id.get" onclick="toggleVersions(@entries.head.doc.id.get); return false;">
           <td class="title"> <!-- document title -->
             <div> <!-- We need this DIV for the CSS ellipsis truncation to work! -->
@@ -163,7 +161,7 @@
           <td></td>
                 
           <!-- # of toponyms -->
-          @defining((entries.map(_.total).min, entries.map(_.total).max)) { toponyms =>
+          @defining((entries.map(_.stats.total).min, entries.map(_.stats.total).max)) { toponyms =>
             <td class="center">
               @if(toponyms._1 == toponyms._2) {
                 @toponyms._1	
@@ -174,8 +172,8 @@
           }     
           
           <!-- completion ratio -->
-          @defining(entries.map(_.percentComplete).foldLeft(0.0)(_ + _) / entries.size) { percentComplete =>
-            @defining(entries.map(_.percentVerified).foldLeft(0.0)(_ + _) / entries.size) { percentVerified =>
+          @defining(entries.map(_.stats.percentComplete).foldLeft(0.0)(_ + _) / entries.size) { percentComplete =>
+            @defining(entries.map(_.stats.percentVerified).foldLeft(0.0)(_ + _) / entries.size) { percentVerified =>
               <td class="stats" title="@{ "%.2f" format (percentComplete * 100)} % Complete">
                 <div class="meter">
                   <span class="yellow" style="width: @{percentComplete * 100}%"></span>
@@ -198,11 +196,11 @@
       <div id="document-list">
         <div id="total-progress">
           <div class="label">
-            @{ documents.flatMap(_._2).foldLeft(0)((total, entry) => total + entry.total) } Toponyms Total
+            @{ documents.flatMap(_._2).foldLeft(0)((total, entry) => total + entry.stats.total) } Toponyms Total
           </div>
-          @defining(documents.flatMap(_._2).filter(e => !(e.percentComplete.isNaN() || e.percentVerified.isNaN()))) { entries =>
-          	@defining(entries.map(_.percentComplete).foldLeft(0.0)(_ + _) / entries.size) { percentComplete =>
-          	  @defining(entries.map(_.percentVerified).foldLeft(0.0)(_ + _) / entries.size) { percentVerified =>
+          @defining(documents.flatMap(_._2).filter(e => !(e.stats.percentComplete.isNaN() || e.stats.percentVerified.isNaN()))) { entries =>
+          	@defining(entries.map(_.stats.percentComplete).foldLeft(0.0)(_ + _) / entries.size) { percentComplete =>
+          	  @defining(entries.map(_.stats.percentVerified).foldLeft(0.0)(_ + _) / entries.size) { percentVerified =>
                 <div class="meter" title="@{ "%.2f" format (percentComplete * 100)} % Complete">
                   <span class="yellow" style="width:@{percentComplete * 100}%"></span>
                   <span class="green@if(percentComplete == percentVerified) { full}" style="width: @{percentVerified * 100}%"></span>

@@ -6,6 +6,16 @@ import play.api.db.slick.Config.driver.simple._
 import play.api.Logger
 import scala.slick.lifted.Tag
 
+case class AnnotationStats(verified: Int, unidentifiable: Int, total: Int) {
+	
+  val percentVerified = verified.toDouble / total
+  
+  val percentUnidentifiable = unidentifiable.toDouble / total
+  
+  val percentComplete = percentVerified + percentUnidentifiable
+
+}
+
 /** Annotation case class.
   *  
   * @author Rainer Simon <rainer.simon@ait.ac.at>
@@ -230,6 +240,29 @@ object Annotations extends HasStatusColumn {
     } else {
       Seq.empty[Annotation]
     }
+  }
+  
+  def getStatsForGeoDocuments(ids: Seq[Int])(implicit s: Session): Map[Int, AnnotationStats] = {
+    val q = for {
+      (gdocId, status, numberOfAnnotations) <- query.where(_.gdocId inSet ids)
+        .groupBy(t => (t.gdocId, t.status))
+        .map(t => (t._1._1, t._1._2, t._2.length))
+    } yield (gdocId, status, numberOfAnnotations)
+  
+    q.list.groupBy(_._1).map { case (gdocId, statusDistribution) => {
+      val verified = statusDistribution.find(_._2 == AnnotationStatus.VERIFIED)
+        .map(_._3).getOrElse(0)
+        
+      val unidentifiable = statusDistribution.find(t => 
+        Set(AnnotationStatus.AMBIGUOUS, 
+            AnnotationStatus.NO_SUITABLE_MATCH, 
+            AnnotationStatus.MULTIPLE,
+            AnnotationStatus.NOT_IDENTIFYABLE).contains(t._2)).map(_._3).getOrElse(0)
+      
+      val total = statusDistribution.foldLeft(0)((count, tuple) => count + tuple._3)
+      
+      (gdocId, AnnotationStats(verified, unidentifiable, total))
+    }}
   }
   
   def newUUID: UUID = UUID.randomUUID

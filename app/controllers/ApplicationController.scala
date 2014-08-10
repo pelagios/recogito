@@ -7,17 +7,8 @@ import play.api.libs.json.Json
 import play.api.mvc.{ Action, Controller }
 import play.api.Logger
 
-case class GDocFile(textId: Option[Int], imageId: Option[Int])
-
-case class GDocIndexEntry(doc: GeoDocument, verified: Int, unidentifiable: Int, total: Int, file: Option[GDocFile]) {
-  
-  val percentVerified = verified.toDouble / total
-  
-  val percentUnidentifiable = unidentifiable.toDouble /total
-  
-  val percentComplete = percentVerified + percentUnidentifiable
-  
-}
+/** Encapsulates the information shown in one row of the landing page's document index **/
+case class DocumentIndexRow(doc: GeoDocument, stats: AnnotationStats, firstText: Option[Int], firstImage: Option[Int])
 
 /** Main application entrypoint.
   *
@@ -33,14 +24,14 @@ object ApplicationController extends Controller with Secured with CTSClient {
       // If no collection is selected, redirect to the first in the list
       val allCollections = CollectionMemberships.listCollections :+ "other"
       Redirect(routes.ApplicationController.index(Some(allCollections.head.toLowerCase)))
+    
     } else {
-      
       // Helper function to collapse multiple language versions of the same document into one 
-      def foldLanguageVersions(docs: Seq[GDocIndexEntry]): Seq[(Option[String], Seq[GDocIndexEntry])] = {
+      def foldLanguageVersions(docs: Seq[DocumentIndexRow]): Seq[(Option[String], Seq[DocumentIndexRow])] = {
         val groupedByExtID = docs.filter(_.doc.externalWorkID.isDefined).groupBy(_.doc.externalWorkID)
         
         // Creates a list of [Ext. Work ID -> Documents] mappings
-        docs.foldLeft(Seq.empty[(Option[String], Seq[GDocIndexEntry])])((collapsedList, document) => {
+        docs.foldLeft(Seq.empty[(Option[String], Seq[DocumentIndexRow])])((collapsedList, document) => {
           if (document.doc.externalWorkID.isEmpty) {
             // No external work ID means we don't group this doc with other docs
             collapsedList :+ (None, Seq(document))
@@ -58,33 +49,32 @@ object ApplicationController extends Controller with Secured with CTSClient {
       
       // IDs of all documents NOT assigned to a collection
       val unassigned = CollectionMemberships.getUnassignedGeoDocuments
-        
-      // Documents for the selected collection
-      val gdocs = {
+      
+      // Documents for the selected collection, with content IDs
+      val gdocsWithcontent: Seq[(GeoDocument, Seq[Int], Seq[Int])] = {
         if (collection.get.equalsIgnoreCase("other"))
-          GeoDocuments.findAllWithStats(unassigned)
+          GeoDocuments.findByIdsWithContent(unassigned)
         else
-          GeoDocuments.findAllWithStats(CollectionMemberships.getDocumentsInCollection(collection.get)) 
+          GeoDocuments.findByIdsWithContent(CollectionMemberships.getDocumentsInCollection(collection.get)) 
         }
-        .sortBy(doc => (doc._1.date, doc._1.author, doc._1.title))
+        .sortBy(t => (t._1.date, t._1.author, t._1.title))
         
-        // Get stats for each document
-        .map(doc => { 
-          val file = 
-            if (doc._5.isDefined || doc._6.isDefined)
-              Some(GDocFile(doc._5, doc._6))
-            else
-              None
-              
-          GDocIndexEntry(doc._1, doc._2, doc._3, doc._4, file) 
-        })
+      // Get stats for each document
+      val stats: Map[Int, AnnotationStats] = 
+        Annotations.getStatsForGeoDocuments(gdocsWithcontent.map(_._1.id.get))
+
+      // Merge docs, stats & first content IDs to form the 'index row'
+      val indexRows = gdocsWithcontent.map { case (gdoc, texts, images) => {
+        DocumentIndexRow(gdoc, stats.get(gdoc.id.get).getOrElse(AnnotationStats(0, 0, 0)), texts.headOption, images.headOption)
+      }}
                   
       // The information require for the collection selection widget
-      val docsPerCollection = CollectionMemberships.listCollections.map(collection =>
-        (collection, CollectionMemberships.countDocumentsInCollection(collection))) ++
-        { if (unassigned.size > 0) Seq(("Other", unassigned.size)) else Seq.empty[(String, Int)] }
+      val docsPerCollection: Seq[(String, Int)] = 
+        CollectionMemberships.listCollections.map(collection =>
+          (collection, CollectionMemberships.countDocumentsInCollection(collection))) ++
+          { if (unassigned.size > 0) Seq(("Other", unassigned.size)) else Seq.empty[(String, Int)] }
       
-      val groupedDocs = foldLanguageVersions(gdocs)
+      val groupedDocs = foldLanguageVersions(indexRows)
             
       // Populate the correct template, depending on login state
       if (currentUser.isDefined && isAuthorized)      
