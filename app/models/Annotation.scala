@@ -259,7 +259,10 @@ object Annotations extends HasStatusColumn {
             AnnotationStatus.MULTIPLE,
             AnnotationStatus.NOT_IDENTIFYABLE).contains(t._2)).map(_._3).getOrElse(0)
       
-      val total = statusDistribution.foldLeft(0)((count, tuple) => count + tuple._3)
+      val notVerified = statusDistribution.find(_._2 == AnnotationStatus.NOT_VERIFIED)
+        .map(_._3).getOrElse(0)
+      
+      val total = verified + unidentifiable + notVerified
       
       (gdocId, AnnotationStats(verified, unidentifiable, total))
     }}
