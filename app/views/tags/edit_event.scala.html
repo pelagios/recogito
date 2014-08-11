@@ -2,7 +2,12 @@
 <tr>
   <td><a href=""@routes.StatsController.showUserStats(event.username)">@event.username</a></td>
   <td>
-    @if(event.toponymChange.isDefined) {
+    @if(event.uriChange.isDefined) {
+      @event.uriChange.get._1 match {
+      	case Some(oldURI) => { URI from <a href="@oldURI">@tags.gazetteerURI(oldURI)</a> to <a href="@event.uriChange.get._2">@tags.gazetteerURI(event.uriChange.get._2)</a> }
+      	case None => { Set URI <a href="@event.uriChange.get._2">@tags.gazetteerURI(event.uriChange.get._2)</a> }
+      }	
+    } else { @if(event.toponymChange.isDefined) {
       @event.toponymChange.get._1 match {
         case Some(oldToponym) => { @oldToponym to @event.toponymChange.get._2 }
         case None => { @event.toponymChange.get._2 }
@@ -12,7 +17,7 @@
         case Some(oldStatus) => { Status from @tags.status(oldStatus) to @tags.status(event.statusChange.get._2) }
         case None => { Status to @event.statusChange.get._2 }
       }
-    }}
+    }}}
   </td>
   <td>
     @gdoc.flatMap(_.author.map(_ + ": "))
