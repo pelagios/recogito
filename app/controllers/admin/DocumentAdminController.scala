@@ -68,7 +68,8 @@ object DocumentAdminController extends Controller with Secured {
     Annotations.deleteForGeoDocument(id)
     GeoDocumentTexts.deleteForGeoDocument(id)
     GeoDocumentImages.deleteForGeoDocument(id)
-    GeoDocumentParts.deleteForGeoDocument(id)    
+    GeoDocumentParts.deleteForGeoDocument(id)
+    CollectionMemberships.deleteForGeoDocument(id)
     GeoDocuments.delete(id)
     Status(200)
   }
@@ -98,12 +99,7 @@ object DocumentAdminController extends Controller with Secured {
       BadRequest
     }
   }
-  
-  /** Create a new document in the UI form 
-  def createDocument = adminAction { username => implicit session =>
-    Ok(views.html.admin.documentEditForm(documentForm))
-  }**/
-  
+
   /** Edit an existing document in the UI form **/
   def editDocument(id: Int) = DBAction { implicit session =>
     GeoDocuments.findById(id).map { doc =>
@@ -127,10 +123,10 @@ object DocumentAdminController extends Controller with Secured {
         }).map(_.split(",").toSeq)
 
         if (collections.isDefined) {
-          val currentMemberships = CollectionMemberships.findForDocument(document.id.get).toSet
+          val currentMemberships = CollectionMemberships.findForGeoDocument(document.id.get).toSet
           if (currentMemberships != collections.get.toSet) {
             // Change detected! Update collection memberships
-            CollectionMemberships.clearForDocument(document.id.get)
+            CollectionMemberships.deleteForGeoDocument(document.id.get)
             CollectionMemberships.insertAll(collections.get.map(CollectionMembership(None, document.id.get, _)))
           }
         }        

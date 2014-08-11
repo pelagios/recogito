@@ -117,7 +117,7 @@ class ZipExporter {
       "date_comment" -> gdoc.dateComment,
       "description" -> gdoc.description,
       "language" -> gdoc.language,
-      "collections" -> CollectionMemberships.findForDocument(gdoc.id.get),
+      "collections" -> CollectionMemberships.findForGeoDocument(gdoc.id.get),
       "source" -> gdoc.source,
       "ext_work_id" -> gdoc.externalWorkID,
       "text" -> gdocText.map(_ => gdocNamePrefix + File.separator + escapeTitle(gdoc.title) + ".txt"),

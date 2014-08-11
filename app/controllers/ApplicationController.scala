@@ -55,7 +55,7 @@ object ApplicationController extends Controller with Secured with CTSClient {
         if (collection.get.equalsIgnoreCase("other"))
           GeoDocuments.findByIdsWithContent(unassigned)
         else
-          GeoDocuments.findByIdsWithContent(CollectionMemberships.getDocumentsInCollection(collection.get)) 
+          GeoDocuments.findByIdsWithContent(CollectionMemberships.getGeoDocumentsInCollection(collection.get)) 
         }
         .sortBy(t => (t._1.date, t._1.author, t._1.title))
         
@@ -71,7 +71,7 @@ object ApplicationController extends Controller with Secured with CTSClient {
       // The information require for the collection selection widget
       val docsPerCollection: Seq[(String, Int)] = 
         CollectionMemberships.listCollections.map(collection =>
-          (collection, CollectionMemberships.countDocumentsInCollection(collection))) ++
+          (collection, CollectionMemberships.countGeoDocumentsInCollection(collection))) ++
           { if (unassigned.size > 0) Seq(("Other", unassigned.size)) else Seq.empty[(String, Int)] }
       
       val groupedDocs = foldLanguageVersions(indexRows)

@@ -36,11 +36,11 @@ object CollectionMemberships {
     query.list
   
   /** Get the collections the specified gdoc is part of **/
-  def findForDocument(gdocId: Int)(implicit s: Session): Seq[String] =
+  def findForGeoDocument(gdocId: Int)(implicit s: Session): Seq[String] =
     query.where(_.gdocId === gdocId).map(_.collection).list
    
   /** Delete all collection memberships for a specific document **/
-  def clearForDocument(gdocId: Int)(implicit s: Session) =
+  def deleteForGeoDocument(gdocId: Int)(implicit s: Session) =
     query.where(_.gdocId === gdocId).delete
     
   /** Lists all collection names **/
@@ -48,11 +48,11 @@ object CollectionMemberships {
     query.map(_.collection).list.distinct
 
   /** Counts the number of documents in the specified collection **/
-  def countDocumentsInCollection(collection: String)(implicit s: Session): Int =
+  def countGeoDocumentsInCollection(collection: String)(implicit s: Session): Int =
     query.where(_.collection.toLowerCase === collection.toLowerCase).list.size
     
   /** Returns the IDs of the documents in the specified collection **/
-  def getDocumentsInCollection(collection: String)(implicit s: Session): Seq[Int] =
+  def getGeoDocumentsInCollection(collection: String)(implicit s: Session): Seq[Int] =
     query.where(_.collection.toLowerCase === collection.toLowerCase).map(_.gdocId).list
         
   def getUnassignedGeoDocuments()(implicit s: Session): Seq[Int] = {
