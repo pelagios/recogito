@@ -1,20 +1,11 @@
 package models
 
+import global.Global
 import java.util.UUID
+import models.stats._
 import play.api.Play.current
 import play.api.db.slick.Config.driver.simple._
-import play.api.Logger
 import scala.slick.lifted.Tag
-
-case class AnnotationStats(verified: Int, unidentifiable: Int, total: Int) {
-	
-  val percentVerified = verified.toDouble / total
-  
-  val percentUnidentifiable = unidentifiable.toDouble / total
-  
-  val percentComplete = percentVerified + percentUnidentifiable
-
-}
 
 /** Annotation case class.
   *  
@@ -242,30 +233,34 @@ object Annotations extends HasStatusColumn {
     }
   }
   
-  def getStatsForGeoDocuments(ids: Seq[Int])(implicit s: Session): Map[Int, AnnotationStats] = {
+  def getCompletionStats(ids: Seq[Int])(implicit s: Session): Map[Int, CompletionStats] = {
     val q = for {
       (gdocId, status, numberOfAnnotations) <- query.where(_.gdocId inSet ids)
         .groupBy(t => (t.gdocId, t.status))
         .map(t => (t._1._1, t._1._2, t._2.length))
     } yield (gdocId, status, numberOfAnnotations)
   
-    q.list.groupBy(_._1).map { case (gdocId, statusDistribution) => {
-      val verified = statusDistribution.find(_._2 == AnnotationStatus.VERIFIED)
-        .map(_._3).getOrElse(0)
-        
-      val unidentifiable = statusDistribution.find(t => 
-        Set(AnnotationStatus.AMBIGUOUS, 
-            AnnotationStatus.NO_SUITABLE_MATCH, 
-            AnnotationStatus.MULTIPLE,
-            AnnotationStatus.NOT_IDENTIFYABLE).contains(t._2)).map(_._3).getOrElse(0)
-      
-      val notVerified = statusDistribution.find(_._2 == AnnotationStatus.NOT_VERIFIED)
-        .map(_._3).getOrElse(0)
-      
-      val total = verified + unidentifiable + notVerified
-      
-      (gdocId, AnnotationStats(verified, unidentifiable, total))
-    }}
+    q.list.groupBy(_._1).map { case (gdocId, statusDistribution) =>
+      (gdocId, CompletionStats(statusDistribution.map(t => (t._2, t._3)).toMap))}
+  }
+  
+  def getPlaceStats(id: Int)(implicit s: Session): PlaceStats = {
+    val q = for {
+      ((gazetteerURI, toponym), count) <- query.where(_.gdocId === id)
+        .filter(_.status === AnnotationStatus.VERIFIED)
+        .map(t => (t.correctedGazetteerURI.ifNull(t.gazetteerURI), t.correctedToponym.ifNull(t.toponym)))
+        .groupBy(t => (t._1, t._2))
+        .map(t => (t._1, t._2.length))
+    } yield (gazetteerURI.?, toponym.?, count)
+    
+    val places = q.list.groupBy(_._1).map { case (uri, results) =>
+      val total = results.foldLeft(0)(_ + _._3)
+      val toponymStats = results.filter(_._2.isDefined).map(t => (t._2.get, t._3))
+      val place = uri.flatMap(Global.index.findByURI(_))
+      (place, total, toponymStats)
+    }.toSeq.sortBy(t => - t._2)
+    
+    PlaceStats(places.filter(_._1.isDefined).map(t => (t._1.get, t._2, t._3)))
   }
   
   def newUUID: UUID = UUID.randomUUID

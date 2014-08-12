@@ -7,7 +7,7 @@ import models._
 import play.api.db.slick._
 import scala.io.Source
 import java.sql.Timestamp
-import models.stats.AnnotationStats
+import models.stats.OtherStats
 import play.api.Logger
 
 /** Utility object to convert CSV input data to Annotation objects.

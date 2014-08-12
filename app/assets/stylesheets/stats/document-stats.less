@@ -1,0 +1,81 @@
+@import "../globals.less";
+@import "../header.less";
+@import "../meter.less";
+@import "../categorytag.less";
+
+#content {
+  padding:120px 60px 90px 60px;
+  
+  em {
+    color:#323232;
+    font-size:20px;
+    font-weight:bold;
+    font-style:normal;
+    text-shadow:1px 1px rgba(0,0,0,0.2);
+    padding-right:4px;
+  } /* em */
+  
+  .meter {
+    width:450px;
+    height:20px;
+    margin-bottom:30px;
+  }
+  
+  .annotation-stats {
+    font-size:15px;
+    line-height:24px;
+    padding-bottom:20px;
+    
+    span { 
+      margin-bottom:6px;
+      display:block; 
+    } /* span */
+    
+  } /* .annotation-stats */
+  
+  .annotation-stats.left {
+    float:left;
+    padding-right:30px;
+  } 
+  
+  h2 {
+    clear:both;
+    font-weight:normal;
+    font-size:15px;
+    padding-top:20px;
+  }
+
+  table {
+    border-collapse:collapse;
+    max-width:1050px;
+      
+    tr {
+      border-color:#d5d5d5;
+      border-style:solid;
+      border-width:0 0 1px 0;
+    } /* tr */
+    
+    td {
+      padding:5px 16px 3px 2px;
+      line-height:160%;
+      vertical-align:top;
+        
+      a {
+        font-weight:bold;
+        text-decoration:none;
+        color:#555;
+      }
+    
+    } /* td */
+    
+    td.references { 
+      white-space:nowrap; 
+      font-size:12px;
+      text-align:right;
+    }
+        
+    td em { font-size: 18px; }
+    
+  } /* table */
+  
+}

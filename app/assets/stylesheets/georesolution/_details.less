@@ -1,3 +1,5 @@
+@import "../categorytag.less";
+
 /* Details popup */
 .popup-header {
 
@@ -277,50 +279,11 @@
     padding-left:650px;
   }
   
+  .details-content-preview {
+    font-style:italic;
+    font-family:"Times New Roman", Times, serif;
+  }
+  
 }
 
-.categorytag {
-  position:relative;
-  bottom:1px;
-  font-size:11px;
-  text-shadow:1px 1px rgba(0, 0, 0, 0.4);
-  display:inline-block;
-  padding:5px 2px;
-  letter-spacing:0.5px;
-  .rounded-corners(3);
-  width:64px;
-  color:#fff;
-  text-align:center;
-  line-height:90%;
-  cursor:default;
-}
 
-.categorytag.settlement {
-  background-color:#428bca;
-  box-shadow:inset 1px 1px 0 rgba(255, 255, 255, 0.2), inset -1px -1px 0 rgba(0, 0, 0, 0.2);
-}
-
-.categorytag.feature {
-  background-color:#5cb85c;
-  box-shadow:inset 1px 1px 0 rgba(255, 255, 255, 0.2), inset -1px -1px 0 rgba(0, 0, 0, 0.2);
-}
-
-.categorytag.region {
-  background-color:#f0ad4e;
-  box-shadow:inset 1px 1px 0 rgba(255, 255, 255, 0.2), inset -1px -1px 0 rgba(0, 0, 0, 0.2);
-}
-
-.categorytag.structure {
-  background-color:#999;
-  box-shadow:inset 1px 1px 0 rgba(255, 255, 255, 0.2), inset -1px -1px 0 rgba(0, 0, 0, 0.2);
-}
-
-.categorytag.ethnos {
-  background-color:#999;
-  box-shadow:inset 1px 1px 0 rgba(255, 255, 255, 0.2), inset -1px -1px 0 rgba(0, 0, 0, 0.2);
-}
-
-.details-content-preview {
-  font-style:italic;
-  font-family:"Times New Roman", Times, serif;
-}
