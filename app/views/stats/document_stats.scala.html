@@ -1,10 +1,11 @@
-@(doc: models.GeoDocument, texts: Seq[(models.GeoDocumentText, Option[String])], username: Option[String])(implicit s: play.api.db.slick.Config.driver.simple.Session)
+@(doc: models.GeoDocument, texts: Seq[(models.GeoDocumentText, Option[String])], completionStats: models.stats.CompletionStats, username: Option[String])
  
 <html>
   <head>
     <title>@doc.author.map(_ + ":").getOrElse("") @doc.title</title>
-    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/details/main.css")" />
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/stats/document-stats.css")" />
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/numeral/numeral.min.js")"></script>   
     @if(texts.size > 1) { 
       @tags.js_text_menu() 
     }
@@ -45,29 +46,52 @@
     </div>
     
     <div id="content">
-      @* Optimize - just fetch annotations from DB once and then compute all stats in mem *@
-      @defining(Annotations.findByGeoDocumentAndStatus(doc.id.get, AnnotationStatus.VERIFIED, AnnotationStatus.NOT_IDENTIFYABLE)) { annotations =>    
-        <div class="stats">
-          @doc.countTotalToponyms Toponyms Total (not counting ignored and false matches)<br/>
-          @{doc.countTotalToponyms - doc.countUnverifiedToponyms} Toponyms Controlled (Verified + Not identifyable)</br>
-          @annotations.filter(a => a.validGazetteerURI.isDefined && a.validGazetteerURI.get.trim.size > 0).size Toponyms mapped to Gazetteer URIs<br/>
-          @{ "%.2f" format (doc.completionRatio * 100) } % Complete</br>
-          @{ "%.2f" format (doc.identificiationRatio * 100) } % Identification rate (Verified vs. Not identifyable)<br/>
-          NER recall: @{ "%.2f" format (doc.nerRecall * 100) } %<br/>
-          NER precision: @{ "%.2f" format (doc.nerPrecision * 100) } %</br> 
-          Resolution correctness: @{ "%.2f" format (doc.resolutionCorrectness * 100) } % 
-        </div>
-    
-        <h3>Unique Tags:</h3>
-        <p>@models.stats.AnnotationStats.uniqueTags(annotations).mkString(", ")</p>
+      <div class="meter" title="@{ "%.2f" format (completionStats.percentComplete * 100)} % Complete">
+        <span class="yellow" style="width:@{completionStats.percentComplete * 100}%"></span>
+        <span class="green@if(completionStats.percentComplete == completionStats.percentVerified) { full}" style="width: @{completionStats.percentVerified * 100}%"></span>
+      </div>
       
-        @defining(models.stats.AnnotationStats.uniquePlaceCategories(annotations)) { categories =>
-          <h3>Place Categories:</h3>
-          @for(tuple <- categories) {
-            @tuple._1.getOrElse("[uncategorized]"): @tuple._2<br/>
+      <div class="annotation-stats left">
+        <span><em class="number">@completionStats.total</em> place names tagged</span>
+        <span><em class="number">@completionStats.verified</em> verified</span>
+        <span><em class="number">@completionStats.yellow</em> not located</span>
+      </div>
+      
+      <div class="annotation-stats">
+        <span><em>@{ "%.2f" format (completionStats.percentComplete * 100) }</em> % complete (verified vs. total)</span>
+        <span><em>@{ "%.2f" format (completionStats.percentGeoResolved * 100) }</em> % geo-resolved (verified vs. not located)</span>
+      </div>
+      
+      <h2>Results of Automatic Annotation</h2>
+      
+      <h2>Tags</h2>
+      
+      <h2>Places</h2>
+      
+      
+      @*  
+      <div class="annotation-stats">
+        NER recall: @{ "%.2f" format (doc.nerRecall * 100) } %<br/>
+        NER precision: @{ "%.2f" format (doc.nerPrecision * 100) } %</br> 
+        Resolution correctness: @{ "%.2f" format (doc.resolutionCorrectness * 100) } % 
+      </div>
+      *@
+      
+      @*
+        <div class="column">
+          <h3>Unique Tags:</h3>
+          <p>@models.stats.AnnotationStats.uniqueTags(annotations).mkString(", ")</p>
+      
+          @defining(models.stats.AnnotationStats.uniquePlaceCategories(annotations)) { categories =>
+            <h3>Place Categories:</h3>
+            @for(tuple <- categories) {
+              @tuple._1.getOrElse("[uncategorized]"): @tuple._2<br/>
+            }
           }
-        }
-             
+        </div>
+        *@
+        
+        @*     
         @defining(models.stats.AnnotationStats.uniquePlaces(annotations).groupBy(_._1.category)) { places => 
           <h3>Unique Places: @places.toSeq.map(_._2).flatten.size</h3>
         
@@ -85,8 +109,17 @@
               }
             </tbody>
           </table>
-        }
-      }
+        }*@
     </div>
+    <script>
+      $(document).ready(function() {
+        $.each($('.number'), function(idx, el) {
+          var formatted = numeral($(el).text()).format('0,0');
+          $(el).html(formatted);
+        });
+
+        $('.timeago').timeago();
+      });
+    </script>
   </body>
 </html>

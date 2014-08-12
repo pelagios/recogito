@@ -106,8 +106,8 @@
           <!-- completion ratio --> 
           <td class="stats" title="@{ "%.2f" format (entry.stats.percentComplete * 100) } % Complete">
             <div class="meter">
-              <span class="yellow" style="width: @{(entry.stats.percentVerified + entry.stats.percentUnidentifiable) * 100}%"></span>
-              <span class="green@if(entry.stats.percentUnidentifiable == 0) { full}" style="width: @{entry.stats.percentVerified * 100}%"></span>
+              <span class="yellow" style="width: @{(entry.stats.percentVerified + entry.stats.percentYellow) * 100}%"></span>
+              <span class="green@if(entry.stats.percentYellow == 0) { full}" style="width: @{entry.stats.percentVerified * 100}%"></span>
             </div>
           </td>
           

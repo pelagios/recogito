@@ -6,9 +6,10 @@ import play.api.Play.current
 import play.api.libs.json.Json
 import play.api.mvc.{ Action, Controller }
 import play.api.Logger
+import models.stats.CompletionStats
 
 /** Encapsulates the information shown in one row of the landing page's document index **/
-case class DocumentIndexRow(doc: GeoDocument, stats: AnnotationStats, firstText: Option[Int], firstImage: Option[Int])
+case class DocumentIndexRow(doc: GeoDocument, stats: CompletionStats, firstText: Option[Int], firstImage: Option[Int])
 
 /** Main application entrypoint.
   *
@@ -60,12 +61,12 @@ object ApplicationController extends Controller with Secured with CTSClient {
         .sortBy(t => (t._1.date, t._1.author, t._1.title))
         
       // Get stats for each document
-      val stats: Map[Int, AnnotationStats] = 
-        Annotations.getStatsForGeoDocuments(gdocsWithcontent.map(_._1.id.get))
+      val stats: Map[Int, CompletionStats] = 
+        Annotations.getCompletionStats(gdocsWithcontent.map(_._1.id.get))
 
       // Merge docs, stats & first content IDs to form the 'index row'
       val indexRows = gdocsWithcontent.map { case (gdoc, texts, images) => {
-        DocumentIndexRow(gdoc, stats.get(gdoc.id.get).getOrElse(AnnotationStats(0, 0, 0)), texts.headOption, images.headOption)
+        DocumentIndexRow(gdoc, stats.get(gdoc.id.get).getOrElse(CompletionStats.empty), texts.headOption, images.headOption)
       }}
                   
       // The information require for the collection selection widget
@@ -219,7 +220,9 @@ object ApplicationController extends Controller with Secured with CTSClient {
   def showDocumentStats(docId: Int) = DBAction { implicit session =>
     val doc = GeoDocuments.findById(docId)
     if (doc.isDefined) {        
-      Ok(views.html.stats.document_stats(doc.get, textsForGeoDocument(docId), currentUser.map(_.username)))
+      val id = doc.get.id.get
+      val stats = Annotations.getCompletionStats(Seq(id)).get(id).getOrElse(CompletionStats.empty)
+      Ok(views.html.stats.document_stats(doc.get, textsForGeoDocument(docId), stats, currentUser.map(_.username)))
     } else {
       NotFound(Json.parse("{ \"success\": false, \"message\": \"Document not found\" }"))
     }

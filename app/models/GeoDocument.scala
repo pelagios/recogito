@@ -125,41 +125,6 @@ object GeoDocuments {
        allValues.filter(_._2.isDefined).map(_._2.get),
        allValues.filter(_._3.isDefined).map(_._3.get)) } toSeq
   }
-  
-  /*  
-  def findByIdsWithStats(ids: Seq[Int])(implicit s: Session): Seq[(GeoDocument, Int, Int, Int, Option[Int], Option[Int])] = {
-    // Step 1 - pull the stats for all annotated documents from the annotation table          
-    val q = for {
-      (gdocId, status, numberOfAnnotations) <- Annotations.query
-        .where(_.gdocId inSet ids)
-        .groupBy(t => (t.gdocId, t.status))
-        .map(t => (t._1._1, t._1._2, t._2.length))
-    } yield (gdocId, status, numberOfAnnotations)
-    
-    val stats = q.list.groupBy(_._1).map { case (gdocId, statusDistribution) => {
-      val verified = statusDistribution.find(_._2 == AnnotationStatus.VERIFIED)
-        .map(_._3).getOrElse(0)
-        
-      val unidentifiable = statusDistribution.find(t => 
-        Set(AnnotationStatus.AMBIGUOUS, 
-            AnnotationStatus.NO_SUITABLE_MATCH, 
-            AnnotationStatus.MULTIPLE,
-            AnnotationStatus.NOT_IDENTIFYABLE).contains(t._2)).map(_._3).getOrElse(0)
-      
-      val total = statusDistribution.foldLeft(0)((count, tuple) => count + tuple._3)
-      
-      (gdocId, verified, unidentifiable, total)      
-    }}
-    
-    // Step 2 - get the documents (including un-annotated ones) 
-    findAll(ids).map { case (doc, firstText, firstImage) => {
-	  stats.find(_._1 == doc.id.get) match {
-	    case Some(s) => (doc, s._2, s._3, s._4, firstText, firstImage)
-	    case None => (doc, 0, 0, 0, firstText, firstImage)
-      }
-	}}
-  }
-  */
     
   def delete(id: Int)(implicit s: Session) =
     query.where(_.id === id).delete

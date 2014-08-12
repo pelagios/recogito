@@ -1,5 +1,6 @@
 @import "../globals.less";
 @import "../table.less";
+@import "../meter.less";
 
 @tr-hover-color:#f2f2f2;
 
@@ -290,33 +291,9 @@
     margin-left:230px;
     
     .meter {
-      position:relative;
-      .rounded-corners(3px);
-      .gradient(#ccc, #eee);
       width:150px;
       height:8px;
-      
-      span.yellow {
-        position:absolute;
-        top:0;
-        .rounded-corners(3px);
-        .gradient(#f0e100, #d6ca00);
-        display:inline-block;
-        height:100%;
-      }
-        
-      span.green {
-        position:absolute;
-        top:0;
-        .rounded-corners-left(3px);
-        .gradient(#83c783, #008a00);
-        display:inline-block;
-        height:100%;
-      }
-        
-      span.green.full { .rounded-corners(3px); }
-      
-    } /* .meter */
+    }
     
     #total-progress {
       padding:0 15px 40px 0;

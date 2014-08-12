@@ -1,0 +1,28 @@
+@import "globals.less";
+
+.meter {
+  position:relative;
+  .rounded-corners(3px);
+  .gradient(#ccc, #eee);
+      
+  span.yellow {
+    position:absolute;
+    top:0;
+    .rounded-corners(3px);
+    .gradient(#f0e100, #d6ca00);
+    display:inline-block;
+    height:100%;
+  }
+        
+  span.green {
+    position:absolute;
+    top:0;
+    .rounded-corners-left(3px);
+    .gradient(#83c783, #008a00);
+    display:inline-block;
+    height:100%;
+  }
+        
+  span.green.full { .rounded-corners(3px); }
+      
+} /* .meter */

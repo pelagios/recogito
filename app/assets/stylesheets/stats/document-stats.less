@@ -1,0 +1,53 @@
+@import "../globals.less";
+@import "../header.less";
+@import "../meter.less";
+
+#content {
+  padding:120px 60px 90px 60px;
+  
+  .meter {
+    width:450px;
+    height:20px;
+    margin-bottom:30px;
+  }
+  
+  .annotation-stats {
+    font-size:15px;
+    line-height:24px;
+    padding-bottom:20px;
+    
+    span { 
+      margin-bottom:6px;
+      display:block; 
+    } /* span */
+    
+    em {
+      color:#323232;
+      font-size:24px;
+      font-weight:bold;
+      font-style:normal;
+      text-shadow:1px 1px rgba(0,0,0,0.2);
+    } /* em */
+    
+  }
+  
+  .annotation-stats.left {
+    float:left;
+    padding-right:30px;
+  } 
+  
+  h2 {
+    clear:both;
+    font-size:16px;
+  }
+
+  table {
+    border-collapse:collapse;
+  }
+    
+  td {
+    border: 1px solid black;
+    padding:5px;
+  }
+
+}
