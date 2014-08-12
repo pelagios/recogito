@@ -41,7 +41,7 @@
     <script>
       window.onload = function() {
         var data = 
-          [@{ stats.takeRight(50).zipWithIndex.map { case (record, idx) => "{ x:" + ((idx + 174) * 3600 * 24) + ",y:" + record.totalEdits + "}" }.mkString(",") }];
+          [@{ stats.takeRight(50).map(record => "{ x:" + record.timestamp.getTime / 1000 + ",y:" + record.totalEdits + "}").mkString(",") }];
           
         var graph = new Rickshaw.Graph({
           element: document.querySelector("#chart"),

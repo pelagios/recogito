@@ -1,6 +1,5 @@
 @import "../globals.less";
 @import "../header.less";
-@import "../meter.less";
 @import "../categorytag.less";
 
 #content {
@@ -15,67 +14,89 @@
     padding-right:4px;
   } /* em */
   
-  .meter {
-    width:450px;
-    height:20px;
-    margin-bottom:30px;
+  a {
+    font-weight:300;
+    text-decoration:none;
+    color:#555;
   }
-  
-  .annotation-stats {
+    
+  .stats {
+    position:absolute;
+    top:125px; 
     font-size:15px;
     line-height:24px;
     padding-bottom:20px;
+    white-space:nowrap; 
+
+    canvas { 
+      display:block;
+      float:left;
+      padding-bottom:30px;
+    }
     
     span { 
       margin-bottom:6px;
       display:block; 
     } /* span */
-    
-  } /* .annotation-stats */
+
+  } /* .stats */
   
-  .annotation-stats.left {
-    float:left;
-    padding-right:30px;
+  .annotation-stats {
+    left:30px;       
   } 
+  
+  .contributor-stats {
+    left:520px;
+    
+    p {
+      padding:0;
+      margin:0;
+    }
+    
+  }
   
   h2 {
     clear:both;
     font-weight:normal;
     font-size:15px;
-    padding-top:20px;
+    padding:20px 0 10px 0;
   }
+  
+  #unique-places {
+    position:absolute;
+    top:320px;
+    padding-left:10px;
+    width:760px;
 
-  table {
-    border-collapse:collapse;
-    max-width:1050px;
-      
-    tr {
-      border-color:#d5d5d5;
-      border-style:solid;
-      border-width:0 0 1px 0;
-    } /* tr */
-    
-    td {
-      padding:5px 16px 3px 2px;
-      line-height:160%;
-      vertical-align:top;
+    table {
+      border-collapse:collapse;
+      width:100%;
         
-      a {
-        font-weight:bold;
-        text-decoration:none;
-        color:#555;
+      tr {
+        border-color:#d5d5d5;
+        border-style:solid;
+        border-width:0 0 1px 0;
+      } /* tr */
+    
+      td {
+        padding:3px 16px 2px 2px;
+        line-height:160%;
+        vertical-align:top;    
+      } /* td */
+    
+      td.references { 
+        white-space:nowrap; 
+        font-size:12px;
+        text-align:right;
+      }
+        
+      td em { 
+        font-size:14px; 
+        font-weight:normal;
       }
     
-    } /* td */
-    
-    td.references { 
-      white-space:nowrap; 
-      font-size:12px;
-      text-align:right;
-    }
-        
-    td em { font-size: 18px; }
-    
-  } /* table */
+    } /* table */
+  
+  } /* #unique-places */
   
 }

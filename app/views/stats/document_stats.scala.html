@@ -1,4 +1,4 @@
-@(doc: models.GeoDocument, texts: Seq[(models.GeoDocumentText, Option[String])], completionStats: models.stats.CompletionStats, placeStats: models.stats.PlaceStats, username: Option[String])
+@(doc: models.GeoDocument, texts: Seq[(models.GeoDocumentText, Option[String])], completionStats: models.stats.CompletionStats, userStats: Seq[(String, Int)], placeStats: models.stats.PlaceStats, username: Option[String])
  
 <html>
   <head>
@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/stats/document-stats.css")" />
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/numeral/numeral.min.js")"></script>   
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/chart/chart.min.js")"></script>   
     @if(texts.size > 1) { 
       @tags.js_text_menu() 
     }
@@ -46,29 +47,29 @@
     </div>
     
     <div id="content">
-      <div class="meter" title="@{ "%.2f" format (completionStats.percentComplete * 100)} % Complete">
-        <span class="yellow" style="width:@{completionStats.percentComplete * 100}%"></span>
-        <span class="green@if(completionStats.percentComplete == completionStats.percentVerified) { full}" style="width: @{completionStats.percentVerified * 100}%"></span>
-      </div>
-      
-      <div class="annotation-stats left">
+      <div class="stats annotation-stats">
+        <canvas width="180" height="100"class="piechart" id="completion-chart"></canvas>
         <span><em class="number">@completionStats.total</em> place names tagged</span>
         <span><em class="number">@completionStats.verified</em> verified</span>
         <span><em class="number">@completionStats.yellow</em> not located</span>
-      </div>
-      
-      <div class="annotation-stats">
+
         <span><em>@{"%.2f" format (completionStats.percentComplete * 100)}</em> % complete (verified vs. total)</span>
         <span><em>@{"%.2f" format (completionStats.percentGeoResolved * 100)}</em> % geo-resolved (verified vs. not located)</span>
       </div>
-      
-      <!-- h2>Results of Automatic Annotation</h2>
-      
-      <h2>Tags</h2 -->
-      
-      <h2><em class="number">@placeStats.uniquePlaces.size</em> unique places referred to in document</h2>
-      
+            
+      <div class="stats contributor-stats">
+        <canvas width="180" height="100" class="piechart"  id="user-chart"></canvas>
+        <em>@userStats.size</em> contributors
+        <p>
+          @for((username, count) <- userStats) {
+            <a href="@routes.StatsController.showUserStats(username)">@username</a>
+          }
+        </p>
+      </div>
 
+      <div id="unique-places">
+        <h2><em class="number">@placeStats.uniquePlaces.size</em> unique places referred to in document</h2>
+        
         <table>
           <thead>
 
@@ -90,55 +91,57 @@
             }
           </tbody>
         </table>
-
-      
-      @*  
-      <div class="annotation-stats">
-        NER recall: @{ "%.2f" format (doc.nerRecall * 100) } %<br/>
-        NER precision: @{ "%.2f" format (doc.nerPrecision * 100) } %</br> 
-        Resolution correctness: @{ "%.2f" format (doc.resolutionCorrectness * 100) } % 
       </div>
-      *@
-      
-      @*
-        <div class="column">
-          <h3>Unique Tags:</h3>
-          <p>@models.stats.AnnotationStats.uniqueTags(annotations).mkString(", ")</p>
-      
-          @defining(models.stats.AnnotationStats.uniquePlaceCategories(annotations)) { categories =>
-            <h3>Place Categories:</h3>
-            @for(tuple <- categories) {
-              @tuple._1.getOrElse("[uncategorized]"): @tuple._2<br/>
-            }
-          }
-        </div>
-        *@
+    <script>        
+      var colCursor = 0;
         
-        @*     
-        @defining(models.stats.AnnotationStats.uniquePlaces(annotations).groupBy(_._1.category)) { places => 
-          <h3>Unique Places: @places.toSeq.map(_._2).flatten.size</h3>
-        
-          <table>
-            <tbody>
-              @for(category <- places) {
-                <tr>
-                  <td style="vertical-align:top;">@category._1.getOrElse("[uncategorized]")</td>
-                  <td>
-                    @for(tuple <- category._2) {
-                      <a href="@tuple._1.uri">@tuple._1.title</a> (@tuple._2)<br/>
-                    }
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        }*@
-    </div>
-    <script>
       $(document).ready(function() {
         $.each($('.number'), function(idx, el) {
           var formatted = numeral($(el).text()).format('0,0');
           $(el).html(formatted);
+        });
+        
+        var config = Chart.defaults.global.animation = false;
+        
+        var completionChartData = [
+          { value: @completionStats.verified,
+            color:'#83c783',
+            label:'Verified' },
+          { value: @completionStats.yellow,
+            color:'#f0e100',
+            label:'Not Located' },
+          { value: @completionStats.notVerified,
+            color:'#ccc',
+            label:'Not Verified Yet' }
+        ]
+        
+        @defining(Seq(
+          ("#1f77b4", "#aec7e8"), 
+          ("#ff7f0e", "#ffbb78"),
+          ("#2ca02c", "#98df8a"),
+          ("#d62728", "#ff9896"),
+          ("#9467bd", "#c5b0d5"),
+          ("#8c564b", "#c49c94"),
+          ("#e377c2", "#f7b6d2"),
+          ("#7f7f7f", "#c7c7c7"),
+          ("#bcbd22", "#dbdb8d"),
+          ("#17becf", "#9edae5"))) { colors => 
+          
+          var userChartData = [
+            @Html(userStats.zipWithIndex.map { case ((username, contributions), idx) => { 
+              "{ value:" + contributions + "," +
+              "  color:'" + colors(idx % colors.size)._1 + "'," +
+              "  label:'" + username + "' }" }}.mkString(","))
+          ];
+        }
+        
+        var completionChart = new Chart(document.getElementById('completion-chart').getContext('2d')).Pie(completionChartData, {
+          segmentStrokeWidth:0.5
+        });
+        
+        var userChart = new Chart(document.getElementById('user-chart').getContext('2d')).Pie(userChartData, {
+          tooltipTemplate: '<%if (label){%><%=label%>: <%}%><%= value %> Edits',
+          segmentStrokeWidth:0.5
         });
       });
     </script>

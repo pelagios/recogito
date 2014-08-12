@@ -6,6 +6,7 @@ import models.stats._
 import play.api.Play.current
 import play.api.db.slick.Config.driver.simple._
 import scala.slick.lifted.Tag
+import play.api.Logger
 
 /** Annotation case class.
   *  
@@ -261,6 +262,16 @@ object Annotations extends HasStatusColumn {
     }.toSeq.sortBy(t => - t._2)
     
     PlaceStats(places.filter(_._1.isDefined).map(t => (t._1.get, t._2, t._3)))
+  }
+  
+  def getContributorStats(id: Int)(implicit s: Session): Seq[(String, Int)] = {
+    val q = query.where(_.gdocId === id)
+              .map(_.uuid)
+              .innerJoin(EditHistory.query).on(_ === _.annotationId)
+              .groupBy(_._2.username)
+              .map { case (username, events) =>  (username, events.length)}
+    
+    q.list
   }
   
   def newUUID: UUID = UUID.randomUUID

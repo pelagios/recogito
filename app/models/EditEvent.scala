@@ -133,7 +133,7 @@ class EditHistory(tag: Tag) extends Table[EditEvent](tag, "edit_history") with H
 
 object EditHistory {
   
-  private val query = TableQuery[EditHistory]
+  private[models] val query = TableQuery[EditHistory]
   
   def create()(implicit s: Session) = query.ddl.create
   
