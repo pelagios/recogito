@@ -1,0 +1,10 @@
+@(category: org.pelagios.api.gazetteer.PlaceCategory.Category)
+
+@{ category match {
+  case c if c == org.pelagios.api.gazetteer.PlaceCategory.SETTLEMENT => <span title="Settlement" class="categorytag settlement">Settlement</span>
+  case c if c == org.pelagios.api.gazetteer.PlaceCategory.REGION => <span title="Region" class="categorytag region">Region</span>
+  case c if c == org.pelagios.api.gazetteer.PlaceCategory.ETHNOS => <span title="Ethnos" class="categorytag ethnos">Ethnos</span>
+  case c if c == org.pelagios.api.gazetteer.PlaceCategory.NATURAL_FEATURE => <span title="Natural Feature" class="categorytag feature">Feature</span>
+  case c if c == org.pelagios.api.gazetteer.PlaceCategory.MAN_MADE_STRUCTURE => <span title="Articifical Structure" class="categorytag structure">Structure</span>                        
+  case c => c.toString
+}}

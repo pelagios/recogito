@@ -221,8 +221,9 @@ object ApplicationController extends Controller with Secured with CTSClient {
     val doc = GeoDocuments.findById(docId)
     if (doc.isDefined) {        
       val id = doc.get.id.get
-      val stats = Annotations.getCompletionStats(Seq(id)).get(id).getOrElse(CompletionStats.empty)
-      Ok(views.html.stats.document_stats(doc.get, textsForGeoDocument(docId), stats, currentUser.map(_.username)))
+      val completionStats = Annotations.getCompletionStats(Seq(id)).get(id).getOrElse(CompletionStats.empty)
+      val placeStats = Annotations.getPlaceStats(id)
+      Ok(views.html.stats.document_stats(doc.get, textsForGeoDocument(docId), completionStats, placeStats, currentUser.map(_.username)))
     } else {
       NotFound(Json.parse("{ \"success\": false, \"message\": \"Document not found\" }"))
     }

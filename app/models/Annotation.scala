@@ -1,11 +1,11 @@
 package models
 
+import global.Global
 import java.util.UUID
+import models.stats._
 import play.api.Play.current
 import play.api.db.slick.Config.driver.simple._
-import play.api.Logger
 import scala.slick.lifted.Tag
-import models.stats.CompletionStats
 
 /** Annotation case class.
   *  
@@ -242,6 +242,25 @@ object Annotations extends HasStatusColumn {
   
     q.list.groupBy(_._1).map { case (gdocId, statusDistribution) =>
       (gdocId, CompletionStats(statusDistribution.map(t => (t._2, t._3)).toMap))}
+  }
+  
+  def getPlaceStats(id: Int)(implicit s: Session): PlaceStats = {
+    val q = for {
+      ((gazetteerURI, toponym), count) <- query.where(_.gdocId === id)
+        .filter(_.status === AnnotationStatus.VERIFIED)
+        .map(t => (t.correctedGazetteerURI.ifNull(t.gazetteerURI), t.correctedToponym.ifNull(t.toponym)))
+        .groupBy(t => (t._1, t._2))
+        .map(t => (t._1, t._2.length))
+    } yield (gazetteerURI.?, toponym.?, count)
+    
+    val places = q.list.groupBy(_._1).map { case (uri, results) =>
+      val total = results.foldLeft(0)(_ + _._3)
+      val toponymStats = results.filter(_._2.isDefined).map(t => (t._2.get, t._3))
+      val place = uri.flatMap(Global.index.findByURI(_))
+      (place, total, toponymStats)
+    }.toSeq.sortBy(t => - t._2)
+    
+    PlaceStats(places.filter(_._1.isDefined).map(t => (t._1.get, t._2, t._3)))
   }
   
   def newUUID: UUID = UUID.randomUUID

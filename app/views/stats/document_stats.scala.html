@@ -1,4 +1,4 @@
-@(doc: models.GeoDocument, texts: Seq[(models.GeoDocumentText, Option[String])], completionStats: models.stats.CompletionStats, username: Option[String])
+@(doc: models.GeoDocument, texts: Seq[(models.GeoDocumentText, Option[String])], completionStats: models.stats.CompletionStats, placeStats: models.stats.PlaceStats, username: Option[String])
  
 <html>
   <head>
@@ -58,16 +58,39 @@
       </div>
       
       <div class="annotation-stats">
-        <span><em>@{ "%.2f" format (completionStats.percentComplete * 100) }</em> % complete (verified vs. total)</span>
-        <span><em>@{ "%.2f" format (completionStats.percentGeoResolved * 100) }</em> % geo-resolved (verified vs. not located)</span>
+        <span><em>@{"%.2f" format (completionStats.percentComplete * 100)}</em> % complete (verified vs. total)</span>
+        <span><em>@{"%.2f" format (completionStats.percentGeoResolved * 100)}</em> % geo-resolved (verified vs. not located)</span>
       </div>
       
-      <h2>Results of Automatic Annotation</h2>
+      <!-- h2>Results of Automatic Annotation</h2>
       
-      <h2>Tags</h2>
+      <h2>Tags</h2 -->
       
-      <h2>Places</h2>
+      <h2><em class="number">@placeStats.uniquePlaces.size</em> unique places referred to in document</h2>
       
+
+        <table>
+          <thead>
+
+          </thead>
+          <tbody>
+            @for((place, count, toponymStats) <- placeStats.uniquePlaces) {
+              <tr class="place">
+                <td>
+                  @if(place.category.isDefined) {
+                    @tags.place_category(place.category.get)
+                  }
+                </td>
+                <td><a href="@place.uri" title="@place.descriptions.headOption.map(_.chars)" target="_blank">@place.title</a></td>
+                <td>
+                  @toponymStats.map {case (toponym, count) => @toponym (@count)}.mkString(",")
+                </td>
+                <td class="references"><em>@count</em> references</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
       
       @*  
       <div class="annotation-stats">
@@ -117,8 +140,6 @@
           var formatted = numeral($(el).text()).format('0,0');
           $(el).html(formatted);
         });
-
-        $('.timeago').timeago();
       });
     </script>
   </body>
