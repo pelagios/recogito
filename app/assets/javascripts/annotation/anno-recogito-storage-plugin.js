@@ -26,6 +26,16 @@ annotorious.plugin.Recogito.prototype.initPlugin = function(anno) {
   self._loadAnnotations(anno);
 }
 
+annotorious.plugin.Recogito.prototype.onInitAnnotator = function(annotator) {  
+  annotator.popup.addField(function(annotation) { 
+    var username = (annotation.last_edit) ? annotation.last_edit.username : "";
+    var ago = (annotation.last_edit) ? jQuery.timeago(new Date(annotation.last_edit.timestamp)) : "";  
+    
+    return '<em class="anno-username">' + username + '</em>' +
+           '<em class="anno-ago">' + ago + '</em>';
+  });
+}
+
 /** @private **/
 annotorious.plugin.Recogito.prototype._showError = function(error) {
   // TODO proper error handling
