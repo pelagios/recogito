@@ -4,7 +4,6 @@ import models.stats.GeoDocumentStats
 import play.api.Play.current
 import play.api.db.slick.Config.driver.simple._
 import scala.slick.lifted.Tag
-import play.api.Logger
 
 /** Geospatial Document case class.
   *

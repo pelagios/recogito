@@ -6,6 +6,10 @@ import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import scala.slick.lifted.Tag
 
+/** Stats Record case class.
+  *
+  * @author Rainer Simon <rainer.simon@ait.ac.at>
+  */
 case class StatsRecord(id: Option[Int], timestamp: Timestamp, verifiedToponyms: Int, unverifiedToponyms: Int, unidentifiableToponyms: Int, totalEdits: Int) {
   
   lazy val totalToponyms = verifiedToponyms + unverifiedToponyms + unidentifiableToponyms

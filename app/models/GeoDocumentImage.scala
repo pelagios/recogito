@@ -5,8 +5,14 @@ import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import scala.slick.lifted.Tag
 
+/** GeoDocument image content case class.
+  *
+  * @author Rainer Simon <rainer.simon@ait.ac.at>
+  */
 case class GeoDocumentImage(id: Option[Int] = None, gdocId: Int, gdocPartId: Option[Int], imageFilePath: String, width: Int, height: Int)
+  extends GeoDocumentContent
 
+/** GeoDocumentImage database table **/
 class GeoDocumentImages(tag: Tag) extends Table[GeoDocumentImage](tag, "gdocument_images") {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
@@ -33,15 +39,12 @@ object GeoDocumentImages {
   
   def insert(geoDocumentImage: GeoDocumentImage)(implicit s: Session) = query.insert(geoDocumentImage)
   
-  /** Retrieve a text with the specified ID (= primary key) **/
   def findById(id: Int)(implicit s: Session): Option[GeoDocumentImage] =
     query.where(_.id === id).firstOption
 
-  /** Deletes texts associated with a GeoDocument **/  
   def deleteForGeoDocument(id: Int)(implicit s: Session) =
     query.where(_.gdocId === id).delete
   
-  /** Retrieves all image records associated with a specific GeoDocument (or parts of it) **/
   def findByGeoDocument(gdocId: Int)(implicit s: Session): Seq[GeoDocumentImage] =
     query.where(_.gdocId === gdocId).list
   

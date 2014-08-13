@@ -5,12 +5,14 @@ import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import scala.slick.lifted.Tag
 
-/** Geospatial Document source text case class.
+/** GeoDocument text content case class.
   *
   * @author Rainer Simon <rainer.simon@ait.ac.at>
   */
 case class GeoDocumentText(id: Option[Int] = None, gdocId: Int, gdocPartId: Option[Int], text: Array[Byte])
+  extends GeoDocumentContent
 
+/** GeoDocumentText database table **/
 class GeoDocumentTexts(tag: Tag) extends Table[GeoDocumentText](tag, "gdocument_texts") {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
@@ -33,27 +35,18 @@ object GeoDocumentTexts {
   
   def insert(geoDocumentText: GeoDocumentText)(implicit s: Session) = query.insert(geoDocumentText)
   
-  /** Retrieve a text with the specified ID (= primary key) **/
   def findById(id: Int)(implicit s: Session): Option[GeoDocumentText] =
     query.where(_.id === id).firstOption
     
-    
-    
-  /** Deletes texts associated with a GeoDocument **/  
   def deleteForGeoDocument(id: Int)(implicit s: Session) =
     query.where(_.gdocId === id).delete
     
-    
-    
-  /** Retrieves all texts associated with a specific GeoDocument (or parts of it) **/
   def findByGeoDocument(gdocId: Int)(implicit s: Session): Seq[GeoDocumentText] =
     query.where(_.gdocId === gdocId).list
     
-    
-    
-  /** Retrieves the text that is **directly** associated with the specified GeoDocument.
+  /** Retrieves the text that is DIRECTLY associated with the specified GeoDocument.
     * 
-    * Note that this method will **not** retrieve texts that are associated with parts of
+    * Note that this method will NOT retrieve texts that are associated with parts of
     * the specified GeoDocument.  
     */
   def getTextForGeoDocument(gdocId: Int)(implicit s: Session): Option[GeoDocumentText] =

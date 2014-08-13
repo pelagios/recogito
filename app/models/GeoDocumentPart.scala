@@ -38,25 +38,19 @@ object GeoDocumentParts {
   def insert(geoDocumentPart: GeoDocumentPart)(implicit s: Session) =
     query returning query.map(_.id) += geoDocumentPart
 
-  /** Retrieve a GeoDocumentPart with the specified ID (= primary key) **/
   def findById(id: Int)(implicit s: Session): Option[GeoDocumentPart] = {
     query.where(_.id === id).firstOption
   } 
     
-  /** Retrieve all GeoDocumentParts for the specified GeoDocument **/
   def findByGeoDocument(id: Int)(implicit s: Session): Seq[GeoDocumentPart] =
     query.where(_.gdocId === id).list
     
-  /** Count all GeoDocumentParts for the specified GeoDocument **/
   def countForGeoDocument(id: Int)(implicit s: Session): Int =
     Query(query.where(_.gdocId === id).length).first
     
   def deleteForGeoDocument(id: Int)(implicit s: Session) =
     query.where(_.gdocId === id).delete
     
-    
-    
-  /** Retrieve a GeoDocumentPart on a specific GeoDocument that has the specified title **/
   def findByGeoDocumentAndTitle(id: Int, title: String)(implicit s: Session): Option[GeoDocumentPart] =
     query.where(_.gdocId === id).filter(_.title === title).firstOption
   
