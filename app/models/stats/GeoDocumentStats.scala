@@ -22,28 +22,6 @@ trait GeoDocumentStats {
   def countParts()(implicit s: Session): Int =
     GeoDocumentParts.countForGeoDocument(id.get)
   
-  /** NER recall for the document.
-    *
-    * Recall is the total number of toponyms the NER found (including false detections) vs. 
-    * the total number toponyms contained in the document (as reported by human users)  
-    */ 
-  def nerRecall()(implicit s: Session) = {
-    val valid = Annotations.findByGeoDocument(id.get).filter(_.status != AnnotationStatus.FALSE_DETECTION)   
-    val ner = valid.filter(a => a.toponym.isDefined && a.correctedToponym.isEmpty)
-    ner.size.toDouble / valid.size.toDouble
-  }
-  
-  /** NER precision for the document.
-    * 
-    * Precision is the number of all toponyms the NER found (including false detections) vs.
-    * the number of NER-identified toponyms that were accepted as valid toponyms by human users.
-    */
-  def nerPrecision()(implicit s: Session) = {
-    val allNER = Annotations.findByGeoDocument(id.get).filter(_.toponym.isDefined)
-    val validNER = allNER.filter(a => a.status != AnnotationStatus.FALSE_DETECTION)
-    validNER.size.toDouble / allNER.size.toDouble
-  }
-  
   /** A quality metric for the automatic geo-resolution.
     *
     * The metric represents the percentage of verified annotations that have either no human correction,
@@ -58,5 +36,12 @@ trait GeoDocumentStats {
         
     correct.size.toDouble / all.size.toDouble
   }
+  
+  /*
+  def uniqueTags(annotations: Iterable[Annotation]): Seq[String] = {
+    val uniqueCombinations = annotations.groupBy(_.tags).keys.filter(_.isDefined).map(_.get).toSeq
+    uniqueCombinations.map(_.split(",")).flatten.toSet.toSeq
+  }
+  */
   
 }

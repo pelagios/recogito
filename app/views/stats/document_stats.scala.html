@@ -1,6 +1,7 @@
 @(doc: models.GeoDocument, 
   texts: Seq[(models.GeoDocumentText, Option[String])],
   completionStats: models.stats.CompletionStats, 
+  autoAnnotationStats: models.stats.AutoAnnotationStats,
   userStats: Seq[(String, Int)], 
   unidentifiedToponyms: Seq[(String, Seq[(AnnotationStatus.Value, Int)])],
   placeStats: models.stats.PlaceStats, username: Option[String])
@@ -78,15 +79,13 @@
             @for((username, count) <- userStats) {
               @defining(100 * count.toDouble / userStats(0)._2) { percentage =>
           	    <tr>
-                  <td class="username">
+                  <td class="label">
                     <a href="@routes.StatsController.showUserStats(username)"">@username</a>
                   </td>
                   <td class="count">
                     <div class="meter">
                       <div class="bar" style="width:@percentage%"></div><span class="label">@count Edits</span>
                     </div>
-                    
-                    
                   </td>
           	    <tr>
               }
@@ -144,6 +143,32 @@
                 </tr>
               }
             </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="box">
+        <h2>Automatic Annotation Performance</h2>
+          
+        <div id="auto-annotation-stats" class="box-content">
+          <table>
+      	    <tr>
+              <td class="label">NER Precision</td>
+              <td>
+                <div class="meter">
+                  <div class="bar" style="width:@{ autoAnnotationStats.nerPrecision * 100 }%"></div><span class="label">@{"%.2f" format (autoAnnotationStats.nerPrecision * 100)}%</span>
+                </div>
+              </td>
+        	  <tr>
+              
+            <tr>
+              <td class="label">NER Recall</td>
+              <td>
+                <div class="meter">
+                  <div class="bar" style="width:@{ autoAnnotationStats.nerRecall * 100 }%"></div><span class="label">@{"%.2f" format (autoAnnotationStats.nerRecall * 100)}%</span>
+                </div>
+              </td>
+            </tr>
           </table>
         </div>
       </div>

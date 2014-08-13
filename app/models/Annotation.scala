@@ -6,7 +6,6 @@ import models.stats._
 import play.api.Play.current
 import play.api.db.slick.Config.driver.simple._
 import scala.slick.lifted.Tag
-import play.api.Logger
 
 /** Annotation case class.
   *  
@@ -276,17 +275,51 @@ object Annotations extends HasStatusColumn {
   def getUnidentifiableToponyms(gdocId: Int)(implicit s: Session): Seq[(String, Seq[(AnnotationStatus.Value, Int)])] = {
     import models.AnnotationStatus._
     val q = query.where(_.gdocId === gdocId)
-                  .filter(_.status inSet Seq(NO_SUITABLE_MATCH, AMBIGUOUS, MULTIPLE, NOT_IDENTIFYABLE))
-                  .map(t => (t.status, t.correctedToponym.ifNull(t.toponym)))
-                  .groupBy(t => (t._1, t._2))
-                  .map(t => (t._1._1, t._1._2, t._2.length))
+                 .filter(_.status inSet Seq(NO_SUITABLE_MATCH, AMBIGUOUS, MULTIPLE, NOT_IDENTIFYABLE))
+                 .map(t => (t.status, t.correctedToponym.ifNull(t.toponym)))
+                 .groupBy(t => (t._1, t._2))
+                 .map(t => (t._1._1, t._1._2, t._2.length))
                   
     q.list.groupBy(_._2)
           .map { case (toponym, stats) => (toponym, stats.map(t => (t._1, t._3))) }
           .toSeq
           .sortBy(t => - t._2.foldLeft(0)(_ + _._2))
   }
+              
+  def getAutoAnnotationStats(gdocId: Int)(implicit s: Session): AutoAnnotationStats =
+    AutoAnnotationStats(getNERRecall(gdocId), getNERPrecision(gdocId))
   
   def newUUID: UUID = UUID.randomUUID
+ 
+  /** The fraction of valid toponyms that were found by the NER **/ 
+  private def getNERRecall(gdocId: Int)(implicit s: Session): Double = {
+    val valid = AnnotationStatus.ALL.diff(Set(AnnotationStatus.FALSE_DETECTION, AnnotationStatus.NOT_VERIFIED))
+    
+    val result = query.where(_.gdocId === gdocId).filter(_.status inSet valid) // All valid annotations in the document
+                 .map(a => (a.toponym.isNotNull, a.correctedToponym.isNull)) // Grouped by ('true', 'true') -> correct NER match, anything else -> otherwise
+                 .groupBy(t => t)
+                 .map(t => (t._1, t._2.length))
+                 .list.toMap
+    
+    val recalled = result.get((true, true)).getOrElse(0)
+    val all = result.foldLeft(0)(_ + _._2)
+    
+    recalled.toDouble / all
+  }
+  
+  /** The fraction of toponyms found by the NER that were valid matches **/
+  private def getNERPrecision(gdocId: Int)(implicit s: Session): Double = {
+    val valid = AnnotationStatus.ALL.diff(Set(AnnotationStatus.NOT_VERIFIED))
+    
+    val result = query.where(_.gdocId === gdocId).filter(_.status inSet valid).filter(_.toponym.isNotNull) // All annotations produced by NER
+                 .groupBy(_.status =!= AnnotationStatus.FALSE_DETECTION) // Grouped by 'true' -> valid detection, 'false' -> otherwise
+                 .map(t => (t._1, t._2.length))
+                 .list.toMap
+    
+    val correctNERMatches = result.get(true).getOrElse(0)
+    val allNERMatches = result.get(false).getOrElse(0) + correctNERMatches
+    
+    correctNERMatches.toDouble / allNERMatches
+  }
   
 }

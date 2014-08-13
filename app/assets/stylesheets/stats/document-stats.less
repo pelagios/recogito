@@ -71,38 +71,54 @@
     } /* .box-content */
     
   } /* .box */
+  
+  td.label {
+    text-align:right;
+    padding-right:10px;
+    min-width:100px;
+  } /* td.label */
+  
+  .meter {
+    width:240px;
+    white-space:nowrap;
+        
+    .bar {
+      .rounded-corners(3px);
+      .box-shadow(2px, 2px, 4px, 0, rgba(0, 0, 0, 0.3));
+      display:inline-block;
+      height:11px;
+      background-color:#2a4c77;
+    }
+        
+    .label {
+      position:relative;
+      top:-1px;
+      display:inline-block;
+      height:10px;
+      font-size:11px;
+      margin-left:8px;
+    }
+          
+  } /* .meter */
+  
+  #auto-annotation-stats {
+  
+    .bar {
+      .gradient(#83c783, #008a00);
+    }
     
+  } /* #auto-annotation-stats */
+        
     
   #contributors {
-  
-    .username {
-      text-align:right;
-      padding-right:10px;
-      min-width:100px;
-    } /* .username */
 
-    .count {     
+    .count {   
+      
       .meter {
-        width:240px;
         background:none;
-        white-space:nowrap;
         
         .bar {
-          .rounded-corners(3px);
           .gradient(#ff9c00, #c67900);
-          .box-shadow(2px, 2px, 4px, 0, rgba(0, 0, 0, 0.3));
-          display:inline-block;
-          height:11px;
-          background-color:#2a4c77;
-        }
-        
-        .label {
-          position:relative;
-          top:-1px;
-          display:inline-block;
-          height:10px;
-          font-size:11px;
-          margin-left:8px;
         }
           
       } /* .meter */

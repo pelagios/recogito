@@ -32,6 +32,10 @@ object AnnotationStatus extends Enumeration {
   /** This place is not identifiable (for whatever reason) **/
   val NOT_IDENTIFYABLE = Value("NOT_IDENTIFYABLE")
   
+  /** A utility val that provides a set of all status values **/
+  val ALL: Set[AnnotationStatus.Value] =
+    Set(NOT_VERIFIED, VERIFIED, FALSE_DETECTION, IGNORE, NO_SUITABLE_MATCH, AMBIGUOUS, MULTIPLE, NOT_IDENTIFYABLE)
+  
   def screenName(status: AnnotationStatus.Value) = {
     status match {
       case NOT_VERIFIED => "Unverified"
