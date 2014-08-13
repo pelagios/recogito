@@ -234,9 +234,9 @@ object Annotations extends HasStatusColumn {
     }
   }
   
-  def getCompletionStats(ids: Seq[Int])(implicit s: Session): Map[Int, CompletionStats] = {
+  def getCompletionStats(gdocIds: Seq[Int])(implicit s: Session): Map[Int, CompletionStats] = {
     val q = for {
-      (gdocId, status, numberOfAnnotations) <- query.where(_.gdocId inSet ids)
+      (gdocId, status, numberOfAnnotations) <- query.where(_.gdocId inSet gdocIds)
         .groupBy(t => (t.gdocId, t.status))
         .map(t => (t._1._1, t._1._2, t._2.length))
     } yield (gdocId, status, numberOfAnnotations)
@@ -245,9 +245,9 @@ object Annotations extends HasStatusColumn {
       (gdocId, CompletionStats(statusDistribution.map(t => (t._2, t._3)).toMap))}
   }
   
-  def getPlaceStats(id: Int)(implicit s: Session): PlaceStats = {
+  def getPlaceStats(gdocId: Int)(implicit s: Session): PlaceStats = {
     val q = for {
-      ((gazetteerURI, toponym), count) <- query.where(_.gdocId === id)
+      ((gazetteerURI, toponym), count) <- query.where(_.gdocId === gdocId)
         .filter(_.status === AnnotationStatus.VERIFIED)
         .map(t => (t.correctedGazetteerURI.ifNull(t.gazetteerURI), t.correctedToponym.ifNull(t.toponym)))
         .groupBy(t => (t._1, t._2))
@@ -264,14 +264,26 @@ object Annotations extends HasStatusColumn {
     PlaceStats(places.filter(_._1.isDefined).map(t => (t._1.get, t._2, t._3)))
   }
   
-  def getContributorStats(id: Int)(implicit s: Session): Seq[(String, Int)] = {
-    val q = query.where(_.gdocId === id)
+  def getContributorStats(gdocId: Int)(implicit s: Session): Seq[(String, Int)] =
+    query.where(_.gdocId === gdocId)
               .map(_.uuid)
               .innerJoin(EditHistory.query).on(_ === _.annotationId)
               .groupBy(_._2.username)
               .map { case (username, events) =>  (username, events.length)}
-    
-    q.list
+              .list
+ 
+  def getUnidentifiableToponyms(gdocId: Int)(implicit s: Session): Seq[(String, Seq[(AnnotationStatus.Value, Int)])] = {
+    import models.AnnotationStatus._
+    val q = query.where(_.gdocId === gdocId)
+                  .filter(_.status inSet Seq(NO_SUITABLE_MATCH, AMBIGUOUS, MULTIPLE, NOT_IDENTIFYABLE))
+                  .map(t => (t.status, t.correctedToponym.ifNull(t.toponym)))
+                  .groupBy(t => (t._1, t._2))
+                  .map(t => (t._1._1, t._1._2, t._2.length))
+                  
+    q.list.groupBy(_._2)
+          .map { case (toponym, stats) => (toponym, stats.map(t => (t._1, t._3))) }
+          .toSeq
+          .sortBy(t => t._2.foldLeft(0)(_ + _._2))
   }
   
   def newUUID: UUID = UUID.randomUUID

@@ -18,7 +18,7 @@ object FeedController extends Controller {
   private val ATOM_1_0 = "atom_1.0"
   
   def recentVerifications = DBAction { implicit session =>
-    val mostRecent = EditHistory.getLastN(NUMBER_OF_ENTRIES, AnnotationStatus.VERIFIED)    
+    val mostRecent = EditHistory.getMostRecent(NUMBER_OF_ENTRIES, AnnotationStatus.VERIFIED)    
     val baseURL = routes.FeedController.recentVerifications.absoluteURL(false)
     
     val feed = new Feed()

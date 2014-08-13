@@ -25,7 +25,7 @@ object StatsController extends Controller {
     // obtain GeoDocuments in case the annotation is still there.
     
     // Grab the events and (if the annotation still exists) the corresponding GDoc ID
-    val editHistory: Seq[(EditEvent, Option[Int])] = EditHistory.getLastN(20)
+    val editHistory: Seq[(EditEvent, Option[Int])] = EditHistory.getMostRecent(100)
 
     // Retrieve the GeoDocuments for which we have IDs
     val gdocIds = editHistory.map(_._2).filter(_.isDefined).map(_.get).distinct

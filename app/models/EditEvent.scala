@@ -141,23 +141,23 @@ object EditHistory {
   
   def insertAll(editEvents: Seq[EditEvent])(implicit s: Session) = query.insertAll(editEvents:_*)
   
-  def findByAnnotation(uuid: UUID)(implicit s: Session): Seq[EditEvent] =
-    query.where(_.annotationId === uuid.bind).list
-    
-  def getLastN(n: Int)(implicit s: Session): Seq[(EditEvent, Option[Int])] = {
-    val q = for {
-      (event, annotation) <- query leftJoin Annotations.query on (_.annotationId === _.uuid)
-    } yield (event, annotation.gdocId.?)
-      
-    q.sortBy(_._1.timestamp.desc).take(n).list
-  }
-    
-  def getLastN(n: Int, status: AnnotationStatus.Value*)(implicit s: Session): Seq[EditEvent] =
-    query.sortBy(_.timestamp.desc).filter(e => status.contains(e.updatedStatus)).take(n).list
+  def findByAnnotation(uuid: UUID, limit: Int = Int.MaxValue)(implicit s: Session): Seq[EditEvent] =
+    query.where(_.annotationId === uuid.bind).sortBy(_.timestamp.desc).take(limit).list
     
   def getAll()(implicit s: Session): Seq[EditEvent] =
     query.sortBy(_.timestamp.desc).list
     
+  def getMostRecent(limit: Int)(implicit s: Session): Seq[(EditEvent, Option[Int])] = {
+    val q = for {
+      (event, annotation) <- query leftJoin Annotations.query on (_.annotationId === _.uuid)
+    } yield (event, annotation.gdocId.?)
+      
+    q.sortBy(_._1.timestamp.desc).take(limit).list
+  }
+    
+  def getMostRecent(limit: Int, status: AnnotationStatus.Value*)(implicit s: Session): Seq[EditEvent] =
+    query.sortBy(_.timestamp.desc).filter(e => status.contains(e.updatedStatus)).take(limit).list
+        
   def countSince(time: Timestamp)(implicit s: Session): Int = 
     query.where(_.timestamp > time).list.size
     
@@ -190,5 +190,5 @@ object EditHistory {
     
     q.sortBy(_._2.desc).take(limit).list
   }
-    
+      
 }
