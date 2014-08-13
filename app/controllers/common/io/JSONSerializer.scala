@@ -4,6 +4,7 @@ import global.{ CrossGazetteerUtils, Global }
 import models._
 import play.api.db.slick._
 import play.api.libs.json.{ Json, JsObject }
+import play.api.Logger
 
 /** Utility object to serialize Annotation data to JSON.
   * 
@@ -78,11 +79,16 @@ object JSONSerializer {
                    GeoDocuments.findById(a.gdocId.get).flatMap(_.source)
                  else
                    None
+                   
+    val lastEdit = EditHistory.findByAnnotation(a.uuid, 1).headOption
 
     Json.obj(
       "id" -> a.uuid.toString,
       "toponym" -> { if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym },
       "status" -> a.status.toString,
+      "last_edit" -> lastEdit.map(event => Json.obj(
+        "username" -> event.username,
+        "timestamp" -> event.timestamp.getTime)),
       "place" -> { if (includePlaces) a.gazetteerURI.map(placeUriToJson(_)) else a.gazetteerURI },
       "place_fixed" -> { if (includePlaces) a.correctedGazetteerURI.map(placeUriToJson(_)) else a.correctedGazetteerURI },
       "tags" -> a.tags.map(_.split(",")),

@@ -59,11 +59,8 @@ annotorious.plugin.Recogito.prototype._loadAnnotations = function(anno) {
 /** @private **/
 annotorious.plugin.Recogito.prototype._create = function(annotation) {
   var self = this;
-  
   annotation.gdocId = this.GDOC_ID;
   annotation.gdocPartId = this.GDOC_PART_ID;
-  
-  console.log(annotation);
   
   jQuery.ajax({
     url: this.STORE_URI,
@@ -72,7 +69,8 @@ annotorious.plugin.Recogito.prototype._create = function(annotation) {
     contentType: 'application/json',
     success: function(response) {
       annotation.id = response.id;
-      console.log(annotation);
+      annotation.last_edit = response.last_edit;
+      console.log(response);
     }
   });
 }
