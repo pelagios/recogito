@@ -284,7 +284,7 @@ object Annotations extends HasStatusColumn {
     q.list.groupBy(_._2)
           .map { case (toponym, stats) => (toponym, stats.map(t => (t._1, t._3))) }
           .toSeq
-          .sortBy(t => t._2.foldLeft(0)(_ + _._2))
+          .sortBy(t => - t._2.foldLeft(0)(_ + _._2))
   }
   
   def newUUID: UUID = UUID.randomUUID

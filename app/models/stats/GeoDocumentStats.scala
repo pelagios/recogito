@@ -22,46 +22,6 @@ trait GeoDocumentStats {
   def countParts()(implicit s: Session): Int =
     GeoDocumentParts.countForGeoDocument(id.get)
   
-  /** Total # of toponyms in the document, i.e. all that were not marked as 'false detection' or 'ignore' **/
-  def countTotalToponyms()(implicit s: Session): Int =
-    Annotations.countForGeoDocumentAndStatus(id.get, 
-      AnnotationStatus.VERIFIED, 
-      AnnotationStatus.NOT_VERIFIED, 
-      AnnotationStatus.AMBIGUOUS,
-      AnnotationStatus.NO_SUITABLE_MATCH,
-      AnnotationStatus.MULTIPLE,
-      AnnotationStatus.NOT_IDENTIFYABLE)
-    
-  /** # of verified (i.e. 'green') annotations in the document **/
-  def countVerifiedToponyms()(implicit s: Session): Int =
-    Annotations.countForGeoDocumentAndStatus(id.get, AnnotationStatus.VERIFIED)
-        
-  /** # of unidentifiable (i.e. 'yellow') annotations in the document **/
-  def countUnidentifiableToponyms()(implicit s: Session): Int =
-    Annotations.countForGeoDocumentAndStatus(id.get,
-      AnnotationStatus.AMBIGUOUS,
-      AnnotationStatus.NO_SUITABLE_MATCH,
-      AnnotationStatus.MULTIPLE,
-      AnnotationStatus.NOT_IDENTIFYABLE)
-    
-  /** # of unverified annotations in the document **/
-  def countUnverifiedToponyms()(implicit s: Session): Int =
-    Annotations.countForGeoDocumentAndStatus(id.get, AnnotationStatus.NOT_VERIFIED)
-  
-  /** Ratio of manually processed vs. total toponyms in the document **/
-  def completionRatio()(implicit s: Session): Double = {
-    val valid = Annotations.findByGeoDocument(id.get).filter(_.status != AnnotationStatus.FALSE_DETECTION)
-    val unprocessed = valid.filter(_.status == AnnotationStatus.NOT_VERIFIED)
-    (valid.size - unprocessed.size).toDouble / valid.size.toDouble
-  }
-  
-  /** Ratio of verified vs. unidentifyable places in the document **/
-  def identificiationRatio()(implicit s: Session): Double = {
-    val verified = Annotations.countForGeoDocumentAndStatus(id.get, AnnotationStatus.VERIFIED)
-    val unidentifyable = Annotations.countForGeoDocumentAndStatus(id.get, AnnotationStatus.NOT_IDENTIFYABLE)
-    verified.toDouble / (verified.toDouble + unidentifyable.toDouble)
-  }
-  
   /** NER recall for the document.
     *
     * Recall is the total number of toponyms the NER found (including false detections) vs. 
