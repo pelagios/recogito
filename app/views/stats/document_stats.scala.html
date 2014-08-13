@@ -1,4 +1,9 @@
-@(doc: models.GeoDocument, texts: Seq[(models.GeoDocumentText, Option[String])], completionStats: models.stats.CompletionStats, userStats: Seq[(String, Int)], placeStats: models.stats.PlaceStats, username: Option[String])
+@(doc: models.GeoDocument, 
+  texts: Seq[(models.GeoDocumentText, Option[String])],
+  completionStats: models.stats.CompletionStats, 
+  userStats: Seq[(String, Int)], 
+  unidentifiedToponyms: Seq[(String, Seq[(AnnotationStatus.Value, Int)])],
+  placeStats: models.stats.PlaceStats, username: Option[String])
  
 <html>
   <head>
@@ -47,51 +52,102 @@
     </div>
     
     <div id="content">
-      <div class="stats annotation-stats">
-        <canvas width="180" height="100"class="piechart" id="completion-chart"></canvas>
-        <span><em class="number">@completionStats.total</em> place names tagged</span>
-        <span><em class="number">@completionStats.verified</em> verified</span>
-        <span><em class="number">@completionStats.yellow</em> not located</span>
-
-        <span><em>@{"%.2f" format (completionStats.percentComplete * 100)}</em> % complete (verified vs. total)</span>
-        <span><em>@{"%.2f" format (completionStats.percentGeoResolved * 100)}</em> % geo-resolved (verified vs. not located)</span>
-      </div>
-            
-      <div class="stats contributor-stats">
-        <canvas width="180" height="100" class="piechart"  id="user-chart"></canvas>
-        <em>@userStats.size</em> contributors
-        <p>
-          @for((username, count) <- userStats) {
-            <a href="@routes.StatsController.showUserStats(username)">@username</a>
-          }
-        </p>
-      </div>
-
-      <div id="unique-places">
-        <h2><em class="number">@placeStats.uniquePlaces.size</em> unique places referred to in document</h2>
+      <div class="box">
+        @defining("%.2f" format (completionStats.percentComplete * 100)) { complete =>
+          <h2>Completeness <span>@complete% complete</span></h2>
         
-        <table>
-          <thead>
-
-          </thead>
-          <tbody>
-            @for((place, count, toponymStats) <- placeStats.uniquePlaces) {
-              <tr class="place">
+          <div id="completeness" class="box-content">
+            <canvas width="180" height="100"class="piechart" id="completion-chart"></canvas>
+          
+            <ul>
+              <li><em class="number">@completionStats.total</em> place names tagged</li>
+              <li><em class="number">@completionStats.verified</em> verified</li>
+              <li><em class="number">@completionStats.yellow</em> not located</li>
+              <li><em>@complete</em> % complete (total vs. in progress)</li>
+              <li><em>@{"%.2f" format (completionStats.percentGeoResolved * 100)}</em> % geo-resolved (not located vs. verified)</li>
+            </ul>
+          </div>
+        }
+      </div>
+      
+      <div class="box">
+        <h2>Contributors <span>@userStats.size contributing user@{ if (userStats.size == 1) "" else "s" }</span></h2>
+        
+        <div id="contributors" class="box-content">
+          <table>
+            @for((username, count) <- userStats) {
+              @defining(100 * count.toDouble / userStats(0)._2) { percentage =>
+          	    <tr>
+                  <td class="username">
+                    <a href="@routes.StatsController.showUserStats(username)"">@username</a>
+                  </td>
+                  <td class="count">
+                    <div class="meter">
+                      <div class="bar" style="width:@percentage%"></div><span class="label">@count Edits</span>
+                    </div>
+                    
+                    
+                  </td>
+          	    <tr>
+              }
+            }
+          </table>
+        </div>
+      </div>
+      
+      <div class="box">
+        <h2>Unidentifiable Toponyms <span>@unidentifiedToponyms.size toponyms could not be located</span></h2>
+        <div id="unidentified-toponyms" class="box-content">
+          <table>
+            @for((toponym, stats) <- unidentifiedToponyms) {
+              <tr>
+                <td class="toponym">@toponym</td>
                 <td>
-                  @if(place.category.isDefined) {
-                    @tags.place_category(place.category.get)
+                  @for((status, count) <- stats) {
+                    <div class="status-label" title="Marked with this status @count times">
+                      <span class="status-name">@AnnotationStatus.screenName(status)</span><span class="status-count">@count</span>
+                    </div>
                   }
                 </td>
-                <td><a href="@place.uri" title="@place.descriptions.headOption.map(_.chars)" target="_blank">@place.title</a></td>
-                <td>
-                  @toponymStats.map {case (toponym, count) => @toponym (@count)}.mkString(",")
-                </td>
-                <td class="references"><em>@count</em> references</td>
               </tr>
             }
-          </tbody>
-        </table>
+          </table>
+        </div>
       </div>
+      
+      <div class="box">
+        <h2>Referenced Places <span>@placeStats.uniquePlaces.size unique places in document</span></h2>
+        <div id="unique-places" class="box-content">
+          <table>
+            <thead>
+              <tr>
+                <th>Place</th>
+                <th>Category</th>
+                <th>Names in Document</th>
+                <th># References</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for((place, count, toponymStats) <- placeStats.uniquePlaces) {
+                <tr class="place">
+                  <td><a href="@place.uri" title="@place.descriptions.headOption.map(_.chars)" target="_blank">@place.title</a></td>
+                  <td>
+                    @if(place.category.isDefined) {
+                      @tags.place_category(place.category.get)
+                    }
+                  </td>
+
+                  <td>
+                    @toponymStats.map {case (toponym, count) => @toponym (@count)}.mkString(",")
+                  </td>
+                  <td class="references">@count</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
     <script>        
       var colCursor = 0;
         

@@ -3,11 +3,9 @@
 @import "../categorytag.less";
 
 #content {
-  padding:120px 0 90px 0;
-  width:800px;
-  margin:0 auto;
-  position:relative;
-  
+  max-width:1250px;
+  padding:120px 50px 60px 50px;
+
   em {
     color:#424242;
     font-size:16px;
@@ -22,57 +20,153 @@
     text-decoration:none;
     color:#555;
   }
-    
-  .stats {
-    position:absolute;
-    top:125px; 
-    font-size:15px;
-    line-height:24px;
-    padding-bottom:20px;
-    white-space:nowrap; 
 
-    canvas { 
-      display:block;
-      float:left;
-      padding-bottom:30px;
-    }
+  .box {
+    display:inline-block;
+    vertical-align:top;
+    border:1px solid #d5d5d5;
+    width:600px;
+    .rounded-corners(3px);
+    margin:10px 10px 20px 10px;
+    min-height:200px;
     
-    span { 
-      margin-bottom:6px;
-      display:block; 
-    } /* span */
-
-  } /* .stats */
-  
-  .annotation-stats {
-    left:-50px;       
-  } 
-  
-  .contributor-stats {
-    left:480px;
-    
-    p {
-      padding:0;
+    h2 {
+      color:#555;
+      font-size:13px;
+      background-color:#f5f5f5;
       margin:0;
+      padding:8px;
+      display:block;
+      border-bottom:1px solid #d5d5d5;
+      
+      span {
+        color:#828282;
+        padding-left:8px;
+        font-weight:normal;
+      }
+      
+    } /* h2 */
+    
+    .box-content {
+      padding:15px 20px;
+      max-height:500px;
+      overflow:auto;
+      
+      canvas {
+        float:left;
+        margin-top:10px;
+        margin-left:-20px;
+      }
+      
+      ul {
+        list-style-type:none;
+        margin:0;
+        padding:0;
+      }
+      
+      li {
+        padding:4px 0;
+      }
+      
+    } /* .box-content */
+    
+  } /* .box */
+    
+    
+  #contributors {
+  
+    .username {
+      text-align:right;
+      padding-right:10px;
+      min-width:100px;
+    } /* .username */
+
+    .count {     
+      .meter {
+        width:240px;
+        background:none;
+        white-space:nowrap;
+        
+        .bar {
+          .rounded-corners(3px);
+          .gradient(#ff9c00, #c67900);
+          .box-shadow(2px, 2px, 4px, 0, rgba(0, 0, 0, 0.3));
+          display:inline-block;
+          height:11px;
+          background-color:#2a4c77;
+        }
+        
+        .label {
+          position:relative;
+          top:-1px;
+          display:inline-block;
+          height:10px;
+          font-size:11px;
+          margin-left:8px;
+        }
+          
+      } /* .meter */
+        
+    } /* .count */
+    
+  } /* #contributors */
+
+  #unidentified-toponyms {
+    
+    td {
+      padding:3px;
     }
     
-  }
+    .toponym {
+      min-width:100px;
+      text-align:right;
+      padding-right:5px;
+    }
+    
+    .status-label {
+      color:#535353;
+      display:inline-block;
+      border-color:#e1d35e #b8af61 #b8af61 #e1d35e;
+      border-style:solid;
+      border-width:1px;
+      .rounded-corners(2px);
+      font-size:11px;
+      background-color:#fbec71;
+      /* box-shadow: inset 1px 1px 0 #f9ef9f, inset -1px -1px 0  ; */
+      
+      .status-name {
+        padding:3px 6px 3px 4px;
+        border-right:1px solid #e1d35e;
+      }
+      
+      .status-count {
+        padding:3px;
+        display:inline-block;
+        text-align:center;
+        border-left:1px solid #fffad0;
+        min-width:16px;
+      } /* .status-count */
+      
+    } /* .status-label */
   
-  h2 {
-    clear:both;
-    font-weight:normal;
-    font-size:15px;
-    padding:20px 0 10px 0;
-  }
+  } /* #unidentified-toponyms */
   
   #unique-places {
-    position:absolute;
-    top:320px;
-    width:100%;
-
+    padding:0px;
+    max-height:530px;
+    
     table {
       border-collapse:collapse;
       width:100%;
+        
+      th {
+        color:#555;
+        padding:5px 8px 4px 8px;
+        white-space:nowrap; 
+        font-size:13px;
+        text-align:left;
+        background-color:#f9f9f9;
+      }
         
       tr {
         border-color:#d5d5d5;
@@ -81,20 +175,13 @@
       } /* tr */
     
       td {
-        padding:3px 16px 2px 2px;
+        padding:5px 8px 4px 8px;
         line-height:160%;
         vertical-align:top;    
       } /* td */
     
       td.references { 
-        white-space:nowrap; 
-        font-size:12px;
-        text-align:right;
-      }
-        
-      td em { 
-        font-size:14px; 
-        font-weight:normal;
+        text-align:center;        
       }
     
     } /* table */
