@@ -270,6 +270,7 @@ object Annotations extends HasStatusColumn {
               .innerJoin(EditHistory.query).on(_ === _.annotationId)
               .groupBy(_._2.username)
               .map { case (username, events) =>  (username, events.length)}
+              .sortBy(_._2.desc)
               .list
  
   def getUnidentifiableToponyms(gdocId: Int)(implicit s: Session): Seq[(String, Seq[(AnnotationStatus.Value, Int)])] = {
