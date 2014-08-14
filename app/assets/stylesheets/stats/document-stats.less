@@ -3,7 +3,7 @@
 @import "../categorytag.less";
 
 #content {
-  max-width:1250px;
+  max-width:1350px;
   padding:120px 50px 60px 50px;
 
   em {
@@ -25,7 +25,7 @@
     display:inline-block;
     vertical-align:top;
     border:1px solid #d5d5d5;
-    width:600px;
+    width:650px;
     .rounded-corners(3px);
     margin:10px 10px 20px 10px;
     min-height:200px;
@@ -78,9 +78,19 @@
     min-width:100px;
   } /* td.label */
   
+  td.percentage, span.label {
+    display:inline-block;
+    height:10px;
+    font-size:11px;
+    margin-left:8px;
+    padding-left:10px;
+  }
+    
   .meter {
     width:240px;
     white-space:nowrap;
+    .gradient(#ccc, #eee);
+    .rounded-corners(3px);
         
     .bar {
       .rounded-corners(3px);
@@ -89,16 +99,12 @@
       height:11px;
       background-color:#2a4c77;
     }
-        
-    .label {
+    
+    span.label {
       position:relative;
       top:-1px;
-      display:inline-block;
-      height:10px;
-      font-size:11px;
-      margin-left:8px;
     }
-          
+
   } /* .meter */
   
   #auto-annotation-stats {

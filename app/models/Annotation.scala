@@ -287,7 +287,8 @@ object Annotations extends HasStatusColumn {
   }
               
   def getAutoAnnotationStats(gdocId: Int)(implicit s: Session): AutoAnnotationStats =
-    AutoAnnotationStats(getNERRecall(gdocId), getNERPrecision(gdocId))
+    AutoAnnotationStats(getNERPrecision(gdocId), getNERRecall(gdocId), 
+                        getGeoResolutionPrecision(gdocId), getGeoResolutionRecall(gdocId))
   
   def newUUID: UUID = UUID.randomUUID
  
@@ -320,6 +321,32 @@ object Annotations extends HasStatusColumn {
     val allNERMatches = result.get(false).getOrElse(0) + correctNERMatches
     
     correctNERMatches.toDouble / allNERMatches
+  }
+  
+  /** The fraction of correct automatic gazetter matches vs. all (auto & manually) matched toponyms **/
+  private def getGeoResolutionRecall(gdocId: Int)(implicit s: Session): Double = {
+    val result = query.where(_.gdocId === gdocId).filter(_.status === AnnotationStatus.VERIFIED)
+                      .groupBy(t => (t.gazetteerURI.isNotNull, t.correctedGazetteerURI.isNull)) // Grouped by ('true', 'true') -> correct autoresolution
+                      .map(t => (t._1, t._2.length))
+                      .list.toMap
+                 
+    val correctAutoMatches = result.get((true, true)).getOrElse(0)
+    val allMatchedToponyms = result.foldLeft(0)(_ + _._2)
+
+    correctAutoMatches.toDouble / allMatchedToponyms
+  }
+  
+  /** The fraction of correct automatic gazetteer matches vs. all automatic matches **/ 
+  private def getGeoResolutionPrecision(gdocId: Int)(implicit s: Session): Double = {
+    val result = query.where(_.gdocId === gdocId).filter(_.gazetteerURI.isNotNull).filter(_.status === AnnotationStatus.VERIFIED)
+                      .groupBy(_.correctedGazetteerURI.isNull) // Grouped by 'true' -> correct autoresolution
+                      .map(t => (t._1, t._2.length))
+                      .list.toMap
+                 
+    val correctAutoMatches = result.get(true).getOrElse(0)
+    val allAutoMatches = result.get(false).getOrElse(0) + correctAutoMatches
+
+    correctAutoMatches.toDouble / allAutoMatches
   }
   
 }

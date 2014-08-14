@@ -156,8 +156,11 @@
               <td class="label">NER Precision</td>
               <td>
                 <div class="meter">
-                  <div class="bar" style="width:@{ autoAnnotationStats.nerPrecision * 100 }%"></div><span class="label">@{"%.2f" format (autoAnnotationStats.nerPrecision * 100)}%</span>
+                  <div class="bar" style="width:@{ autoAnnotationStats.nerPrecision * 100 }%"></div>
                 </div>
+              </td>
+              <td class="percentage">
+                @{"%.2f" format (autoAnnotationStats.nerPrecision * 100)}%
               </td>
         	  <tr>
               
@@ -165,8 +168,35 @@
               <td class="label">NER Recall</td>
               <td>
                 <div class="meter">
-                  <div class="bar" style="width:@{ autoAnnotationStats.nerRecall * 100 }%"></div><span class="label">@{"%.2f" format (autoAnnotationStats.nerRecall * 100)}%</span>
+                  <div class="bar" style="width:@{ autoAnnotationStats.nerRecall * 100 }%"></div>
                 </div>
+              </td>
+              <td class="percentage">
+                @{"%.2f" format (autoAnnotationStats.nerRecall * 100)}%
+              </td>
+            </tr>
+            
+            <tr>
+              <td class="label">Geo-Resolution Precision</td>
+              <td>
+                <div class="meter">
+                  <div class="bar" style="width:@{ autoAnnotationStats.geoResolutionPrecision * 100 }%"></div>
+                </div>
+              </td>
+              <td class="percentage">
+                @{"%.2f" format (autoAnnotationStats.geoResolutionPrecision * 100)}%
+              </td>
+            </tr>
+            
+            <tr>
+              <td class="label">Geo-Resolution Recall</td>
+              <td>
+                <div class="meter">
+                  <div class="bar" style="width:@{ autoAnnotationStats.geoResolutionRecall * 100 }%"></div>
+                </div>
+              </td>
+              <td class="percentage">
+                @{"%.2f" format (autoAnnotationStats.geoResolutionRecall * 100)}%
               </td>
             </tr>
           </table>
