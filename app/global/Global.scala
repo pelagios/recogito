@@ -2,6 +2,7 @@ package global
 
 import akka.actor.Cancellable
 import models._
+import models.content._
 import java.io.{ File, FileInputStream }
 import java.sql.Timestamp
 import java.util.zip.GZIPInputStream

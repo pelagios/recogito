@@ -6,13 +6,13 @@ import java.io.{ BufferedOutputStream, FileOutputStream, File }
 import java.util.zip.ZipFile
 import javax.imageio.ImageIO
 import models._
+import models.content._
 import org.apache.commons.io.IOUtils
 import play.api.Logger
 import play.api.libs.json.{ Json, JsObject }
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import scala.io.Source
-
 
 /** Utility object to import data from a ZIP file.
   *

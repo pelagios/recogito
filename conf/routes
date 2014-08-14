@@ -45,13 +45,13 @@ GET     /recogito/map                              controllers.ApplicationContro
 GET     /recogito/docs                             controllers.ApplicationController.showDocumentation
 
 GET     /recogito/stats/users/:user                controllers.StatsController.showUserStats(user: String)
+GET     /recogito/stats/document/:id               controllers.StatsController.showDocumentStats(id: Int)
 GET     /recogito/stats                            controllers.StatsController.showStats
 
 # Private views - TODO needs a little cleanup
 GET     /recogito/annotation/text                  controllers.ApplicationController.showTextAnnotationUI(text: Option[Int], ctsURI: Option[String])
 GET     /recogito/annotation/image/:id             controllers.ApplicationController.showImageAnnotationUI(id: Int)
 GET     /recogito/georesolution                    controllers.ApplicationController.showGeoResolutionUI(doc: Int)
-GET     /recogito/stats/document/:id               controllers.ApplicationController.showDocumentStats(id: Int)
 
 # TODO clean up the following two pages
 GET     /recogito/timeline                         controllers.ApplicationController.showTimeline

@@ -136,7 +136,7 @@
             <a class="icon" href="@routes.ApplicationController.showGeoResolutionUI(entry.doc.id.get)" title="Geo-Resolution">&#xf0ac;</a>
             
             <!-- document stats shortcut -->
-            <a href="@routes.ApplicationController.showDocumentStats(entry.doc.id.get)" class="icon" title="Document Stats">&#xf080;</a>
+            <a href="@routes.StatsController.showDocumentStats(entry.doc.id.get)" class="icon" title="Document Stats">&#xf080;</a>
             
             <!-- CSV download shortcut -->
             <a class="icon" href="@routes.DocumentController.get(entry.doc.id.get, Some("csv"))" title="Download CSV">&#xf0ce;</a>

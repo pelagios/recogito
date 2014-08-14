@@ -1,6 +1,7 @@
 package controllers.common.io
 
 import models._
+import models.content._
 import java.io.{ BufferedInputStream, File, FileInputStream, FileOutputStream, PrintWriter }
 import java.util.UUID
 import java.util.zip.{ ZipEntry, ZipOutputStream }

@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream
 import java.sql.Timestamp
 import java.util.{ Date, UUID }
 import models._
+import models.content._
 import org.pelagios.gazetteer.Network
 import play.api.Logger
 import play.api.db.slick._

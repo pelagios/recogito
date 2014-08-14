@@ -1,12 +1,13 @@
 package controllers
 
 import models._
+import models.content._
+import models.stats.CompletionStats
 import play.api.db.slick._
 import play.api.Play.current
 import play.api.libs.json.Json
 import play.api.mvc.{ Action, Controller }
 import play.api.Logger
-import models.stats.CompletionStats
 
 /** Encapsulates the information shown in one row of the landing page's document index **/
 case class DocumentIndexRow(doc: GeoDocument, stats: CompletionStats, firstText: Option[Int], firstImage: Option[Int])
@@ -122,10 +123,10 @@ object ApplicationController extends Controller with Secured with CTSClient {
       val gdoc = someGDocText.map(text => GeoDocuments.findById(text.gdocId)).flatten
       val gdocPart = someGDocText.flatMap(text => text.gdocPartId.map(id => GeoDocumentParts.findById(id))).flatten
           
-      val texts = gdoc.map(doc => textsForGeoDocument(doc.id.get)).getOrElse(Seq.empty[(GeoDocumentText, Option[String])])     
+      val texts = gdoc.map(doc => GeoDocumentContent.findByGeoDocument(doc.id.get)).getOrElse(Seq.empty[(GeoDocumentText, Option[String])])     
       val html = buildHTML(somePlaintext.get, someAnnotations.get)
       
-      Ok(views.html.annotation_text(gdoc, gdoc.map(gdoc => textsForGeoDocument(gdoc.id.get)).getOrElse(Seq.empty[(models.GeoDocumentText, Option[String])]), username, gdocPart, html, ctsURI))
+      Ok(views.html.annotation_text(gdoc, gdoc.map(gdoc => GeoDocumentContent.findByGeoDocument(gdoc.id.get)).getOrElse(Seq.empty[(GeoDocumentText, Option[String])]), username, gdocPart, html, ctsURI))
     } else {
       NotFound(Json.parse("{ \"success\": false, \"message\": \"Annotation not found\" }")) 
     }
@@ -211,27 +212,11 @@ object ApplicationController extends Controller with Secured with CTSClient {
   def showGeoResolutionUI(docId: Int) = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit session => 
     val doc = GeoDocuments.findById(docId)
     if (doc.isDefined)
-      Ok(views.html.georesolution(doc.get, textsForGeoDocument(docId), username))
+      Ok(views.html.georesolution(doc.get, GeoDocumentContent.findByGeoDocument(docId), username))
     else
       NotFound
   }
-  
-  /** Shows detailed stats for a specific document **/
-  def showDocumentStats(docId: Int) = DBAction { implicit session =>
-    val doc = GeoDocuments.findById(docId)
-    if (doc.isDefined) {        
-      val id = doc.get.id.get
-      val completionStats = Annotations.getCompletionStats(Seq(id)).get(id).getOrElse(CompletionStats.empty)
-      val autoAnnotationStats = Annotations.getAutoAnnotationStats(id)
-      val unidentifiedToponyms = Annotations.getUnidentifiableToponyms(id)
-      val placeStats = Annotations.getPlaceStats(id)
-      val userStats = Annotations.getContributorStats(id)
-      Ok(views.html.stats.document_stats(doc.get, textsForGeoDocument(docId), completionStats, autoAnnotationStats, userStats, unidentifiedToponyms, placeStats, currentUser.map(_.username)))
-    } else {
-      NotFound(Json.parse("{ \"success\": false, \"message\": \"Document not found\" }"))
-    }
-  }
-  
+    
   /** Shows the stats history page **/
   def showTimeline() = DBAction { implicit session =>
     // TODO just a dummy for now
@@ -240,13 +225,6 @@ object ApplicationController extends Controller with Secured with CTSClient {
   
   def showDocumentation() = Action {
     Redirect("/recogito/static/docs/index.html")
-  }
-  
-  /** Helper method to get the texts (and titles) for a specific GeoDocument **/
-  private def textsForGeoDocument(docId: Int)(implicit session: Session): Seq[(GeoDocumentText, Option[String])] =
-    GeoDocumentTexts.findByGeoDocument(docId).map(text =>
-        // If the text is associated with a GDoc part (rather than the GDoc directly), we'll fetch the part title
-        (text, text.gdocPartId.map(partId => GeoDocumentParts.findById(partId).map(_.title)).flatten))
-    
+  } 
 
 }

@@ -2,6 +2,7 @@ package controllers.common.io
 
 import global.{ CrossGazetteerUtils, Global }
 import models._
+import models.content._
 import play.api.db.slick._
 import play.api.libs.json.{ Json, JsObject }
 import play.api.Logger

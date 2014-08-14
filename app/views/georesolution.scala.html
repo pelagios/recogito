@@ -1,4 +1,4 @@
-@(doc: models.GeoDocument, texts: Seq[(models.GeoDocumentText, Option[String])], username: String)(implicit s: play.api.db.slick.Config.driver.simple.Session)
+@(doc: models.GeoDocument, texts: Seq[(GeoDocumentContent, Option[String])], username: String)(implicit s: play.api.db.slick.Config.driver.simple.Session)
 <html>
   <head>
     <title>RECOGITO Geo-Resolution</title>
@@ -30,7 +30,7 @@
       
       <div id="menu">
         <ul>
-          <li><a href="@routes.ApplicationController.showDocumentStats(doc.id.get)">Document Stats</a></li>
+          <li><a href="@routes.StatsController.showDocumentStats(doc.id.get)">Document Stats</a></li>
           @if(texts.size == 0) {
             <li class="disabled"><a href="#" title="There is no text available for this document" onclick="return false;">Text</a>
           } else {

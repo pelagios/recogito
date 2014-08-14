@@ -1,5 +1,5 @@
 @(doc: models.GeoDocument, 
-  texts: Seq[(models.GeoDocumentText, Option[String])],
+  texts: Seq[(GeoDocumentContent, Option[String])],
   completionStats: models.stats.CompletionStats, 
   autoAnnotationStats: models.stats.AutoAnnotationStats,
   userStats: Seq[(String, Int)], 
@@ -27,7 +27,7 @@
       
       <div id="menu">
         <ul>
-          <li class="active"><a href="@routes.ApplicationController.showDocumentStats(doc.id.get)" onclick="return false;">Document Stats</a></li>
+          <li class="active"><a href="#" onclick="return false;">Document Stats</a></li>
           @if(texts.size == 0) {
             <li class="disabled"><a href="#" title="There is no text available for this document" onclick="return false;">Text</a>
           } else {

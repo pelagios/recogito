@@ -1,10 +1,11 @@
 package controllers
 
 import models._
+import models.stats.CompletionStats
 import play.api.mvc.Controller
 import play.api.db.slick._
 
-object StatsController extends Controller {
+object StatsController extends Controller with Secured {
   
   def showUserStats(username: String) = DBAction { implicit request =>
     val user = Users.findByUsername(username)
@@ -15,6 +16,22 @@ object StatsController extends Controller {
     } else {
       NotFound
     } 
+  }
+  
+  /** Shows detailed stats for a specific document **/
+  def showDocumentStats(docId: Int) = DBAction { implicit session =>
+    val doc = GeoDocuments.findById(docId)
+    if (doc.isDefined) {        
+      val id = doc.get.id.get
+      val completionStats = Annotations.getCompletionStats(Seq(id)).get(id).getOrElse(CompletionStats.empty)
+      val autoAnnotationStats = Annotations.getAutoAnnotationStats(id)
+      val unidentifiedToponyms = Annotations.getUnidentifiableToponyms(id)
+      val placeStats = Annotations.getPlaceStats(id)
+      val userStats = Annotations.getContributorStats(id)
+      Ok(views.html.stats.document_stats(doc.get, GeoDocumentContent.findByGeoDocument(docId), completionStats, autoAnnotationStats, userStats, unidentifiedToponyms, placeStats, currentUser.map(_.username)))
+    } else {
+      NotFound
+    }
   }
   
   def showStats() = DBAction { implicit request =>

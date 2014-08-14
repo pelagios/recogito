@@ -4,6 +4,7 @@ import controllers.{ Secure, Secured }
 import controllers.common.io.{ CSVParser, ZipExporter, ZipImporter }
 import java.util.zip.ZipFile
 import models._
+import models.content._
 import play.api.mvc.Controller
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._

@@ -1,5 +1,6 @@
-package models
+package models.content
 
+import models.GeoDocumentContent
 import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
