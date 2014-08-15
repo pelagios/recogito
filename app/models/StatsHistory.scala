@@ -47,6 +47,9 @@ object StatsHistory {
   def insertAll(statsRecords: Seq[StatsRecord])(implicit s: Session) = query.insertAll(statsRecords:_*)
   
   def listAll()(implicit s: Session): Seq[StatsRecord] =
-    query.list
+    query.sortBy(_.timestamp.asc).list
+   
+  def listRecent(limit: Int)(implicit s: Session): Seq[StatsRecord] =
+    query.sortBy(_.timestamp.desc).take(limit).list.reverse
   
 }

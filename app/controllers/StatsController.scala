@@ -35,6 +35,7 @@ object StatsController extends Controller with Secured {
   }
   
   def showStats() = DBAction { implicit request =>
+    val activityTimeline = StatsHistory.listRecent(50)
     val scores = EditHistory.listHighscores(20)
 
     // Edit events remain in the DB even if the annotations they refer to no longer exist.
@@ -52,7 +53,7 @@ object StatsController extends Controller with Secured {
     val eventsWithDocuments: Seq[(EditEvent, Option[GeoDocument])] =
       editHistory.map { case (event, gdocId) => (event, gdocId.flatMap(id => gdocs.find(_.id.get == id))) }
     
-    Ok(views.html.stats.stats(scores, eventsWithDocuments))
+    Ok(views.html.stats.stats(activityTimeline, scores, eventsWithDocuments))
   }
 
 }

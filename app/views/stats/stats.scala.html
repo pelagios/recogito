@@ -1,11 +1,14 @@
-@(scores: Seq[(User, Int)], editHistory: Seq[(EditEvent, Option[GeoDocument])])
+@(activityTimeline: Seq[StatsRecord], scores: Seq[(User, Int)], editHistory: Seq[(EditEvent, Option[GeoDocument])])
 <html>
   <head>
     <title>RECOGITO User Stats</title>
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/stats/global-stats.css")" />
+    <link rel="stylesheet" href="http://code.shutterstock.com/rickshaw/rickshaw.min.css">
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-1.11.1.min.js")"></script>   
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/numeral/numeral.min.js")"></script>   
-    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/timeago/jquery.timeago.js")"></script>   
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/timeago/jquery.timeago.js")"></script>  
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/d3/d3.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/d3/rickshaw.min.js")"></script>
   </head>
   
   <body>
@@ -14,7 +17,12 @@
         <h1>Recogito</h1>
       </div>
       
-      <div id="content">
+      <div id="content" class="wide">
+        <div class="box">
+          <h2>Contribution Activity</h2>
+          <div id="activity-timeline"></div>
+        </div>
+        
         <div class="box">
           <h2>Top Contributors</h2>
       
@@ -46,11 +54,60 @@
     </div> <!-- .column -->
     <script>
       $(document).ready(function() {
+        // Activity line chart
+        var data = 
+          [@{ activityTimeline.map(record => "{ x:" + record.timestamp.getTime / 1000 + ", y:" + record.totalEdits + " }").mkString(",") }];
+          
+        var graph = new Rickshaw.Graph({
+          element: document.querySelector("#activity-timeline"),
+          width: 776,
+          height: 140,
+          series: [{
+            data: data,
+            name: "Contributions"
+          }]
+        });
+        
+        var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+          graph: graph,
+          xFormatter: function(t) {
+            var date = new Date(t * 1000);
+            return date.getUTCDate() + "." + (date.getUTCMonth() + 1) + "." + date.getUTCFullYear();
+          }
+        } );
+        
+        var xAxis = new Rickshaw.Graph.Axis.Time({
+          graph: graph,
+          timeUnit: new Rickshaw.Fixtures.Time().unit('month')
+        });
+
+        /*
+        var yAxis = new Rickshaw.Graph.Axis.Y( {
+          graph: graph,
+          orientation: 'left',
+          element: document.getElementById('y_axis'),
+          tickFormat: Rickshaw.Fixtures.Number.formatKMBT
+        });
+        */
+        graph.render();
+        
+        /*
+        var label = d3.select("svg.y_axis")
+        .append("svg:text")
+          .style("text-anchor", "end")
+          .attr("x", -80)
+          .attr("dy", ".75em")
+          .attr("transform", "rotate(-90)")
+          .text("Anzahl Annotationen");
+         */
+         
+        // Format numbers
         $.each($('.number'), function(idx, el) {
           var formatted = numeral($(el).text()).format('0,0');
           $(el).html(formatted);
         });
 
+        // Format timestamps
         $('.timeago').timeago();
       });
     </script>

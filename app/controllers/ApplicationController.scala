@@ -216,13 +216,8 @@ object ApplicationController extends Controller with Secured with CTSClient {
     else
       NotFound
   }
-    
-  /** Shows the stats history page **/
-  def showTimeline() = DBAction { implicit session =>
-    // TODO just a dummy for now
-    Ok(views.html.stats.timeline(StatsHistory.listAll())) 
-  }
   
+  /** Shows the tutorial page **/
   def showDocumentation() = Action {
     Redirect("/recogito/static/docs/index.html")
   } 

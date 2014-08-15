@@ -53,9 +53,6 @@ GET     /recogito/annotation/text                  controllers.ApplicationContro
 GET     /recogito/annotation/image/:id             controllers.ApplicationController.showImageAnnotationUI(id: Int)
 GET     /recogito/georesolution                    controllers.ApplicationController.showGeoResolutionUI(doc: Int)
 
-# TODO clean up the following two pages
-GET     /recogito/timeline                         controllers.ApplicationController.showTimeline
-
 # Admin
 GET     /recogito/admin/backup                     controllers.admin.BackupRestoreController.index
 GET     /recogito/admin/history/download           controllers.admin.BackupRestoreController.downloadEditHistory
