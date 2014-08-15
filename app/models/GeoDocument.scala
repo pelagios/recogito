@@ -1,7 +1,6 @@
 package models
 
 import models.content._
-import models.stats.GeoDocumentStats
 import play.api.Play.current
 import play.api.db.slick.Config.driver.simple._
 import scala.slick.lifted.Tag
@@ -49,7 +48,7 @@ case class GeoDocument(
     findspot: Option[String] = None,
     
     /** A geographical location associated with the author (gazetteer URI) **/
-    authorLocation: Option[String]) extends GeoDocumentStats {
+    authorLocation: Option[String]) {
   
   /** Wraps the comma-separated URL list to a proper Seq **/
   val primaryTopicOf = _primaryTopicOf.map(_.split(",").toSeq.map(_.trim)).getOrElse(Seq.empty[String])
