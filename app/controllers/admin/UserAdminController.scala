@@ -61,7 +61,7 @@ object UserAdminController extends Controller with Secured {
       data => DB.withSession { s: Session =>
         val salt = Users.randomSalt
         Users.insert(User(data.username, Users.computeHash(salt + data.password), salt, new Timestamp(System.currentTimeMillis)))(s)
-        Redirect(controllers.routes.ApplicationController.index(None)).withSession(Security.username -> data.username) 
+        Redirect(controllers.admin.routes.UserAdminController.listAll) 
       }
     )
   }
