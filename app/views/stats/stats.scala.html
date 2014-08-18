@@ -56,7 +56,7 @@
       $(document).ready(function() {
         // Activity line chart
         var data = 
-          [@{ activityTimeline.map(record => "{ x:" + record.timestamp.getTime / 1000 + ", y:" + record.totalEdits + " }").mkString(",") }];
+          [@{ activityTimeline.map(record => "{ x:" + (record.timestamp.getTime / 1000 - 86400) + ", y:" + record.totalEdits + " }").mkString(",") }];
           
         var graph = new Rickshaw.Graph({
           element: document.querySelector("#activity-timeline"),

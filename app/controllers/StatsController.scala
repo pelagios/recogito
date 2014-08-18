@@ -1,11 +1,14 @@
 package controllers
 
+import java.sql.Timestamp
 import models._
 import models.stats.CompletionStats
 import play.api.mvc.Controller
 import play.api.db.slick._
 
 object StatsController extends Controller with Secured {
+  
+  private val DAY_IN_MILLIS = 24 * 60 * 60 * 1000
   
   def showUserStats(username: String) = DBAction { implicit request =>
     val user = Users.findByUsername(username)
@@ -35,7 +38,21 @@ object StatsController extends Controller with Secured {
   }
   
   def showStats() = DBAction { implicit request =>
-    val activityTimeline = StatsHistory.listRecent(50)
+    // Get activity timeline from DB and append today's live stats
+    val activityTimeline = {
+      val history = StatsHistory.listRecent(50)
+      
+      // Time of last history snapshot, or 24hrs if no history yet 
+      val liveIntervalStart = history.reverse.headOption.map(_.timestamp).getOrElse(new Timestamp(System.currentTimeMillis - DAY_IN_MILLIS))
+      val liveIntervalEnd = new Timestamp(System.currentTimeMillis + DAY_IN_MILLIS) 
+      
+      val liveActivity = EditHistory.countSince(liveIntervalStart)
+      
+      // TODO compute other live stats
+      
+      history :+ StatsRecord(None, liveIntervalEnd, 0, 0, 0, liveActivity) 
+    }
+    
     val scores = EditHistory.listHighscores(20)
 
     // Edit events remain in the DB even if the annotations they refer to no longer exist.
