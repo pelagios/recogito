@@ -73,7 +73,8 @@
           xFormatter: function(t) {
             var date = new Date(t * 1000);
             return date.getUTCDate() + "." + (date.getUTCMonth() + 1) + "." + date.getUTCFullYear();
-          }
+          },
+          yFormatter: function(n) {return n;}
         } );
         
         var xAxis = new Rickshaw.Graph.Axis.Time({
