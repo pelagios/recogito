@@ -74,33 +74,15 @@
             var date = new Date(t * 1000);
             return date.getUTCDate() + "." + (date.getUTCMonth() + 1) + "." + date.getUTCFullYear();
           },
-          yFormatter: function(n) {return n;}
+          yFormatter: function(n) { return n; }
         } );
         
         var xAxis = new Rickshaw.Graph.Axis.Time({
           graph: graph,
           timeUnit: new Rickshaw.Fixtures.Time().unit('month')
         });
-
-        /*
-        var yAxis = new Rickshaw.Graph.Axis.Y( {
-          graph: graph,
-          orientation: 'left',
-          element: document.getElementById('y_axis'),
-          tickFormat: Rickshaw.Fixtures.Number.formatKMBT
-        });
-        */
+     
         graph.render();
-        
-        /*
-        var label = d3.select("svg.y_axis")
-        .append("svg:text")
-          .style("text-anchor", "end")
-          .attr("x", -80)
-          .attr("dy", ".75em")
-          .attr("transform", "rotate(-90)")
-          .text("Anzahl Annotationen");
-         */
          
         // Format numbers
         $.each($('.number'), function(idx, el) {
