@@ -26,8 +26,8 @@ trait TextAnnotationController extends AbstractAnnotationController {
   private val UTF8 = "UTF-8"
     
   protected def createOneTextAnnotation(json: JsObject, username: String)(implicit s: Session): Try[Annotation] = {
-    val jsonGdocId = (json\ "gdocId").asOpt[Int] 
-    val jsonGdocPartId = (json \ "gdocPartId").asOpt[Int]  
+    val jsonGdocId = (json\ "gdoc_id").asOpt[Int] 
+    val jsonGdocPartId = (json \ "gdoc_part_id").asOpt[Int]  
     val jsonSource = (json \ "source").asOpt[String]
     
     if (jsonSource.isDefined) {

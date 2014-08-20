@@ -82,7 +82,7 @@ object DocumentAdminController extends Controller with Secured {
       try {
         val f = formData.get.file("zip")
         if (f.isDefined) {
-          val zipFile = new ZipFile(f.get.ref.file)
+          val zipFile = f.get.ref.file
           val errors = ZipImporter.validateZip(zipFile)
           if (errors.size == 0) {
             val imported = ZipImporter.importZip(zipFile)

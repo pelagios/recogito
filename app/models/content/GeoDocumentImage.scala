@@ -6,29 +6,45 @@ import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import scala.slick.lifted.Tag
 
+object ImageType extends Enumeration {
+  
+  /** The annotation is not manually verified **/
+  val IMAGE = Value("IMAGE")
+  
+  /** The annotation is not manually verified **/
+  val ZOOMIFY = Value("ZOOMIFY")
+  
+}
+
 /** GeoDocument image content case class.
   *
   * @author Rainer Simon <rainer.simon@ait.ac.at>
   */
-case class GeoDocumentImage(id: Option[Int] = None, gdocId: Int, gdocPartId: Option[Int], imageFilePath: String, width: Int, height: Int)
+case class GeoDocumentImage(id: Option[Int] = None, gdocId: Int, gdocPartId: Option[Int], imageType: ImageType.Value, width: Int, height: Int, path: String)
   extends GeoDocumentContent
 
 /** GeoDocumentImage database table **/
 class GeoDocumentImages(tag: Tag) extends Table[GeoDocumentImage](tag, "gdocument_images") {
+  
+  implicit val imageTypeMapper = MappedColumnType.base[ImageType.Value, String](
+    { status => status.toString },
+    { status => ImageType.withName(status) })
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   
-  def gdocId = column[Int]("gdoc")
+  def gdocId = column[Int]("gdoc", O.NotNull)
   
   def gdocPartId = column[Int]("gdoc_part", O.Nullable)
   
-  def imageFilePath = column[String]("image_file_path")
-  
+  def imageType = column[ImageType.Value]("image_type", O.NotNull)
+    
   def width = column[Int]("img_width")
   
   def height = column[Int]("img_height")
   
-  def * = (id.?, gdocId, gdocPartId.?, imageFilePath, width, height) <> (GeoDocumentImage.tupled, GeoDocumentImage.unapply)
+  def path = column[String]("path")
+  
+  def * = (id.?, gdocId, gdocPartId.?, imageType, width, height, path) <> (GeoDocumentImage.tupled, GeoDocumentImage.unapply)
   
 }
 

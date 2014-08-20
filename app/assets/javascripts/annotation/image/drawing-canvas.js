@@ -95,11 +95,16 @@ define(['config'], function(config) {
           var baselineAngle = Math.atan(dy / dx); 
           var baselineLength = Math.sqrt(dx * dx + dy * dy);
           
-          handlers['annotationCreated']({ 
-            x: imageAnchorCoords[0],
-            y: - imageAnchorCoords[1],
-            a: baselineAngle,
-            l: baselineLength 
+          handlers['annotationCreated']({
+            shapes: [{ 
+              type: 'toponym',
+              geometry: {
+                x: imageAnchorCoords[0],
+                y: - imageAnchorCoords[1],
+                a: baselineAngle,
+                l: baselineLength 
+              }
+            }]
           });
         }        
       }

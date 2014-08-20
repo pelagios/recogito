@@ -14,6 +14,7 @@ import play.api.Play.current
 import play.api.{ Application, GlobalSettings, Logger }
 import play.api.db.slick._
 import scala.slick.jdbc.meta.MTable
+import play.api.mvc.RequestHeader
 
 /** Play Global object **/
 object Global extends GlobalSettings {
@@ -50,11 +51,28 @@ object Global extends GlobalSettings {
     idx
   }
   
-  val uploadDir = {
-    val dir = new File("public/uploads")
+  lazy val uploadDir = {
+    val path = Play.current.configuration.getString("recogito.image.dir").getOrElse("public/uploads")
+    val dir = new File(path)
     if (!dir.exists)
       dir.mkdir
     dir
+  }
+  
+  lazy private val uploadBasePath = {
+    val path = Play.current.configuration.getString("recogito.image.baseurl").getOrElse("/recogito/static/uploads/")
+    if (path.endsWith("/"))
+      path
+    else
+      path + "/"
+  }
+  
+  def uploadBaseURL()(implicit request: RequestHeader) = {
+    if (uploadBasePath.startsWith("http")) {
+      uploadBasePath
+    } else { 
+      "http://" + request.host + uploadBasePath
+    }
   }
 
   override def onStart(app: Application): Unit = {

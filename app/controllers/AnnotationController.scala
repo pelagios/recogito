@@ -19,7 +19,7 @@ object AnnotationController extends AbstractAnnotationController with TextAnnota
   
   override protected def createOne(json: JsObject, username: String)(implicit s: Session): Try[Annotation] = {
     // For the time being, we simply distinguish between text- & image-annotation based on the fact 
-    // that the latter includes a 'shapes' property in the JSON
+    // that the latter includes an 'shapes' property in the JSON
     val jsonShapes = (json \ "shapes").asOpt[JsArray]
     if (jsonShapes.isDefined)
       createOneImageAnnotation(json, username)

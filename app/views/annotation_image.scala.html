@@ -1,4 +1,4 @@
-@(doc: GeoDocument, image: models.content.GeoDocumentImage, username: String)
+@(doc: GeoDocument, image: models.content.GeoDocumentImage, username: String)(implicit request: RequestHeader)
 <!DOCTYPE html>
 <html>
   <head>
@@ -12,9 +12,10 @@
     @helper.requireJs(core = routes.Assets.at("javascripts/require.js").url, module = routes.Assets.at("javascripts/annotation/image/main").url)
     <script>
       var config = {
-        'width': 12224,
-        'height': 6021,
-        'url': 'http://localhost:9000/recogito/static/images/gough-zoomify/'
+        'width': @image.width,
+        'height': @image.height,
+        'url': '@{ global.Global.uploadBaseURL + image.path }',
+        'gdoc_id': @doc.id        
       };
       
       $(document).ready(function() {

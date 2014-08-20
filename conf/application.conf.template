@@ -82,5 +82,9 @@ recogito.stats.interval=24
 # Wall-clock time at which stats logging should start (HH:MM) 
 recogito.stats.starttime="07:00"
 
+# Folder to use for image file uploads
+recogito.image.dir="public/uploads"
 
-
+# URL which maps to the image file upload dir
+# If this is a relative path, make sure to start with a '/'
+recogito.image.baseurl = "/recogito/static/uploads"

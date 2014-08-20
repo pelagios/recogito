@@ -14,6 +14,7 @@ libraryDependencies ++= Seq(
   "commons-codec" % "commons-codec" % "1.9",
   "org.xerial" % "sqlite-jdbc" % "3.7.2",
   "postgresql" % "postgresql" % "9.1-901.jdbc4",
+  "org.zeroturnaround" % "zt-zip" % "1.8",
   "rome" % "rome" % "1.0"          
 )
 

@@ -3,7 +3,7 @@ package controllers.common.io
 import collection.JavaConverters._
 import global.Global
 import java.io.{ BufferedOutputStream, FileOutputStream, File }
-import java.util.zip.ZipFile
+import java.util.zip.{ ZipEntry, ZipFile }
 import javax.imageio.ImageIO
 import models._
 import models.content._
@@ -13,6 +13,10 @@ import play.api.libs.json.{ Json, JsObject }
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 import scala.io.Source
+import org.zeroturnaround.zip.ZipUtil
+import org.zeroturnaround.zip.NameMapper
+import scala.xml.XML
+import scala.xml.parsing.XhtmlParser
 
 /** Utility object to import data from a ZIP file.
   *
@@ -22,12 +26,13 @@ import scala.io.Source
 object ZipImporter {
   
   private val UTF8 = "UTF-8"
-  
+    
   /** Import a Zip file into Recogito 
     *
     * @param zipFile the ZIP file
     */
-  def importZip(zipFile: ZipFile)(implicit s: Session) = {
+  def importZip(file: File)(implicit s: Session) = {
+    val zipFile = new ZipFile(file)
     val entries = zipFile.entries.asScala.toSeq.filter(!_.getName.startsWith("__MACOSX"))
  
     // We can have multiple JSON files in the Zip, one per document
@@ -79,7 +84,8 @@ object ZipImporter {
       // Insert image (if any)
       if (docImage.isDefined) {
         Logger.info("... image")
-        importImage(zipFile, docImage.get, gdocId, None)
+        val entry = zipFile.getEntry(docImage.get)
+        importImage(file, docImage.get, gdocId, None)
       }
       
       // Insert parts
@@ -101,7 +107,7 @@ object ZipImporter {
           
           if (partImage.isDefined) {
             Logger.info("... image")
-            importImage(zipFile, partImage.get, gdocId, Some(gdocPartId))
+            importImage(file, partImage.get, gdocId, Some(gdocPartId))
           }
         })
       }
@@ -117,7 +123,8 @@ object ZipImporter {
     metafiles.size
   }
   
-  def validateZip(zipFile: ZipFile): Seq[String] = {
+  def validateZip(file: File): Seq[String] = {
+    val zipFile = new ZipFile(file)
     val entries = zipFile.entries.asScala.toSeq.filter(!_.getName.startsWith("__MACOSX"))
  
     // We can have multiple JSON files in the Zip, one per document
@@ -160,25 +167,37 @@ object ZipImporter {
 
   /** Imports an image file.
     *
-    * @param zipFile the ZIP file
-    * @param entryName the name of the image file within the ZIP
+    * @param file the ZIP file
+    * @param entryName the image file or tileset directory name within the ZIP
     * @param gdocId the ID of the GeoDocument the image is associated with
     * @param gdocPartId the ID of the GeoDocumentPart the image is associated with (if any) 
     */
-  private def importImage(zipFile: ZipFile, entryName: String, gdocId: Int, gdocPartId: Option[Int])(implicit s: Session) = {
-    val entry = zipFile.getEntry(entryName)
-    
-    // Store the image file
-    val output = new BufferedOutputStream(new FileOutputStream(new File(Global.uploadDir, entryName)))
-    IOUtils.copy(zipFile.getInputStream(entry), output)
-    output.flush()
-    output.close()
-    
-    // Determine image dimensions
-    val img = ImageIO.read(zipFile.getInputStream(entry))
-    
-    // Create DB record
-    GeoDocumentImages.insert(GeoDocumentImage(None, gdocId, gdocPartId, entryName, img.getWidth, img.getHeight))
+  private def importImage(file: File, entryName: String, gdocId: Int, gdocPartId: Option[Int])(implicit s: Session) = {
+    ZipUtil.unpack(file, Global.uploadDir, new NameMapper() {
+      override def map(name: String): String = if (name.startsWith(entryName)) name else null
+    })
+  
+    val unzippedImage = new File(Global.uploadDir, entryName)    
+    if (unzippedImage.isFile) {
+      // Image file
+      val img = ImageIO.read(unzippedImage)
+      GeoDocumentImages.insert(GeoDocumentImage(None, gdocId, gdocPartId, ImageType.IMAGE, img.getWidth, img.getHeight, entryName))
+    } else {
+      // Tileset directory - we only support Zoomify at the moment
+      val imageProperties = Source.fromFile(new File(unzippedImage, "ImageProperties.xml"))
+        .getLines.mkString("\n")
+        .toLowerCase // There's an ugly habit of case inconsistency in Zoomify-land, so we force XML to lowercase before parsing 
+          
+      val xml = XhtmlParser(Source.fromString(imageProperties))
+      val w = (xml \\ "@width").toString.toInt
+      val h = (xml \\ "@height").toString.toInt
+      val path = if (unzippedImage.getName.endsWith("/")) unzippedImage.getName else unzippedImage.getName + "/"
+      GeoDocumentImages.insert(GeoDocumentImage(None, gdocId, gdocPartId, ImageType.ZOOMIFY, w, h, path))
+    }
+  }
+  
+  private def importTileset(zipFile: ZipFile, entry: ZipEntry, gdocId: Int, gdocPartId: Option[Int])(implicit s: Session) = {
+    Logger.info("Hurrah!");
   }
   
   /** Imports annotations from a CSV.

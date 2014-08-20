@@ -32,8 +32,8 @@ define(['config', 'annotation-layer'], function(config, AnnotationLayer) {
     return map.getCoordinateFromPixel(px);
   }
   
-  OpenLayersMap.prototype.addAnnotation = function(annotation) {      
-    annotationLayer.addAnnotation(annotation);  
+  OpenLayersMap.prototype.addAnnotations = function(annotation) {      
+    annotationLayer.addAnnotations(annotation);  
   }
   
   return OpenLayersMap;

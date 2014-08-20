@@ -11,8 +11,8 @@ import scala.util.{ Try, Success, Failure }
 trait ImageAnnotationController extends AbstractAnnotationController {
   
   protected def createOneImageAnnotation(json: JsObject, username: String)(implicit s: Session): Try[Annotation] = {
-    val jsonGdocId = (json \ "gdocId").asOpt[Int] 
-    val jsonGdocPartId = (json \ "gdocPartId").asOpt[Int]  
+    val jsonGdocId = (json \ "gdoc_id").asOpt[Int] 
+    val jsonGdocPartId = (json \ "gdoc_part_id").asOpt[Int]  
 
     val gdocPart = jsonGdocPartId.flatMap(id => GeoDocumentParts.findById(id))
     val gdocId_verified = if (gdocPart.isDefined) Some(gdocPart.get.gdocId) else jsonGdocId.flatMap(id => GeoDocuments.findById(id)).flatMap(_.id)
@@ -24,7 +24,6 @@ trait ImageAnnotationController extends AbstractAnnotationController {
     } else {
       // Create new annotation
       val jsonAnchor = (json \ "shapes").as[JsArray]
-      val jsonText = (json \ "text").asOpt[String]
       
       val annotation = 
         Annotation(Annotations.newUUID, gdocId_verified, gdocPart.map(_.id).flatten, 
@@ -33,7 +32,7 @@ trait ImageAnnotationController extends AbstractAnnotationController {
                    None, // offset (automatch)
                    None, // anchor (automatch) 
                    None, // gazetteer URI (automatch) 
-                   jsonText, // corrected toponym
+                   None, // corrected toponym
                    None, // corrected offset
                    Some(Json.stringify(jsonAnchor(0))))
                    
