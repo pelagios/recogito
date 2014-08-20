@@ -1,0 +1,252 @@
+<html>
+  <head>
+    <title>Recogito - Beginner's Tutorial</title>
+    <link rel="stylesheet" href="/recogito/static/stylesheets/documentation/main.css" />
+  </head>
+  
+  <body>
+    <div id="header">
+      <div id="header-top">
+        <div id="title">
+          <h1>Recogito</h1>
+          <div id="home-button"><a href="/recogito" class="icon">&#xf015;</a></div>
+        </div>
+      </div>
+      
+      <div id="subtitle">
+        <h2>Beginner's Tutorial</h2>
+      </div>
+    </div>
+    
+    <div id="content">
+      <p>Recogito is a Web-based tool for annotating place references in early geospatial documents. It is a result of the ongoing 
+        <a href="http://pelagios-project.blogspot.co.uk">Pelagios 3</a> research project, funded by the <a href="http://www.mellon.org">Andrew 
+        W. Mellon Foundation</a>.
+      
+      <h3>Landing Page</h3>
+      <p>The first thing you will see of Recogito is the <strong>landing page</strong> (Fig.1). This page, which is the 
+        <strong>'public view'</strong>, provides an overview of the documents currently available in the system. Inside
+        Recogito, you can always go back to the landing page with the <span class="icon">&#xf015;</span> icon in the
+        header bar.</p>
+      
+      <div class="figure">
+        <img class="screenshot" src="images/screenshot-public-idx.png">  
+        <p>Fig.1 Landing Page.</p>
+      </div>
+      
+      <p>Documents are grouped into different <strong>collections</strong>. You can navigate between them with the 
+        <strong>collections menu</strong> on the left-hand side <span class="image-marker">1</span>. The <strong>document
+        list</strong> <span class="image-marker">2</span> shows author, title and date information
+        for each document. It also indicates the <strong>language</strong> of the document with a small label. (E.g. 'en'
+        for English, 'la' for Latin, etc.) For some documents, there is a small <span class="icon">&#xf196;</span> 
+        symbol at the start of the row. This means the document is available in multiple versions - typically translations 
+        in different languages. Click the row to view all available versions.</p>
+      
+      <p>The number next to the language label is the <strong>total number of place names (toponyms)</strong> that have 
+        been tagged in the text. Next to that, a colour-coded progress bar illustrates the <strong>rate of completion</strong>, 
+        i.e. the percentage of those place names which have been successfully geo-located through a gazetteer (green) vs. 
+        those where no gazetteer match could be found (yellow) vs. those place names that have not yet been verified. 
+        Above the document list, there is a similar, larger bar that shows this information for the entire collection
+        <span class="image-marker">3</span>.</p>
+        
+      <p>At the right-hand side of the document list, two buttons labeled <strong>Map</strong> and <strong>Download</strong>
+        <span class="image-marker">4</span> allow you to view the geo-located place names for each document on a Web map, 
+        and to download the raw data as a CSV file.</p>
+    
+      <p>If you now log in to Recogito through the <strong>button in the upper right hand corner</strong>, you will notice a small change in the landing page: instead of the 'Map' and
+        'Download' buttons, there is now a row of icons. This means that you are now in the <strong>'editing suite'</strong>, which is where the annotation and geo-resolution of documents takes place. The icons here provide access to Recogito's different areas of activity (from left to right): 
+        <a href="#text-annotation"><span class="icon">&#xf0f6;</span> Text Annotation</a>, <a href="#geo-resolution"><span class="icon">&#xf0ac;</span> Geo-Resoution</a> and
+        <a href="#document-stats"><span class="icon">&#xf080;</span> Document Stats</a>. The table icon <span class="icon">&#xf0ce;</span> again allows you to download
+        the raw data as a CSV file. Note that it is possible for documents to have no text at all. In this case the Text Annotation icon will be
+        greyed out.</p>
+        
+      <a class="internal-anchor" name="text-annotation"></a>
+      <h3><span class="icon">&#xf0f6;</span> Text Annotation</h3>
+      
+      <p>When you start working on a new document, this is usually where you will want to begin (Fig.2). You can annotate place names in the text by selecting
+        them. Like in any word processing tool, you select by clicking and dragging with your mouse, or by double clicking on a word.
+        After selecting a piece of text, a confirmation dialog will pop up to verify wether your want to annotate the selected text as a place name or not
+        <span class="image-marker">1</span>.</p>
+        
+      <div class="figure">
+        <img class="screenshot" src="images/screenshot-annotation.png">  
+        <p>Fig.2 Text Annotation Area.</p>
+      </div>
+        
+      <p>To delete an annotation, simply select it again. A popup dialog will ask for confirmation. Modifying an annotation (i.e. changing its
+        start or end, or merging multiple annotations into one) is equally straightforward. Just select the place name the way you want it, and
+        the popup dialog will ask you to confirm the change.</p>
+        
+      <div class="figure"><img src="images/popup-merge.png"></div>
+       
+      <p>Some documents consist of multiple texts. In this case, you can use the <strong>menu bar</strong> in the header to switch between them
+        <span class="image-marker">2</span>. The menu bar also allows you to switch to the <a href="#document-stats">Document Stats</a> and
+        <a href="#geo-resolution">Geo-Resolution</a> areas directly without having to go back to the landing page.</p>
+        
+      <p>Underneath the menu bar is the <strong>tool bar</strong> <span class="image-marker">3</span>. This allows you to switch between different modes 
+        of operation. Per default, you will start off in normal <span class="icon">&#xf040;</span> <strong>Toponym Annotation</strong> mode. Recogito's
+        second annotation mode, <span class="icon">&#xf135;</span> <strong>Quick Toponym Annotation</strong>, will suppress the popup dialog. Every
+        action you make is performed immediately, without the need to confirm. You will see that with a little bit of practice, this 'Rocket' mode will greatly speed up your
+        work.</p> 
+        
+      <p>There are a few <strong>helper functions</strong> behind the scenes:</p>
+      
+      <ul>
+        <li>When you annotate a place name, Recogito will search for <strong>additional exact matches</strong> in the text and propose tagging them
+          automatically.</li>
+          
+        <li>Recogito will always (even in the Quick Annotation Mode) pop up a confirmation dialog in cases where your selection is very long. This is to
+          avoid the loss of annotations that would occur should you accidentially have selected an entire paragraph (in which case all annotations in the paragraph
+          would be merged into one).
+          
+        <li>Likewise, a confirmation dialog will pop up for very short selections. This is to avoid an excessive number of annotations being created 
+          in cases where a very common word (such as 'and') has been selected accidentially and the automatic annotation of exact matches was too quickly
+          confirmed.</li>
+      </ul>
+      
+      <a class="internal-anchor" name="geo-resolution"></a>
+      <h3><span class="icon">&#xf0ac;</span> Geo-Resolution</h3>
+      
+      <p>After you have annotated the place names in your document, the next step is to <strong>geo-resolve</strong> them. Geo-resolution is the act
+        of linking <em>place references</em>, i.e. place names in a document to <em>places</em> in Recogito's internal place directory, so that they
+        can be plotted on a map. Underneath the hood, Recogito attempts to establish such links automatically while place names are being tagged in the
+        <a href="#text-annotation">Text Annotation area</a>. But these automatic mappings are not necessarily correct. The <strong>Geo-Resolution
+        area</strong> (Fig. 3) is the place where you can verify or correct them, or establish mappings manually in cases where they are missing altogether.</p>
+        
+      <div class="figure">
+        <img class="screenshot" src="images/screenshot-georesolution.jpg">  
+        <p>Fig.3 Geo-Resolution Area.</p>
+      </div>
+      
+      <p>The Geo-Resolution area is divided into two major sections: the <strong>toponym table</strong> <span class="image-marker">1</span> which lists
+        all the place names that were tagged in the document, and the <strong>map</strong> <span class="image-marker">2</span> which displays the locations
+        of those place names that are already linked to a place. At the bottom, there's a footer <span class="image-marker">3</span> showing some basic
+        completion stats.</p>
+        
+      <p>The <strong>toponym table</strong> lists all place names in sequence. (Initally in the order they appear in the text. But it is also possible 
+        to change the sort order to alphabetic by clicking on the <em>Toponym</em> column title, and back to sequential order by clicking 
+        the <em>#</em> column title). You can adapt the width of each column by clicking and dragging the borders of its column title field. The columns
+        list:</p>
+      
+      <ul>
+        <li>the <strong>place name</strong> as it appears in the text. Hover over the text to get a preview snippet that shows the toponym in the context of the source text.</li>
+        <li>the <strong>document part</strong> (if the document consists of multiple texts).</li>
+        <li>any <strong>tags</strong> you may have added to the place name (see below for more information on tags).</li>
+        <li>the <strong>automatic geo-resolution</strong> produced by Recogito, if any. The geo-resolution is typically displayed as a <em>gazetteer 
+          shortcode</em>. Hover over the code with your mouse to see the place title as recorded in Recogito's internal place directory.</li>
+        <li>the <strong>manual (or corrected) geo-resolution</strong>, if any.</li>
+        <li>the <strong>verification status</strong> of the place reference. If you hover the mouse over the status, a small 'quick access' menu will allow you to
+          change the verification status with a single click (see below for more information about verification status)</li>
+      </ul> 
+      
+      <p>The <strong>map</strong> shows markers for the geo-resolved place names. Click and drag the map to pan it, use your mouse wheel or the plus/minus control
+        (top left) to zoom it. Use the basemap control underneath the plus/minus control to change between different background maps. If your 
+        document consists of multiple parts, a layer switcher (top right) allows you to switch markers for different document parts on and off individually.</p>
+      
+      <div class="figure"><img src="images/sequence-line.jpg"></div>
+        
+      <p>
+        Selection between map and toponym table is synchronized: clicking a marker on a map will highlight all occurrences of this place in the toponym table (and scroll
+        the table to the first occurence in the text); clicking a row in the table will select the corresponding marker on the map. When a place is selected, the map 
+        will display a <strong>sequence line</strong> that connects it with both the previous and the following two geo-resolved neighbours in the text. That way it is often much easier
+        to spot outliers (which may be due to incorrect geo-resolution), especially if you use your up and down arrow keys to step through place names sequentially, after
+        selecting one in the toponym table.</p>
+      
+      <h4>Editing the Details of a Place Reference</h4>
+      
+      <p>Double-clicking on a table row will open a <strong>window with details</strong> about the place reference and how it is
+        linked to a place in Recogito (Fig. 4). This window also allows you to change incorrect links, and add additional
+        information about the place reference, e.g. tags or comments.</p>
+      
+      <div class="figure">
+        <img class="screenshot" src="images/screenshot-details.jpg">  
+        <p>Fig.4 Toponym Details.</p>
+      </div>
+      
+      <p>The main component of the details window is a <strong>map</strong> <span class="image-marker">1</span>. If the place reference is already
+        geo-resolved, the map shows the corresponding place (again connected to it's nearest neighbour places in the text through a sequence line).
+        Underneath the map, Recogito suggests other potential places that may match the place name <span class="image-marker">2</span>. You can
+        re-assign the place reference to one of the alternative suggestions by clicking on it. If you find that none of the suggestions is suitable, you
+        can try to find a match using the <strong>text search field</strong> <span class="image-marker">3</span>. Note that after a re-assignement,
+        the verification status of the place reference will be automatically set to <em>VERIFIED</em>, and the Recogito will proceed to the next place 
+        reference in the list (more on verification status below). The top-right of the details window shows information about the automatic link 
+        that has initially been assigned by Recogito, if any <span class="image-marker">4</span>, as well as the latest manual assignment 
+        <span class="image-marker">5</span>. Below that, you will find the <strong>verification status panel</strong> 
+        <span class="image-marker">6</span> and a <strong>preview snippet</strong> showing how the place name appears in its original 
+        context <span class="image-marker">7</span>.</p>
+        
+      <p>The <strong>verification status</strong> is a simple measure to keep track of the overall geo-resolution progress in a document, as well
+        as a means to flag problematic or otherwise unresolvable cases. The meaning of the different status values is a follows, and you should
+        assign according to your own judgement:</p>
+        
+      <table>
+        <tr>
+          <td class="icon">&#xf14a;</td>
+          <td class="status-val">Verified</td>
+          <td>The place reference is correctly linked to a place. (Recogito will set this automatically if you re-assign a place to a suggested match.)</td>
+        </tr>
+        <tr>
+          <td class="icon">&#xf059;</td>
+          <td class="status-val">Not Verified</td>
+          <td>The default inital status, usually indicates that no one has
+          looked at this toponym's geo-resolution yet.</td>
+        </tr>
+        <tr>
+          <td class="icon">&#xf057;</td>
+          <td class="status-val">False Match</td>
+          <td>This is NOT a place reference. If the annotation was initially created by a user, it will simply be deleted. (If it was intially the
+            result of automatic geo-parsing, this status will help us compute correct performance metrics for the geo-parser.)</td>
+        </tr>
+        <tr>
+          <td class="icon">&#xf05e;</td>
+          <td class="status-val">Ignore</td>
+          <td>This is technically a place reference, but for some reason we don't want it to be included in the result dataset. 
+            (A typical example could be additional place names and modern-day synonyms inserted by editors or translators of
+            original texts).</td>
+        </tr>
+        <tr>
+          <td class="status-nomatch"><span class="icon">&#xf024;</span></td>
+          <td class="status-val">No Suitable Match</td>
+          <td>No suitable match could not be found.</td>
+        </tr>
+        <tr>
+          <td class="status-ambiguous"><span class="icon">&#xf024;</span></td>
+          <td class="status-val">Ambiguous</td>
+          <td>More than one possible matches were found, and it was not possible to disambiguate.</td>
+        </tr>
+        <tr>
+          <td class="status-multiple"><span class="icon">&#xf024;</span></td>
+          <td class="status-val">Multiple</td>
+          <td>The place name refers to multiple places - e.g. "the four Gallias"</td>
+        </tr>
+        <tr>
+          <td class="icon">&#xf024;</td>
+          <td class="status-val">Not Identifiable</td>
+          <td>A catch-all status for place references that could not be matched for other reasons.</td>
+        </tr>
+      </table>
+      
+      <p>In addition to the verification status, you can add extra informaion to a place reference in the form of 
+        <strong>tags</strong> <span class="image-marker">8</span> and <strong>comments</strong> 
+        <span class="image-marker">9</span>. We normally use tags to identify the role of the place 
+        <strong>within</strong> the context of the document</strong>. E.g. <em>change</em> or <em>halt</em> could be good tags to 
+        denote the role of a place in a particular itinerary. Whereas we discourage the use of tags to express general properties 
+        of the place itself: e.g. we would discourage tags like <em>continent</em> or <em>mountain</em> because
+        they express a property <strong>independent</strong> from the document context.</p>
+      
+      <p>Comments, obviously, allow you to attach any kind of note or remark to the place reference. For easier findability,
+        every place reference that has a comment will be marked with a <span class="icon">&#xf075;</span> icon in the 
+        toponym table.</p>
+        
+      <p>You can <strong>close the details window</strong> with the X icon in the header bar, or <strong>skip to the previous and
+        next</strong> place references with the arrow icons <span class="image-marker">11</span>. Note that when you assign a new 
+        geo-resolution to a place, Recogito will automatically step to the next place in the list.</p>
+        
+      <a class="internal-anchor" name="document-stats"></a>
+      <h3><span class="icon">&#xf080;</span> Document Stats</h3>
+      
+      <p>This page lists basic statistics about the annotations on the document. At the moment, it is still a work in progress.</p>
+    
+    </div>
+  </body>
+</html>

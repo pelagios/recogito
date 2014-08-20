@@ -94,7 +94,10 @@ object DocumentAdminController extends Controller with Secured {
           BadRequest
         }
       } catch {
-        case t: Throwable => Redirect(routes.DocumentAdminController.listAll).flashing("error" -> { "There is something wrong with your JSON: " + t.getMessage })
+        case t: Throwable => {
+          t.printStackTrace()
+          Redirect(routes.DocumentAdminController.listAll).flashing("error" -> { "Something went wrong with your import: " + t.getClass.getCanonicalName() + ": " + t.getMessage }) 
+        }
       }
     } else {
       BadRequest

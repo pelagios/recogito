@@ -219,7 +219,7 @@ object ApplicationController extends Controller with Secured with CTSClient {
   
   /** Shows the tutorial page **/
   def showDocumentation() = Action {
-    Redirect("/recogito/static/docs/index.html")
+    Redirect("/recogito/static/documentation/index.html")
   } 
 
 }

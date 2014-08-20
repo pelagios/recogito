@@ -15,11 +15,24 @@ html, body {
   width:100%;
   top:0;
   bottom:0;
+  background: #00ff00 url('/recogito/static/images/seamless_paper_texture.png');
 }
 
-#ol {
+#ol-viewer {
+  position:absolute;
+  top:0;
+  left:0;
   width:100%;
   height:100%;
+}
+
+#drawing-canvas {
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
 }
 
 .anno-username {

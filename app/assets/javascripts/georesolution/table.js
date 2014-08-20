@@ -1,4 +1,4 @@
-define(['georesolution/common', 'georesolution/details', 'georesolution/batch'], function(common, DetailsPopup, BatchPopup) {
+define(['common', 'details', 'batch'], function(common, DetailsPopup, BatchPopup) {
 
   /**
    * The table component of the UI.

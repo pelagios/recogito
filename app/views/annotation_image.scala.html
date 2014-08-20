@@ -5,18 +5,18 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <title>RECOGITO Image Annotation</title>
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/annotation/image.css")">
-    <link rel="stylesheet" href="http://annotorious.github.io/latest/themes/dark/annotorious-dark.css">
+    <link rel="stylesheet" href="@routes.Assets.at("javascripts/lib/ol3.0.0-gamma.4/ol.css")">
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/timeago/jquery.timeago.js")"></script>
-    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/openlayers/OpenLayers.js")"></script>
-    <script type="text/javascript" src="http://annotorious.github.io/latest/annotorious.min.js"></script>
-    <script type="text/javascript" src="@routes.Assets.at("javascripts/annotation/anno-recogito-storage-plugin.js")"></script>
-    <script type="text/javascript" src="@routes.Assets.at("javascripts/annotation/rcgt-image-annotation.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/ol3.0.0-gamma.4/ol.js")"></script>
+    @helper.requireJs(core = routes.Assets.at("javascripts/require.js").url, module = routes.Assets.at("javascripts/annotation/image/main").url)
     <script>
-      anno.addPlugin('Recogito',
-        { 'gdoc_id': @doc.id,
-          'gdoc_part_id': null });
-    
+      var config = {
+        'width': 12224,
+        'height': 6021,
+        'url': 'http://localhost:9000/recogito/static/images/gough-zoomify/'
+      };
+      
       $(document).ready(function() {
         var header = $('#header'),
             footer = $('#footer'),
@@ -24,13 +24,7 @@
             
         annotationArea.css({
           'top': header.height(), 
-          'bottom': footer.height() });
-        
-        new recogito.ImageAnnotationUI(
-          'ol', 
-          '@routes.Assets.at("uploads/" + image.imageFilePath)',
-          @doc.id,
-          @image.width, @image.height);
+          'bottom': footer.height() + 10 });
       })
     </script>
   </head>
@@ -52,24 +46,24 @@
       </div>
       
       <div id="toolbar">
-        <div class="tool selected move-image" title="Move Image">
+        <div class="tool selected navigate" title="Move Image">
           <span class="icon">&#xf047;</span>
         </div>   
         
-        <div class="tool annotate-image" title="Annotate Image">
+        <div class="tool annotate" title="Annotate Image">
           <span class="icon">&#xf040;</span>
         </div>   
       </div>
     </div>   
     
     <div id="annotation-area">
-    
-      <div id="ol"></div>
+      <div id="ol-viewer"></div>
+      <canvas id="drawing-canvas"></canvas>
+    </div>
       
-      <div id="footer">
-        <div id="user">
-          You are logged in as <span id="username">@username</span> <a href="@routes.AuthController.logout" class="icon">&#xf011;</a>
-        </div>
+    <div id="footer">
+      <div id="user">
+        You are logged in as <span id="username">@username</span> <a href="@routes.AuthController.logout" class="icon">&#xf011;</a>
       </div>
     </div>
   </body>
