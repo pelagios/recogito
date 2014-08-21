@@ -1,4 +1,4 @@
-define(['common'], function(common) {
+define(['georesolution/common'], function(common) {
   
   /**
    * The map component of the UI.

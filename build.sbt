@@ -31,6 +31,7 @@ libraryDependencies ++= Seq(
   "org.geotools" % "gt-geojson" % "10.0"
 )
 
-requireJs += "georesolution.js"
+requireJs ++= Seq("georesolution.js", "imageannotation.js")
 
 requireJsShim += "build.js"
+

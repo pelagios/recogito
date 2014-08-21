@@ -1,4 +1,4 @@
-define(['config', 'annotation-layer'], function(config, AnnotationLayer) {
+define(['config', 'annotation/image/annotation-layer'], function(config, AnnotationLayer) {
   
   var map, annotationLayer;
   

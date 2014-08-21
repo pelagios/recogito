@@ -1,4 +1,4 @@
-define(['common'], function(common) {
+define(['georesolution/common'], function(common) {
 
   /**
    * A popup showing all details about a single annotation, with extra functionality

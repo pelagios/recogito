@@ -1,4 +1,4 @@
-define(['config', 'editor'], function(config, Editor) {
+define(['config', 'annotation/image/editor'], function(config, Editor) {
   
   var layer,                   // the map layer
       annotations = [],        // the annotations

@@ -96,7 +96,7 @@ class ZipExporter {
     * @param texts the texts associated with the GeoDocument
     */
   private def createMetaFile(gdoc: GeoDocument, parts: Seq[GeoDocumentPart], texts: Seq[GeoDocumentText])(implicit session: Session): TemporaryFile = {
-    val gdocNamePrefix = escapeTitle(gdoc.title) + gdoc.language.map("_" + _).getOrElse("")
+    val gdocNamePrefix = gdoc.author.map(escapeTitle(_) + "_").getOrElse("") + escapeTitle(gdoc.title) + gdoc.language.map("_" + _).getOrElse("")
     
     val jsonParts = parts.map(part => {
       val text = texts.find(_.gdocPartId == part.id).map(_ => gdocNamePrefix + File.separator + escapeTitle(part.title) + ".txt")

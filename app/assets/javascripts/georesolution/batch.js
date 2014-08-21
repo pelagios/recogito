@@ -1,4 +1,4 @@
-define(['common'], function(common) {
+define(['georesolution/common'], function(common) {
   
   /**
    * A popup containing 'batch processing' features that affect a list of annotations 
