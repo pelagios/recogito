@@ -1,6 +1,6 @@
 @(event: EditEvent, gdoc: Option[GeoDocument])
 <tr>
-  <td><a href=""@routes.StatsController.showUserStats(event.username)">@event.username</a></td>
+  <td><a href="@routes.StatsController.showUserStats(event.username)">@event.username</a></td>
   <td>
     @if(event.uriChange.isDefined) {
       @event.uriChange.get._1 match {
@@ -20,8 +20,12 @@
     }}}
   </td>
   <td>
-    @gdoc.flatMap(_.author.map(_ + ": "))
-    @gdoc.map(_.title)
+    @if(gdoc.isDefined) {
+      <a href="@routes.StatsController.showDocumentStats(gdoc.get.id.get)">
+        @gdoc.get.author.map(_ + ": ")
+        @gdoc.get.title
+      </a>
+    }
   </td>
   <td class="timeago" title="@event.timestamp.format("yyyy-MM-dd'T'HH:mm:ssZ")">@event.timestamp.format("yyyy-MM-dd'T'HH:mm:ssZ")</td>
 </tr>

@@ -25,8 +25,10 @@
               @defining(100 * numberOfEdits.toDouble / numberOfEditsPerDocument(0)._2) { percentage =>
       	        <tr>
       	          <td class="compact">
-                    @doc.author.map(_ + ": ").getOrElse("")
-                    @doc.title
+      	            <a href="@routes.StatsController.showDocumentStats(doc.id.get)">
+                      @doc.author.map(_ + ": ")
+                      @doc.title
+                    </a>
                   </td>
                   <td class="score">
                     <div class="meter compact">
