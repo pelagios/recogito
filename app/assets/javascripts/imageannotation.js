@@ -14,16 +14,29 @@ require(['annotation/image/ol-map', 'annotation/image/drawing-canvas', 'annotati
       drawingCanvas = new DrawingCanvas('drawing-canvas', map),
       storage       = new Storage();
       
-  btnNavigate.click(function(e) {
-    drawingCanvas.hide();
-    btnNavigate.addClass('selected');
-    btnAnnotate.removeClass('selected');
-  });
+      
+  var switchToNavigate = function() {
+        drawingCanvas.hide();
+        btnNavigate.addClass('selected');
+        btnAnnotate.removeClass('selected');
+      },
+      switchToAnnotate = function() {
+        drawingCanvas.show();
+        btnNavigate.removeClass('selected');
+        btnAnnotate.addClass('selected');
+      };
   
-  btnAnnotate.click(function(e) {
-    drawingCanvas.show();
-    btnNavigate.removeClass('selected');
-    btnAnnotate.addClass('selected');
+  btnNavigate.click(function(e) { switchToNavigate() });
+  
+  btnAnnotate.click(function(e) { switchToAnnotate() });
+  
+  $(document).keyup(function(e) {
+    if (e.keyCode == 32) {
+      if (btnAnnotate.hasClass('selected'))
+        switchToNavigate();
+      else
+        switchToAnnotate();
+    }
   });
       
   drawingCanvas.on('annotationCreated', function(annotation) { 
