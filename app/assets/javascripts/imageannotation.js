@@ -14,7 +14,6 @@ require(['annotation/image/ol-map', 'annotation/image/drawing-canvas', 'annotati
       drawingCanvas = new DrawingCanvas('drawing-canvas', map),
       storage       = new Storage();
       
-      
   var switchToNavigate = function() {
         drawingCanvas.hide();
         btnNavigate.addClass('selected');

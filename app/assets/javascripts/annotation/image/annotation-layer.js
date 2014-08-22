@@ -1,17 +1,18 @@
-define(['config', 'annotation/image/editor'], function(config, Editor) {
+define(['config', 'annotation/image/tooltip', 'annotation/image/editor'], function(config, Tooltip, Editor) {
   
   var layer,                   // the map layer
       annotations = [],        // the annotations
       currentHighlight = false, // currently highlighted annotation (if any)
-      editor = new Editor(),
+      tooltip,
+      editor,
       TWO_PI = 2 * Math.PI; 
   
   var highlightAnnotation = function(annotation, x, y) {
     currentHighlight = annotation;    
     if (annotation) {
-      editor.show(annotation, x, y);
+      tooltip.show(annotation, x, y);
     } else {
-      editor.hide();
+      tooltip.hide();
     }
     
     layer.getSource().dispatchChangeEvent();
@@ -62,6 +63,9 @@ define(['config', 'annotation/image/editor'], function(config, Editor) {
   }
   
   var AnnotationLayer = function(map) {
+    tooltip = new Tooltip();
+    editor = new Editor(map);
+    
     layer = new ol.layer.Image({
       source: new ol.source.ImageCanvas({
         canvasFunction: redraw,
@@ -97,6 +101,11 @@ define(['config', 'annotation/image/editor'], function(config, Editor) {
       }
     });
     /** THIS IS A TEMPORARY HACK ONLY **/
+    
+    map.on('singleclick', function(e) {
+      if (currentHighlight)
+        editor.show(currentHighlight);
+    });
   }
   
   AnnotationLayer.prototype.addAnnotations = function(a) {
