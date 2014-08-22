@@ -1,10 +1,10 @@
-define([], function() {
+define(['annotation/image/utils'], function(Utils) {
   
   var map, element,
       top, middle, left, right, bottom,
       window;
   
-  var Editor = function(olMap) {
+  var Editor = function(olMap) {    
     map = olMap;
     
     var template = 
@@ -31,45 +31,16 @@ define([], function() {
   };
   
   Editor.prototype.show = function(annotation) {
-    var geom = annotation.shapes[0].geometry;
-
-    var viewportAnchorCoords = map.getPixelFromCoordinate([geom.x, - geom.y]);    
-    var viewportBaselineLength = geom.l / map.getView().getResolution();
-    var dx = Math.cos(geom.a) * viewportBaselineLength;
-    var dy = Math.sin(geom.a) * viewportBaselineLength;
+    var bounds = map.toViewportCoordinates(Utils.getBounds(annotation), 50);   
   
-    // TODO make this work for all quadrants
-    var x = viewportAnchorCoords[0] - 25;
-    var y = viewportAnchorCoords[1] - dy - 25;
-    var width = dx + 50;
-    var height = dy + 50;
+    top.height(bounds.top);
+    middle.height(bounds.height);
+    left.width(bounds.left);
     
-    top.css('height', y + 'px');
-    middle.css('height', height + 'px');
-    left.css('width', x + 'px');
-    right.css('left', (x + width) + 'px');
-    window.css('width', width + 'px');
-    bottom.css('top', (y + height) + 'px');
+    window.width(bounds.width);
     
-    /*
-    window.css({
-      width: dx + 30,
-      height: dy + 30
-    });
-    
-    editor.css({
-      left: viewportAnchorCoords[0] - 15,
-      top: viewportAnchorCoords[1] - dy - 15
-    });
-    * 
-    * 
-    *         top.height = y + 'px';
-        middle.height = height + 'px';
-        left.width = x + 'px';
-        right.left = (x +  width) + 'px';
-        region.width = width + 'px';        
-        bottom.top = (y + height) + 'px';
-    */
+    right.css('left', (bounds.left + bounds.width) + 'px');
+    bottom.css('top', (bounds.top + bounds.height) + 'px');
 
     element.show();   
   }

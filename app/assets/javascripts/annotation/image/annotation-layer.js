@@ -1,6 +1,7 @@
 define(['config', 'annotation/image/tooltip', 'annotation/image/editor'], function(config, Tooltip, Editor) {
   
-  var layer,                   // the map layer
+  var map,                     // the map
+      layer,                   // the map layer
       annotations = [],        // the annotations
       currentHighlight = false, // currently highlighted annotation (if any)
       tooltip,
@@ -62,7 +63,8 @@ define(['config', 'annotation/image/tooltip', 'annotation/image/editor'], functi
     return canvas;
   }
   
-  var AnnotationLayer = function(map) {
+  var AnnotationLayer = function(olMap) {
+    map = olMap;
     tooltip = new Tooltip();
     editor = new Editor(map);
     
@@ -76,7 +78,7 @@ define(['config', 'annotation/image/tooltip', 'annotation/image/editor'], functi
     
     /** THIS IS A TEMPORARY HACK ONLY **/
     map.on('pointermove', function(e) {
-      var maxDistance = map.getView().getResolution() * 10;
+      var maxDistance = map.getResolution() * 10;
       
       var hovered = $.grep(annotations, function(annotation) {
         var geometry = annotation.shapes[0].geometry;
@@ -118,6 +120,14 @@ define(['config', 'annotation/image/tooltip', 'annotation/image/editor'], functi
     }
     
     layer.getSource().dispatchChangeEvent();
+  }
+  
+  AnnotationLayer.prototype.getBounds = function(annotation) {
+    
+  }
+  
+  AnnotationLayer.prototype.moveTo = function(annotation) {
+    
   }
   
   return AnnotationLayer;
