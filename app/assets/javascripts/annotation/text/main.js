@@ -393,8 +393,8 @@ recogito.TextAnnotationUI.REST = { }
 
 recogito.TextAnnotationUI.REST.createAnnotation = function(toponym, span, offset, gdocId, gdocPartId, source) {
   var data = (gdocPartId) ? 
-    '{ "gdocPartId": ' + gdocPartId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }' :
-    '{ "gdocId": ' + gdocId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }';
+    '{ "gdoc_part_id": ' + gdocPartId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }' :
+    '{ "gdoc_id": ' + gdocId + ', "corrected_toponym": "' + toponym + '", "corrected_offset": ' + offset + ' }';
     
   if (source) {
     var json = JSON.parse(data);
