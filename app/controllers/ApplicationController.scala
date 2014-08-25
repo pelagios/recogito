@@ -126,14 +126,9 @@ object ApplicationController extends Controller with Secured with CTSClient {
       val texts = gdoc.map(doc => GeoDocumentContent.findByGeoDocument(doc.id.get)).getOrElse(Seq.empty[(GeoDocumentText, Option[String])])     
       val html = buildHTML(somePlaintext.get, someAnnotations.get)
       
-      val totalSignOffs = 
-        if (gdocPart.isDefined)
-          SignOffs.countForGeoDocumentPart(gdocPart.get.id.get) 
-        else if (gdoc.isDefined)
-          SignOffs.countForGeoDocument(gdoc.get.id.get)
-        else 
-          0 // Sign-offs for remote TEI texts are not supported
-      
+      val signOffs = someGDocText.map(text => SignOffs.findForGeoDocumentText(text.id.get).map(_._1))
+        .getOrElse(Seq.empty[String])
+        
       Ok(views.html.annotation_text(
           gdoc,
           gdoc.map(gdoc => GeoDocumentContent.findByGeoDocument(gdoc.id.get)).getOrElse(Seq.empty[(GeoDocumentText, Option[String])]), 
@@ -141,8 +136,8 @@ object ApplicationController extends Controller with Secured with CTSClient {
           gdocPart, 
           html, 
           ctsURI,
-          false,
-          totalSignOffs))
+          signOffs.contains(username),
+          signOffs.size))
     } else {
       NotFound(Json.parse("{ \"success\": false, \"message\": \"Annotation not found\" }")) 
     }
