@@ -112,6 +112,11 @@ object Global extends GlobalSettings {
         CollectionMemberships.create
       }
       
+      if (MTable.getTables("signoffs").list().isEmpty) {
+        Logger.info("SignOffs DB table does not exist - creating")
+        SignOffs.create
+      }
+      
       if (MTable.getTables("annotations").list().isEmpty) {
         Logger.info("Annotations DB table does not exist - creating")
         Annotations.create
