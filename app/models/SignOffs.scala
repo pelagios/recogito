@@ -34,5 +34,11 @@ object SignOffs {
   
   def create()(implicit s: Session) = query.ddl.create
   
+  def countForGeoDocument(id: Int)(implicit s: Session): Int =
+    Query(query.where(_.gdocId === id).length).first
+  
+  def countForGeoDocumentPart(id: Int)(implicit s: Session): Int =
+    Query(query.where(_.gdocPartId === id).length).first
+  
 }
 

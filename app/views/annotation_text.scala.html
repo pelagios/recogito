@@ -1,4 +1,4 @@
-@(doc: Option[GeoDocument], texts: Seq[(GeoDocumentContent, Option[String])], username: String, part: Option[GeoDocumentPart], textHTML: String, source: Option[String])
+@(doc: Option[GeoDocument], texts: Seq[(GeoDocumentContent, Option[String])], username: String, part: Option[GeoDocumentPart], textHTML: String, source: Option[String], signedOff: Boolean, totalSignOffs: Int)
 <!DOCTYPE html>
 <html>
   <head>
@@ -64,7 +64,16 @@
         
         <div class="tool rocket-annotation" title="Quick Toponym Annotation (No Confirmation Dialog)">
           <span class="icon">&#xf135;</span>
-        </div>   
+        </div> 
+        
+        <div class="tool signoff">
+          @if(signedOff) {
+            <span class="icon signed" title="You signed off this text">&#xf164;</span>
+          } else {
+            <span class="icon" title="Do you think this text is complete? Click to sign it off!">&#xf164;</span>
+          }
+          <span class="signoff-count" title="@totalSignOffs people have signed off this text">@totalSignOffs</span>
+        </div>  
       </div>
     </div>   
     
