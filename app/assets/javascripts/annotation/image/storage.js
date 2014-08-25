@@ -7,7 +7,7 @@ define(['config'], function(config) {
   var Storage = function() {
   };
   
-  Storage.prototype.create = function(annotation) {
+  Storage.prototype.create = function(annotation, successCallback) {
     annotation.gdoc_id = GDOC_ID;
     
     if (GDOC_PART_ID)
@@ -21,6 +21,7 @@ define(['config'], function(config) {
       success: function(response) {
         annotation.id = response.id;
         annotation.last_edit = response.last_edit;
+        successCallback(annotation);
       }
     });
   }

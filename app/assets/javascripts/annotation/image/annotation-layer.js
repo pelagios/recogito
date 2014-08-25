@@ -1,9 +1,9 @@
 define(['config', 'annotation/image/tooltip', 'annotation/image/editor'], function(config, Tooltip, Editor) {
   
-  var map,                     // the map
-      layer,                   // the map layer
-      annotations = [],        // the annotations
-      currentHighlight = false, // currently highlighted annotation (if any)
+  var map,                        // the map
+      layer,                      // the map layer
+      annotations = new Object(), // the annotations
+      currentHighlight = false,   // currently highlighted annotation (if any)
       tooltip,
       editor,
       TWO_PI = 2 * Math.PI; 
@@ -50,9 +50,9 @@ define(['config', 'annotation/image/tooltip', 'annotation/image/editor'], functi
       ctx.closePath();      
     };
 
-    $.each(annotations, function(idx, annotation) {  
-      draw(annotation);
-    });
+    for (var id in annotations) {
+      draw(annotations[id]);
+    }
     
     if (currentHighlight) {
       ctx.fillStyle = config.MARKER_HI_COLOR;
@@ -80,12 +80,14 @@ define(['config', 'annotation/image/tooltip', 'annotation/image/editor'], functi
     map.on('pointermove', function(e) {
       var maxDistance = map.getResolution() * 10;
       
-      var hovered = $.grep(annotations, function(annotation) {
-        var geometry = annotation.shapes[0].geometry;
+      var hovered = [];
+      for (var id in annotations) {
+        var geometry = annotations[id].shapes[0].geometry;
         var dx = Math.abs(e.coordinate[0] - geometry.x);
         var dy = Math.abs(e.coordinate[1] + geometry.y);        
-        return (dx < maxDistance && dy < maxDistance);
-      });
+        if (dx < maxDistance && dy < maxDistance)
+          hovered.push(annotations[id]);
+      }
       
       if (hovered.length > 0) {
         if (currentHighlight) {
@@ -113,12 +115,17 @@ define(['config', 'annotation/image/tooltip', 'annotation/image/editor'], functi
   AnnotationLayer.prototype.addAnnotations = function(a) {
     if ($.isArray(a)) {
       $.each(a, function(idx, annotation) {
-        annotations.push(annotation);
+        annotations[annotation.id] = annotation;
       });
     } else {
-      annotations.push(a);
+      annotations[a.id] = a;
     }
     
+    layer.getSource().dispatchChangeEvent();
+  }
+  
+  AnnotationLayer.prototype.removeAnnotation = function(id) {
+    delete annotations[id];
     layer.getSource().dispatchChangeEvent();
   }
   

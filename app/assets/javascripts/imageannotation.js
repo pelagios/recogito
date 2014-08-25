@@ -39,8 +39,9 @@ require(['annotation/image/ol-map', 'annotation/image/drawing-canvas', 'annotati
   });
       
   drawingCanvas.on('annotationCreated', function(annotation) { 
-    map.addAnnotations(annotation);
-    storage.create(annotation);
+    storage.create(annotation, function(annotation) {
+      map.addAnnotations(annotation);
+    });    
   });
   
   var annotations = storage.loadAll(function(annotations) {

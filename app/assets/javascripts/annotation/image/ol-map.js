@@ -62,6 +62,10 @@ define(['config', 'annotation/image/annotation-layer'], function(config, Annotat
     annotationLayer.addAnnotations(annotation);  
   }
   
+  OpenLayersMap.prototype.removeAnnotation = function(id) {
+    annotationLayer.removeAnnotation(id);
+  }
+  
   return OpenLayersMap;
   
 });
