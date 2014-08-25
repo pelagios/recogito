@@ -1,4 +1,4 @@
-define(['annotation/image/utils'], function(Utils) {
+define(['config', 'annotation/image/utils'], function(config, Utils) {
   
   var map, element,
       top, middle, left, right, bottom,
@@ -38,7 +38,21 @@ define(['annotation/image/utils'], function(Utils) {
     controls = element.find('.editor-controls');
 
     controls.find('.ok').click(function() {
-      // TODO
+      var transcription = controls.find('input').val(); 
+            
+      var data = (config.gdoc_part_id) ? 
+        '{ "gdoc_part_d": ' + config.gdoc_part_id + ', "corrected_toponym": "' + transcription + '" }' :
+        '{ "gdoc_id": ' + config.gdoc_id + ', "corrected_toponym": "' + transcription + '" }';
+    
+      $.ajax({
+        url: '/recogito/api/annotations/' + currentAnnotation.id,
+        type: 'PUT',
+        data: data,
+        contentType : 'application/json',
+        error: function(result) {
+          console.log('ERROR updating annotation!');
+        }
+      });  
     });
 
     controls.find('.delete').click(function() {
@@ -64,20 +78,22 @@ define(['annotation/image/utils'], function(Utils) {
   
   Editor.prototype.show = function(annotation) {
     currentAnnotation = annotation;
-    var bounds = map.toViewportCoordinates(Utils.getBounds(annotation), 50);   
-  
-    top.height(bounds.top);
-    middle.height(bounds.height);
-    left.width(bounds.left);
+    setTimeout(function() {
+      var bounds = map.toViewportCoordinates(Utils.getBounds(annotation), 50);   
+      
+      top.height(bounds.top);
+      middle.height(bounds.height);
+      left.width(bounds.left);
     
-    window.width(bounds.width);
+      window.width(bounds.width);
     
-    right.css('left', (bounds.left + bounds.width) + 'px');
-    bottom.css('top', (bounds.top + bounds.height) + 'px');
+      right.css('left', (bounds.left + bounds.width) + 'px');
+      bottom.css('top', (bounds.top + bounds.height) + 'px');
 
-    controls.css({ left: bounds.left + 'px', top: (bounds.top + bounds.height) + 'px' });
+      controls.css({ left: bounds.left + 'px', top: (bounds.top + bounds.height) + 'px' });
   
-    element.show();   
+      element.show();   
+    }, 1);
   }
   
   Editor.prototype.hide = function() {

@@ -1,4 +1,4 @@
-define(['config', 'annotation/image/tooltip', 'annotation/image/editor'], function(config, Tooltip, Editor) {
+define(['config', 'annotation/image/tooltip', 'annotation/image/editor', 'annotation/image/utils'], function(config, Tooltip, Editor, Utils) {
   
   var map,                        // the map
       layer,                      // the map layer
@@ -64,6 +64,8 @@ define(['config', 'annotation/image/tooltip', 'annotation/image/editor'], functi
   }
   
   var AnnotationLayer = function(olMap) {
+    var self = this;
+    
     map = olMap;
     tooltip = new Tooltip();
     editor = new Editor(map);
@@ -107,8 +109,10 @@ define(['config', 'annotation/image/tooltip', 'annotation/image/editor'], functi
     /** THIS IS A TEMPORARY HACK ONLY **/
     
     map.on('singleclick', function(e) {
-      if (currentHighlight)
+      if (currentHighlight) {
+        self.moveTo(currentHighlight);
         editor.show(currentHighlight);
+      }
     });
   }
   
@@ -129,12 +133,20 @@ define(['config', 'annotation/image/tooltip', 'annotation/image/editor'], functi
     layer.getSource().dispatchChangeEvent();
   }
   
-  AnnotationLayer.prototype.getBounds = function(annotation) {
-    
-  }
-  
   AnnotationLayer.prototype.moveTo = function(annotation) {
+    var bounds = Utils.getBounds(annotation);
     
+    var extent = [
+      bounds.left ,
+      - bounds.top,
+      bounds.left + bounds.width,
+      bounds.height - bounds.top
+    ];
+    
+    var size = map.map.getSize();
+    size = [size[0] / 2, size[1] / 2];
+
+    map.map.getView().fitExtent(extent, size);
   }
   
   return AnnotationLayer;
