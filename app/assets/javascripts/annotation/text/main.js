@@ -76,7 +76,8 @@ recogito.TextAnnotationUI = function(textDiv, textId, gdocId, opt_gdocPartId, op
         } else {
           icon.removeClass('signed');
           icon.attr('title', 'Do you think this text is complete? Click to sign it off!');
-          counter.removeClass('signed');
+          if (count < 2)
+            counter.removeClass('signed');
           counter.html(count - 1);
           counter.attr('title', (count - 1) + ' people have signed off this text');          
         }

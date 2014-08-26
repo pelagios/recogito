@@ -80,7 +80,7 @@
             <span class="signoff-count signed" title="@totalSignOffs people have signed off this text">@totalSignOffs</span>
           } else {
             <span class="icon" title="Do you think this text is complete? Click to sign it off!">&#xf164;</span>
-            <span class="signoff-count" title="@totalSignOffs people have signed off this text">@totalSignOffs</span>
+            <span class="signoff-count@{ if (totalSignOffs > 0)  " signed"}" title="@totalSignOffs people have signed off this text">@totalSignOffs</span>
           }
         </div>  
       </div>
