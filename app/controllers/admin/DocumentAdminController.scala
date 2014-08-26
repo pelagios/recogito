@@ -107,14 +107,14 @@ object DocumentAdminController extends Controller with Secured {
   /** Edit an existing document in the UI form **/
   def editDocument(id: Int) = DBAction { implicit session =>
     GeoDocuments.findById(id).map { doc =>
-      Ok(views.html.admin.edit_document_details(id, documentForm.fill(doc)))
+      Ok(views.html.admin.documentDetails(id, documentForm.fill(doc)))
     }.getOrElse(NotFound)
   }
   
   /** Save a document from the UI form **/
   def updateDocument(id: Int) = protectedDBAction(Secure.REJECT) { implicit username => implicit session =>
     documentForm.bindFromRequest.fold(
-      formWithErrors => BadRequest(views.html.admin.edit_document_details(id, formWithErrors)),
+      formWithErrors => BadRequest(views.html.admin.documentDetails(id, formWithErrors)),
       document => {
         // Update the document
         GeoDocuments.update(document)

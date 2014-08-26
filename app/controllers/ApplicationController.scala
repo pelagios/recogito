@@ -82,7 +82,7 @@ object ApplicationController extends Controller with Secured with CTSClient {
       if (currentUser.isDefined && isAuthorized)      
         Ok(views.html.index(groupedDocs, docsPerCollection, collection.get, EditHistory.listHighscores(5), currentUser.get))
       else 
-        Ok(views.html.public_index(groupedDocs, docsPerCollection, EditHistory.listHighscores(5), collection.get))
+        Ok(views.html.publicIndex(groupedDocs, docsPerCollection, EditHistory.listHighscores(5), collection.get))
     }
   }
    
@@ -93,7 +93,7 @@ object ApplicationController extends Controller with Secured with CTSClient {
   def showMap(doc: Int) = DBAction { implicit rs =>
     val document = GeoDocuments.findById(doc)
     if (document.isDefined)
-      Ok(views.html.public_map(document.get))
+      Ok(views.html.publicMap(document.get))
     else
       NotFound
   }
@@ -129,7 +129,7 @@ object ApplicationController extends Controller with Secured with CTSClient {
       val signOffs = someGDocText.map(text => SignOffs.findForGeoDocumentText(text.id.get).map(_._1))
         .getOrElse(Seq.empty[String])
 
-      Ok(views.html.annotation_text(
+      Ok(views.html.textAnnotation(
           someGDocText,
           gdoc,
           gdocPart,
@@ -211,7 +211,7 @@ object ApplicationController extends Controller with Secured with CTSClient {
     val gdocImage = GeoDocumentImages.findById(imageId)
     if (gdocImage.isDefined) {
       val gdoc = GeoDocuments.findById(gdocImage.get.gdocId)
-      Ok(views.html.annotation_image(gdoc.get, gdocImage.get, username))
+      Ok(views.html.imageAnnotation(gdoc.get, gdocImage.get, username))
     } else {
       NotFound
     }
@@ -224,7 +224,7 @@ object ApplicationController extends Controller with Secured with CTSClient {
   def showGeoResolutionUI(docId: Int) = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit session => 
     val doc = GeoDocuments.findById(docId)
     if (doc.isDefined)
-      Ok(views.html.georesolution(doc.get, GeoDocumentContent.findByGeoDocument(docId), username))
+      Ok(views.html.geoResolution(doc.get, GeoDocumentContent.findByGeoDocument(docId), username))
     else
       NotFound
   }

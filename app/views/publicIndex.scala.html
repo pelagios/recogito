@@ -1,7 +1,5 @@
 @(documents: Seq[(Option[String], Seq[DocumentIndexRow])], collections: Seq[(String, Int)], scores: Seq[(User, Int)], currentCollection: String)(implicit request: RequestHeader)
 
-@import tags.lang
-
 <html>
   <head>
     <title>RECOGITO</title>
@@ -26,7 +24,7 @@
   </head>
   
   <body>
-    @tags.browser_warning()
+    @tags.browserWarning()
     <div id="header">
       <div id="header-top">
         <div id="title">
@@ -98,7 +96,7 @@
           </td>
 
           <!-- languages -->                
-          <td class="center">@lang(entry.doc.language)</td>
+          <td class="center">@tags.languageLabel(entry.doc.language)</td>
                 
           <!-- # of toponyms -->
           <td class="center">@entry.stats.total</td>     

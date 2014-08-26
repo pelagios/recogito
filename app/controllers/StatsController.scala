@@ -15,7 +15,7 @@ object StatsController extends Controller with Secured {
     if (user.isDefined) {
       val numberOfEdits = EditHistory.countForUser(username)
       val numberOfEditsPerDocument = EditHistory.countForUserPerDocument(username)
-      Ok(views.html.stats.user_stats(user.get, numberOfEdits, numberOfEditsPerDocument))
+      Ok(views.html.stats.userStats(user.get, numberOfEdits, numberOfEditsPerDocument))
     } else {
       NotFound
     } 
@@ -31,7 +31,7 @@ object StatsController extends Controller with Secured {
       val unidentifiedToponyms = Annotations.getUnidentifiableToponyms(id)
       val placeStats = Annotations.getPlaceStats(id)
       val userStats = Annotations.getContributorStats(id)
-      Ok(views.html.stats.document_stats(doc.get, GeoDocumentContent.findByGeoDocument(docId), completionStats, autoAnnotationStats, userStats, unidentifiedToponyms, placeStats, currentUser.map(_.username)))
+      Ok(views.html.stats.documentStats(doc.get, GeoDocumentContent.findByGeoDocument(docId), completionStats, autoAnnotationStats, userStats, unidentifiedToponyms, placeStats, currentUser.map(_.username)))
     } else {
       NotFound
     }
@@ -70,7 +70,7 @@ object StatsController extends Controller with Secured {
     val eventsWithDocuments: Seq[(EditEvent, Option[GeoDocument])] =
       editHistory.map { case (event, gdocId) => (event, gdocId.flatMap(id => gdocs.find(_.id.get == id))) }
     
-    Ok(views.html.stats.stats(activityTimeline, scores, eventsWithDocuments))
+    Ok(views.html.stats.globalStats(activityTimeline, scores, eventsWithDocuments))
   }
 
 }

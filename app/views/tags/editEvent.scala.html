@@ -14,7 +14,7 @@
       }
     } else { @if(event.statusChange.isDefined) {
       @event.statusChange.get._1 match {
-        case Some(oldStatus) => { Status from @tags.status(oldStatus) to @tags.status(event.statusChange.get._2) }
+        case Some(oldStatus) => { Status from @tags.annotationStatus(oldStatus) to @tags.annotationStatus(event.statusChange.get._2) }
         case None => { Status to @event.statusChange.get._2 }
       }
     }}}

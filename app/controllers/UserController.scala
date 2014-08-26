@@ -24,12 +24,12 @@ object UserController extends Controller with Secured {
   )
   
   def changePassword = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit session =>
-    Ok(views.html.user_settings(changePasswordForm))
+    Ok(views.html.changePassword(changePasswordForm))
   }
   
   def processChangePassword = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit session => 
     changePasswordForm.bindFromRequest.fold(
-      formWithErrors => BadRequest(views.html.user_settings(formWithErrors)),
+      formWithErrors => BadRequest(views.html.changePassword(formWithErrors)),
       data => DB.withSession { s: Session =>
         val user = Users.findByUsername(username)(s)
         val valid = 
