@@ -101,28 +101,15 @@ object DocumentController extends Controller with Secured {
     Ok(JSONSerializer.toJson(doc, true))
     
   def signOff(textId: Option[Int], imageId: Option[Int]) = protectedDBAction(Secure.REJECT) { username => implicit request =>
-    if (textId.isEmpty && imageId.isEmpty) {
-      NotFound
-    } else {
-      val currentSignOffStatus = 
-        if (textId.isDefined)
-          SignOff
-    }
-      
-    /*
-    val currentStatus = if (textId.)
-    if (textId.isDefined || imageId.isDefined) {
-      
-      
-      SignOffs.signOffText(textId.get, username)
-      Ok(Json.parse("{ \"success\": true }"))
+    if (textId.isDefined) {
+      val newStatus = SignOffs.toggleStatusForText(textId.get, username)
+      Ok(Json.parse("{ \"success\": true, \"signed_off\": " + newStatus + " }"))
     } else if (imageId.isDefined) {
-      SignOffs.signOffImage(imageId.get, username)
-      Ok(Json.parse("{ \"success\": true }"))
-   } else {
+      val newStatus = SignOffs.toggleStatusForImage(imageId.get, username)
+      Ok(Json.parse("{ \"success\": true, \"signed_off\": " + newStatus + " }"))
+    } else {
       NotFound
     }
-    */
   }
   
 }

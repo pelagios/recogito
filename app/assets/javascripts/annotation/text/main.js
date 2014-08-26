@@ -64,13 +64,22 @@ recogito.TextAnnotationUI = function(textDiv, textId, gdocId, opt_gdocPartId, op
     recogito.TextAnnotationUI.REST.signOff(textId, function(result) {
       if (result.success) {
         var icon = toolSignOff.find('.icon');
-        icon.addClass('signed');
-        icon.attr('title', 'You signed off this text');
+        var counter = toolSignOff.find('.signoff-count');
+        var count = parseInt(counter.text());
         
-        var count = toolSignOff.find('.signoff-count');
-        count.addClass('signed');
-        count.html(parseInt(count.text()) + 1);
-        count.attr('title', (parseInt(count.text()) + 1) + ' people have signed off this text');
+        if (result.signed_off) {
+          icon.addClass('signed');
+          icon.attr('title', 'You signed off this text');
+          counter.addClass('signed');
+          counter.html(count + 1);
+          counter.attr('title', (count + 1) + ' people have signed off this text');
+        } else {
+          icon.removeClass('signed');
+          icon.attr('title', 'Do you think this text is complete? Click to sign it off!');
+          counter.removeClass('signed');
+          counter.html(count - 1);
+          counter.attr('title', (count - 1) + ' people have signed off this text');          
+        }
       }
     });
   });

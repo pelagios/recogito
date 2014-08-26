@@ -47,11 +47,35 @@ object SignOffs {
   def findForGeoDocumentImage(id: Int)(implicit s: Session): Seq[(String, Timestamp)] =
     query.where(_.gdocImageId === id).map(row => (row.username, row.timestamp)).list
     
-  def toggleStatusForText(id: Int, username: String)(implicit s: Session) = 
-    query.insert(SignOff(None, Some(id), None, username, new Timestamp(System.currentTimeMillis)))
+  def toggleStatusForText(id: Int, username: String)(implicit s: Session) = {
+    val q = query.where(_.gdocTextId === id).filter(_.username === username)
+    q.firstOption match {
+      case Some(signoff) => {
+        q.delete
+        false
+      }
+      
+      case None => {
+        query.insert(SignOff(None, Some(id), None, username, new Timestamp(System.currentTimeMillis)))
+        true
+      }
+    }
+  }
     
-  def toggleStatusForImage(id: Int, username: String)(implicit s: Session) =
-    query.insert(SignOff(None, None, Some(id), username, new Timestamp(System.currentTimeMillis)))
+  def toggleStatusForImage(id: Int, username: String)(implicit s: Session) = {
+    val q = query.where(_.gdocImageId === id).filter(_.username === username)
+    q.firstOption match {
+      case Some(signoff) => {
+        q.delete
+        false
+      }
+      
+      case None => {
+        query.insert(SignOff(None, None, Some(id), username, new Timestamp(System.currentTimeMillis)))
+        true
+      }
+    }
+  }
   
 }
 
