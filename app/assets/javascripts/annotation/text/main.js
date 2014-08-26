@@ -7,7 +7,7 @@ var recogito = (window.recogito) ? window.recogito : { };
  * @param {Number} gdocId the DB id of the document the text belongs to
  * @param {Number} opt_gdocPartId the DB id of the document part the text belongs to (if any)
  */
-recogito.TextAnnotationUI = function(textDiv, gdocId, opt_gdocPartId, opt_source) { 
+recogito.TextAnnotationUI = function(textDiv, textId, gdocId, opt_gdocPartId, opt_source) { 
   var self = this,
       getId = function(node) { return $(node).data('id'); };
    
@@ -45,7 +45,8 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, opt_gdocPartId, opt_source
   
   // Toolbar
   var toolNormalAnnotation = $('.normal-annotation'),
-      toolRocketAnnotation = $('.rocket-annotation');
+      toolRocketAnnotation = $('.rocket-annotation'),
+      toolSignOff = $('.signoff');
       
   toolNormalAnnotation.click(function(e) {
     self._powerUserMode = false;
@@ -57,6 +58,21 @@ recogito.TextAnnotationUI = function(textDiv, gdocId, opt_gdocPartId, opt_source
     self._powerUserMode = true;  
     toolNormalAnnotation.removeClass('selected');
     toolRocketAnnotation.addClass('selected');
+  });
+  
+  toolSignOff.click(function(e) {
+    recogito.TextAnnotationUI.REST.signOff(textId, function(result) {
+      if (result.success) {
+        var icon = toolSignOff.find('.icon');
+        icon.addClass('signed');
+        icon.attr('title', 'You signed off this text');
+        
+        var count = toolSignOff.find('.signoff-count');
+        count.addClass('signed');
+        count.html(parseInt(count.text()) + 1);
+        count.attr('title', (parseInt(count.text()) + 1) + ' people have signed off this text');
+      }
+    });
   });
   
   rangy.init();
@@ -443,4 +459,15 @@ recogito.TextAnnotationUI.REST.deleteAnnotation = function(id, opt_callback) {
       console.log('ERROR deleting annotation!');
     }
   });    
+}
+
+recogito.TextAnnotationUI.REST.signOff = function(textId, success_callback) {
+  $.ajax({
+    url: '../api/documents/signoff?textId=' + textId,
+    type: 'POST',
+    success: success_callback,
+    error: function(result) {
+      console.log('ERROR signing off text!');
+    }
+  });      
 }

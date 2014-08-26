@@ -8,34 +8,33 @@
 
   .signoff {
     position:relative;
-  }
-
-  .signed {
-    color:#329532;
-  }
   
-  .signoff-count {
-    display:block;
-    position:absolute;
-    top:30px;
-    left:23px;
-    font-size:10px;
-    font-weight:bold;
-    padding:2px 1px 1px 1px;
-    color:#fff;
-    background-color:#cfcfcf;
-    border:2px solid #fff;
-    .rounded-corners(4px);
-    width:12px;
-  }
+    .signoff-count {
+      display:block;
+      position:absolute;
+      top:30px;
+      left:23px;
+      font-size:10px;
+      font-weight:bold;
+      padding:2px 1px 1px 1px;
+      color:#fff;
+      background-color:#cfcfcf;
+      border:2px solid #fff;
+      .rounded-corners(4px);
+      width:12px;
+    }
   
-  .signed .signoff-count {
-    background-color:#59ac59;
-  }
+    .icon.signed {
+      color:#86c286;
+      /* color:#419f41;  hover! */
+    }
+    
+    .signoff-count.signed {
+      background-color:#98ce98;
+      /* background-color:#5db35d; hover! */
+    }
   
-  .signoff:hover .signoff-count {
-    background-color:#7f7f7f;
-  }
+  } /* .signoff */
 
 }
 

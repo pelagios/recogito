@@ -99,5 +99,30 @@ object DocumentController extends Controller with Secured {
       
   private def get_JSON(doc: GeoDocument)(implicit s: Session) =
     Ok(JSONSerializer.toJson(doc, true))
+    
+  def signOff(textId: Option[Int], imageId: Option[Int]) = protectedDBAction(Secure.REJECT) { username => implicit request =>
+    if (textId.isEmpty && imageId.isEmpty) {
+      NotFound
+    } else {
+      val currentSignOffStatus = 
+        if (textId.isDefined)
+          SignOff
+    }
+      
+    /*
+    val currentStatus = if (textId.)
+    if (textId.isDefined || imageId.isDefined) {
+      
+      
+      SignOffs.signOffText(textId.get, username)
+      Ok(Json.parse("{ \"success\": true }"))
+    } else if (imageId.isDefined) {
+      SignOffs.signOffImage(imageId.get, username)
+      Ok(Json.parse("{ \"success\": true }"))
+   } else {
+      NotFound
+    }
+    */
+  }
   
 }
