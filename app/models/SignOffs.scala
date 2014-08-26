@@ -23,9 +23,11 @@ class SignOffs(tag: Tag) extends Table[SignOff](tag, "signoffs") {
   
   /** Foreign key constraints **/
   
-  def gdocTextFk = foreignKey("gdoc_texgt_fk", gdocTextId, TableQuery[GeoDocumentTexts])(_.id)
+  def gdocTextFk = foreignKey("gdoc_text_fk", gdocTextId, TableQuery[GeoDocumentTexts])(_.id)
   
-  def gdocImageFk = foreignKey("gdoc_part_fk", gdocImageId, TableQuery[GeoDocumentImages])(_.id)
+  def gdocImageFk = foreignKey("gdoc_image_fk", gdocImageId, TableQuery[GeoDocumentImages])(_.id)
+  
+  def userFk = foreignKey("user_fk", username, TableQuery[Users])(_.username)
   
 }
 

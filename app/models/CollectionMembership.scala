@@ -20,6 +20,7 @@ class CollectionMemberships(tag: Tag) extends Table[CollectionMembership](tag, "
   
   def * = (id.?, gdocId, collection) <> (CollectionMembership.tupled, CollectionMembership.unapply)
   
+  /** Foreign key constraints **/
   def gdocFk = foreignKey("gdoc_fk", gdocId, TableQuery[GeoDocuments])(_.id)
 
 }
@@ -54,10 +55,11 @@ object CollectionMemberships {
   /** Returns the IDs of the documents in the specified collection **/
   def getGeoDocumentsInCollection(collection: String)(implicit s: Session): Seq[Int] =
     query.where(_.collection.toLowerCase === collection.toLowerCase).map(_.gdocId).list
-        
+     
+  /** Helper method that returns IDs of all documents that are not assigned to any collection **/
   def getUnassignedGeoDocuments()(implicit s: Session): Seq[Int] = {
-    val docsInCollections = query.map(_.gdocId).list.distinct
-    GeoDocuments.findAllExcept(docsInCollections)
+    val allGDocsInCollections = query.groupBy(_.gdocId).map(_._1).list.distinct
+    GeoDocuments.query.map(_.id).filter(id => !(id inSet allGDocsInCollections)).list 
   }
     
 }

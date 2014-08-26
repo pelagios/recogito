@@ -3,6 +3,7 @@ package models.stats
 import org.pelagios.api.gazetteer.Place
 import org.pelagios.api.gazetteer.PlaceCategory
 
+/** Wrapper/utility case class for packaging place & toponym statistics **/
 case class PlaceStats(uniquePlaces: Seq[(Place, Int, Seq[(String, Int)])]) {
 
   lazy val uniquePlaceCategories: Seq[(Option[PlaceCategory.Category], Int)] = {    

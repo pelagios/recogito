@@ -127,14 +127,5 @@ object GeoDocuments {
     
   def delete(id: Int)(implicit s: Session) =
     query.where(_.id === id).delete
-    
-  /** Helper method to find all IDs except those provided as argument.
-    *
-    * This method is used by the CollectionMembership class to determine
-    * documents that are not assigned to a collection. To avoid confusion,
-    * the method is not exposed outside of this package.  
-    */
-  private[models] def findAllExcept(ids: Seq[Int])(implicit s: Session): Seq[Int] =
-    query.map(_.id).filter(id => !(id inSet ids)).list 
   
 }

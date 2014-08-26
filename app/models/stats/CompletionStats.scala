@@ -2,6 +2,7 @@ package models.stats
 
 import models.AnnotationStatus
 
+/** Wrapper/utility case class for packaging completion stats **/
 case class CompletionStats(stats: Map[AnnotationStatus.Value, Int]) {
   
   import AnnotationStatus._

@@ -25,6 +25,7 @@ class GeoDocumentParts(tag: Tag) extends Table[GeoDocumentPart](tag, "gdocument_
   
   def * = (id.?, gdocId, title, source.?) <> (GeoDocumentPart.tupled, GeoDocumentPart.unapply)
   
+  /** Foreign key constraints **/
   def gdoc = foreignKey("gdoc_fk", gdocId, TableQuery[GeoDocuments])(_.id)
 
 }
@@ -38,9 +39,8 @@ object GeoDocumentParts {
   def insert(geoDocumentPart: GeoDocumentPart)(implicit s: Session) =
     query returning query.map(_.id) += geoDocumentPart
 
-  def findById(id: Int)(implicit s: Session): Option[GeoDocumentPart] = {
+  def findById(id: Int)(implicit s: Session): Option[GeoDocumentPart] =
     query.where(_.id === id).firstOption
-  } 
     
   def findByGeoDocument(id: Int)(implicit s: Session): Seq[GeoDocumentPart] =
     query.where(_.gdocId === id).list

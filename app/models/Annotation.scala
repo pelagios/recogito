@@ -119,7 +119,13 @@ class Annotations(tag: Tag) extends Table[Annotation](tag, "annotations") with H
   
   def * = (uuid, gdocId.?, gdocPartId.?, status, toponym.?, offset.?, anchor.?, gazetteerURI.?, correctedToponym.?, 
     correctedOffset.?, correctedAnchor.?, correctedGazetteerURI.?, tags.?, comment.?, source.?, _seeAlso.?) <> (Annotation.tupled, Annotation.unapply)
+  
+  /** Foreign key constraints **/
+  def gdocFk = foreignKey("gdoc_fk", gdocId, TableQuery[GeoDocuments])(_.id)
+  
+  def gdocPartFk = foreignKey("gdoc_part_fk", gdocPartId, TableQuery[GeoDocumentParts])(_.id)
     
+  /** Indices **/
   def idx_gdocId = index("idx_gdoc", gdocId, unique = false)
     
 }
@@ -150,8 +156,6 @@ object Annotations extends HasStatusColumn {
   def delete(uuid: UUID)(implicit s: Session) = 
     query.where(_.uuid === uuid.bind).delete
     
-    
-    
   /** Retrieve all annotations on a specific GeoDocument **/
   def findByGeoDocument(id: Int)(implicit s: Session): Seq[Annotation] =
     query.where(_.gdocId === id).list.sortBy(sortByOffset)      
@@ -167,8 +171,6 @@ object Annotations extends HasStatusColumn {
   /** Delete all annotations on a specific GeoDocument **/
   def deleteForGeoDocument(id: Int)(implicit s: Session) =
     query.where(_.gdocId === id).delete
-    
-    
   
   /** Retrieve all annotations for a specific source URI **/
   def findBySource(source: String)(implicit s: Session): Seq[Annotation] =
@@ -182,8 +184,6 @@ object Annotations extends HasStatusColumn {
   def countForGeoDocumentAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Int =
     Query(query.where(_.gdocId === id).filter(_.status inSet status).length).first
     
-    
-    
   /** Retrieve all annotations on a specific GeoDocumentPart **/    
   def findByGeoDocumentPart(id: Int)(implicit s: Session): Seq[Annotation] =
     query.where(_.gdocPartId === id).list.sortBy(sortByOffset)
@@ -191,9 +191,7 @@ object Annotations extends HasStatusColumn {
   /** Count all annotations on a specific GeoDocumentPart **/
   def countForGeoDocumentPart(id: Int)(implicit s: Session): Int =
     Query(query.where(_.gdocPartId === id).length).first
-    
-  
-    
+     
   /** Retrieve all annotations on a specific GeoDocumentPart that have (a) specific status(es) **/
   def findByGeoDocumentPartAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Seq[Annotation] =
     query.where(_.gdocPartId === id).filter(_.status inSet status).list.sortBy(sortByOffset)
@@ -201,8 +199,6 @@ object Annotations extends HasStatusColumn {
   /** Count all annotations on a specific GeoDocumentPart that have (a) specific status(es) **/
   def countForGeoDocumentPartAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Int =
     Query(query.where(_.gdocPartId === id).filter(_.status inSet status).length).first
-    
-    
     
   /** Helper method to retrieve annotations that overlap the specified annotation **/
   def getOverlappingAnnotations(annotation: Annotation)(implicit s: Session) = {
@@ -233,6 +229,7 @@ object Annotations extends HasStatusColumn {
     }
   }
   
+  /** Get completion stats (based on distribution of status values) of for a list of geo documents **/
   def getCompletionStats(gdocIds: Seq[Int])(implicit s: Session): Map[Int, CompletionStats] = {
     val q = for {
       (gdocId, status, numberOfAnnotations) <- query.where(_.gdocId inSet gdocIds)
@@ -244,6 +241,7 @@ object Annotations extends HasStatusColumn {
       (gdocId, CompletionStats(statusDistribution.map(t => (t._2, t._3)).toMap))}
   }
   
+  /** Get place stats (based on annotation status and gazetteer URI) for a GeoDocument **/
   def getPlaceStats(gdocId: Int)(implicit s: Session): PlaceStats = {
     val q = for {
       ((gazetteerURI, toponym), count) <- query.where(_.gdocId === gdocId)
@@ -263,6 +261,7 @@ object Annotations extends HasStatusColumn {
     PlaceStats(places.filter(_._1.isDefined).map(t => (t._1.get, t._2, t._3)))
   }
   
+  /** Get contributor stats (based on annotations and associated edit events) for a GeoDocument **/
   def getContributorStats(gdocId: Int)(implicit s: Session): Seq[(String, Int)] =
     query.where(_.gdocId === gdocId)
               .map(_.uuid)
@@ -272,6 +271,7 @@ object Annotations extends HasStatusColumn {
               .sortBy(_._2.desc)
               .list
  
+  /** Get stats on 'yellow-flagged' toponyms in a GeoDocument **/ 
   def getUnidentifiableToponyms(gdocId: Int)(implicit s: Session): Seq[(String, Seq[(AnnotationStatus.Value, Int)])] = {
     import models.AnnotationStatus._
     val q = query.where(_.gdocId === gdocId)
@@ -285,12 +285,11 @@ object Annotations extends HasStatusColumn {
           .toSeq
           .sortBy(t => - t._2.foldLeft(0)(_ + _._2))
   }
-              
+       
+  /** Get stats on the performance of automated annotation (wrapper around three sub-queries!) **/
   def getAutoAnnotationStats(gdocId: Int)(implicit s: Session): AutoAnnotationStats =
     AutoAnnotationStats(getNERPrecision(gdocId), getNERRecall(gdocId), 
                         getGeoResolutionPrecision(gdocId), getGeoResolutionRecall(gdocId))
-  
-  def newUUID: UUID = UUID.randomUUID
  
   /** The fraction of valid toponyms that were found by the NER **/ 
   private def getNERRecall(gdocId: Int)(implicit s: Session): Double = {
@@ -348,5 +347,8 @@ object Annotations extends HasStatusColumn {
 
     correctAutoMatches.toDouble / allAutoMatches
   }
+
+  /** Helper to retrieve a random UUID **/
+  def newUUID: UUID = UUID.randomUUID
   
 }

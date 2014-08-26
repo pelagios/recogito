@@ -5,7 +5,7 @@ import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
 
-/** Generic 'interface' for different content types **/
+/** Generic interface for different types of content **/
 trait GeoDocumentContent {
 	
  def id: Option[Int]
@@ -18,6 +18,7 @@ trait GeoDocumentContent {
 
 object GeoDocumentContent {
 
+  /** Helper method that queries the different content tables and merges the results into a single list **/ 
   def findByGeoDocument(gdocId: Int)(implicit session: Session): Seq[(GeoDocumentContent, Option[String])] = {
     val textQuery = for {
       (text, part) <- GeoDocumentTexts.query.where(_.gdocId === gdocId) leftJoin GeoDocumentParts.query on (_.gdocPartId === _.id)

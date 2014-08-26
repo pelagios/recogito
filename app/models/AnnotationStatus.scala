@@ -38,14 +38,14 @@ object AnnotationStatus extends Enumeration {
   
   def screenName(status: AnnotationStatus.Value) = {
     status match {
-      case NOT_VERIFIED => "Unverified"
+      case NOT_VERIFIED => "Not Verified"
       case VERIFIED => "Verified"
-      case FALSE_DETECTION => "False Detection, Deleted"
+      case FALSE_DETECTION => "False Detection"
       case IGNORE => "Ignore"
       case NO_SUITABLE_MATCH => "No Suitable Gazetteer URI"
-      case AMBIGUOUS => "Ambiguous - Multiple Possible URIs"
+      case AMBIGUOUS => "Multiple Possible Gazetteer URIs"
       case MULTIPLE => "Toponym Refers to Multiple Places"
-      case NOT_IDENTIFYABLE => "Unknown, Not Identifyable"
+      case NOT_IDENTIFYABLE => "Not Identifiable"
     }
   }
   
