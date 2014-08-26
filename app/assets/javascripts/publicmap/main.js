@@ -4,14 +4,14 @@ var recogito = (window.recogito) ? window.recogito : { };
 recogito.PublicMap = function(mapDiv, dataURL) {
   var self = this,
       dareLayer = L.tileLayer('http://pelagios.org/tilesets/imperium/{z}/{x}/{y}.png', {
-    	  attribution: 'Tiles: <a href="http://imperium.ahlfeldt.se/">DARE 2014</a>'
+        attribution: 'Tiles: <a href="http://imperium.ahlfeldt.se/">DARE 2014</a>'
       }),     
       awmcLayer = L.tileLayer('http://a.tiles.mapbox.com/v3/isawnyu.map-knmctlkh/{z}/{x}/{y}.png', {
         attribution: 'Tiles &copy; <a href="http://mapbox.com/" target="_blank">MapBox</a> | ' +
                      'Data &copy; <a href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> and contributors, CC-BY-SA | '+
                      'Tiles and Data &copy; 2013 <a href="http://www.awmc.unc.edu" target="_blank">AWMC</a> ' +
                      '<a href="http://creativecommons.org/licenses/by-nc/3.0/deed.en_US" target="_blank">CC-BY-NC 3.0</a>'
-      });
+      }),
       bingLayer = new L.BingLayer("Au8CjXRugayFe-1kgv1kR1TiKwUhu7aIqQ31AjzzOQz0DwVMjkF34q5eVgsLU5Jn"),
       gdocpart_switcher_template = 
         '<div class="publicmap-infobox">' +
@@ -21,7 +21,7 @@ recogito.PublicMap = function(mapDiv, dataURL) {
         '    <table>' +
         '      <tr>' + 
         '        <td><input type="checkbox" checked="checked" class="switch-all" /></td>' +
-        '        <td>All</td>'
+        '        <td>All</td>' +
         '      </tr>' +
         '    </table>' +
         '  </div>' + 
@@ -118,9 +118,9 @@ recogito.PublicMap = function(mapDiv, dataURL) {
         
     VERIFIED: { color: '#118128', fillColor:'#1bcc3f', radius: 4, weight:2, opacity:1, fillOpacity: 1 }
     
-  }
+  };
   
-}
+};
 
 recogito.PublicMap.prototype.addPlaceMarker = function(annotation, layerGroup) {
   var self = this,
@@ -156,7 +156,7 @@ recogito.PublicMap.prototype.addPlaceMarker = function(annotation, layerGroup) {
         html = html.replace('{{source}}', '');
     
       if (a.context)
-        html = html.replace('{{context}}', '...' + highlightToponym(a.context, a.toponym) + '...')
+        html = html.replace('{{context}}', '...' + highlightToponym(a.context, a.toponym) + '...');
       else
         html = html.replace('{{context}}', '');
       
@@ -181,13 +181,13 @@ recogito.PublicMap.prototype.addPlaceMarker = function(annotation, layerGroup) {
       var stroke = self.ColorPalette.getDarkColor(colIdx),
           fill = self.ColorPalette.getLightColor(colIdx);
         
-      var style = { color: stroke, fillColor:fill, radius: 4, weight:2, opacity:1, fillOpacity: 1 }
+      var style = { color: stroke, fillColor:fill, radius: 4, weight:2, opacity:1, fillOpacity: 1 };
       var marker = L.circleMarker(place.coordinate, style);
       marker.on('click', function() { loadDetails(annotation.id, marker); });
       layerGroup.addLayer(marker);
     }
   }
-}
+};
 
 recogito.PublicMap.prototype.ColorPalette = {
   
@@ -197,9 +197,9 @@ recogito.PublicMap.prototype.ColorPalette = {
   
   getDarkColor: function(idx) { return this._dark[idx % this._dark.length]; },
   
-  getLightColor: function(idx) { return this._light[idx % this._light.length] }
+  getLightColor: function(idx) { return this._light[idx % this._light.length]; }
   
-}
+};
 
 /**
  * The load indicator, backed by a plain old DIV. Will
@@ -210,9 +210,9 @@ recogito.LoadIndicator = function() {
   this.element = document.createElement('div');
   this.element.className = 'load-indicator';
   this.element.style.visibility = 'hidden';
-  this._deferredIndicator;
+  this._deferredIndicator = false;
   document.body.appendChild(this.element);
-}
+};
 
 /**
  * Shows the load indicator.
@@ -223,7 +223,7 @@ recogito.LoadIndicator.prototype.show = function() {
     self.element.style.visibility = 'visible';
     delete self._deferredIndicator;
   }, 200); 
-}
+};
 
 /**
  * Hides the load indicator.
@@ -232,5 +232,5 @@ recogito.LoadIndicator.prototype.hide = function() {
   if (this._deferredIndicator)
     clearTimeout(this._deferredIndicator);
   this.element.style.visibility = 'hidden';
-}
+};
 

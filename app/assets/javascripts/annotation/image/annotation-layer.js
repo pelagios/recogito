@@ -2,7 +2,7 @@ define(['config', 'annotation/image/tooltip', 'annotation/image/editor', 'annota
   
   var map,                        // the map
       layer,                      // the map layer
-      annotations = new Object(), // the annotations
+      annotations = {},           // the annotations
       currentHighlight = false,   // currently highlighted annotation (if any)
       tooltip,
       editor,
@@ -17,7 +17,7 @@ define(['config', 'annotation/image/tooltip', 'annotation/image/editor', 'annota
     }
     
     layer.getSource().dispatchChangeEvent();
-  }
+  };
   
   var redraw = function(extent, resolution, pixelRatio, size, projection) {    
     var canvas = document.createElement('canvas');
@@ -61,7 +61,7 @@ define(['config', 'annotation/image/tooltip', 'annotation/image/editor', 'annota
     }
     
     return canvas;
-  }
+  };
   
   var AnnotationLayer = function(olMap) {
     var self = this;
@@ -114,7 +114,7 @@ define(['config', 'annotation/image/tooltip', 'annotation/image/editor', 'annota
         editor.show(currentHighlight);
       }
     });
-  }
+  };
   
   AnnotationLayer.prototype.addAnnotations = function(a) {
     if ($.isArray(a)) {
@@ -126,12 +126,12 @@ define(['config', 'annotation/image/tooltip', 'annotation/image/editor', 'annota
     }
     
     layer.getSource().dispatchChangeEvent();
-  }
+  };
   
   AnnotationLayer.prototype.removeAnnotation = function(id) {
     delete annotations[id];
     layer.getSource().dispatchChangeEvent();
-  }
+  };
   
   AnnotationLayer.prototype.moveTo = function(annotation) {
     var bounds = Utils.getBounds(annotation);
@@ -147,7 +147,7 @@ define(['config', 'annotation/image/tooltip', 'annotation/image/editor', 'annota
     size = [size[0] / 2, size[1] / 2];
 
     map.map.getView().fitExtent(extent, size);
-  }
+  };
   
   return AnnotationLayer;
   

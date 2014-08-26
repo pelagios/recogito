@@ -86,9 +86,14 @@ define(['georesolution/common'], function(common) {
      */
     var displaySearchResult = function(result, opt_style) {
       var category = (result.category) ? common.Utils.formatCategory(result.category) : 'uncategorized';
-      var warning = (result.coordinate) ? '<td></td>' : '<td><span title="Place has no coordinates" class="icon no-coords">&#xf041;</span></td>'     
-      var tr = $('<tr><td>' + common.Utils.categoryTag(result.category) + '</td>' + warning + '<td><a href="javascript:void(0);" title="' + category + ' - ' + result.uri + ' (' + result.names + ')" class="details-content-candidate-link">' + result.title + '</a></td><td>' + result.description + '</td></tr>');
-      var marker = undefined;
+      var warning = (result.coordinate) ? '<td></td>' : '<td><span title="Place has no coordinates" class="icon no-coords">&#xf041;</span></td>';     
+      var tr =
+        $('<tr><td>' + common.Utils.categoryTag(result.category) + '</td>' + 
+           warning + 
+          '<td><a href="javascript:void(0);" title="' + category + ' - ' + result.uri + ' (' + result.names + ')" class="details-content-candidate-link">' + result.title + '</a></td>' +
+          '<td>' + result.description + '</td></tr>');
+          
+      var marker = false;
       if (result.coordinate) {
         if (opt_style)
           marker = L.circleMarker(result.coordinate, opt_style).addTo(map); 
@@ -161,8 +166,9 @@ define(['georesolution/common'], function(common) {
     $('.details-header-source-label').html(sourceLabel);
   
     // Automatch info
+    var meta;
     if (annotation.place) {
-      var meta = '<a href="http://pelagios.org/api/places/' + 
+      meta = '<a href="http://pelagios.org/api/places/' + 
                  encodeURIComponent(common.Utils.normalizePleiadesURI(annotation.place.uri)) +
                  '" target="_blank">' + annotation.place.title + '</a> ' +
                  common.Utils.categoryTag(annotation.place.category) + '<br/>';
@@ -183,7 +189,7 @@ define(['georesolution/common'], function(common) {
   
     // Expert correction info
     if (annotation.place_fixed) {
-      var meta = '<a href="http://pelagios.org/api/places/' + 
+      meta = '<a href="http://pelagios.org/api/places/' + 
                  encodeURIComponent(common.Utils.normalizePleiadesURI(annotation.place_fixed.uri)) +
                  '" target="_blank">' + annotation.place_fixed.title + '</a> ' +
                  common.Utils.categoryTag(annotation.place_fixed.category) + '<br/>';
@@ -284,7 +290,8 @@ define(['georesolution/common'], function(common) {
       if (prev_annotations && next_annotations) {
         var coords = [];
     
-        for (var i = 0; i < prev_annotations.length; i++)
+        var i;
+        for (i = 0; i < prev_annotations.length; i++)
           coords.push(prev_annotations[i].marker.getLatLng());
        
         if (annotation.place_fixed && annotation.place_fixed.coordinate)
@@ -292,7 +299,7 @@ define(['georesolution/common'], function(common) {
         else if (annotation.place && annotation.place.coordinate)
           coords.push(annotation.place.coordinate);
       
-        for (var i = 0; i < next_annotations.length; i++)
+        for (i = 0; i < next_annotations.length; i++)
           coords.push(next_annotations[i].marker.getLatLng());
       
         var line = L.polyline(coords, { color:annotation.marker.options.color, opacity:1, weight:8 });
@@ -317,7 +324,7 @@ define(['georesolution/common'], function(common) {
         }
       });
 
-      if (html.length == 0) {
+      if (html.length === 0) {
         $('#details-content-searchresults').html('<tr><td>No alternatives found.</td></tr>');
       } else {
         $('#details-content-searchresults').append(html);
@@ -349,14 +356,14 @@ define(['georesolution/common'], function(common) {
         $.getJSON('api/search/place?query=' + e.target.value.toLowerCase(), function(response) {
           var html = [];
           $.each(response.results, function(idx, result) {
-            var displayedResult = displaySearchResult(result)
+            var displayedResult = displaySearchResult(result);
             html.push(displayedResult.html);
           
             if (displayedResult.marker)
               markers.push(displayedResult.marker);
           });
         
-          if (html.length == 0) {       
+          if (html.length === 0) {       
             $('#details-content-searchresults').html('»<tr><td>No results for &quot;' + response.query + '«</td></tr>');
           } else {
             $('#details-content-searchresults').append(html);
@@ -368,7 +375,7 @@ define(['georesolution/common'], function(common) {
     });
     
     $('.details-content-search-input').focus();
-  }
+  };
 
   // Inheritance - not the nicest pattern but works for our case
   DetailsPopup.prototype = new common.HasEvents();
@@ -397,14 +404,14 @@ define(['georesolution/common'], function(common) {
     });
 
     return map;
-  }
+  };
 
   /** 
    * Destroys the popup.
    */
   DetailsPopup.prototype.destroy = function() {
     $(this.element).remove();
-  }
+  };
   
   return DetailsPopup;
 

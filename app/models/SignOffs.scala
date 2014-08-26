@@ -47,7 +47,7 @@ object SignOffs {
   def findForGeoDocumentImage(id: Int)(implicit s: Session): Seq[(String, Timestamp)] =
     query.where(_.gdocImageId === id).map(row => (row.username, row.timestamp)).list
     
-  def toggleStatusForText(id: Int, username: String)(implicit s: Session) = 
+  def toggleStatusForText(id: Int, username: String)(implicit s: Session) =
     query.insert(SignOff(None, Some(id), None, username, new Timestamp(System.currentTimeMillis)))
     
   def toggleStatusForImage(id: Int, username: String)(implicit s: Session) =

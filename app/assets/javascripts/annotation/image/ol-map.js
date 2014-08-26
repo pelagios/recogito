@@ -25,24 +25,24 @@ define(['config', 'annotation/image/annotation-layer'], function(config, Annotat
     });
     
     annotationLayer = new AnnotationLayer(this);
-  }
+  };
   
   OpenLayersMap.prototype.getCoordinateFromPixel = function(px) {
     return this.map.getCoordinateFromPixel(px);
-  }
+  };
   
   // TODO need to revert this!
   OpenLayersMap.prototype.addLayer = function(layer) {
     this.map.addLayer(layer);
-  }
+  };
   
   OpenLayersMap.prototype.getResolution = function() {
     return this.map.getView().getResolution();
-  }
+  };
   
   OpenLayersMap.prototype.on = function(event, callback) {
     this.map.on(event, callback);
-  }
+  };
   
   OpenLayersMap.prototype.toViewportCoordinates = function(bounds, opt_buffer) {
     var buffer = (opt_buffer) ? opt_buffer : 0,
@@ -55,15 +55,15 @@ define(['config', 'annotation/image/annotation-layer'], function(config, Annotat
       width: Math.round(topRight[0] - bottomLeft[0]) + 2 * buffer,
       height: Math.round(bottomLeft[1] - topRight[1]) + 2 * buffer
     };
-  }
+  };
   
   OpenLayersMap.prototype.addAnnotations = function(annotation) {      
     annotationLayer.addAnnotations(annotation);  
-  }
+  };
   
   OpenLayersMap.prototype.removeAnnotation = function(id) {
     annotationLayer.removeAnnotation(id);
-  }
+  };
   
   return OpenLayersMap;
   

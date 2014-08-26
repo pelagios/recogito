@@ -65,7 +65,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
     var currentSelection = false;
     this._grid.onSelectedRowsChanged.subscribe(function(e, args) { 
       rightClickMenu.hide();
-      if (args.rows.length == 0) {
+      if (args.rows.length === 0) {
         currentSelection = false;
       } else {
         currentSelection = args.rows;
@@ -92,7 +92,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
       var comparator = function(a, b) { 
         var x = a[args.sortCol.field], y = b[args.sortCol.field];
         return (x == y ? 0 : (x > y ? 1 : -1));
-      }
+      };
       self._dataView.sort(comparator, args.sortAsc);
     });
   
@@ -387,10 +387,10 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
       if (!args)
         return true;
    
-      if (!args['status'])
+      if (!args.status)
         return true;
     
-      return (args['status'].indexOf(item.status) > -1)
+      return (args.status.indexOf(item.status) > -1);
     }
   };
 
@@ -409,7 +409,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
     
     GazeeteerURIFormatter : function(row, cell, value, columnDef, dataContext) {  
       if (value) {
-        if (value.uri.indexOf('http://pleiades.stoa.org') == 0) {
+        if (value.uri.indexOf('http://pleiades.stoa.org') === 0) {
           var id =  value.uri.substring(32);
           if (id.indexOf('#') > -1)
             id = id.substring(0, id.indexOf('#'));
@@ -424,7 +424,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch'],
             return '<span class="icon empty"></span>' + formatted;
           else
             return '<span title="Place has no coordinates" class="icon no-coords">&#xf041;</span>' + formatted;
-        } else if (value.uri.indexOf('http://www.alraqmiyyat.org') == 0) {
+        } else if (value.uri.indexOf('http://www.alraqmiyyat.org') === 0) {
           return '<span class="icon empty"></span><a href="' + value.uri + '" target="_blank" title="' + value.title + '">' +
             'thurayya:' + value.uri.substring(39) + '</a>';
         } else {

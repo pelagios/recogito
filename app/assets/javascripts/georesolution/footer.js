@@ -6,7 +6,7 @@ define(function() {
    */
   var Footer = function(footerDiv) {
     this.element = $(footerDiv).find('#footer-info');
-  }
+  };
 
   /**
    * Sets the document metadata on the footer.
@@ -21,7 +21,7 @@ define(function() {
         list = $.grep(data, function(annotation, idx) { return annotation.status == status; });
       }
       return list.length;
-    }
+    };
   
     var total = data.length;
     var verified = count('VERIFIED');
@@ -38,7 +38,7 @@ define(function() {
       '<span class="icon">&#xf05e;</span> ' + ignore + ' &nbsp; - &nbsp; ' + 
 
       (complete * 100).toFixed(1) + '% Complete');
-  }
+  };
 
   return Footer;
   

@@ -1,6 +1,6 @@
 define([], function() {
   
-  var Utils = function() { }
+  var Utils = function() { };
   
   Utils.prototype.getBounds = function(annotation) {
     var geom = annotation.shapes[0].geometry;
@@ -15,8 +15,8 @@ define([], function() {
       top: Math.min(geom.y, opposite.y),
       width: dx,
       height: dy
-    }
-  }
+    };
+  };
   
   return new Utils();
   

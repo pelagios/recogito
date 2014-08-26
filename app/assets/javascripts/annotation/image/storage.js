@@ -24,13 +24,13 @@ define(['config'], function(config) {
         successCallback(annotation);
       }
     });
-  }
+  };
   
   Storage.prototype.loadAll = function(callback) {
-	  $.getJSON(STORE_URI + '?gdoc=' + GDOC_ID, function(data) {
+    $.getJSON(STORE_URI + '?gdoc=' + GDOC_ID, function(data) {
       callback(data);
     });     
-  }
+  };
   
   return Storage;
   

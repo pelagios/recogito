@@ -5,8 +5,8 @@ define(function() {
    * @constructor
    */
   var HasEvents = function() { 
-    this.handlers = {}
-  }
+    this.handlers = {};
+  };
 
   /**
    * Adds an event handler to this component. Refer to the docs of the components
@@ -16,7 +16,7 @@ define(function() {
    */
   HasEvents.prototype.on = function(event, handler) {  
     this.handlers[event] = handler; 
-  }
+  };
 
   /**
    * Fires an event.
@@ -27,7 +27,7 @@ define(function() {
   HasEvents.prototype.fireEvent = function(event, e, args) {
     if (this.handlers[event])
       this.handlers[event](e, args);     
-  }
+  };
   
   /**
    * A tag list element to be used in the Details & Batch popups.
@@ -105,7 +105,7 @@ define(function() {
       removeTag(idx);
       self.fireEvent('update', tags);
     });
-  }
+  };
   
   TagList.prototype = new HasEvents();
 
@@ -127,7 +127,7 @@ define(function() {
     this.element.click(function(e) { e.stopPropagation(); });
   
     var textField = this.element.find('input')[0];    
-    textField.focus()
+    textField.focus();
     this.element.keydown(function(e) {
       if (e.keyCode == 13) {
         // Enter
@@ -145,11 +145,11 @@ define(function() {
         self.destroy();
       }    
     }); 
-  }
+  };
 
   TagEditor.prototype.destroy = function() {
     $(this.element).remove(); 
-  }
+  };
 
   /**
    * Helpers and utility methods.
@@ -176,7 +176,7 @@ define(function() {
       else if (category == 'REGION')
         screenName = 'Region';
       else if (category == 'NATURAL_FEATURE')
-        screenName = 'Natural Feature'
+        screenName = 'Natural Feature';
       else if (category == 'ETHNOS')
         screenName = 'Ethnos';
       else if (category == 'MAN_MADE_STRUCTURE')
@@ -187,7 +187,7 @@ define(function() {
       if (opt_template)
         return opt_template.replace('{{category}}', screenName);
       else
-        return screenName
+        return screenName;
     },
     
     categoryTag: function(category)  {
@@ -202,7 +202,7 @@ define(function() {
       return '<span class="categorytag ' + shortName.toLowerCase() + '" title="' + longName + '">' + shortName + '</span>';
     }
   
-  }
+  };
   
   return {
     

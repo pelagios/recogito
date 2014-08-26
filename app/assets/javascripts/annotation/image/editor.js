@@ -94,12 +94,12 @@ define(['config', 'annotation/image/utils'], function(config, Utils) {
   
       element.show();   
     }, 1);
-  }
+  };
   
   Editor.prototype.hide = function() {
     currentAnnotation = false;
     element.hide();
-  }
+  };
   
   return Editor;
   

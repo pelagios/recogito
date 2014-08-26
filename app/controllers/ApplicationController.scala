@@ -128,8 +128,6 @@ object ApplicationController extends Controller with Secured with CTSClient {
       
       val signOffs = someGDocText.map(text => SignOffs.findForGeoDocumentText(text.id.get).map(_._1))
         .getOrElse(Seq.empty[String])
-        
-      Logger.info(signOffs.toString)
 
       Ok(views.html.annotation_text(
           someGDocText,

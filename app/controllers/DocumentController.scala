@@ -104,9 +104,10 @@ object DocumentController extends Controller with Secured {
     if (textId.isEmpty && imageId.isEmpty) {
       NotFound
     } else {
-      val currentSignOffStatus = 
-        if (textId.isDefined)
-          SignOff
+      // val currentSignOffStatus = 
+      //   if (textId.isDefined)
+      //    SignOff
+      Ok(Json.parse("{ \"success\": true }"))
     }
       
     /*

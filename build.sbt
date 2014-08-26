@@ -1,16 +1,18 @@
 name := "recogito"
 
-version := "0.0.2"
+version := "0.9.0"
 
-play.Project.playScalaSettings
+scalaVersion := "2.10.4"
+
+lazy val root = (project in file(".")).enablePlugins(PlayScala)
 
 resolvers += "Open Source Geospatial Foundation Repository" at "http://download.osgeo.org/webdav/geotools/"
 
-libraryDependencies ++= Seq(jdbc, cache)     
+libraryDependencies ++= Seq(jdbc, cache, ws)     
 
 /** Runtime dependencies **/
 libraryDependencies ++= Seq(
-  "com.typesafe.play" %% "play-slick" % "0.6.1",
+  "com.typesafe.play" %% "play-slick" % "0.8.0",
   "commons-codec" % "commons-codec" % "1.9",
   "org.xerial" % "sqlite-jdbc" % "3.7.2",
   "postgresql" % "postgresql" % "9.1-901.jdbc4",
@@ -31,7 +33,14 @@ libraryDependencies ++= Seq(
   "org.geotools" % "gt-geojson" % "10.0"
 )
 
-requireJs ++= Seq("georesolution.js", "imageannotation.js")
+includeFilter in (Assets, LessKeys.less) := "*.less"
 
-requireJsShim += "build.js"
+excludeFilter in (Assets, LessKeys.less) := "_*.less"
+
+RjsKeys.modules := Seq(
+    WebJs.JS.Object("name" -> "georesultion"),
+    WebJs.JS.Object("name" -> "imageannotation")
+)
+
+RjsKeys.mainConfig := "build"
 

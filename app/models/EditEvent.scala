@@ -131,7 +131,7 @@ class EditHistory(tag: Tag) extends Table[EditEvent](tag, "edit_history") with H
   
 }
 
-object EditHistory {
+object EditHistory extends HasStatusColumn {
   
   private[models] val query = TableQuery[EditHistory]
   
@@ -156,7 +156,7 @@ object EditHistory {
   }
     
   def getMostRecent(limit: Int, status: AnnotationStatus.Value*)(implicit s: Session): Seq[EditEvent] =
-    query.sortBy(_.timestamp.desc).filter(e => status.contains(e.updatedStatus)).take(limit).list
+    query.where(_.updatedStatus inSet status).sortBy(_.timestamp.desc).take(limit).list
         
   def countSince(time: Timestamp)(implicit s: Session): Int = 
     query.where(_.timestamp > time).list.size

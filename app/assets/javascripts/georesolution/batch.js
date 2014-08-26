@@ -72,7 +72,7 @@ define(['georesolution/common'], function(common) {
       originalTags = updatedTags.slice();
       self.fireEvent('update', annotations);
     });
-  }
+  };
 
   // Inheritance - not the nicest pattern but works for our case
   BatchPopup.prototype = new common.HasEvents();
@@ -82,7 +82,7 @@ define(['georesolution/common'], function(common) {
    */
   BatchPopup.prototype.destroy = function() {
     $(this.element).remove();
-  }
+  };
 
   /** Private elper functions **/
 
@@ -97,7 +97,7 @@ define(['georesolution/common'], function(common) {
         unique.push(annotation.toponym);
     }); 
     return unique;
-  }
+  };
 
   /**
    * Returns the list of unique gazetteer URIs that occur in the annotations.
@@ -112,7 +112,7 @@ define(['georesolution/common'], function(common) {
           unique.push(place.uri);
     }); 
     return unique;
-  }
+  };
 
   /**
    * Returns the list of unique tags that occur in the annotations.
@@ -142,7 +142,7 @@ define(['georesolution/common'], function(common) {
     });
 
     return commonTags;
-  }
+  };
   
   var diffTags = function(before, after) {    
     var add = $.grep(after, function(tag) {
@@ -154,7 +154,7 @@ define(['georesolution/common'], function(common) {
     });
         
     return { add: add, remove: remove };
-  }
+  };
    
   return BatchPopup;
 

@@ -30,19 +30,19 @@ define(['config'], function(config) {
     _addMouseDownHandler(this);
     _addMouseMoveHandler(this);
     _addMouseUpHandler(this);
-  }
+  };
   
   DrawingCanvas.prototype.show = function() {
     canvasEl.style.pointerEvents = 'auto';
-  }
+  };
   
   DrawingCanvas.prototype.hide = function() {
     canvasEl.style.pointerEvents = 'none';
-  }
+  };
   
   DrawingCanvas.prototype.on = function(event, handler) {
     handlers[event] = handler;
-  }
+  };
     
   var _addMouseDownHandler = function(self) {  
     $(canvasEl).mousedown(function(e) {
@@ -55,7 +55,7 @@ define(['config'], function(config) {
       ctx.fill();
       ctx.closePath();
     });
-  }
+  };
   
   var _addMouseMoveHandler = function(self) {
     $(canvasEl).mousemove(function(e) {
@@ -75,7 +75,7 @@ define(['config'], function(config) {
         ctx.closePath();
       }
     });
-  }
+  };
   
   var _addMouseUpHandler = function(self) {
     $(canvasEl).mouseup(function(e) {
@@ -85,7 +85,7 @@ define(['config'], function(config) {
         // TODO could be optimized - we don't necessarily need to clear the entire canvas
         ctx.clearRect(0, 0, self.width, self.height);
         
-        if (handlers['annotationCreated']) {
+        if (handlers.annotationCreated) {
           var imageAnchorCoords = map.getCoordinateFromPixel([anchorX, anchorY]);
           var imageEndCoords = map.getCoordinateFromPixel([e.offsetX, e.offsetY]);
           
@@ -95,7 +95,7 @@ define(['config'], function(config) {
           var baselineAngle = Math.atan(dy / dx); 
           var baselineLength = Math.sqrt(dx * dx + dy * dy);
           
-          handlers['annotationCreated']({
+          handlers.annotationCreated({
             shapes: [{ 
               type: 'toponym',
               geometry: {
@@ -109,7 +109,7 @@ define(['config'], function(config) {
         }        
       }
     });
-  }
+  };
   
   return DrawingCanvas;
   

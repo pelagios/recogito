@@ -25,9 +25,9 @@ require(['annotation/image/ol-map', 'annotation/image/drawing-canvas', 'annotati
         btnAnnotate.addClass('selected');
       };
   
-  btnNavigate.click(function(e) { switchToNavigate() });
+  btnNavigate.click(function(e) { switchToNavigate(); });
   
-  btnAnnotate.click(function(e) { switchToAnnotate() });
+  btnAnnotate.click(function(e) { switchToAnnotate(); });
   
   $(document).keyup(function(e) {
     if (e.keyCode == 32) {

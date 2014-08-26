@@ -27,11 +27,11 @@ define([], function() {
     element.find('.ago').html($.timeago(new Date(annotation.last_edit.timestamp)));
     element.css({ left: x, top: y });
     element.show();
-  }
+  };
   
   Tooltip.prototype.hide = function() {
     element.hide();
-  }
+  };
   
   return Tooltip;
   

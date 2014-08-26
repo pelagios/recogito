@@ -33,11 +33,11 @@ require(["georesolution/map", "georesolution/table", "georesolution/footer"], fu
       annotations = [ annotations ];
       
     $.each(annotations, function(idx, annotation) {    
-  	  if (annotation.marker)
-	      map.removePlaceMarker(annotation);
+      if (annotation.marker)
+        map.removePlaceMarker(annotation);
     
       map.addPlaceMarker(annotation);
- 	  });
+    });
     
     if (self.annotations)
       footer.setData(self.annotations);
@@ -75,7 +75,7 @@ require(["georesolution/map", "georesolution/table", "georesolution/footer"], fu
     table.render();
   
     // Set data on map
-    $.each(annotations, function(idx, annotation) { map.addPlaceMarker(annotation) });
+    $.each(annotations, function(idx, annotation) { map.addPlaceMarker(annotation); });
     
     // Set data on Footer
     footer.setData(annotations);
@@ -105,7 +105,7 @@ require(["georesolution/map", "georesolution/table", "georesolution/footer"], fu
         payload.comment = annotation.comment;      
         
       return payload;
-    }
+    };
     
     var id, payload;
     if ($.isArray(annotations)) {
@@ -125,6 +125,6 @@ require(["georesolution/map", "georesolution/table", "georesolution/footer"], fu
       contentType: 'application/json',
       data: JSON.stringify(payload) 
     });
-  };
+  }
 
 });

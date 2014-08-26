@@ -55,10 +55,10 @@ define(['georesolution/common'], function(common) {
   
     this._currentSequence = [];
   
-    this._currentSelection;
+    this._currentSelection = false;
   
     this._allAnnotations = [];
-  }
+  };
 
   // Inheritance - not the nicest pattern but works for our case
   MapView.prototype = new common.HasEvents();
@@ -69,7 +69,7 @@ define(['georesolution/common'], function(common) {
       // TODO take visibility of tags into account
       return part_settings.visible;
     } 
-  }
+  };
 
   /**
    * Places a marker for the specified place.
@@ -84,7 +84,7 @@ define(['georesolution/common'], function(common) {
 
     // Update selector widget
     var html = "";
-    for (name in self._parts) {
+    for (var name in self._parts) {
       html += '<input type="checkbox" checked="true" data-part="' + name + '" class="map-selector-part">' + name + '</input><br/>';
     }
     $(self._selector).html(html);
@@ -100,23 +100,23 @@ define(['georesolution/common'], function(common) {
         self._currentSelection.openPopup();
       });
   
-      annotation.marker = marker  
+      annotation.marker = marker;
       self._allAnnotations.push(annotation);
-    }
+    };
 
     var place = (annotation.place_fixed) ? annotation.place_fixed : annotation.place;
     if (place && place.coordinate) {
       if (annotation.status == 'VERIFIED' || annotation.status == 'NOT_VERIFIED')
         createMarker(place, getStyle(annotation.status, place.category));
     }
-  }
+  };
 
   MapView.prototype.removePlaceMarker = function(annotation) {
     if (annotation.marker) {
       this._map.removeLayer(annotation.marker);
       annotation.marker = false;
     }
-  }
+  };
 
   MapView.prototype.emphasizePlace = function(annotation, prevN, nextN) {
     if (annotation.marker && this._isVisible(annotation)) {      
@@ -125,7 +125,7 @@ define(['georesolution/common'], function(common) {
       annotation.marker.setStyle(style);
       annotation.marker.bringToFront();
     }
-  }
+  };
 
   MapView.prototype.deemphasizePlace = function(annotation, prevN, nextN) {
     if (annotation.marker && this._isVisible(annotation)) {
@@ -133,7 +133,7 @@ define(['georesolution/common'], function(common) {
       style.radius = style.radius * 0.5;
       annotation.marker.setStyle(style);
     }
-  }
+  };
 
   /**
    * Highlights the specified place on the map.
@@ -151,7 +151,7 @@ define(['georesolution/common'], function(common) {
       self._currentSequence.push(line);
       line.addTo(self._map);
       line.bringToBack();
-    }
+    };
 
     // Clear previous selection
     if (this._currentSelection) {
@@ -160,7 +160,7 @@ define(['georesolution/common'], function(common) {
     }
   
     // Clear previous sequence
-    for (idx in this._currentSequence) {
+    for (var idx in this._currentSequence) {
       this._map.removeLayer(this._currentSequence[idx]);
     }
     this._currentSequence = [];
@@ -170,9 +170,10 @@ define(['georesolution/common'], function(common) {
       this._currentSelection = L.marker(annotation.marker.getLatLng());
       this._currentSelection.bindPopup(annotation.toponym + ' (<a href="' + annotation.source + '" target="_blank">Source</a>)');
       this._currentSelection.addTo(self._map);
-                
+          
+      var coords;
       if (prevN && prevN.length > 0) {
-        var coords = [];
+        coords = [];
         for (idx in prevN)
           coords.push(prevN[idx].marker.getLatLng());
         coords.push(annotation.marker.getLatLng());
@@ -190,7 +191,7 @@ define(['georesolution/common'], function(common) {
     } else {
       this._map.closePopup();
     }
-  }
+  };
 
   MapView.prototype.redraw = function() {
     this.clear();
@@ -200,7 +201,7 @@ define(['georesolution/common'], function(common) {
       if (annotation.marker && self._isVisible(annotation))
         annotation.marker.addTo(self._map);
     });
-  }
+  };
 
   /**
    * Clears the map.
@@ -208,8 +209,8 @@ define(['georesolution/common'], function(common) {
   MapView.prototype.clear = function() {
     var self = this;
     $.each(this._allAnnotations, function(idx, annotation) { self._map.removeLayer(annotation.marker); });
-    $.each(this._currentSequence, function(idx, marker) { self._map.removeLayer(marker) });
-  }
+    $.each(this._currentSequence, function(idx, marker) { self._map.removeLayer(marker); });
+  };
   
   function getStyle(status, category) {
     var color, fillColor, opacity = 1, fillOpacity = 1, radius = 4;
