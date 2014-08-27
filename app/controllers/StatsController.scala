@@ -40,7 +40,7 @@ object StatsController extends Controller with Secured {
   def showStats() = DBAction { implicit request =>
     // Get activity timeline from DB and append today's live stats
     val activityTimeline = {
-      val history = StatsHistory.listRecent(50)
+      val history = GlobalStatsHistory.listRecent(50)
       
       // Time of last history snapshot, or 24hrs if no history yet 
       val liveIntervalStart = history.reverse.headOption.map(_.timestamp).getOrElse(new Timestamp(System.currentTimeMillis - DAY_IN_MILLIS))
@@ -50,7 +50,7 @@ object StatsController extends Controller with Secured {
       
       // TODO compute other live stats
       
-      history :+ StatsRecord(None, liveIntervalEnd, 0, 0, 0, liveActivity) 
+      history :+ StatsHistoryRecord(None, liveIntervalEnd, 0, 0, 0, liveActivity) 
     }
     
     val scores = EditHistory.listHighscores(20)

@@ -11,6 +11,7 @@ import play.api.Logger
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import scala.concurrent.Future
 import scala.io.Source
+import models.GlobalStatsHistory
 
 /** Controller for the 'Backup & Restore' section of the admin area.
   * 
@@ -100,7 +101,7 @@ object BackupRestoreController extends Controller with Secured {
   
   /** Download the stats timeline data as CSV **/
   def downloadStatsTimeline = adminAction { username => implicit session =>
-    val csv = new CSVSerializer().serializeStats(StatsHistory.listAll)
+    val csv = new CSVSerializer().serializeStats(GlobalStatsHistory.listAll)
     Ok(csv).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> "attachment; filename=recogito-stats-timeline.csv")
   }
   
@@ -110,7 +111,7 @@ object BackupRestoreController extends Controller with Secured {
     if (formData.isDefined) {
       formData.get.file("csv").map(filePart => {
         val timeline = new CSVParser().parseStatsTimeline(filePart.ref.file.getAbsolutePath)
-        StatsHistory.insertAll(timeline)
+        GlobalStatsHistory.insertAll(timeline)
       })
       Redirect(routes.BackupRestoreController.index)
     } else {

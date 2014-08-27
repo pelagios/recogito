@@ -12,6 +12,7 @@ import scala.concurrent.duration
 import scala.concurrent.duration.Duration
 import play.api.Logger
 import play.api.Play
+import models.GlobalStatsHistory
 
 object StatsDemon {
   
@@ -47,26 +48,17 @@ object StatsDemon {
       
       DB.withSession { implicit s: Session =>
         Logger.debug("Logging stats...")
-        val statsPerDoc = GeoDocuments.listAll().map(doc => {
-          val id = doc.id.get
-          val verified = Annotations.countForGeoDocumentAndStatus(id, AnnotationStatus.VERIFIED)
-          val unverified = Annotations.countForGeoDocumentAndStatus(id, AnnotationStatus.NOT_VERIFIED)
-          val yellow = Annotations.countForGeoDocumentAndStatus(id, AnnotationStatus.NO_SUITABLE_MATCH,
-              AnnotationStatus.AMBIGUOUS, AnnotationStatus.MULTIPLE, AnnotationStatus.NOT_IDENTIFYABLE)
-          (verified, unverified, yellow)
-        })
-
+        val stats = Annotations.getCompletionStats().values.foldLeft(0, 0, 0) { case((verified, yellow, total), stats)  =>
+          (verified + stats.verified, yellow + stats.yellow, total + stats.total) }
+        
         val lastLogTime = new Date().getTime - interval.toMillis        
         val editsSinceLastLog = EditHistory.countSince(new Timestamp(lastLogTime))
-        
-        val stats = statsPerDoc.foldLeft((0, 0, 0))((result, docStats) =>
-          (result._1 + docStats._1, result._2 + docStats._2, result._3 + docStats._3))
-          
-        val statsRecord = StatsRecord(None, new Timestamp(new Date().getTime), stats._1, stats._2, stats._3, editsSinceLastLog)
-        StatsHistory.insert(statsRecord)
+
+        val statsHistoryRecord = StatsHistoryRecord(None, new Timestamp(new Date().getTime), stats._1, stats._2, stats._3, editsSinceLastLog)
+        GlobalStatsHistory.insert(statsHistoryRecord)
             
-        Logger.info("Stats: V-" + statsRecord.verifiedToponyms + ", UV-" + statsRecord.unverifiedToponyms + 
-          ", UI:" + statsRecord.unidentifiableToponyms + ", EDITS:" + statsRecord.totalEdits)
+        Logger.info("Stats: V-" + statsHistoryRecord.verifiedToponyms + ", UI-" + statsHistoryRecord.unidentifiableToponyms + 
+          ", TOTAL:" + statsHistoryRecord.totalEdits + ", EDITS:" + statsHistoryRecord.totalEdits)
       }
     }
   }

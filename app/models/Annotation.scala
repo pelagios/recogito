@@ -229,7 +229,19 @@ object Annotations extends HasStatusColumn {
     }
   }
   
-  /** Get completion stats (based on distribution of status values) of for a list of geo documents **/
+  /** Get completion stats (based on distribution of annotation status values) for all GeoDocuments **/
+  def getCompletionStats()(implicit s: Session): Map[Int, CompletionStats] = {
+    val q = for {
+      (gdocId, status, numberOfAnnotations) <- query
+        .groupBy(t => (t.gdocId, t.status))
+        .map(t => (t._1._1, t._1._2, t._2.length))
+    } yield (gdocId, status, numberOfAnnotations)
+  
+    q.list.groupBy(_._1).map { case (gdocId, statusDistribution) =>
+      (gdocId, CompletionStats(statusDistribution.map(t => (t._2, t._3)).toMap))}    
+  }
+  
+  /** Get completion stats for a list of geo documents **/
   def getCompletionStats(gdocIds: Seq[Int])(implicit s: Session): Map[Int, CompletionStats] = {
     val q = for {
       (gdocId, status, numberOfAnnotations) <- query.where(_.gdocId inSet gdocIds)
@@ -240,7 +252,7 @@ object Annotations extends HasStatusColumn {
     q.list.groupBy(_._1).map { case (gdocId, statusDistribution) =>
       (gdocId, CompletionStats(statusDistribution.map(t => (t._2, t._3)).toMap))}
   }
-  
+    
   /** Get place stats (based on annotation status and gazetteer URI) for a GeoDocument **/
   def getPlaceStats(gdocId: Int)(implicit s: Session): PlaceStats = {
     val q = for {

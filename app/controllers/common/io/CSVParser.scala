@@ -8,6 +8,7 @@ import play.api.db.slick._
 import scala.io.Source
 import java.sql.Timestamp
 import play.api.Logger
+import models.StatsHistoryRecord
 
 /** Utility object to convert CSV input data to Annotation objects.
   * 
@@ -141,23 +142,23 @@ class CSVParser extends BaseParser {
     }).toSeq
   }
   
-  def parseStatsTimeline(file: String): Seq[StatsRecord] = {
+  def parseStatsTimeline(file: String): Seq[StatsHistoryRecord] = {
     val data = Source.fromFile(file).getLines
     val header = data.take(1).toSeq.head.split(SEPARATOR, -1).toSeq
 
     val idxTimestamp = idx(header, "timestamp")
     val idxVerifiedToponyms = idx(header, "verified_toponyms")
-    val idxUnverifiedToponyms = idx(header, "unverified_toponyms")
     val idxUnidentifiableToponyms = idx(header, "unidentifiable_toponyms")
+    val idxTotalToponyms = idx(header, "total_toponyms")
     val idxTotalEdits = idx(header, "total_edits")
     
     data.map(_.split(SPLIT_REGEX, -1)).map(fields => {
       // All fields required - it's ok to fail if not
-      StatsRecord(None,
+      StatsHistoryRecord(None,
           new Timestamp(fields(idxTimestamp.get).toLong),
           fields(idxVerifiedToponyms.get).toInt,
-          fields(idxUnverifiedToponyms.get).toInt,
           fields(idxUnidentifiableToponyms.get).toInt,
+          fields(idxTotalToponyms.get).toInt,
           fields(idxTotalEdits.get).toInt)
     }).toSeq
   }

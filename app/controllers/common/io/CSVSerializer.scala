@@ -4,6 +4,7 @@ import global.{ Global, CrossGazetteerUtils }
 import models._
 import org.pelagios.gazetteer.GazetteerUtils
 import play.api.db.slick._
+import models.StatsHistoryRecord
 
 /** Utility object to serialize Annotation data to CSV.
   * 
@@ -144,8 +145,8 @@ class CSVSerializer extends BaseSerializer {
    *
    * @param stats the list of stats records to serialize to CSV  
    */
-  def serializeStats(stats: Seq[StatsRecord]): String = {
-    val header = Seq("timestamp","timestamp_formatted","verified_toponyms","unverified_toponyms","unidentifiable_toponyms","total_edits")
+  def serializeStats(stats: Seq[StatsHistoryRecord]): String = {
+    val header = Seq("timestamp","timestamp_formatted","verified_toponyms","unidentifiable_toponyms","total_toponyms","total_edits")
       .mkString(SEPARATOR) + SEPARATOR + "\n"
       
     stats.foldLeft(header)((csv, record) => {
@@ -153,8 +154,8 @@ class CSVSerializer extends BaseSerializer {
       record.timestamp.getTime + SEPARATOR + 
       record.timestamp.toString + SEPARATOR +
       record.verifiedToponyms + SEPARATOR +
-      record.unverifiedToponyms + SEPARATOR +
       record.unidentifiableToponyms + SEPARATOR +
+      record.totalToponyms + SEPARATOR +
       record.totalEdits + SEPARATOR + "\n"
     })
   }

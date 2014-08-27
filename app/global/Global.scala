@@ -15,6 +15,7 @@ import play.api.{ Application, GlobalSettings, Logger }
 import play.api.db.slick._
 import scala.slick.jdbc.meta.MTable
 import play.api.mvc.RequestHeader
+import models.GlobalStatsHistory
 
 /** Play Global object **/
 object Global extends GlobalSettings {
@@ -127,9 +128,9 @@ object Global extends GlobalSettings {
         EditHistory.create
       }
         
-      if (MTable.getTables("stats_history").list().isEmpty) {
+      if (MTable.getTables("global_stats_history").list().isEmpty) {
         Logger.info("StatsHistory DB table does not exist - creating")
-        StatsHistory.create
+        GlobalStatsHistory.create
       }
     }
     
