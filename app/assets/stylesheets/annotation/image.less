@@ -107,8 +107,43 @@ html, body {
   }
   
   .editor-controls {
+    color:#727272;
     position:absolute;
     pointer-events:auto;
+    background-color:rgba(255, 255, 255, 0.8);
+    padding:10px 10px 0 10px;
+    box-sizing:border-box;
+    border-style:solid;
+    border-color:rgba(255, 255, 255, 0.6);
+    border-width:0 1px 1px 1px;
+    
+    .label {
+      display:block;
+      padding-bottom:7px;
+    }
+    
+    input {
+      box-sizing:border-box;
+      min-width:200px;
+      width:100%;
+      outline:none;
+      padding:2px 4px;
+    }
+    
+    .buttons {
+      text-align:right;
+      padding:10px 0 5px 0;
+      
+      .icon {
+        font-size:13px;
+      }
+      
+      button {
+        padding:4px 8px 5px 6px;
+      }
+      
+    }
+    
   }
       
 } /* .editor-mask */

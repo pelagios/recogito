@@ -17,11 +17,12 @@ define(['config', 'annotation/image/utils'], function(config, Utils) {
           '  </div>' +
           '  <div class="mask bottom"></div>' +
           '  <div class="editor-controls">' +
+          '    <span class="label">Transcription:</span>' +
           '    <input type="text">' +
           '    <div class="buttons">' +
-          '      <button class="button ok">OK</button>' +
-          '      <button class="button red delete">DELETE</button>' +
-          '      <button class="button cancel">CANCEL</button>' +
+          '      <button class="button ok"><span class="icon">&#xf00c;</span> OK</button>' +
+          '      <button class="button cancel"><span class="icon">&#xf05e;</span> Cancel</button>' +
+          '      <button class="button red delete"><span class="icon">&#xf00d;</span> Delete Annotation</button>' +
           '    </div>' +
           '  </div>' +
           '</div>';
@@ -87,6 +88,12 @@ define(['config', 'annotation/image/utils'], function(config, Utils) {
   
   Editor.prototype.show = function(annotation) {
     currentAnnotation = annotation;
+    var transcription = (annotation.corrected_toponym) ? annotation.corrected_toponym : annotation.toponym;
+    if (transcription)
+      controls.find('input').val(transcription);
+    else 
+      controls.find('input').val('');
+ 
     setTimeout(function() {
       var bounds = map.toViewportCoordinates(Utils.getBounds(annotation), 50);   
       
@@ -99,7 +106,11 @@ define(['config', 'annotation/image/utils'], function(config, Utils) {
       right.css('left', (bounds.left + bounds.width) + 'px');
       bottom.css('top', (bounds.top + bounds.height) + 'px');
 
-      controls.css({ left: bounds.left + 'px', top: (bounds.top + bounds.height) + 'px' });
+      controls.css({
+        left: (bounds.left + 1) + 'px',
+        top: (bounds.top + bounds.height) + 'px',
+        minWidth: bounds.width + 'px'
+      });
   
       element.show();   
     }, 1);

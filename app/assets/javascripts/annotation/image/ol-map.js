@@ -20,9 +20,13 @@ define(['config', 'annotation/image/annotation-layer'], function(config, Annotat
       view: new ol.View({
         projection: projection,
         center: [config.width / 2, - config.height / 2],
-        zoom: 0
+        zoom: 0,
+        minResolution: 0.5
       })
     });
+    
+    console.log(this.map.getSize());
+    this.map.getView().fitExtent([0, - config.height, config.width, 0], this.map.getSize());
     
     annotationLayer = new AnnotationLayer(this);
   }
