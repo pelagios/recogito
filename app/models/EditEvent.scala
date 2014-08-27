@@ -164,6 +164,16 @@ object EditHistory {
   def countForUser(username: String)(implicit s: Session): Int =
     Query(query.where(_.username === username).length).first
     
+  def countForDocuments(ids: Seq[Int], since: Timestamp)(implicit s: Session): Int = {
+    val q = query.where(_.timestamp > since)
+                 .groupBy(_.annotationId).map(t => (t._1, t._2.length))
+                 .innerJoin(Annotations.query).on(_._1 === _.uuid)
+                 .filter(_._2.gdocId inSet ids)
+                 .map(_._1._2)
+    
+    q.list.reduceLeft(_ + _)
+  }
+    
   def countForUserPerDocument(username: String)(implicit s: Session): Seq[(GeoDocument, Int)] = {
     // A list where each event is mapped to the affected annotation
     // Note: annotations can appear multiple times in this list! Since we're interested

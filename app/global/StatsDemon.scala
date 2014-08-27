@@ -48,17 +48,31 @@ object StatsDemon {
       
       DB.withSession { implicit s: Session =>
         Logger.debug("Logging stats...")
-        val stats = Annotations.getCompletionStats().values.foldLeft(0, 0, 0) { case((verified, yellow, total), stats)  =>
-          (verified + stats.verified, yellow + stats.yellow, total + stats.total) }
+        val lastLogTime = new Timestamp(new Date().getTime - interval.toMillis) 
         
-        val lastLogTime = new Date().getTime - interval.toMillis        
-        val editsSinceLastLog = EditHistory.countSince(new Timestamp(lastLogTime))
+        // Record Global stats
+        val globalStats = Annotations.getCompletionStats().values.foldLeft(0, 0, 0) { case((verified, yellow, total), stats)  =>
+          (verified + stats.verified, yellow + stats.yellow, total + stats.total) }       
+        val editsSinceLastLog = EditHistory.countSince(lastLogTime)
 
-        val statsHistoryRecord = StatsHistoryRecord(None, new Timestamp(new Date().getTime), stats._1, stats._2, stats._3, editsSinceLastLog)
-        GlobalStatsHistory.insert(statsHistoryRecord)
+        val globalStatsRecord = StatsHistoryRecord(None, new Timestamp(new Date().getTime), globalStats._1, globalStats._2, globalStats._3, editsSinceLastLog)
+        GlobalStatsHistory.insert(globalStatsRecord)
             
-        Logger.info("Stats: V-" + statsHistoryRecord.verifiedToponyms + ", UI-" + statsHistoryRecord.unidentifiableToponyms + 
-          ", TOTAL:" + statsHistoryRecord.totalEdits + ", EDITS:" + statsHistoryRecord.totalEdits)
+        Logger.info("Stats: V-" + globalStatsRecord.verifiedToponyms + ", UI-" + globalStatsRecord.unidentifiableToponyms + 
+          ", TOTAL:" + globalStatsRecord.totalEdits + ", EDITS:" + globalStatsRecord.totalEdits)
+          
+        // Record stats per collection
+        CollectionMemberships.listAll.groupBy(_.collection).foreach { case (collection, memberships) => {
+          val stats = CollectionMemberships.getCompletionStatsForCollection(collection)
+          val editsSinceLastLog = EditHistory.countForDocuments(memberships.map(_.gdocId), lastLogTime)
+          
+          val collectionStatsRecord = 
+            CollectionStatsHistoryRecord(None, collection, new Timestamp(new Date().getTime), stats.verified, stats.yellow, stats.total, editsSinceLastLog)
+          CollectionStatsHistory.insert(collectionStatsRecord)
+          
+          Logger.info("Stats for " + collection + ": V-" + collectionStatsRecord.verifiedToponyms + ", UI-" + collectionStatsRecord.unidentifiableToponyms + 
+            ", TOTAL:" + collectionStatsRecord.totalEdits + ", EDITS:" + collectionStatsRecord.totalEdits)
+        }}
       }
     }
   }

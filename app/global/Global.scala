@@ -79,7 +79,7 @@ object Global extends GlobalSettings {
   override def onStart(app: Application): Unit = {
     // Create DB tables if they don't exist
     DB.withSession { implicit session: Session =>
-      if (MTable.getTables("users").list().isEmpty) {
+      if (MTable.getTables("users").list.isEmpty) {
         Logger.info("Users DB table does not exist - creating")
         Users.create
          
@@ -88,49 +88,54 @@ object Global extends GlobalSettings {
         Users.insert(User("admin", Users.computeHash(salt + "admin"), salt, new Timestamp(System.currentTimeMillis), "*", true))
       }
        
-      if (MTable.getTables("gdocuments").list().isEmpty) {
+      if (MTable.getTables("gdocuments").list.isEmpty) {
         Logger.info("GeoDocuments DB table does not exist - creating")
         GeoDocuments.create
       }
       
-      if (MTable.getTables("gdocument_parts").list().isEmpty) {
+      if (MTable.getTables("gdocument_parts").list.isEmpty) {
         Logger.info("GeoDocumentParts DB table does not exist - creating")
         GeoDocumentParts.create
       }
       
-      if (MTable.getTables("gdocument_texts").list().isEmpty) {
+      if (MTable.getTables("gdocument_texts").list.isEmpty) {
         Logger.info("GeoDocumentTexts DB table does not exist - creating")
         GeoDocumentTexts.create
       }
       
-      if (MTable.getTables("gdocument_images").list().isEmpty) {
+      if (MTable.getTables("gdocument_images").list.isEmpty) {
         Logger.info("GeoDocumentImages DB table does not exist - creating")
         GeoDocumentImages.create
       }
       
-      if (MTable.getTables("collection_memberships").list().isEmpty) {
+      if (MTable.getTables("collection_memberships").list.isEmpty) {
         Logger.info("CollectionMemberships DB table does not exist - creating")
         CollectionMemberships.create
       }
       
-      if (MTable.getTables("signoffs").list().isEmpty) {
+      if (MTable.getTables("signoffs").list.isEmpty) {
         Logger.info("SignOffs DB table does not exist - creating")
         SignOffs.create
       }
       
-      if (MTable.getTables("annotations").list().isEmpty) {
+      if (MTable.getTables("annotations").list.isEmpty) {
         Logger.info("Annotations DB table does not exist - creating")
         Annotations.create
       } 
        
-      if (MTable.getTables("edit_history").list().isEmpty) {
+      if (MTable.getTables("edit_history").list.isEmpty) {
         Logger.info("EditHistory DB table does not exist - creating")
         EditHistory.create
       }
         
-      if (MTable.getTables("global_stats_history").list().isEmpty) {
-        Logger.info("StatsHistory DB table does not exist - creating")
+      if (MTable.getTables("global_stats_history").list.isEmpty) {
+        Logger.info("GlobalStatsHistory DB table does not exist - creating")
         GlobalStatsHistory.create
+      }
+      
+      if (MTable.getTables("collection_stats_history").list.isEmpty) {
+        Logger.info("CollectionStatsHistory DB table does not exist - creating")
+        CollectionStatsHistory.create
       }
     }
     

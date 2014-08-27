@@ -2,6 +2,7 @@ package models
 
 import play.api.db.slick.Config.driver.simple._
 import scala.slick.lifted.Tag
+import models.stats.CompletionStats
 
 /** Associates a GeoDocument with a collection.
   *
@@ -61,5 +62,16 @@ object CollectionMemberships {
     val allGDocsInCollections = query.groupBy(_.gdocId).map(_._1).list.distinct
     GeoDocuments.query.map(_.id).filter(id => !(id inSet allGDocsInCollections)).list 
   }
+  
+  /** Helper method to get the completion stats for a specific collection */
+  def getCompletionStatsForCollection(collection: String)(implicit s: Session): CompletionStats = {
+    val q = query.where(_.collection.toLowerCase === collection.toLowerCase)
+                 .map(_.gdocId)
+                 .innerJoin(Annotations.query).on(_ === _.gdocId)
+                 .groupBy(_._2.status)
+                 .map(t => (t._1, t._2.length))
+                 
+    CompletionStats(q.list.toMap)
+  } 
     
 }

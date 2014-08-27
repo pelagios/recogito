@@ -11,7 +11,7 @@ import scala.slick.lifted.Tag
   */
 case class StatsHistoryRecord(id: Option[Int], timestamp: Timestamp, verifiedToponyms: Int, unidentifiableToponyms: Int, totalToponyms: Int, totalEdits: Int)
 
-/** Annotation database table **/
+/** Global stats history database table **/
 class GlobalStatsHistory(tag: Tag) extends Table[StatsHistoryRecord](tag, "global_stats_history") {
 
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
