@@ -51,7 +51,8 @@ define(['config', 'annotation/image/tooltip', 'annotation/image/editor', 'annota
     };
 
     for (var id in annotations) {
-      draw(annotations[id]);
+      if (id != currentHighlight.id)
+        draw(annotations[id]);
     }
     
     if (currentHighlight) {

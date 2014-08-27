@@ -5,8 +5,11 @@ define(['config'], function(config) {
   var canvasEl,          // canvas DOM element
       ctx,               // 2D drawing context
       painting = false,  // Flag indicating whether painting is in progress or not
+      extrude = false,   // Flag indidcating whether we're in extrusion mode
       anchorX,           // Current anchor point - X coord
       anchorY,           // Current anchor point - Y coord
+      baseEndX,          // Current baseline end - X coord
+      baseEndY,          // Current baseline end - Y coord
       map,               // Reference to the OpenLayers map (for coordinate translation!)
       handlers = [];     // Registered event handlers
   
@@ -18,7 +21,6 @@ define(['config'], function(config) {
     map = olMap;
   
     ctx = canvasEl.getContext('2d');
-    ctx.fillStyle = config.MARKER_COLOR;
     ctx.strokeStyle = config.MARKER_COLOR;
     ctx.lineWidth = config.MARKER_LINE_WIDTH;    
 
@@ -46,40 +48,9 @@ define(['config'], function(config) {
     
   var _addMouseDownHandler = function(self) {  
     $(canvasEl).mousedown(function(e) {
-      painting = true;
-      anchorX = e.offsetX;
-      anchorY = e.offsetY;
-    
-      ctx.beginPath();
-      ctx.arc(e.offsetX, e.offsetY, config.MARKER_CIRCLE_RADIUS, 0, TWO_PI);
-      ctx.fill();
-      ctx.closePath();
-    });
-  }
-  
-  var _addMouseMoveHandler = function(self) {
-    $(canvasEl).mousemove(function(e) {
-      if (painting) {
-        // TODO could be optimized - we don't necessarily need to clear the entire canvas
-        ctx.clearRect(0, 0, self.width, self.height);
-      
-        ctx.beginPath();
-        ctx.arc(anchorX, anchorY, config.MARKER_CIRCLE_RADIUS, 0, TWO_PI);
-        ctx.fill();
-        ctx.closePath();
-      
-        ctx.beginPath();
-        ctx.moveTo(anchorX, anchorY);
-        ctx.lineTo(e.offsetX, e.offsetY);
-        ctx.stroke();
-        ctx.closePath();
-      }
-    });
-  }
-  
-  var _addMouseUpHandler = function(self) {
-    $(canvasEl).mouseup(function(e) {
-      if (painting) {
+      if (extrude) {
+        // DONE
+        extrude = false;
         painting = false;
         
         // TODO could be optimized - we don't necessarily need to clear the entire canvas
@@ -87,13 +58,19 @@ define(['config'], function(config) {
         
         if (handlers['annotationCreated']) {
           var imageAnchorCoords = map.getCoordinateFromPixel([anchorX, anchorY]);
-          var imageEndCoords = map.getCoordinateFromPixel([e.offsetX, e.offsetY]);
+          var imageEndCoords = map.getCoordinateFromPixel([baseEndX, baseEndY]);
+          var imageOppositeCoords = map.getCoordinateFromPixel([e.offsetX, e.offsetY]);
           
           var dx = imageEndCoords[0] - imageAnchorCoords[0];
           var dy = imageEndCoords[1] - imageAnchorCoords[1];
+          var dh = [
+            e.offsetX - baseEndX,
+            e.offsetY - baseEndY
+          ];
           
           var baselineAngle = Math.atan(dy / dx); 
           var baselineLength = Math.sqrt(dx * dx + dy * dy);
+          var height = Math.sqrt(dh[0]*dh[0] + dh[1]*dh[1]);
           
           handlers['annotationCreated']({
             shapes: [{ 
@@ -102,11 +79,107 @@ define(['config'], function(config) {
                 x: imageAnchorCoords[0],
                 y: - imageAnchorCoords[1],
                 a: baselineAngle,
-                l: baselineLength 
+                l: baselineLength,
+                h: height
               }
             }]
           });
-        }        
+        }
+      } else {
+        painting = true;
+        anchorX = e.offsetX;
+        anchorY = e.offsetY;
+    
+        ctx.fillStyle = config.MARKER_COLOR;
+        ctx.beginPath();
+        ctx.arc(e.offsetX, e.offsetY, config.MARKER_CIRCLE_RADIUS, 0, TWO_PI);
+        ctx.fill();
+        ctx.closePath();
+      }
+    });
+  }
+  
+  var _addMouseMoveHandler = function(self) {
+    var getLength = function(coord) {
+      return Math.sqrt(coord[0] * coord[0] + coord[1] * coord[1]);
+    };
+    
+    var normalize = function(vector) {
+      var len = getLength(vector);
+      return [ vector[0] / len, vector[1] / len ];
+    };
+    
+    var getAngleBetween = function(a, b) {
+      var dotProduct = a[0] * b[0] + a[1] * b[1];
+      return Math.acos(dotProduct);
+    };
+    
+    $(canvasEl).mousemove(function(e) {
+      if (painting) {
+        // TODO could be optimized - we don't necessarily need to clear the entire canvas
+        ctx.clearRect(0, 0, self.width, self.height);
+      
+        if (extrude) {
+          // Baseline vector (start to end)
+          var delta = [ (baseEndX - anchorX), (baseEndY - anchorY) ];
+          
+          // Slope of the baseline normal
+          var normal = normalize([-1 * delta[1], delta[0]]);
+          
+          // Vector baseline end to mouse
+          var toMouse = [ e.offsetX - baseEndX, e.offsetY - baseEndY ];
+          
+          // Projection of toMouse onto normal
+          var f = [
+            normal[0] * getLength(toMouse) * Math.cos(getAngleBetween(normal, normalize(toMouse))),
+            normal[1] * getLength(toMouse) * Math.cos(getAngleBetween(normal, normalize(toMouse)))
+          ];
+          
+          ctx.fillStyle = config.MARKER_FILL;
+          ctx.beginPath();
+          ctx.moveTo(anchorX, anchorY);
+          ctx.lineTo(anchorX + f[0], anchorY + f[1]);
+          ctx.lineTo(baseEndX + f[0], baseEndY + f[1]);
+          ctx.lineTo(baseEndX, baseEndY);
+          ctx.fill();
+          ctx.closePath();
+          
+          // Finished baseline
+          ctx.fillStyle = config.MARKER_COLOR;
+          ctx.beginPath();
+          ctx.arc(anchorX, anchorY, config.MARKER_CIRCLE_RADIUS, 0, TWO_PI);
+          ctx.fill();
+          ctx.closePath();
+      
+          ctx.beginPath();
+          ctx.moveTo(anchorX, anchorY);
+          ctx.lineTo(baseEndX, baseEndY);
+          ctx.stroke();
+          ctx.closePath();
+        } else { 
+          // Baseline
+          ctx.fillStyle = config.MARKER_COLOR;
+          ctx.beginPath();
+          ctx.arc(anchorX, anchorY, config.MARKER_CIRCLE_RADIUS, 0, TWO_PI);
+          ctx.fill();
+          ctx.closePath();
+      
+          ctx.beginPath();
+          ctx.moveTo(anchorX, anchorY);
+          ctx.lineTo(e.offsetX, e.offsetY);
+          ctx.stroke();
+          ctx.closePath();
+        }
+      }
+    });
+  }
+  
+  var _addMouseUpHandler = function(self) {
+    $(canvasEl).mouseup(function(e) {
+      if (painting) {
+        baseEndX = e.offsetX;
+        baseEndY = e.offsetY;
+        extrude = true;
       }
     });
   }

@@ -49,6 +49,10 @@ define(['config', 'annotation/image/utils'], function(config, Utils) {
         type: 'PUT',
         data: data,
         contentType : 'application/json',
+        success: function(result) {
+          currentAnnotation.corrected_toponym = transcription;
+          self.hide();
+        },
         error: function(result) {
           console.log('ERROR updating annotation!');
         }
@@ -72,6 +76,11 @@ define(['config', 'annotation/image/utils'], function(config, Utils) {
     controls.find('.cancel').click(function() { self.hide(); });
         
     window = element.find('.window');
+        
+    map.on('moveend', function(e) {
+      if (currentAnnotation)
+        self.show(currentAnnotation);
+    });
         
     $('#annotation-area').append(element);
   };
@@ -98,6 +107,7 @@ define(['config', 'annotation/image/utils'], function(config, Utils) {
   
   Editor.prototype.hide = function() {
     currentAnnotation = false;
+    controls.find('input').val(''); 
     element.hide();
   }
   
