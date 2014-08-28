@@ -6,11 +6,23 @@
 
     var menuOpen = false;
     $(document.body).click(function(e) {
+      menu.css({ height: 'auto', overflowY: 'auto' });
       if (e.target.id == 'dropdown-text-trigger' || e.target.parentNode.id == 'dropdown-text-trigger' || menuOpen) {
         var display = menu.css('display');
         if (display == 'none') {
           trigger.addClass('menu-open');
           menu.css('display', 'block');
+          
+          var offset = menu.offset(),
+              maxHeight = $(window).height() - offset.top - 48;
+              
+          if (menu.height() > maxHeight) {
+            // The text menu overlaps the footer - add scrollbar
+            menu.css({
+              height: (maxHeight - 10) + 'px',
+              overflowY: 'scroll'
+            });
+          }
           menuOpen = true;
         } else {
           trigger.removeClass('menu-open');
