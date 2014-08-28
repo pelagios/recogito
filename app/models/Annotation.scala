@@ -232,14 +232,11 @@ object Annotations extends HasStatusColumn {
   
   /** Get completion stats (based on distribution of annotation status values) for all GeoDocuments **/
   def getCompletionStats()(implicit s: Session): Map[Int, CompletionStats] = {
-    val q = query.groupBy(t => (t.gdocId, t.status))
+    val q = query.where(_.gdocId.isNotNull)
+                 .groupBy(t => (t.gdocId, t.status))
                  .map(t => (t._1._1, t._1._2, t._2.length))
-
-    val result = q.list
     
-    Logger.info(result.toString)
-    
-    result.groupBy(_._1).map { case (gdocId, statusDistribution) =>
+    q.list.groupBy(_._1).map { case (gdocId, statusDistribution) =>
       (gdocId, CompletionStats(statusDistribution.map(t => (t._2, t._3)).toMap))}    
   }
   

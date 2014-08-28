@@ -3,6 +3,7 @@ package models
 import play.api.db.slick.Config.driver.simple._
 import scala.slick.lifted.Tag
 import models.stats.CompletionStats
+import play.api.Logger
 
 /** Associates a GeoDocument with a collection.
   *

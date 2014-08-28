@@ -193,18 +193,21 @@
       
       <div id="document-list">
         <div id="total-progress">
-          <div class="label">
-            @{ documents.flatMap(_._2).foldLeft(0)((total, entry) => total + entry.stats.total) } Toponyms Total
-          </div>
-          @defining(documents.flatMap(_._2).filter(e => !(e.stats.percentComplete.isNaN() || e.stats.percentVerified.isNaN()))) { entries =>
-          	@defining(entries.map(_.stats.percentComplete).foldLeft(0.0)(_ + _) / entries.size) { percentComplete =>
-          	  @defining(entries.map(_.stats.percentVerified).foldLeft(0.0)(_ + _) / entries.size) { percentVerified =>
+          @defining(documents.flatMap(_._2).foldLeft((0, 0, 0))((stats, entry) =>
+          	(stats._1 + entry.stats.verified, stats._2 + entry.stats.yellow, stats._3 + entry.stats.total))) { s =>  
+          
+            <div class="label">
+              @s._3 Toponyms Total
+            </div>
+            @defining((s._1 + s._2).toDouble / s._3) { percentComplete =>
+              @defining(s._1.toDouble / s._3) { percentVerified =>
                 <div class="meter" title="@{ "%.2f" format (percentComplete * 100)} % Complete">
                   <span class="yellow" style="width:@{percentComplete * 100}%"></span>
                   <span class="green@if(percentComplete == percentVerified) { full}" style="width: @{percentVerified * 100}%"></span>
                 </div>
               }
             }
+            
           }
         </div>
         
