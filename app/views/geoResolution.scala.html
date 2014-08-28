@@ -30,17 +30,20 @@
       
       <div id="menu">
         <ul>
-          <li><a href="@routes.StatsController.showDocumentStats(doc.id.get)">Document Stats</a></li>
           @if(texts.size == 0) {
             <li class="disabled"><a href="#" title="There is no text available for this document" onclick="return false;">Text</a>
           } else {
             @if(texts.size == 1) {
-              <li><a href="@routes.ApplicationController.showTextAnnotationUI(texts(0)._1.id, None)">Text</a></li>  
+              @texts(0)._1 match {
+              	case image: models.content.GeoDocumentImage => { <li><a href="@routes.ApplicationController.showImageAnnotationUI(texts(0)._1.id.get)">Image</a></li> } 
+              	case text: models.content.GeoDocumentText => { <li><a href="@routes.ApplicationController.showTextAnnotationUI(texts(0)._1.id, None)">Text</a></li> }
+              }
             } else {
               <li><a href="#" id="dropdown-text-trigger" onclick="return false;">Text <span class="icon">&#xf0d7;</span></a>
             }          
           }
           <li class="active"><a href="#" onclick="return false;">Geo-Resolution</a></li>
+          <li><a href="@routes.StatsController.showDocumentStats(doc.id.get)">Document Stats</a></li>
         </ul>
       </div>
       
