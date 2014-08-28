@@ -6,6 +6,7 @@ import models.stats._
 import play.api.Play.current
 import play.api.db.slick.Config.driver.simple._
 import scala.slick.lifted.Tag
+import play.api.Logger
 
 /** Annotation case class.
   *  
@@ -234,7 +235,11 @@ object Annotations extends HasStatusColumn {
     val q = query.groupBy(t => (t.gdocId, t.status))
                  .map(t => (t._1._1, t._1._2, t._2.length))
 
-    q.list.groupBy(_._1).map { case (gdocId, statusDistribution) =>
+    val result = q.list
+    
+    Logger.info(result.toString)
+    
+    result.groupBy(_._1).map { case (gdocId, statusDistribution) =>
       (gdocId, CompletionStats(statusDistribution.map(t => (t._2, t._3)).toMap))}    
   }
   
