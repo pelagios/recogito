@@ -27,6 +27,8 @@ object ZipImporter {
   
   private val UTF8 = "UTF-8"
     
+  private val RX_HTML_ENTITY = """&[^\s]*;""".r
+    
   /** Import a Zip file into Recogito 
     *
     * @param zipFile the ZIP file
@@ -126,10 +128,16 @@ object ZipImporter {
   def validateZip(file: File): Seq[String] = {
     val zipFile = new ZipFile(file)
     val entries = zipFile.entries.asScala.toSeq.filter(!_.getName.startsWith("__MACOSX"))
+    
+    def validateText(entryName: String): Option[String] = {
+      val text = getEntry(zipFile, entryName).get    
+      val plainText = text.getLines.mkString("\n")
+      RX_HTML_ENTITY.findFirstIn(plainText).map(_ => "Text " + entryName + " contains invalid characters (HTML entities are not allowed)")
+    }
  
     // We can have multiple JSON files in the Zip, one per document
     val metafiles = entries.filter(_.getName.endsWith(".json"))
-    
+
     metafiles.flatMap(metafile => {
       val name = metafile.getName()
       val json = Json.parse(Source.fromInputStream(zipFile.getInputStream(metafile)).getLines.mkString("\n"))
@@ -141,11 +149,13 @@ object ZipImporter {
 
       val warnings = Seq(
         docText.flatMap(txt => if (entryExists(txt, zipFile)) None else Some(name + ": referenced text file " + txt + " is missing from ZIP")),
+        docText.flatMap(validateText(_)),
         docImage.flatMap(img => if (entryExists(img, zipFile)) None else Some(name + ": referenced image file" + img + " is missing from ZIP")),
         docAnnotations.flatMap(csv => if (entryExists(csv, zipFile)) None else Some(name + ": referenced annotations file " + csv + " is missing from ZIP pacakge"))
       ) ++ docParts.map(part => {
         val partText = (part \ "text").as[Option[String]]
         partText.flatMap(txt => if (entryExists(txt, zipFile)) None else Some(name + ": referenced text file " + txt + " is missing from ZIP"))
+        partText.flatMap(validateText(_))
       })
     
       warnings.filter(_.isDefined).map(_.get)
