@@ -171,7 +171,7 @@ object EditHistory {
                  .filter(_._2.gdocId inSet ids)
                  .map(_._1._2)
     
-    q.list.reduceLeft(_ + _)
+    q.list.foldLeft(0)(_ + _)
   }
     
   def countForUserPerDocument(username: String)(implicit s: Session): Seq[(GeoDocument, Int)] = {

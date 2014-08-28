@@ -21,7 +21,7 @@ object ApplicationController extends Controller with Secured with CTSClient {
   private val UTF8 = "UTF-8"
     
   /** Returns the index page for logged-in users **/
-  def index(collection: Option[String]) = DBAction { implicit rs =>    
+  def index(collection: Option[String]) = DBAction { implicit rs =>        
     if (collection.isEmpty) {
       // If no collection is selected, redirect to the first in the list
       val allCollections = CollectionMemberships.listCollections :+ "other"

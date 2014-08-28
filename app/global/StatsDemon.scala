@@ -59,7 +59,7 @@ object StatsDemon {
         GlobalStatsHistory.insert(globalStatsRecord)
             
         Logger.info("Stats: V-" + globalStatsRecord.verifiedToponyms + ", UI-" + globalStatsRecord.unidentifiableToponyms + 
-          ", TOTAL:" + globalStatsRecord.totalEdits + ", EDITS:" + globalStatsRecord.totalEdits)
+          ", TOTAL:" + globalStatsRecord.totalToponyms + ", EDITS:" + globalStatsRecord.totalEdits)
           
         // Record stats per collection
         CollectionMemberships.listAll.groupBy(_.collection).foreach { case (collection, memberships) => {
@@ -71,7 +71,7 @@ object StatsDemon {
           CollectionStatsHistory.insert(collectionStatsRecord)
           
           Logger.info("Stats for " + collection + ": V-" + collectionStatsRecord.verifiedToponyms + ", UI-" + collectionStatsRecord.unidentifiableToponyms + 
-            ", TOTAL:" + collectionStatsRecord.totalEdits + ", EDITS:" + collectionStatsRecord.totalEdits)
+            ", TOTAL:" + collectionStatsRecord.totalToponyms + ", EDITS:" + collectionStatsRecord.totalEdits)
         }}
       }
     }
