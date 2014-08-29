@@ -340,7 +340,7 @@ define(['georesolution/common'], function(common) {
     // Text search
     var markers = [];
     $('.details-content-search-input').keypress(function(e) {
-      if (e.charCode == 13) {
+      if (e.which == 13) {
         // Clear previous results (if any)
         $('#details-content-searchresults').html('');
         $.each(markers, function(idx, marker) { map.removeLayer(marker); });
