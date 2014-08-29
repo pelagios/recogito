@@ -13,9 +13,7 @@
           trigger.addClass('menu-open');
           menu.css('display', 'block');
           
-          var offset = menu.offset(),
-              maxHeight = $(window).height() - offset.top - 48;
-              
+          var maxHeight = $(window).height() - menu.position().top - 48;
           if (menu.height() > maxHeight) {
             // The text menu overlaps the footer - add scrollbar
             menu.css({
