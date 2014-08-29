@@ -95,7 +95,7 @@ define(['config', 'annotation/image/utils'], function(config, Utils) {
       controls.find('input').val('');
  
     setTimeout(function() {
-      var bounds = map.toViewportCoordinates(Utils.getBounds(annotation), 50);   
+      var bounds = map.toViewportCoordinates(annotation, 50);   
       
       top.height(bounds.top);
       middle.height(bounds.height);

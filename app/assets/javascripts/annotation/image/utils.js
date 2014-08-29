@@ -5,21 +5,34 @@ define([], function() {
   Utils.prototype.getBounds = function(annotation) {
     var geom = annotation.shapes[0].geometry;
     
-    var dx = Math.cos(geom.a) * geom.l;
-    var dy = Math.sin(geom.a) * geom.l;
+    var a = { x: geom.x, y: geom.y },
+        b = {
+          x: a.x + Math.cos(geom.a) * geom.l,
+          y: a.y + Math.sin(geom.a) * geom.l 
+        },
+        c = {
+          x: b.x - geom.h * Math.sin(geom.a),
+          y: b.y + geom.h * Math.cos(geom.a)
+        },
+        d = {
+          x: geom.x - geom.h * Math.sin(geom.a),
+          y: geom.y + geom.h * Math.cos(geom.a)      
+        };
     
-    var baseEnd = { x: geom.x + dx, y: geom.y + dy };
-    var opposite = {
-      x: baseEnd.x - geom.h * Math.sin(geom.a),
-      y: baseEnd.y + geom.h * Math.cos(geom.a)
+    var top = Math.max(a.y, b.y, c.y, d.y),
+        right = Math.max(a.x, b.x, c.x, d.x),
+        bottom = Math.min(a.y, b.y, c.y, d.y),
+        left = Math.min(a.x, b.x, c.x, d.x);
+    
+    var bounds = {
+      left: left,
+      top: top,
+      width: right - left,
+      height: top - bottom
     };
     
-    return {
-      left: Math.min(Math.min(geom.x, opposite.x), baseEnd.x),
-      top: Math.min(Math.min(geom.y, opposite.y), baseEnd.y),
-      width: Math.max(dx, Math.abs(opposite.x - geom.x)),
-      height: Math.max(dy, Math.abs(opposite.y - geom.y))
-    }
+    console.log(bounds);
+    return bounds;
   }
   
   return new Utils();

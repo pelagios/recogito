@@ -25,7 +25,6 @@ define(['config', 'annotation/image/annotation-layer'], function(config, Annotat
       })
     });
     
-    console.log(this.map.getSize());
     this.map.getView().fitExtent([0, - config.height, config.width, 0], this.map.getSize());
     
     annotationLayer = new AnnotationLayer(this);
@@ -48,17 +47,40 @@ define(['config', 'annotation/image/annotation-layer'], function(config, Annotat
     this.map.on(event, callback);
   }
   
-  OpenLayersMap.prototype.toViewportCoordinates = function(bounds, opt_buffer) {
-    var buffer = (opt_buffer) ? opt_buffer : 0,
-        bottomLeft = this.map.getPixelFromCoordinate([ bounds.left, - bounds.top ]),
-        topRight = this.map.getPixelFromCoordinate([ bounds.left + bounds.width, bounds.height - bounds.top ]);
+  OpenLayersMap.prototype.toViewportCoordinates = function(annotation, opt_buffer) {
+    var buffer = (opt_buffer) ? opt_buffer : 0;    
+    var resolution = this.map.getView().getResolution();
+    var geom = annotation.shapes[0].geometry;
     
-    return {
-      left: Math.round(bottomLeft[0] - buffer),
-      top: Math.round(topRight[1] - buffer),
-      width: Math.round(topRight[0] - bottomLeft[0]) + 2 * buffer,
-      height: Math.round(bottomLeft[1] - topRight[1]) + 2 * buffer
+    var anchor = this.map.getPixelFromCoordinate([ geom.x, - geom.y ]);
+    
+    var a = { x: anchor[0], y: anchor[1] },
+        b = {
+          x: a.x + Math.cos(geom.a) * geom.l / resolution,
+          y: a.y - Math.sin(geom.a) * geom.l / resolution
+        },
+        c = {
+          x: b.x - geom.h / resolution * Math.sin(geom.a),
+          y: b.y - geom.h / resolution * Math.cos(geom.a)
+        },
+        d = {
+          x: a.x - geom.h / resolution * Math.sin(geom.a),
+          y: a.y - geom.h / resolution * Math.cos(geom.a)      
+        };
+    var top = Math.min(a.y, b.y, c.y, d.y),
+        right = Math.max(a.x, b.x, c.x, d.x),
+        bottom = Math.max(a.y, b.y, c.y, d.y),
+        left = Math.min(a.x, b.x, c.x, d.x);
+
+    var bounds = {
+      left: Math.round(left) - buffer,
+      top: Math.round(top) - buffer,
+      width: Math.round(right - left) + 2 * buffer,
+      height: Math.round(bottom - top) + 2 * buffer
     };
+    
+    console.log(bounds);
+    return bounds;
   }
   
   OpenLayersMap.prototype.addAnnotations = function(annotation) {      

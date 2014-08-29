@@ -68,7 +68,14 @@ define(['config'], function(config) {
             e.offsetY - baseEndY
           ];
           
-          var baselineAngle = Math.atan(dy / dx); 
+          
+          var corr = 0;
+          if (dx < 0 && dy >= 0)
+            corr = Math.PI
+          else if (dx < 0 && dy < 0)
+            corr = - Math.PI
+           
+          var baselineAngle = Math.atan(dy / dx) + corr;
           var baselineLength = Math.sqrt(dx * dx + dy * dy);
           var height = Math.sqrt(dh[0]*dh[0] + dh[1]*dh[1]);
           

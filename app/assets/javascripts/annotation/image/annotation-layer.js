@@ -47,7 +47,7 @@ define(['config', 'annotation/image/tooltip', 'annotation/image/editor', 'annota
       ctx.moveTo(viewportX, viewportY);
       ctx.lineTo(viewportX + dx, viewportY - dy);
       ctx.stroke();
-      ctx.closePath();      
+      ctx.closePath();    
     };
 
     for (var id in annotations) {
@@ -135,19 +135,7 @@ define(['config', 'annotation/image/tooltip', 'annotation/image/editor', 'annota
   }
   
   AnnotationLayer.prototype.moveTo = function(annotation) {
-    var bounds = Utils.getBounds(annotation);
-    
-    var extent = [
-      bounds.left ,
-      - bounds.top,
-      bounds.left + bounds.width,
-      bounds.height - bounds.top
-    ];
-    
-    var size = map.map.getSize();
-    size = [size[0] / 2, size[1] / 2];
-
-    map.map.getView().fitExtent(extent, size);
+    // TODO
   }
   
   return AnnotationLayer;
