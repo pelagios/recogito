@@ -66,12 +66,26 @@ object DocumentAdminController extends Controller with Secured {
     
   /** Delete a document (and associated data) from the database **/
   def deleteDocument(id: Int) = protectedDBAction(Secure.REJECT) { username => implicit session =>
+    // Annotations
     Annotations.deleteForGeoDocument(id)
+    
+    // Collection memeberships
+    CollectionMemberships.deleteForGeoDocument(id)
+    
+    // Content and signoffs
+    GeoDocumentContent.findByGeoDocument(id).foreach { case (content, partName) => {
+      content match {
+        case text: GeoDocumentText => SignOffs.deleteForGeoDocumentText(text.id.get)
+        case image: GeoDocumentImage => SignOffs.deleteForGeoDocumentText(image.id.get)
+      }
+    }}
     GeoDocumentTexts.deleteForGeoDocument(id)
     GeoDocumentImages.deleteForGeoDocument(id)
+    
+    // Document & parts
     GeoDocumentParts.deleteForGeoDocument(id)
-    CollectionMemberships.deleteForGeoDocument(id)
     GeoDocuments.delete(id)
+    
     Status(200)
   }
   

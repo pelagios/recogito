@@ -37,6 +37,9 @@ object SignOffs {
   
   def create()(implicit s: Session) = query.ddl.create
   
+  def deleteForGeoDocumentText(gdocId: Int)(implicit s: Session) =
+    query.where(_.gdocTextId === gdocId).delete
+  
   def countForGeoDocumentText(id: Int)(implicit s: Session): Int =
     Query(query.where(_.gdocTextId === id).length).first
     
