@@ -90,8 +90,8 @@
         @if(langGroup.isDefined) { <tr class="lang-group lang-group-@langGroup.get"> } else { <tr> }
           <td class="title" colspan="2"> <!-- document title (and # of versions) -->
             <div> <!-- We need this DIV for the CSS ellipsis truncation to work! -->
-              @entry.doc.author.map(_ + ": ").getOrElse("") @entry.doc.title
-              @entry.doc.dateComment.map("(" + _ + ")").getOrElse("")
+              @entry.doc.author.map(_ + ", ").getOrElse("")
+              <em>@entry.doc.title</em>@entry.doc.dateComment.map(", " + _).getOrElse("")
             </div> 
           </td>
 
@@ -129,8 +129,8 @@
           <td class="title"> <!-- document title -->
             <div> <!-- We need this DIV for the CSS ellipsis truncation to work! -->
               <span class="icon plus plus-@entries.head.doc.id.get"></span>
-              @entries.head.doc.author.map(_ + ": ").getOrElse("") @entries.head.doc.title
-              @entries.head.doc.dateComment.map("(" + _ + ")").getOrElse("")
+              @entries.head.doc.author.map(_ + ", ").getOrElse("")
+              <em>@entries.head.doc.title</em>@entries.head.doc.dateComment.map(", " + _).getOrElse("")
             </div>
           </td>
           
