@@ -10,7 +10,7 @@ import play.api.mvc.{ Action, Controller }
 import play.api.Logger
 
 /** Encapsulates the information shown in one row of the landing page's document index **/
-case class DocumentIndexRow(doc: GeoDocument, stats: CompletionStats, firstText: Option[Int], firstImage: Option[Int])
+case class DocumentIndexRow(doc: GeoDocument, stats: CompletionStats, firstSource: Option[String], firstText: Option[Int], firstImage: Option[Int])
 
 /** Main application entrypoint.
   *
@@ -61,13 +61,24 @@ object ApplicationController extends Controller with Secured with CTSClient {
         }
         .sortBy(t => (t._1.date, t._1.author, t._1.title))
         
+      val ids = gdocsWithcontent.map(_._1.id.get)
+      
       // Get stats for each document
       val stats: Map[Int, CompletionStats] = 
-        Annotations.getCompletionStats(gdocsWithcontent.map(_._1.id.get))
+        Annotations.getCompletionStats(ids)
+        
+      val parts: Map[Int, Seq[GeoDocumentPart]] =
+        GeoDocumentParts.findByIds(ids)
 
       // Merge docs, stats & first content IDs to form the 'index row'
       val indexRows = gdocsWithcontent.map { case (gdoc, texts, images) => {
-        DocumentIndexRow(gdoc, stats.get(gdoc.id.get).getOrElse(CompletionStats.empty), texts.headOption, images.headOption)
+        val firstSource =
+          if (gdoc.source.isDefined)
+            gdoc.source
+          else
+            parts.get(gdoc.id.get).flatMap(_.filter(_.source.isDefined).headOption).flatMap(_.source)
+        
+        DocumentIndexRow(gdoc, stats.get(gdoc.id.get).getOrElse(CompletionStats.empty), firstSource, texts.headOption, images.headOption)
       }}
                   
       // The information require for the collection selection widget

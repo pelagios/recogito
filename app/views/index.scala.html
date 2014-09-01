@@ -102,6 +102,9 @@
             <div> <!-- We need this DIV for the CSS ellipsis truncation to work! -->
               @entry.doc.author.map(_ + ", ").getOrElse("")
               <em>@entry.doc.title</em>@entry.doc.dateComment.map(", " + _).getOrElse("")
+              @if(entry.firstSource.isDefined) {
+                <a href="@entry.firstSource.get" title="View source" target="_blank" class="icon">&#xf08e;</a>
+              }
             </div> 
           </td>
 
