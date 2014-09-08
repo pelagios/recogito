@@ -98,7 +98,7 @@
       
       @singleDoc(entry: DocumentIndexRow, langGroup: Option[Int] = None) = {
         @if(langGroup.isDefined) { <tr class="lang-group lang-group-@langGroup.get"> } else { <tr> }
-          <td class="title" colspan="2"> <!-- document title -->
+          <td class="title"> <!-- document title -->
             <div@if(entry.doc.description.isDefined) { title="@entry.doc.description" }> <!-- We need this DIV for the CSS ellipsis truncation to work! -->
               @entry.doc.author.map(_ + ", ").getOrElse("")
               <em>@entry.doc.title</em>@entry.doc.dateComment.map(", " + _).getOrElse("")
@@ -163,11 +163,8 @@
           </td>
           
           <!-- # of versions -->
-          <td class="versions center">@entries.size Versions</td>
+          <td class="versions">@entries.size Versions</td>
 
-          <!-- languages -->                
-          <td></td>
-                
           <!-- # of toponyms -->
           @defining((entries.map(_.stats.total).min, entries.map(_.stats.total).max)) { toponyms =>
             <td class="center">
