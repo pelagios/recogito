@@ -36,6 +36,7 @@
                 @if(user.isAdmin) { <a href="@controllers.admin.routes.DocumentAdminController.listAll" title="Administration Access to Recogito">Administration</a> }
                 <a href="@routes.UserController.changePassword" title="Edit User Settings">My Settings</a>
                 <a href="@routes.ApplicationController.showDocumentation">Tutorial</a>
+                <!-- a href="#">About</a -->
               </p>
             </div> 
             
@@ -102,9 +103,6 @@
             <div@if(entry.doc.description.isDefined) { title="@entry.doc.description" }> <!-- We need this DIV for the CSS ellipsis truncation to work! -->
               @entry.doc.author.map(_ + ", ").getOrElse("")
               <em>@entry.doc.title</em>@entry.doc.dateComment.map(", " + _).getOrElse("")
-              @if(entry.firstSource.isDefined) {
-                <a href="@entry.firstSource.get" title="View source" target="_blank" class="icon">&#xf08e;</a>
-              }
             </div> 
           </td>
 
