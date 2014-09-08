@@ -121,14 +121,19 @@ object DocumentAdminController extends Controller with Secured {
   /** Edit an existing document in the UI form **/
   def editDocument(id: Int) = DBAction { implicit session =>
     GeoDocuments.findById(id).map { doc =>
-      Ok(views.html.admin.documentDetails(id, documentForm.fill(doc)))
+      val collections = CollectionMemberships.findForGeoDocument(doc.id.get)
+      Ok(views.html.admin.documentDetails(id, documentForm.fill(doc), collections))
     }.getOrElse(NotFound)
   }
   
   /** Save a document from the UI form **/
   def updateDocument(id: Int) = protectedDBAction(Secure.REJECT) { implicit username => implicit session =>
     documentForm.bindFromRequest.fold(
-      formWithErrors => BadRequest(views.html.admin.documentDetails(id, formWithErrors)),
+      formWithErrors => {
+        val collections = CollectionMemberships.findForGeoDocument(id)
+	    BadRequest(views.html.admin.documentDetails(id, formWithErrors, collections))
+	  },
+	  
       document => {
         // Update the document
         GeoDocuments.update(document)
@@ -138,16 +143,14 @@ object DocumentAdminController extends Controller with Secured {
           case c if (c.size == 0) => None
           case c if (c.head.isEmpty) => None
           case c => Some(c.head)
-        }).map(_.split(",").toSeq)
+        }).map(_.split(",").toSeq).map(_.toSet).getOrElse(Set.empty[String])
 
-        if (collections.isDefined) {
-          val currentMemberships = CollectionMemberships.findForGeoDocument(document.id.get).toSet
-          if (currentMemberships != collections.get.toSet) {
-            // Change detected! Update collection memberships
-            CollectionMemberships.deleteForGeoDocument(document.id.get)
-            CollectionMemberships.insertAll(collections.get.map(CollectionMembership(None, document.id.get, _)))
-          }
-        }        
+        val currentMemberships = CollectionMemberships.findForGeoDocument(document.id.get).toSet
+        if (currentMemberships != collections) {
+          // Change detected! Update collection memberships
+          CollectionMemberships.deleteForGeoDocument(document.id.get)
+          CollectionMemberships.insertAll(collections.toSeq.map(CollectionMembership(None, document.id.get, _)))
+        }
         
         Redirect(routes.DocumentAdminController.listAll())
       }

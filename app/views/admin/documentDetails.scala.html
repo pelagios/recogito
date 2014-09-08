@@ -1,4 +1,4 @@
-@(docId: Int, form: Form[GeoDocument])
+@(docId: Int, form: Form[GeoDocument], collections: Seq[String])
 
 <html>
   <head>
@@ -89,7 +89,7 @@
 	      
 	      <li>
 	        <label for="collections">Collections</label>
-	        <input name="collections" id="collections" type="text">
+	        <input name="collections" id="collections" type="text" value="@collections.mkString(", ")">
 	      </li>
 	      
 	      <li>

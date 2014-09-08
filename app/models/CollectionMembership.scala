@@ -33,7 +33,8 @@ object CollectionMemberships {
   
   def create()(implicit s: Session) = query.ddl.create
   
-  def insertAll(collectionMemberships: Seq[CollectionMembership])(implicit s: Session) = query.insertAll(collectionMemberships:_*)
+  def insertAll(collectionMemberships: Seq[CollectionMembership])(implicit s: Session) = 
+    query.insertAll(collectionMemberships:_*)
   
   def listAll()(implicit s: Session): Seq[CollectionMembership] =
     query.list
