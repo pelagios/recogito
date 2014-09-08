@@ -29,11 +29,11 @@ recogito.PublicMap = function(mapDiv, dataURL) {
       legend_template = 
         '<div class="legend">' +
         '  <table>' +
-        '    <tr><td><span class="dot" style="background-color:' + this.ColorPalette.getLightColor(0) + "; border-color:" + this.ColorPalette.getDarkColor(0) + ';"></span></td><td>Settlement</td></tr>' +
-        '    <tr><td><span class="dot" style="background-color:' + this.ColorPalette.getLightColor(1) + "; border-color:" + this.ColorPalette.getDarkColor(1) + ';"></span></td><td>Region</td></tr>' +
-        '    <tr><td><span class="dot" style="background-color:' + this.ColorPalette.getLightColor(2) + "; border-color:" + this.ColorPalette.getDarkColor(2) + ';"></span></td><td>Natural Feature</td></tr>' +
-        '    <tr><td><span class="dot" style="background-color:' + this.ColorPalette.getLightColor(4) + "; border-color:" + this.ColorPalette.getDarkColor(4) + ';"></span></td><td>Artifical Structure</td></tr>' +
-        '    <tr><td><span class="dot" style="background-color:' + this.ColorPalette.getLightColor(5) + "; border-color:" + this.ColorPalette.getDarkColor(5) + ';"></span></td><td>Ethnos</td></tr>' +
+        '    <tr><td><span class="dot" style="background-color:' + this.ColorPalette.getLightColor(1) + "; border-color:" + this.ColorPalette.getDarkColor(1) + ';"></span></td><td>Settlement</td></tr>' +
+        '    <tr><td><span class="dot" style="background-color:' + this.ColorPalette.getLightColor(2) + "; border-color:" + this.ColorPalette.getDarkColor(2) + ';"></span></td><td>Region</td></tr>' +
+        '    <tr><td><span class="dot" style="background-color:' + this.ColorPalette.getLightColor(3) + "; border-color:" + this.ColorPalette.getDarkColor(3) + ';"></span></td><td>Natural Feature</td></tr>' +
+        '    <tr><td><span class="dot" style="background-color:' + this.ColorPalette.getLightColor(5) + "; border-color:" + this.ColorPalette.getDarkColor(5) + ';"></span></td><td>Artifical Structure</td></tr>' +
+        '    <tr><td><span class="dot" style="background-color:' + this.ColorPalette.getLightColor(6) + "; border-color:" + this.ColorPalette.getDarkColor(6) + ';"></span></td><td>Ethnos</td></tr>' +
         '  </table>' +
         '</div>';
         
@@ -113,13 +113,7 @@ recogito.PublicMap = function(mapDiv, dataURL) {
       loadIndicator.hide();
     }
   });
-  
-  this._styles = { 
-        
-    VERIFIED: { color: '#118128', fillColor:'#1bcc3f', radius: 4, weight:2, opacity:1, fillOpacity: 1 }
     
-  }
-  
 }
 
 recogito.PublicMap.prototype.addPlaceMarker = function(annotation, layerGroup) {
@@ -169,14 +163,16 @@ recogito.PublicMap.prototype.addPlaceMarker = function(annotation, layerGroup) {
     
     if (place && place.coordinate) {
       var colIdx = 0;
-      if (place.category == 'REGION')
+      if (place.category == 'SETTLEMENT')
         colIdx = 1;
-      else if (place.category == 'ETHNOS')
-        colIdx = 5;
-      else if (place.category == 'NATURAL_FEATURE')
+      else if (place.category == 'REGION')
         colIdx = 2;
+      else if (place.category == 'ETHNOS')
+        colIdx = 6;
+      else if (place.category == 'NATURAL_FEATURE')
+        colIdx = 3;
       else if (place.category == 'MAN_MADE_STRUCTURE')
-        colIdx = 4;
+        colIdx = 5;
 
       var stroke = self.ColorPalette.getDarkColor(colIdx),
           fill = self.ColorPalette.getLightColor(colIdx);
@@ -191,9 +187,9 @@ recogito.PublicMap.prototype.addPlaceMarker = function(annotation, layerGroup) {
 
 recogito.PublicMap.prototype.ColorPalette = {
   
-  _dark: [ '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf' ],  
+  _dark: [ '#828282', '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf' ],  
   
-  _light: [ '#aec7e8', '#ffbb78', '#98df8a', '#ff9896', '#c5b0d5', '#c49c94', '#f7b6d2', '#c7c7c7', '#dbdb8d', '#9edae5' ],
+  _light: [ '#b2b2b2', '#aec7e8', '#ffbb78', '#98df8a', '#ff9896', '#c5b0d5', '#c49c94', '#f7b6d2', '#c7c7c7', '#dbdb8d', '#9edae5' ],
   
   getDarkColor: function(idx) { return this._dark[idx % this._dark.length]; },
   
