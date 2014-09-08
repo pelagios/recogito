@@ -141,6 +141,13 @@
             
             <!-- CSV download shortcut -->
             <a class="icon" href="@routes.DocumentController.get(entry.doc.id.get, Some("csv"))" title="Download CSV">&#xf0ce;</a>
+            
+            <!-- Source link --->
+            @if(entry.firstSource.isDefined) {
+              <a class="icon" href="@entry.firstSource.get" title="Visit source" target="_blank">&#xf08e;</a>
+            } else {
+              <a class="icon disabled" href="#" onclick="return false;" title="No source available">&#xf08e;</a>
+			}
           </td>
         </tr>      	
       }

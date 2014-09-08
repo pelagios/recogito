@@ -61,9 +61,26 @@ button, .button {
   
 }
 
+button.disabled, .button.disabled {
+  .gradient(#fefefe, #f0f0f0);
+  background-color:#ddd;  
+  border-color:#ddd;
+  color:#ccc;  
+  
+  .icon {
+    color:#ccc !important;
+  }
+  
+}
+
 button:hover, .button:hover {
   .gradient(#ddd, #bbb);
   background-color:#bbb;
+}
+
+button.disabled:hover, .button.disabled:hover {
+  .gradient(#fefefe, #f0f0f0);
+  background-color:#ddd;    
 }
   
 button.dark, .button.dark {

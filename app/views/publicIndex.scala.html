@@ -36,7 +36,7 @@
         </div>
       </div>
       
-      <div id="column-headings">
+      <div id="column-headings" class="public">
         <table>
           <thead>
             <tr>
@@ -92,9 +92,6 @@
             <div@if(entry.doc.description.isDefined) { title="@entry.doc.description" }> <!-- We need this DIV for the CSS ellipsis truncation to work! -->
               @entry.doc.author.map(_ + ", ").getOrElse("")
               <em>@entry.doc.title</em>@entry.doc.dateComment.map(", " + _).getOrElse("")
-              @if(entry.firstSource.isDefined) {
-                <a href="@entry.firstSource.get" title="View source" target="_blank" class="icon">&#xf08e;</a>
-              }
             </div> 
           </td>
 
@@ -123,6 +120,15 @@
             <a class="button small" href="@routes.DocumentController.get(entry.doc.id.get, Some("csv"))" title="Download Data as CSV">
               <span class="icon">&#xf019;</span>
             </a>
+            @if(entry.firstSource.isDefined) {
+              <a class="button small" href="@entry.firstSource.get" title="Visit source" target="_blank">
+				<span class="icon">&#xf08e;</span>
+			  </a>
+            } else {
+              <a class="button small disabled" href="#" onclick="return false;" title="No source available">
+			    <span class="icon">&#xf08e;</span>
+              </a>				
+			}
           </td>
         </tr>      	
       }
