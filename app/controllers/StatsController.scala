@@ -37,8 +37,19 @@ object StatsController extends Controller with Secured {
     }
   }
 
-  /** Shows detailed stats for a specific document **/  
+  /** Shows detailed stats for a specific toponym **/  
   def showToponymStats(toponym: String) = DBAction { implicit session =>
+    // TODO grab all Gazetteer IDs for this toponym from the Annotations table
+    // TODO grab all documents where the toponym appears from the Annotations table
+    // TODO grab statuses
+    // TODO grab all other toponyms linked to the gazetteer IDs?
+    Ok("")
+  }
+  
+  /** Shows detailed stats for a specific place (= gazetteer URI) **/    
+  def showPlaceStats(uri: String) = DBAction { implicit session =>
+    // TODO grab all toponyms for this place
+    // TODO grab all documents for this place
     Ok("")
   }
   
