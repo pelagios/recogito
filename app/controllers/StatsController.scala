@@ -36,6 +36,11 @@ object StatsController extends Controller with Secured {
       NotFound
     }
   }
+
+  /** Shows detailed stats for a specific document **/  
+  def showToponymStats(toponym: String) = DBAction { implicit session =>
+    Ok("")
+  }
   
   def showStats() = DBAction { implicit request =>
     // Get activity timeline from DB and append today's live stats

@@ -47,7 +47,8 @@ GET     /recogito/docs                             controllers.ApplicationContro
 GET     /recogito/about                            controllers.ApplicationController.showAbout
 
 GET     /recogito/stats/users/:user                controllers.StatsController.showUserStats(user: String)
-GET     /recogito/stats/document/:id               controllers.StatsController.showDocumentStats(id: Int)
+GET     /recogito/stats/documents/:id              controllers.StatsController.showDocumentStats(id: Int)
+GET     /recogito/stats/toponyms/:toponym          controllers.StatsController.showToponymStats(toponym: String)
 GET     /recogito/stats                            controllers.StatsController.showStats
 
 # Private views - TODO needs a little cleanup
