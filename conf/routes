@@ -44,6 +44,7 @@ GET     /recogito/feeds/recent                     controllers.FeedController.re
 # Public views
 GET     /recogito/map                              controllers.ApplicationController.showMap(doc: Int)
 GET     /recogito/docs                             controllers.ApplicationController.showDocumentation
+GET     /recogito/about                            controllers.ApplicationController.showAbout
 
 GET     /recogito/stats/users/:user                controllers.StatsController.showUserStats(user: String)
 GET     /recogito/stats/document/:id               controllers.StatsController.showDocumentStats(id: Int)
