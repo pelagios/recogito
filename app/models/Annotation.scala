@@ -356,6 +356,9 @@ object Annotations extends HasStatusColumn {
 
     correctAutoMatches.toDouble / allAutoMatches
   }
+  
+  def getToponymsForPlace(uri: String)(implicit s: Session): Seq[(String, Int)] =
+    Seq.empty[(String, Int)]	  
 
   /** Helper to retrieve a random UUID **/
   def newUUID: UUID = UUID.randomUUID

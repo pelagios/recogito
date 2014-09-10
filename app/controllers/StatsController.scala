@@ -50,6 +50,7 @@ object StatsController extends Controller with Secured {
   def showPlaceStats(uri: String) = DBAction { implicit session =>
     // TODO grab all toponyms for this place
     // TODO grab all documents for this place
+    // val variants: Seq[(String, Int) =  Annotations.getToponymsForPlace(uri)
     Ok("")
   }
   
