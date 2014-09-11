@@ -201,6 +201,11 @@ object Annotations extends HasStatusColumn {
   def countForGeoDocumentPartAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Int =
     Query(query.where(_.gdocPartId === id).filter(_.status inSet status).length).first
     
+  def findByToponym(toponym: String)(implicit s: Session): Seq[Annotation] =
+    query.where(row => (row.correctedToponym.toLowerCase === toponym.toLowerCase) || 
+                       (row.correctedToponym.isNull && row.toponym.toLowerCase === toponym.toLowerCase))
+         .list
+    
   /** Helper method to retrieve annotations that overlap the specified annotation **/
   def getOverlappingAnnotations(annotation: Annotation)(implicit s: Session) = {
     val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym

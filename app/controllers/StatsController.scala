@@ -1,10 +1,12 @@
 package controllers
 
+import global.Global
 import java.sql.Timestamp
 import models._
 import models.stats.CompletionStats
 import play.api.mvc.Controller
 import play.api.db.slick._
+import play.api.Logger
 
 object StatsController extends Controller with Secured {
   
@@ -43,7 +45,26 @@ object StatsController extends Controller with Secured {
     // TODO grab all documents where the toponym appears from the Annotations table
     // TODO grab statuses
     // TODO grab all other toponyms linked to the gazetteer IDs?
-    Ok("")
+    val annotations = Annotations.findByToponym(toponym)
+    val byGDocIdAndPlaceURI = 
+      annotations.groupBy(a => if (a.correctedGazetteerURI.isDefined) 
+                                  (a.gdocId.get, a.correctedGazetteerURI)
+                                else
+                                  (a.gdocId.get, a.gazetteerURI))
+                 .map(tuple => (tuple._1, tuple._2.size)).toSeq
+             
+    val documents = GeoDocuments.findByIds(byGDocIdAndPlaceURI.map(_._1._1)).map(gdoc => (gdoc.id.get, gdoc)).toMap  
+    val places = byGDocIdAndPlaceURI.map(_._1._2)
+      .filter(_.isDefined)
+      .map(uri => Global.index.findByURI(uri.get))
+      .filter(_.isDefined)
+      .map(place => (place.get.uri, place.get))
+      .toMap
+        
+    val byGDocAndPlace = byGDocIdAndPlaceURI.map(tuple =>
+	  ((documents.get(tuple._1._1).get, tuple._1._2), tuple._2))
+        
+    Ok(views.html.stats.toponymStats(byGDocAndPlace, places))
   }
   
   /** Shows detailed stats for a specific place (= gazetteer URI) **/    
