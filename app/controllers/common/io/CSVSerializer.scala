@@ -34,10 +34,18 @@ class CSVSerializer extends BaseSerializer {
             "external ID" -> gdoc.externalWorkID).filter(_._2.isDefined).map(tuple => (tuple._1, tuple._2.get))
       }.map(tuple => "# " + tuple._1 + ": " + tuple._2).mkString("\n")
     
-    val header = Seq("toponym","gazetteer_uri","lat","lng", "place_category", "document_part", "tags", "source").mkString(SEPARATOR) + SEPARATOR + "\n"
+    val header = Seq("toponym","gazetteer_uri","lat","lng", "place_category", "document_part", "status", "tags", "source").mkString(SEPARATOR) + SEPARATOR + "\n"
     
     annotations.foldLeft(meta + "\n" + header)((csv, annotation) => {
-      val uri = if (annotation.correctedGazetteerURI.isDefined && !annotation.correctedGazetteerURI.get.isEmpty) annotation.correctedGazetteerURI else annotation.gazetteerURI
+      val uri = 
+        if (annotation.status == AnnotationStatus.VERIFIED) {
+		  if (annotation.correctedGazetteerURI.isDefined && !annotation.correctedGazetteerURI.get.isEmpty)
+		    annotation.correctedGazetteerURI
+		  else
+		    annotation.gazetteerURI
+	    } else {
+		  None // We remove any existing URI in case the status is not VERIFIED
+		}
       val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
       
       val queryResult = uri.flatMap(CrossGazetteerUtils.getPlace(_))
@@ -51,6 +59,7 @@ class CSVSerializer extends BaseSerializer {
       coord.map(_.x).getOrElse("") + SEPARATOR +
       category.map(_.toString).getOrElse("") + SEPARATOR +
       annotation.gdocPartId.map(getPart(_).map(_.title)).flatten.getOrElse("") + SEPARATOR +
+      annotation.status.toString + SEPARATOR + 
       { if (annotation.tags.size > 0) "\"" + annotation.tags.mkString(",") + "\"" else "" } + SEPARATOR + 
       getSourceForAnnotation(annotation).getOrElse("") + SEPARATOR + "\n"
     })
