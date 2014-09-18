@@ -19,7 +19,7 @@ define(['config', 'annotation/image/tooltip', 'annotation/image/editor', 'annota
     layer.getSource().dispatchChangeEvent();
   }
   
-  var redraw = function(extent, resolution, pixelRatio, size, projection) {    
+  var redraw = function(extent, resolution, pixelRatio, size, projection) {        
     var canvas = document.createElement('canvas');
     canvas.width = size[0];
     canvas.height = size[1];
@@ -31,9 +31,9 @@ define(['config', 'annotation/image/tooltip', 'annotation/image/editor', 'annota
     
     var draw = function(annotation) {
       var geometry = annotation.shapes[0].geometry;
-      var viewportX = (geometry.x - extent[0]) / resolution;
-      var viewportY = (geometry.y + extent[3]) / resolution;
-      var viewportLength = geometry.l / resolution;
+      var viewportX = pixelRatio * (geometry.x - extent[0]) / resolution;
+      var viewportY = pixelRatio * (geometry.y + extent[3]) / resolution;
+      var viewportLength = pixelRatio * geometry.l / resolution;
       
       var dx = Math.cos(geometry.a) * viewportLength;
       var dy = Math.sin(geometry.a) * viewportLength;
