@@ -1,4 +1,4 @@
-define(['config', 'annotation/image/utils'], function(config, Utils) {
+define(['config', 'imageannotation/utils'], function(config, Utils) {
   
   var map, element,
       top, middle, left, right, bottom,

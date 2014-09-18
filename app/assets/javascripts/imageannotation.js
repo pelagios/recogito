@@ -7,7 +7,7 @@ define('config', [], function() {
   return config; 
 });
 
-require(['annotation/image/ol-map', 'annotation/image/drawing-canvas', 'annotation/image/storage'], function(Map, DrawingCanvas, Storage) {
+require(['imageannotation/ol-map', 'imageannotation/drawing-canvas', 'imageannotation/storage'], function(Map, DrawingCanvas, Storage) {
       
   var btnNavigate   = $('.navigate'),
       btnAnnotate   = $('.annotate'),

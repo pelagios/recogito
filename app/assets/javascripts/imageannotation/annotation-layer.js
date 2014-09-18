@@ -1,4 +1,4 @@
-define(['config', 'annotation/image/tooltip', 'annotation/image/editor', 'annotation/image/utils'], function(config, Tooltip, Editor, Utils) {
+define(['config', 'imageannotation/tooltip', 'imageannotation/editor', 'imageannotation/utils'], function(config, Tooltip, Editor, Utils) {
   
   var map,                        // the map
       layer,                      // the map layer
