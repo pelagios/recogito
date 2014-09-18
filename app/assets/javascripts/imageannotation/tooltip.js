@@ -1,5 +1,5 @@
 define([], function() {
-  
+    
   var element;
   
   var Tooltip = function() {
