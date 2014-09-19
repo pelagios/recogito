@@ -1,15 +1,16 @@
-define(['config', 'imageannotation/events', 'imageannotation/utils'], function(Config, EventBroker, Utils) {
+define(['config', 'imageannotation/annotations', 'imageannotation/utils', 'imageannotation/tooltip', 'imageannotation/events'], function(Config, Annotations, Utils, Tooltip, EventBroker) {
   
-  var _map, _mapLayer, _annotations, _currentHighlight; // Private fields
+  var _map, 
+      _mapLayer,
+      _annotations = new Annotations(),
+      _eventBroker = new EventBroker(),
+      _tooltip = new Tooltip(_eventBroker),
+      _currentHighlight = false; // Private fields
      
   var TWO_PI = 2 * Math.PI; // Shortcut
   
   var AnnotationLayer = function(map) {
     _map = map;
-    _annotations = [];
-    _currentHighlight = false;
-    
-    // Set up the map layer that holds the annotations
     _mapLayer = new ol.layer.Image({
       source: new ol.source.ImageCanvas({
         canvasFunction: _redrawAll,
@@ -17,29 +18,34 @@ define(['config', 'imageannotation/events', 'imageannotation/utils'], function(C
       })
     });
     map.addLayer(_mapLayer);
-        
     map.on('pointermove', _onMouseMove);
     map.on('singleclick', _onClick);
   };
   
   /** Draws a single annotation onto the canvas **/
-  var _drawOne = function(annotation, extent, scale, ctx) {
-    var geometry = annotation.shapes[0].geometry;
-    var viewportX = scale * (geometry.x - extent[0]);
-    var viewportY = scale * (geometry.y + extent[3]);
-    var viewportLength = scale * geometry.l;
-      
-    var dx = Math.cos(geometry.a) * viewportLength;
-    var dy = Math.sin(geometry.a) * viewportLength;
-      
+  var _drawOne = function(annotation, extent, scale, ctx) {    
+    var rect = jQuery.map(Annotations.getRect(annotation), function(pt) {
+      return { x: scale * (pt.x - extent[0]), y: scale * (pt.y + extent[3]) }; 
+    });
+       
     ctx.beginPath();
-    ctx.arc(viewportX, viewportY, Config.MARKER_CIRCLE_RADIUS, 0, TWO_PI);
+    ctx.arc(rect[0].x, rect[0].y, Config.MARKER_CIRCLE_RADIUS, 0, TWO_PI);
     ctx.fill();
     ctx.closePath();
         
+    ctx.globalAlpha = 0.3;
     ctx.beginPath();
-    ctx.moveTo(viewportX, viewportY);
-    ctx.lineTo(viewportX + dx, viewportY - dy);
+    ctx.moveTo(rect[0].x, rect[0].y);
+    ctx.lineTo(rect[1].x, rect[1].y);
+    ctx.lineTo(rect[2].x, rect[2].y);
+    ctx.lineTo(rect[3].x, rect[3].y);
+    ctx.fill();
+    ctx.closePath();
+    ctx.globalAlpha = 1;
+        
+    ctx.beginPath();
+    ctx.moveTo(rect[0].x, rect[0].y);
+    ctx.lineTo(rect[1].x, rect[1].y);
     ctx.stroke();
     ctx.closePath();    
   };
@@ -56,7 +62,7 @@ define(['config', 'imageannotation/events', 'imageannotation/utils'], function(C
     ctx.lineWidth = Config.MARKER_LINE_WIDTH;
 
     var self = this;
-    jQuery.each(_annotations, function(idx, annotation) {
+    jQuery.each(_annotations.getAll(), function(idx, annotation) {
       // TODO optimize so that stuff outside the visible area isn't drawn
       if (annotation.id != _currentHighlight.id)
         _drawOne(annotation, extent, pixelRatio / resolution, ctx);
@@ -75,31 +81,18 @@ define(['config', 'imageannotation/events', 'imageannotation/utils'], function(C
     _currentHighlight = annotation;    
     
     if (annotation) {
-      EventBroker.fireEvent('onMouseOverAnnotation', annotation);
-      // tooltip.show(annotation, x, y);
+      _eventBroker.fireEvent('onMouseOverAnnotation', { annotation: annotation, x: x, y: y });
     } else {
-      // EventBroker.fireEvent('onMouseOutOfAnnotation', annotation);
-      // tooltip.hide();
+      _eventBroker.fireEvent('onMouseOutOfAnnotation', { x: x, y: y });
     }
     
     _mapLayer.getSource().dispatchChangeEvent();
   }
   
   var _onMouseMove = function(e) {
-    // TODO optimize with a quadtree
-    var maxDistance = _map.getResolution() * 10;
-      
-    // TODO cover the whole annotation area, not just the anchor dot
-    var hovered = [];
-    jQuery.each(_annotations, function(idx, annotation) {
-      var geometry = annotation.shapes[0].geometry;
-      var dx = Math.abs(e.coordinate[0] - geometry.x);
-      var dy = Math.abs(e.coordinate[1] + geometry.y);        
-      if (dx < maxDistance && dy < maxDistance)
-        hovered.push(annotation);
-    });
-      
-    // TODO only redraw on highlight *change*
+    // var maxDistance = _map.getResolution() * 10;
+    
+    var hovered = _annotations.getAnnotationsAt(e.coordinate[0], - e.coordinate[1]);
     if (hovered.length > 0) {
       if (_currentHighlight) {
         if (_currentHighlight.id != hovered[0].id) {
@@ -112,7 +105,7 @@ define(['config', 'imageannotation/events', 'imageannotation/utils'], function(C
       }
     } else {
       if (_currentHighlight) {
-        // No annotation under mouse - clear highlights
+        // No more annotation under mouse - clear highlights
         _highlightAnnotation(false);
       }
     }
@@ -120,25 +113,18 @@ define(['config', 'imageannotation/events', 'imageannotation/utils'], function(C
   
   var _onClick = function(e) {
     if (_currentHighlight)
-      EventBroker.fireEvent('onEditAnnotation', _currentHighlight);
+      _eventBroker.fireEvent('onEditAnnotation', _currentHighlight);
   };
   
   /** Public methods **/
   
   AnnotationLayer.prototype.addAnnotations = function(a) {
-    if (jQuery.isArray(a))
-      _annotations = jQuery.merge(_annotations, a);
-    else
-      _annotations.push(a);
-    
+    _annotations.add(a);
     _mapLayer.getSource().dispatchChangeEvent();
   };
   
   AnnotationLayer.prototype.removeAnnotation = function(id) {
-    _annotations = jQuery.grep(_annotations, function(a) {
-      return a.id != id;
-    });
-    
+    _annotations.remove(id);
     _mapLayer.getSource().dispatchChangeEvent();
   };
   

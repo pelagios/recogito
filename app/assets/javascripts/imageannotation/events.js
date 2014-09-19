@@ -28,6 +28,6 @@ define([], function() {
     }    
   }
 
-  return new EventBroker();
+  return EventBroker;
   
 });

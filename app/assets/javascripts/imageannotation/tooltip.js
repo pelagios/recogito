@@ -2,7 +2,7 @@ define([], function() {
     
   var element;
   
-  var Tooltip = function() {
+  var Tooltip = function(eventBroker) {
     var template =
       '<div class="tooltip">' +
       '  <div class="transcription"></div>' +
@@ -14,22 +14,25 @@ define([], function() {
     element = $(template);
     element.hide();
     $('#annotation-area').append(element);
+    
+    eventBroker.addHandler('onMouseOverAnnotation', show);
+    eventBroker.addHandler('onMouseOutOfAnnotation', hide);
   };
   
-  Tooltip.prototype.show = function(annotation, x, y) {
-    var transcription = (annotation.corrected_toponym) ? annotation.corrected_toponym : annotation.toponym;
+  var show = function(e) {    
+    var transcription = (e.annotation.corrected_toponym) ? e.annotation.corrected_toponym : e.annotation.toponym;
     if (transcription)
       element.find('.transcription').html(transcription);
     else 
       element.find('.transcription').html('');
       
-    element.find('.username').html(annotation.last_edit.username);
-    element.find('.ago').html($.timeago(new Date(annotation.last_edit.timestamp)));
-    element.css({ left: x, top: y });
+    element.find('.username').html(e.annotation.last_edit.username);
+    element.find('.ago').html($.timeago(new Date(e.annotation.last_edit.timestamp)));
+    element.css({ left: e.x, top: e.y });
     element.show();
   }
   
-  Tooltip.prototype.hide = function() {
+  var hide = function() {
     element.hide();
   }
   
