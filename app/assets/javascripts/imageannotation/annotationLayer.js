@@ -36,31 +36,54 @@ define(['imageannotation/config',
   };
   
   /** Draws a single annotation onto the canvas **/
-  var _drawOne = function(annotation, extent, scale, ctx) {    
+  var _drawOne = function(annotation, extent, scale, ctx, color) {    
     var rect = jQuery.map(Annotations.getRect(annotation), function(pt) {
       return { x: scale * (pt.x - extent[0]), y: scale * (pt.y + extent[3]) }; 
     });
-       
+    rect.push(rect[0]); // Close path
+
+    // Helper function to trace the rectangle path     
+    var traceRect = function() {
+      ctx.moveTo(rect[0].x, rect[0].y);
+      ctx.lineTo(rect[1].x, rect[1].y);
+      ctx.lineTo(rect[2].x, rect[2].y);
+      ctx.lineTo(rect[3].x, rect[3].y);  
+      ctx.lineTo(rect[0].x, rect[0].y);    
+    };
+    
+    // Draw rectangle
+    ctx.fillStyle = color;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = Config.MARKER_OPACITY;
+    ctx.beginPath();
+    traceRect();
+    ctx.stroke();
+    ctx.fill();
+    ctx.closePath();
+    
+    // Draw rectangle outline
+    ctx.globalAlpha = Config.MARKER_OPACITY * 1.5;
+    ctx.beginPath();
+    traceRect();
+    ctx.stroke();
+    ctx.closePath();
+    ctx.globalAlpha = 1;
+          
+    // Draw anchor dot
     ctx.beginPath();
     ctx.arc(rect[0].x, rect[0].y, Config.MARKER_CIRCLE_RADIUS, 0, TWO_PI);
     ctx.fill();
     ctx.closePath();
-        
-    ctx.globalAlpha = Config.MARKER_OPACITY;
-    ctx.beginPath();
-    ctx.moveTo(rect[0].x, rect[0].y);
-    ctx.lineTo(rect[1].x, rect[1].y);
-    ctx.lineTo(rect[2].x, rect[2].y);
-    ctx.lineTo(rect[3].x, rect[3].y);
-    ctx.fill();
-    ctx.closePath();
-    ctx.globalAlpha = 1;
-        
+    
+    // Draw aseline
+    ctx.lineWidth = Config.MARKER_LINE_WIDTH;
+    ctx.strokeStyle = color;
     ctx.beginPath();
     ctx.moveTo(rect[0].x, rect[0].y);
     ctx.lineTo(rect[1].x, rect[1].y);
     ctx.stroke();
-    ctx.closePath();    
+    ctx.closePath();
   };
   
   /** The rendering loop that draws the annotations onto the map layer **/
@@ -70,21 +93,16 @@ define(['imageannotation/config',
     canvas.height = size[1];
 
     var ctx = canvas.getContext('2d');
-    ctx.fillStyle = Config.MARKER_COLOR;
-    ctx.strokeStyle = Config.MARKER_COLOR;
-    ctx.lineWidth = Config.MARKER_LINE_WIDTH;
 
     var self = this;
     jQuery.each(_annotations.getAll(), function(idx, annotation) {
       // TODO optimize so that stuff outside the visible area isn't drawn
       if (annotation.id != _currentHighlight.id)
-        _drawOne(annotation, extent, pixelRatio / resolution, ctx);
+        _drawOne(annotation, extent, pixelRatio / resolution, ctx, Config.MARKER_COLOR);
     });
     
     if (_currentHighlight) {
-      ctx.fillStyle = Config.MARKER_HI_COLOR;
-      ctx.strokeStyle = Config.MARKER_HI_COLOR;
-      _drawOne(_currentHighlight, extent, pixelRatio / resolution, ctx);
+      _drawOne(_currentHighlight, extent, pixelRatio / resolution, ctx, Config.MARKER_HI_COLOR);
     }
     
     return canvas;
@@ -95,8 +113,10 @@ define(['imageannotation/config',
     _currentHighlight = annotation;    
     
     if (annotation) {
+      document.body.style.cursor = 'pointer';
       _eventBroker.fireEvent('onMouseOverAnnotation', { annotation: annotation, x: x, y: y });
     } else {
+      document.body.style.cursor = 'auto';
       _eventBroker.fireEvent('onMouseOutOfAnnotation', { x: x, y: y });
     }
     

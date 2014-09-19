@@ -15,10 +15,10 @@ define([], function() {
   window.config.MARKER_OPACITY = 0.3;
     
   /** Annotation anchor point circle radius **/    
-  window.config.MARKER_CIRCLE_RADIUS = 4;
+  window.config.MARKER_CIRCLE_RADIUS = 3;
     
   /** Annotation baseline width **/
-  window.config.MARKER_LINE_WIDTH = 3;
+  window.config.MARKER_LINE_WIDTH = 2;
     
   return window.config;
     
