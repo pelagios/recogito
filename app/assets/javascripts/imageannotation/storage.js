@@ -1,4 +1,4 @@
-define(['config'], function(config) {
+define(['imageannotation/config'], function(config) {
   
   var STORE_URI = '/recogito/api/annotations',
       GDOC_ID = config.gdoc_id,

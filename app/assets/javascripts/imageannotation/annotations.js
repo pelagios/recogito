@@ -2,8 +2,16 @@ define([], function() {
   
   var _annotations = [];
   
+  /**
+   * A container object that manages (surprise) annotations,
+   * and provides a number of helper functions related to 
+   * displaying them graphically on the screen.
+   * 
+   * TODO store annotations in a quadtree for improved collision detection
+   */  
   var Annotations = function() { };
   
+  /** Helper to compute the rectangle from an annotation geometry **/
   Annotations.getRect = function(annotation) {     
     var geom = annotation.shapes[0].geometry,
         a = { x: geom.x, 
@@ -18,6 +26,7 @@ define([], function() {
     return [ a, b, c, d ];
   };    
   
+  /** Helper function to compute the bounding box for a rectangle **/
   var _getBBox = function(rect) {
     return {
       top: Math.min(rect[0].y, rect[1].y, rect[2].y, rect[3].y),
@@ -27,6 +36,7 @@ define([], function() {
     }
   };
   
+  /** Tests if the given coordinate intersects the rectangle **/
   var _intersects = function(x, y, rect) {
     var inside = false;
     var j = 3; // rect.length - 1 (but we know rect.length is always 4)
@@ -40,10 +50,12 @@ define([], function() {
     return inside;
   };
   
+  /** Returns all annotations **/
   Annotations.prototype.getAll = function() {
     return _annotations;
   };
   
+  /** Returns the annotations at a specifix X/Y coordinate **/
   Annotations.prototype.getAnnotationsAt = function(x, y) {
     // TODO optimize with a quadtree
     var hovered = [];
@@ -55,6 +67,7 @@ define([], function() {
     return hovered;
   }
   
+  /** Adds a single annotation, or an array of annotations **/
   Annotations.prototype.add = function(a) {
     if (jQuery.isArray(a))
       _annotations = jQuery.merge(_annotations, a);
@@ -62,6 +75,7 @@ define([], function() {
       _annotations.push(a);    
   };
   
+  /** Removes the annotation with the specified ID **/
   Annotations.prototype.remove = function(id) {
     _annotations = jQuery.grep(_annotations, function(a) {
       return a.id != id;

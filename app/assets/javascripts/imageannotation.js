@@ -1,12 +1,3 @@
-define('config', [], function() { 
-  config.MARKER_COLOR = '#0000aa';
-  config.MARKER_FILL = 'rgba(0, 0, 170, 0.4)';
-  config.MARKER_HI_COLOR = '#fff000';
-  config.MARKER_CIRCLE_RADIUS = 4;
-  config.MARKER_LINE_WIDTH = 3;
-  return config; 
-});
-
 require(['imageannotation/ol-map', 'imageannotation/drawing-canvas', 'imageannotation/storage'], function(Map, DrawingCanvas, Storage) {
       
   var btnNavigate   = $('.navigate'),

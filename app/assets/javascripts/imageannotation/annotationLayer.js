@@ -1,24 +1,35 @@
-define(['config', 'imageannotation/annotations', 'imageannotation/utils', 'imageannotation/tooltip', 'imageannotation/events', 'imageannotation/editor'], function(Config, Annotations, Utils, Tooltip, EventBroker, Editor) {
+define(['imageannotation/config', 
+        'imageannotation/popup',
+        'imageannotation/editor',
+        'imageannotation/annotations'], function(Config, Popup, Editor, Annotations) {
   
   var _map, 
       _mapLayer,
-      _annotations = new Annotations(),
-      _eventBroker = new EventBroker(),
-      _tooltip = new Tooltip(_eventBroker),
+      _eventBroker,
+      _popup,
       _editor,
-      _currentHighlight = false; // Private fields
+      _annotations = new Annotations(),
+      _currentHighlight = false;
      
-  var TWO_PI = 2 * Math.PI; // Shortcut
+  var TWO_PI = 2 * Math.PI; // Just a shortcut
   
-  var AnnotationLayer = function(map) {
+  /** 
+   * The annotation layer takes care of rendering existing annotations
+   * onto the OpenLayers map, using an Image overlay backed by a canvas 
+   * element.
+   */
+  var AnnotationLayer = function(map, eventBroker) {
     _map = map;
-    _editor = new Editor(map, _eventBroker);
     _mapLayer = new ol.layer.Image({
       source: new ol.source.ImageCanvas({
         canvasFunction: _redrawAll,
         projection: 'ZOOMIFY'
       })
     });
+    _eventBroker = eventBroker;
+    _popup = new Popup(_eventBroker);
+    _editor = new Editor(map, _eventBroker);
+
     map.addLayer(_mapLayer);
     map.on('pointermove', _onMouseMove);
     map.on('singleclick', _onClick);
@@ -35,7 +46,7 @@ define(['config', 'imageannotation/annotations', 'imageannotation/utils', 'image
     ctx.fill();
     ctx.closePath();
         
-    ctx.globalAlpha = 0.3;
+    ctx.globalAlpha = Config.MARKER_OPACITY;
     ctx.beginPath();
     ctx.moveTo(rect[0].x, rect[0].y);
     ctx.lineTo(rect[1].x, rect[1].y);
@@ -79,6 +90,7 @@ define(['config', 'imageannotation/annotations', 'imageannotation/utils', 'image
     return canvas;
   };
   
+  /** Highlights a current annotation, firing the appropriate events via the EventBroker **/
   var _highlightAnnotation = function(annotation, x, y) {
     _currentHighlight = annotation;    
     
@@ -91,9 +103,8 @@ define(['config', 'imageannotation/annotations', 'imageannotation/utils', 'image
     _mapLayer.getSource().dispatchChangeEvent();
   }
   
-  var _onMouseMove = function(e) {
-    // var maxDistance = _map.getResolution() * 10;
-    
+  /** The mouseMove handler performs collision detection and highlighting **/
+  var _onMouseMove = function(e) {    
     var hovered = _annotations.getAnnotationsAt(e.coordinate[0], - e.coordinate[1]);
     if (hovered.length > 0) {
       if (_currentHighlight) {
@@ -113,6 +124,7 @@ define(['config', 'imageannotation/annotations', 'imageannotation/utils', 'image
     }
   };
   
+  /** The click handler fires the 'edit' event in case we have a highlight **/
   var _onClick = function(e) {
     if (_currentHighlight)
       _eventBroker.fireEvent('onEditAnnotation', _currentHighlight);

@@ -2,7 +2,8 @@ define([], function() {
     
   var element;
   
-  var Tooltip = function(eventBroker) {
+  /** A popup bubble to displays information about annotations **/
+  var Popup = function(eventBroker) {
     var template =
       '<div class="tooltip">' +
       '  <div class="transcription"></div>' +
@@ -13,10 +14,12 @@ define([], function() {
       
     element = $(template);
     element.hide();
+    
     $('#annotation-area').append(element);
     
+    // We hook ourselves up to the appropriate events
     eventBroker.addHandler('onMouseOverAnnotation', show);
-    eventBroker.addHandler('onMouseOutOfAnnotation', hide);
+    eventBroker.addHandler('onMouseOutOfAnnotation', function() { element.hide(); });
   };
   
   var show = function(e) {    
@@ -32,10 +35,6 @@ define([], function() {
     element.show();
   }
   
-  var hide = function() {
-    element.hide();
-  }
-  
-  return Tooltip;
+  return Popup;
   
 });

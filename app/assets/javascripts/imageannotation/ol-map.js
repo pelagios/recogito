@@ -1,4 +1,4 @@
-define(['config', 'imageannotation/annotation-layer'], function(config, AnnotationLayer) {
+define(['imageannotation/config', 'imageannotation/annotationLayer', 'imageannotation/events'], function(config, AnnotationLayer, EventBroker) {
   
   var annotationLayer;
   
@@ -27,7 +27,7 @@ define(['config', 'imageannotation/annotation-layer'], function(config, Annotati
     
     this.map.getView().fitExtent([0, - config.height, config.width, 0], this.map.getSize());
     
-    annotationLayer = new AnnotationLayer(this);
+    annotationLayer = new AnnotationLayer(this, new EventBroker());
   }
   
   OpenLayersMap.prototype.getCoordinateFromPixel = function(px) {

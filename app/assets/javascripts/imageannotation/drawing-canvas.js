@@ -1,4 +1,4 @@
-define(['config'], function(config) {
+define(['imageannotation/config'], function(config) {
   
   var TWO_PI = 2 * Math.PI;
       
@@ -147,7 +147,8 @@ define(['config'], function(config) {
           oppositeX = baseEndX + f[0];
           oppositeY = baseEndY + f[1];
           
-          ctx.fillStyle = config.MARKER_FILL;
+          ctx.globalAlpha = config.MARKER_OPACITY;
+          ctx.fillStyle = config.MARKER_COLOR;
           ctx.beginPath();
           ctx.moveTo(anchorX, anchorY);
           ctx.lineTo(anchorX + f[0], anchorY + f[1]);
@@ -155,9 +156,9 @@ define(['config'], function(config) {
           ctx.lineTo(baseEndX, baseEndY);
           ctx.fill();
           ctx.closePath();
+          ctx.globalAlpha = 1;
           
           // Finished baseline
-          ctx.fillStyle = config.MARKER_COLOR;
           ctx.beginPath();
           ctx.arc(anchorX, anchorY, config.MARKER_CIRCLE_RADIUS, 0, TWO_PI);
           ctx.fill();
