@@ -10,6 +10,8 @@ define(['config'], function(config) {
       anchorY,           // Current anchor point - Y coord
       baseEndX,          // Current baseline end - X coord
       baseEndY,          // Current baseline end - Y coord
+      oppositeX,
+      oppositeY,
       map,               // Reference to the OpenLayers map (for coordinate translation!)
       handlers = [];     // Registered event handlers
   
@@ -59,13 +61,13 @@ define(['config'], function(config) {
         if (handlers['annotationCreated']) {
           var imageAnchorCoords = map.getCoordinateFromPixel([anchorX, anchorY]);
           var imageEndCoords = map.getCoordinateFromPixel([baseEndX, baseEndY]);
-          var imageOppositeCoords = map.getCoordinateFromPixel([e.offsetX, e.offsetY]);
+          var imageOppositeCoords = map.getCoordinateFromPixel([oppositeX, oppositeY]);
           
           var dx = imageEndCoords[0] - imageAnchorCoords[0];
           var dy = imageEndCoords[1] - imageAnchorCoords[1];
           var dh = [
-            e.offsetX - baseEndX,
-            e.offsetY - baseEndY
+            imageOppositeCoords[0] - imageEndCoords[0],
+            imageOppositeCoords[1] - imageEndCoords[1]
           ];
           
           
@@ -142,11 +144,14 @@ define(['config'], function(config) {
             normal[1] * getLength(toMouse) * Math.cos(getAngleBetween(normal, normalize(toMouse)))
           ];
           
+          oppositeX = baseEndX + f[0];
+          oppositeY = baseEndY + f[1];
+          
           ctx.fillStyle = config.MARKER_FILL;
           ctx.beginPath();
           ctx.moveTo(anchorX, anchorY);
           ctx.lineTo(anchorX + f[0], anchorY + f[1]);
-          ctx.lineTo(baseEndX + f[0], baseEndY + f[1]);
+          ctx.lineTo(oppositeX, oppositeY);
           ctx.lineTo(baseEndX, baseEndY);
           ctx.fill();
           ctx.closePath();
