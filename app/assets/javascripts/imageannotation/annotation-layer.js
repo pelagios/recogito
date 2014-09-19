@@ -1,16 +1,18 @@
-define(['config', 'imageannotation/annotations', 'imageannotation/utils', 'imageannotation/tooltip', 'imageannotation/events'], function(Config, Annotations, Utils, Tooltip, EventBroker) {
+define(['config', 'imageannotation/annotations', 'imageannotation/utils', 'imageannotation/tooltip', 'imageannotation/events', 'imageannotation/editor'], function(Config, Annotations, Utils, Tooltip, EventBroker, Editor) {
   
   var _map, 
       _mapLayer,
       _annotations = new Annotations(),
       _eventBroker = new EventBroker(),
       _tooltip = new Tooltip(_eventBroker),
+      _editor,
       _currentHighlight = false; // Private fields
      
   var TWO_PI = 2 * Math.PI; // Shortcut
   
   var AnnotationLayer = function(map) {
     _map = map;
+    _editor = new Editor(map, _eventBroker);
     _mapLayer = new ol.layer.Image({
       source: new ol.source.ImageCanvas({
         canvasFunction: _redrawAll,

@@ -5,7 +5,7 @@ define(['config', 'imageannotation/utils'], function(config, Utils) {
       window, controls,
       currentAnnotation = false;
   
-  var Editor = function(olMap) {    
+  var Editor = function(olMap, eventBroker) {    
     map = olMap;
     
     var self = this,
@@ -52,7 +52,7 @@ define(['config', 'imageannotation/utils'], function(config, Utils) {
         contentType : 'application/json',
         success: function(result) {
           currentAnnotation.corrected_toponym = transcription;
-          self.hide();
+          hide();
         },
         error: function(result) {
           console.log('ERROR updating annotation!');
@@ -66,7 +66,7 @@ define(['config', 'imageannotation/utils'], function(config, Utils) {
         type: 'DELETE',
         success: function(result) {
           map.removeAnnotation(currentAnnotation.id);
-          self.hide();
+          hide();
         },
         error: function(result) {
           console.log('ERROR deleting annotation!');
@@ -74,19 +74,21 @@ define(['config', 'imageannotation/utils'], function(config, Utils) {
       }); 
     });
 
-    controls.find('.cancel').click(function() { self.hide(); });
+    controls.find('.cancel').click(function() { hide(); });
         
     window = element.find('.window');
         
     map.on('moveend', function(e) {
       if (currentAnnotation)
-        self.show(currentAnnotation);
+        show(currentAnnotation);
     });
         
     $('#annotation-area').append(element);
+    
+    eventBroker.addHandler('onEditAnnotation', show);
   };
   
-  Editor.prototype.show = function(annotation) {
+  var show = function(annotation) {
     currentAnnotation = annotation;
     var transcription = (annotation.corrected_toponym) ? annotation.corrected_toponym : annotation.toponym;
     if (transcription)
@@ -116,7 +118,7 @@ define(['config', 'imageannotation/utils'], function(config, Utils) {
     }, 1);
   }
   
-  Editor.prototype.hide = function() {
+  var hide = function() {
     currentAnnotation = false;
     controls.find('input').val(''); 
     element.hide();
