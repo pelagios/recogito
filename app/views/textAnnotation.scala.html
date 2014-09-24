@@ -5,7 +5,7 @@
   username: String,  
   textHTML: String, 
   source: Option[String], 
-  signedOff: Boolean, totalSignOffs: Int)
+  signedOff: Boolean, signedBy: Seq[String])
   
 <!DOCTYPE html>
 <html>
@@ -77,10 +77,10 @@
         <div class="tool signoff">
           @if(signedOff) {
             <span class="icon signed" title="You signed off this text">&#xf164;</span>
-            <span class="signoff-count signed" title="@totalSignOffs people have signed off this text">@totalSignOffs</span>
+            <span class="signoff-count signed" title="@signedBy.size people have signed off this text">@signedBy.size</span>
           } else {
-            <span class="icon" title="Do you think this text is complete? Click to sign it off!">&#xf164;</span>
-            <span class="signoff-count@{ if (totalSignOffs > 0)  " signed"}" title="@totalSignOffs people have signed off this text">@totalSignOffs</span>
+            <span class="icon" title="Are you done marking toponyms in this text? Click to sign it off!">&#xf164;</span>
+            <span class="signoff-count@{ if (signedBy.size > 0)  " signed"}" title="@signedBy.size people have signed off this text">@signedBy.size</span>
           }
         </div>  
       </div>

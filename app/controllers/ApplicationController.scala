@@ -149,7 +149,7 @@ object ApplicationController extends Controller with Secured with CTSClient {
           html, 
           ctsURI,
           signOffs.contains(username),
-          signOffs.size))
+          signOffs))
     } else {
       NotFound(Json.parse("{ \"success\": false, \"message\": \"Annotation not found\" }")) 
     }
