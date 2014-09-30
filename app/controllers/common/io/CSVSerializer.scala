@@ -29,6 +29,7 @@ class CSVSerializer extends BaseSerializer {
         Seq("title" -> gdoc.title) ++
         Seq("author" -> gdoc.author,
             "language" -> gdoc.language,
+            "date (numeric)" -> gdoc.date, 
             "date" -> gdoc.dateComment,
             "description" -> gdoc.description,
             "external ID" -> gdoc.externalWorkID).filter(_._2.isDefined).map(tuple => (tuple._1, tuple._2.get))
