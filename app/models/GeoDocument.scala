@@ -121,8 +121,8 @@ object GeoDocuments {
 
     q.list.groupBy(_._1).map { case (gdoc, allValues) => 
       (gdoc, 
-       allValues.filter(_._2.isDefined).map(_._2.get),
-       allValues.filter(_._3.isDefined).map(_._3.get)) } toSeq
+       allValues.filter(_._2.isDefined).map(_._2.get).sorted,
+       allValues.filter(_._3.isDefined).map(_._3.get).sorted) } toSeq
   }
     
   def delete(id: Int)(implicit s: Session) =
