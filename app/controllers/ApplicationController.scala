@@ -222,7 +222,9 @@ object ApplicationController extends Controller with Secured with CTSClient {
     val gdocImage = GeoDocumentImages.findById(imageId)
     if (gdocImage.isDefined) {
       val gdoc = GeoDocuments.findById(gdocImage.get.gdocId)
-      Ok(views.html.imageAnnotation(gdoc.get, gdocImage.get, username))
+      val gdocPart = gdocImage.get.gdocPartId.flatMap(GeoDocumentParts.findById(_))
+      val allImages = GeoDocumentContent.findByGeoDocument(gdoc.get.id.get)      
+      Ok(views.html.imageAnnotation(gdocImage.get, gdoc.get, gdocPart, allImages, username))
     } else {
       NotFound
     }

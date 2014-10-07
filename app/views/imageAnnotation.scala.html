@@ -1,4 +1,9 @@
-@(doc: GeoDocument, image: models.content.GeoDocumentImage, username: String)(implicit request: RequestHeader)
+@(image: models.content.GeoDocumentImage, 
+  gdoc: GeoDocument,
+  gdocPart: Option[GeoDocumentPart],
+  allImages: Seq[(GeoDocumentContent, Option[String])],
+  username: String)(implicit request: RequestHeader)
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -9,13 +14,16 @@
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/timeago/jquery.timeago.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/ol3.0.0-gamma.4/ol.js")"></script>
+    @if(allImages.size > 1) { 
+      @tags.js_text_menu() 
+    }
     @helper.requireJs(core = routes.Assets.at("javascripts/require.js").url, module = routes.Assets.at("javascripts/imageannotation").url)
     <script>
       window.config = {
         'width': @image.width,
         'height': @image.height,
         'url': '@{ global.Global.uploadBaseURL + image.path }',
-        'gdoc_id': @doc.id        
+        'gdoc_id': @gdoc.id        
       };
       
       $(document).ready(function() {
@@ -33,18 +41,33 @@
   <body>
     <div id="header">
       <div id="title">
-        @doc.author.map(_ + ": ").getOrElse("") @doc.title
-        @doc.dateComment.map("(" + _ + ")").getOrElse("")
+        @gdoc.author.map(_ + ": ").getOrElse("") @gdoc.title
+        @gdoc.dateComment.map("(" + _ + ")").getOrElse("")
         <div id="home-button"><a href="@routes.ApplicationController.index(None)" class="icon">&#xf015;</a></div>
       </div>
       
       <div id="menu">
         <ul>
-          <li><li class="disabled"><a href="#" title="There is no text available for this document" onclick="return false;">Image</a></li>
-          <li><a href="@routes.ApplicationController.showGeoResolutionUI(doc.id.get)">Geo-Resolution</a></li>
-          <li><a href="@routes.StatsController.showDocumentStats(doc.id.get)">Document Stats</a></li>
+          <li>          
+            @if(allImages.size < 2) {
+              <li class="disabled"><a href="#" onclick="return false;">Image</a></li>
+            } else {
+              <li><a href="#" id="dropdown-text-trigger" onclick="return false;">Image <span class="icon">&#xf0d7;</span></a></li>
+            }
+          <li><a href="@routes.ApplicationController.showGeoResolutionUI(gdoc.id.get)">Geo-Resolution</a></li>
+          <li><a href="@routes.StatsController.showDocumentStats(gdoc.id.get)">Document Stats</a></li>
         </ul>
       </div>
+      
+      @if(allImages.size > 1) {
+        <div id="dropdown-text-menu">
+          <ul>
+            @for((image, title) <- allImages) {
+              <li><a href="@routes.ApplicationController.showImageAnnotationUI(image.id.get)">@title.getOrElse("[untitled]")</a></li>
+            }
+          </ul>
+        </div>
+      }
       
       <div id="toolbar">
         <div class="tool selected navigate" title="Move Image">
