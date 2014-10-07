@@ -27,7 +27,8 @@ define(['imageannotation/config'], function(config) {
   }
   
   Storage.prototype.loadAll = function(callback) {
-	  $.getJSON(STORE_URI + '?gdoc=' + GDOC_ID, function(data) {
+    var params = (GDOC_PART_ID) ? '?gdocPart=' + GDOC_PART_ID : '?gdoc=' + GDOC_ID;
+	  $.getJSON(STORE_URI + params, function(data) {
       callback(data);
     });     
   }

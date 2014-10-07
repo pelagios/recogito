@@ -14,7 +14,7 @@ object AnnotationController extends AbstractAnnotationController with TextAnnota
   
   private def getParam(request: RequestHeader, name: String): Option[String] =
     request.queryString
-      .filter(_._1.toLowerCase.equals(name))
+      .filter(_._1.toLowerCase.equals(name.toLowerCase))
       .headOption.flatMap(_._2.headOption)
   
   override protected def createOne(json: JsObject, username: String)(implicit s: Session): Try[Annotation] = {

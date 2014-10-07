@@ -23,7 +23,8 @@
         'width': @image.width,
         'height': @image.height,
         'url': '@{ global.Global.uploadBaseURL + image.path }',
-        'gdoc_id': @gdoc.id        
+        'gdoc_id': @gdoc.id,
+        'gdoc_part_id': @gdocPart.map(_.id.get).getOrElse("null")       
       };
       
       $(document).ready(function() {
@@ -43,6 +44,7 @@
       <div id="title">
         @gdoc.author.map(_ + ": ").getOrElse("") @gdoc.title
         @gdoc.dateComment.map("(" + _ + ")").getOrElse("")
+        @gdocPart.map(" - " + _.title).getOrElse("")
         <div id="home-button"><a href="@routes.ApplicationController.index(None)" class="icon">&#xf015;</a></div>
       </div>
       
