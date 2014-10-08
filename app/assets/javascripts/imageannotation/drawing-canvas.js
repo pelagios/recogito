@@ -1,7 +1,8 @@
 define(['imageannotation/config'], function(config) {
   
   var TWO_PI = 2 * Math.PI,
-      MIN_DRAG_TIME = 500; 
+      MIN_DRAG_TIME = 500;   // Minimum duration of an annotation drag (milliseconds)
+      MIN_LINE_LENGTH = 10;  // Minimum length of a baseline
       
   var canvasEl,          // canvas DOM element
       ctx,               // 2D drawing context
@@ -16,6 +17,10 @@ define(['imageannotation/config'], function(config) {
       lastClicktime,     // Time of last mousedown event
       map,               // Reference to the OpenLayers map (for coordinate translation!)
       handlers = [];     // Registered event handlers
+      
+  var len = function(x1, y1, x2, y2) {
+    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+  };
   
   var DrawingCanvas = function(canvasId, olMap) {
     canvasEl = document.getElementById(canvasId);  
@@ -201,7 +206,14 @@ define(['imageannotation/config'], function(config) {
         } else {
           baseEndX = e.offsetX;
           baseEndY = e.offsetY;
-          extrude = true;
+          
+          // Reject lines that are too short
+          if (len(anchorX, anchorY, baseEndX, baseEndY) > MIN_LINE_LENGTH) {
+            extrude = true;
+          } else {
+            painting = false;
+            ctx.clearRect(0, 0, self.width, self.height);
+          }
         }
       }
     });
