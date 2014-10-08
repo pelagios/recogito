@@ -1,6 +1,7 @@
 define(['imageannotation/config'], function(config) {
   
-  var TWO_PI = 2 * Math.PI;
+  var TWO_PI = 2 * Math.PI,
+      MIN_DRAG_TIME = 500; 
       
   var canvasEl,          // canvas DOM element
       ctx,               // 2D drawing context
@@ -12,6 +13,7 @@ define(['imageannotation/config'], function(config) {
       baseEndY,          // Current baseline end - Y coord
       oppositeX,
       oppositeY,
+      lastClicktime,     // Time of last mousedown event
       map,               // Reference to the OpenLayers map (for coordinate translation!)
       handlers = [];     // Registered event handlers
   
@@ -50,6 +52,8 @@ define(['imageannotation/config'], function(config) {
     
   var _addMouseDownHandler = function(self) {  
     $(canvasEl).mousedown(function(e) {
+      lastClicktime = new Date().getTime();
+      
       if (extrude) {
         // DONE
         extrude = false;
@@ -187,12 +191,18 @@ define(['imageannotation/config'], function(config) {
     });
   }
   
-  var _addMouseUpHandler = function(self) {
+  var _addMouseUpHandler = function(self) {    
     $(canvasEl).mouseup(function(e) {
       if (painting) {
-        baseEndX = e.offsetX;
-        baseEndY = e.offsetY;
-        extrude = true;
+        if ((new Date().getTime() - lastClicktime) < MIN_DRAG_TIME) {
+          // Just reset
+          painting = false;
+          ctx.clearRect(0, 0, self.width, self.height);
+        } else {
+          baseEndX = e.offsetX;
+          baseEndY = e.offsetY;
+          extrude = true;
+        }
       }
     });
   }
