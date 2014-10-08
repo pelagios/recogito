@@ -1,4 +1,4 @@
-@(doc: models.GeoDocument, texts: Seq[(GeoDocumentContent, Option[String])], username: String)(implicit s: play.api.db.slick.Config.driver.simple.Session)
+@(doc: models.GeoDocument, content: Seq[(GeoDocumentContent, Option[String])], username: String)(implicit s: play.api.db.slick.Config.driver.simple.Session)
 <html>
   <head>
     <title>RECOGITO Geo-Resolution</title>
@@ -15,7 +15,7 @@
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/leaflet/leaflet.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/leaflet/leaflet.textpath.js")"></script>
     @helper.requireJs(core = routes.Assets.at("javascripts/require.js").url, module = routes.Assets.at("javascripts/georesolution").url)
-    @if(texts.size > 1) { 
+    @if(content.size > 1) { 
       @tags.js_text_menu() 
     }
     <base href="@routes.ApplicationController.index(None)">
@@ -30,16 +30,24 @@
       
       <div id="menu">
         <ul>
-          @if(texts.size == 0) {
+          @if(content.size == 0) {
             <li class="disabled"><a href="#" title="There is no text available for this document" onclick="return false;">Text</a>
           } else {
-            @if(texts.size == 1) {
-              @texts(0)._1 match {
-              	case image: models.content.GeoDocumentImage => { <li><a href="@routes.ApplicationController.showImageAnnotationUI(texts(0)._1.id.get)">Image</a></li> } 
-              	case text: models.content.GeoDocumentText => { <li><a href="@routes.ApplicationController.showTextAnnotationUI(texts(0)._1.id, None)">Text</a></li> }
+            @if(content.size == 1) {
+              @content(0)._1 match {
+              	case image: models.content.GeoDocumentImage => { <li><a href="@routes.ApplicationController.showImageAnnotationUI(content(0)._1.id.get)">Image</a></li> } 
+              	case _ => { <li><a href="@routes.ApplicationController.showTextAnnotationUI(content(0)._1.id, None)">Text</a></li> }
               }
             } else {
-              <li><a href="#" id="dropdown-text-trigger" onclick="return false;">Text <span class="icon">&#xf0d7;</span></a>
+              <li>
+                <a href="#" id="dropdown-text-trigger" onclick="return false;">
+                  @content(0)._1 match {
+                  	case image: models.content.GeoDocumentImage => { Image }
+                  	case _ => { Text }
+                  } 
+                  <span class="icon">&#xf0d7;</span>
+                </a>
+              </li>
             }          
           }
           <li class="active"><a href="#" onclick="return false;">Geo-Resolution</a></li>
@@ -47,11 +55,14 @@
         </ul>
       </div>
       
-      @if(texts.size > 1) {
+      @if(content.size > 1) {
         <div id="dropdown-text-menu">
           <ul>
-            @for(text <- texts) {
-              <li><a href="@routes.ApplicationController.showTextAnnotationUI(text._1.id, None)">@text._2.getOrElse("[untitled]")</a></li>
+            @for((content, title) <- content) {
+              @content match {
+                case image: models.content.GeoDocumentImage => { <li><a href="@routes.ApplicationController.showImageAnnotationUI(content.id.get)">@title.getOrElse("[untitled]")</a></li> }
+                case _ => { <li><a href="@routes.ApplicationController.showTextAnnotationUI(content.id, None)">@title.getOrElse("[untitled]")</a></li> }
+              }
             }
           </ul>
         </div>
