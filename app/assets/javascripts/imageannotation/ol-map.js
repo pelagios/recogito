@@ -79,7 +79,6 @@ define(['imageannotation/config', 'imageannotation/annotationLayer', 'imageannot
       height: Math.round(bottom - top) + 2 * buffer
     };
     
-    console.log(bounds);
     return bounds;
   }
   

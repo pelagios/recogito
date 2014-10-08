@@ -37,9 +37,10 @@ define(['imageannotation/config'], function(config) {
     bottom = element.find('.bottom');
     
     controls = element.find('.editor-controls');
-
-    controls.find('.ok').click(function() {
-      var transcription = controls.find('input').val(); 
+    input = controls.find('input');
+    
+    var saveTranscription = function() {
+      var transcription = input.val(); 
             
       var data = (config.gdoc_part_id) ? 
         '{ "gdoc_part_d": ' + config.gdoc_part_id + ', "corrected_toponym": "' + transcription + '" }' :
@@ -58,6 +59,15 @@ define(['imageannotation/config'], function(config) {
           console.log('ERROR updating annotation!');
         }
       });  
+    };
+    
+    input.keypress(function(e) {
+      if (e.which == 13)
+        saveTranscription();
+    });
+    
+    controls.find('.ok').click(function() {
+      saveTranscription();
     });
 
     controls.find('.delete').click(function() {
@@ -84,7 +94,6 @@ define(['imageannotation/config'], function(config) {
     });
         
     $('#annotation-area').append(element);
-    
     eventBroker.addHandler('onEditAnnotation', show);
   };
   
@@ -115,6 +124,7 @@ define(['imageannotation/config'], function(config) {
       });
   
       element.show();   
+      element.find('.editor-controls input').focus();
     }, 1);
   }
   
