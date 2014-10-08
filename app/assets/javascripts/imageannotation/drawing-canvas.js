@@ -105,12 +105,14 @@ define(['imageannotation/config'], function(config) {
         }
       } else {
         painting = true;
-        anchorX = e.offsetX;
-        anchorY = e.offsetY;
-    
+        anchorX = (e.offsetX) ? e.offsetX : e.originalEvent.layerX;
+        anchorY = (e.offsetY) ? e.offsetY : e.originalEvent.layerY;
+        
+        console.log(e);
+        
         ctx.fillStyle = config.MARKER_COLOR;
         ctx.beginPath();
-        ctx.arc(e.offsetX, e.offsetY, config.MARKER_CIRCLE_RADIUS, 0, TWO_PI);
+        ctx.arc(anchorX, anchorY, config.MARKER_CIRCLE_RADIUS, 0, TWO_PI);
         ctx.fill();
         ctx.closePath();
       }
@@ -145,7 +147,9 @@ define(['imageannotation/config'], function(config) {
           var normal = normalize([-1 * delta[1], delta[0]]);
           
           // Vector baseline end to mouse
-          var toMouse = [ e.offsetX - baseEndX, e.offsetY - baseEndY ];
+          var offsetX = (e.offsetX) ? e.offsetX : e.originalEvent.layerX;
+          var offsetY = (e.offsetY) ? e.offsetY : e.originalEvent.layerY;
+          var toMouse = [ offsetX - baseEndX, offsetY - baseEndY ];
           
           // Projection of toMouse onto normal
           var f = [
@@ -186,9 +190,12 @@ define(['imageannotation/config'], function(config) {
           ctx.fill();
           ctx.closePath();
       
+          var offsetX = (e.offsetX) ? e.offsetX : e.originalEvent.layerX;
+          var offsetY = (e.offsetY) ? e.offsetY : e.originalEvent.layerY;
+          
           ctx.beginPath();
           ctx.moveTo(anchorX, anchorY);
-          ctx.lineTo(e.offsetX, e.offsetY);
+          ctx.lineTo(offsetX, offsetY);
           ctx.stroke();
           ctx.closePath();
         }
@@ -204,8 +211,8 @@ define(['imageannotation/config'], function(config) {
           painting = false;
           ctx.clearRect(0, 0, self.width, self.height);
         } else {
-          baseEndX = e.offsetX;
-          baseEndY = e.offsetY;
+          baseEndX = (e.offsetX) ? e.offsetX : e.originalEvent.layerX;
+          baseEndY = (e.offsetY) ? e.offsetY : e.originalEvent.layerY;
           
           // Reject lines that are too short
           if (len(anchorX, anchorY, baseEndX, baseEndY) > MIN_LINE_LENGTH) {
