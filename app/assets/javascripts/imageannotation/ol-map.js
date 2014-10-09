@@ -53,19 +53,20 @@ define(['imageannotation/config', 'imageannotation/annotationLayer', 'imageannot
     var geom = annotation.shapes[0].geometry;
     
     var anchor = this.map.getPixelFromCoordinate([ geom.x, - geom.y ]);
+    var angle = geom.a - this.map.getView().getRotation();
     
     var a = { x: anchor[0], y: anchor[1] },
         b = {
-          x: a.x + Math.cos(geom.a) * geom.l / resolution,
-          y: a.y - Math.sin(geom.a) * geom.l / resolution
+          x: a.x + Math.cos(angle) * geom.l / resolution,
+          y: a.y - Math.sin(angle) * geom.l / resolution
         },
         c = {
-          x: b.x - geom.h / resolution * Math.sin(geom.a),
-          y: b.y - geom.h / resolution * Math.cos(geom.a)
+          x: b.x - geom.h / resolution * Math.sin(angle),
+          y: b.y - geom.h / resolution * Math.cos(angle)
         },
         d = {
-          x: a.x - geom.h / resolution * Math.sin(geom.a),
-          y: a.y - geom.h / resolution * Math.cos(geom.a)      
+          x: a.x - geom.h / resolution * Math.sin(angle),
+          y: a.y - geom.h / resolution * Math.cos(angle)      
         };
     var top = Math.min(a.y, b.y, c.y, d.y),
         right = Math.max(a.x, b.x, c.x, d.x),
