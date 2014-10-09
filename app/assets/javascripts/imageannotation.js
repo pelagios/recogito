@@ -22,7 +22,7 @@ require(['imageannotation/ol-map', 'imageannotation/drawing-canvas', 'imageannot
   btnAnnotate.click(function(e) { switchToAnnotate() });
   
   $(document).keyup(function(e) {
-    if (e.keyCode == 32) {
+    if (e.target.tagName !== 'INPUT' && e.keyCode == 32) {
       if (btnAnnotate.hasClass('selected'))
         switchToNavigate();
       else
