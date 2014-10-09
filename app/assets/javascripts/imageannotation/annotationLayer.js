@@ -97,8 +97,22 @@ define(['imageannotation/config',
     var self = this;
     jQuery.each(_annotations.getAll(), function(idx, annotation) {
       // TODO optimize so that stuff outside the visible area isn't drawn
-      if (annotation.id != _currentHighlight.id)
-        _drawOne(annotation, extent, pixelRatio / resolution, ctx, Config.MARKER_COLOR);
+      if (annotation.id != _currentHighlight.id) {
+        var color;
+        if (Annotations.getTranscription(annotation)) {
+          // Colour-code according to status
+          if (annotation.status === 'NOT_VERIFIED')
+            color = Config.MARKER_GREY;
+          else if (annotation.status === 'VERIFIED')
+            color = Config.MARKER_GREEN;
+          else
+            color = Config.MARKER_YELLOW;
+        } else {
+          // Needs transcription - mark as red
+          color = Config.MARKER_RED;
+        }
+        _drawOne(annotation, extent, pixelRatio / resolution, ctx, color);
+      }
     });
     
     if (_currentHighlight) {

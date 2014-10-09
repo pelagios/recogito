@@ -24,7 +24,11 @@ define([], function() {
               y: a.y - geom.h * Math.cos(geom.a) };
         
     return [ a, b, c, d ];
-  };    
+  };   
+  
+  Annotations.getTranscription = function(annotation) {
+    return (annotation.corrected_toponym) ? annotation.corrected_toponym : annotation.toponym;
+  }; 
   
   /** Helper function to compute the bounding box for a rectangle **/
   var _getBBox = function(rect) {

@@ -5,11 +5,14 @@
  */
 define([], function() { 
 
-  /** Annotation markers stroke colour **/
-  window.config.MARKER_COLOR = '#0000aa';
+  /** Annotation marker colours **/
+  window.config.MARKER_RED = '#aa0000';
+  window.config.MARKER_GREY = '#aaaaaa';
+  window.config.MARKER_YELLOW = '#fff000';
+  window.config.MARKER_GREEN = '#00aa00';
     
   /** Stroke colour for highlighted annotations **/
-  window.config.MARKER_HI_COLOR = '#fff000';
+  window.config.MARKER_HI_COLOR = '#eeeeee';
   
   /** Opacity of the semi-transparent parts fo the annotation shape **/
   window.config.MARKER_OPACITY = 0.3;
