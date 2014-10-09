@@ -12,7 +12,7 @@ define([], function() {
   window.config.MARKER_GREEN = '#007700';
     
   /** Stroke colour for highlighted annotations **/
-  window.config.MARKER_HI_COLOR = '#fff000';
+  window.config.MARKER_HI_COLOR = '#777777';
   
   /** Opacity of the semi-transparent parts fo the annotation shape **/
   window.config.MARKER_OPACITY = 0.3;
