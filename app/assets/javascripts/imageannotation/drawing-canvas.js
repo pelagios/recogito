@@ -30,7 +30,7 @@ define(['imageannotation/config'], function(config) {
     map = olMap;
   
     ctx = canvasEl.getContext('2d');
-    ctx.strokeStyle = config.MARKER_COLOR;
+    ctx.strokeStyle = config.MARKER_RED;
     ctx.lineWidth = config.MARKER_LINE_WIDTH;    
 
     this.width = canvasEl.width;
@@ -107,10 +107,8 @@ define(['imageannotation/config'], function(config) {
         painting = true;
         anchorX = (e.offsetX) ? e.offsetX : e.originalEvent.layerX;
         anchorY = (e.offsetY) ? e.offsetY : e.originalEvent.layerY;
-        
-        console.log(e);
-        
-        ctx.fillStyle = config.MARKER_COLOR;
+                
+        ctx.fillStyle = config.MARKER_RED;
         ctx.beginPath();
         ctx.arc(anchorX, anchorY, config.MARKER_CIRCLE_RADIUS, 0, TWO_PI);
         ctx.fill();
@@ -161,7 +159,7 @@ define(['imageannotation/config'], function(config) {
           oppositeY = baseEndY + f[1];
           
           ctx.globalAlpha = config.MARKER_OPACITY;
-          ctx.fillStyle = config.MARKER_COLOR;
+          ctx.fillStyle = config.MARKER_RED;
           ctx.beginPath();
           ctx.moveTo(anchorX, anchorY);
           ctx.lineTo(anchorX + f[0], anchorY + f[1]);
@@ -184,7 +182,7 @@ define(['imageannotation/config'], function(config) {
           ctx.closePath();
         } else { 
           // Baseline
-          ctx.fillStyle = config.MARKER_COLOR;
+          ctx.fillStyle = config.MARKER_RED;
           ctx.beginPath();
           ctx.arc(anchorX, anchorY, config.MARKER_CIRCLE_RADIUS, 0, TWO_PI);
           ctx.fill();
