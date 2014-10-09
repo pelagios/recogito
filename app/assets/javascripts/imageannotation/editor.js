@@ -41,7 +41,8 @@ define(['imageannotation/config'], function(config) {
     
     var saveTranscription = function() {
       var transcription = input.val(); 
-            
+      currentAnnotation.corrected_toponym = transcription;     
+      
       var data = (config.gdoc_part_id) ? 
         '{ "gdoc_part_d": ' + config.gdoc_part_id + ', "corrected_toponym": "' + transcription + '" }' :
         '{ "gdoc_id": ' + config.gdoc_id + ', "corrected_toponym": "' + transcription + '" }';
@@ -52,7 +53,6 @@ define(['imageannotation/config'], function(config) {
         data: data,
         contentType : 'application/json',
         success: function(result) {
-          currentAnnotation.corrected_toponym = transcription;
           hide();
         },
         error: function(result) {
