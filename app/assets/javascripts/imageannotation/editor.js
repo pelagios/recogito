@@ -68,6 +68,7 @@ define(['imageannotation/config'], function(config) {
     };
     
     var saveOnEnter = function(e) {
+      e.stopPropagation();
       if (e.which == 13)
         saveTranscription();
     };
