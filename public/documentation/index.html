@@ -27,10 +27,10 @@
         <a href="https://docs.google.com/document/d/14_cUJ7nNK__eFldeqsomgDpIhDjoDdpg0mUhbbT-fpM/edit">Pelagios Principles</a>.
       
       <h3>Landing Page</h3>
-      <p>The first thing you will see of Recogito is the <strong>landing page</strong> (Fig.1). This page, which is the 
-        <strong>'public view'</strong>, provides an overview of the documents currently available in the system. Inside
-        Recogito, you can always go back to the landing page with the <span class="icon">&#xf015;</span> icon in the
-        header bar.</p>
+      <p>The first thing you will see of Recogito is the <strong>landing page</strong> (Fig.1). This page - which is a 
+        <strong>'public view'</strong>, and doesn't require you to log in - provides an overview of the documents currently 
+        available in the system. Inside Recogito, you can always go back to the landing page with the <span class="icon">&#xf015;</span>
+        icon in the header bar.</p>
       
       <div class="figure">
         <img class="screenshot" src="images/screenshot-public-idx.png">  
@@ -57,11 +57,12 @@
         and to download the raw data as a CSV file.</p>
     
       <p>If you now log in to Recogito through the <strong>button in the upper right hand corner</strong>, you will notice a small change in the landing page: instead of the 'Map' and
-        'Download' buttons, there is now a row of icons. This means that you are now in the <strong>'editing suite'</strong>, which is where the annotation and geo-resolution of documents takes place. The icons here provide access to Recogito's different areas of activity (from left to right): 
-        <a href="#text-annotation"><span class="icon">&#xf0f6;</span> Text Annotation</a>, <a href="#geo-resolution"><span class="icon">&#xf0ac;</span> Geo-Resoution</a> and
+        'Download' buttons, there is now a row of icons. This means that you are now in the <strong>editing suite</strong>, which is where the annotation and geo-resolution of documents takes place. The icons here provide access to Recogito's different areas of activity (from left to right): 
+        <a href="#text-annotation"><span class="icon">&#xf0f6;</span> Text Annotation</a> or <a href="#image-annotation"><span class="icon">&#xf1c5;</span> Image Annotation</a> (depending on the
+        type of document), <a href="#geo-resolution"><span class="icon">&#xf0ac;</span> Geo-Resoution</a> and
         <a href="#document-stats"><span class="icon">&#xf080;</span> Document Stats</a>. The table icon <span class="icon">&#xf0ce;</span> again allows you to download
-        the raw data as a CSV file. Note that it is possible for documents to have no text at all. In this case the Text Annotation icon will be
-        greyed out.</p>
+        the raw data as a CSV file. Note that it is possible for documents to have no text or images at all. In this case Recogito will show
+        a greyed out Text Annotation icon.</p>
         
       <a class="internal-anchor" name="text-annotation"></a>
       <h3><span class="icon">&#xf0f6;</span> Text Annotation</h3>
@@ -121,7 +122,11 @@
         <p>Fig.3 Image Annotation Area.</p>
       </div>
         
-      <p>To mark a place name on the image, switch to <span class="icon">&#xf040;</span> <strong>Annotation</strong> mode in the toolbar 
+      <p>Image annotations are created in two steps: <strong>marking</strong> and <strong>transcribing</strong>. You can either mark a place name on the
+        map, and then transcribe it; or mark a bunch of place names in one go and transcribe them later. You can even leave it up to other people to 
+        transcribe them - it's up to you.</p>
+        
+      <p>To mark a place name, switch to <span class="icon">&#xf040;</span> <strong>Annotation</strong> mode in the toolbar 
         <span class="image-marker">2</span>. Image navigation (zoom and pan) will be disabled. Instead, clicking and dragging the mouse
         will draw a line. Draw the line so that it approximately corresponds to the <strong>baseline</strong> of the place name, starting below the first
         character. After you have dragged the line, and released the mouse again, move the mouse upwards to mark the vertical
@@ -129,10 +134,18 @@
         
       <div class="figure"><img src="images/annotate-map-animated.gif"></div>
       
-      <p>Please note that after you have completed the annotation, <span class="icon">&#xf040;</span> <strong>Annotation</strong> mode will
-        <strong>stay activated</strong>. You can just go on marking up the next place name. If you want to switch back to image navigation, use the
+      <p>Please note that after you have completed the annotation, <span class="icon">&#xf040;</span> <strong>Annotation mode will
+        stay activated</strong>. You can just go on marking up the next place name. If you want to switch back to image navigation, use the
         <span class="icon">&#xf047;</span> <strong>Navigation</strong> mode icon in the toolbar. Once you get some practice, you may want
         to use the <strong>space bar</strong> instead, which toggles between annotation and navigation mode.</p>
+      
+      <div class="figure">
+        <img src="images/image-annotation-editor.jpg"> 
+        <p>Fig.4 Image Annotation Editor.</p>
+      </div>
+      
+      <p>While you are in <span class="icon">&#xf047;</span> Navigation mode, clicking on an annotation will open the <strong>Editor</strong> (Fig. 4), where
+        you can add a transcription, as well as comment. You can also delete the annotation if you think it was created in error.</p>
       
       <a class="internal-anchor" name="geo-resolution"></a>
       <h3><span class="icon">&#xf0ac;</span> Geo-Resolution</h3>
@@ -141,11 +154,11 @@
         of linking <em>place references</em>, i.e. place names in a document to <em>places</em> in Recogito's internal place directory, so that they
         can be plotted on a map. Underneath the hood, Recogito attempts to establish such links automatically while place names are being tagged in the
         <a href="#text-annotation">Text Annotation area</a>. But these automatic mappings are not necessarily correct. The <strong>Geo-Resolution
-        area</strong> (Fig. 4) is the place where you can verify or correct them, or establish mappings manually in cases where they are missing altogether.</p>
+        area</strong> (Fig. 5) is the place where you can verify or correct them, or establish mappings manually in cases where they are missing altogether.</p>
         
       <div class="figure">
         <img class="screenshot" src="images/screenshot-georesolution.jpg">  
-        <p>Fig.4 Geo-Resolution Area.</p>
+        <p>Fig.5 Geo-Resolution Area.</p>
       </div>
       
       <p>The Geo-Resolution area is divided into two major sections: the <strong>toponym table</strong> <span class="image-marker">1</span> which lists
@@ -185,12 +198,12 @@
       <h4>Editing the Details of a Place Reference</h4>
       
       <p>Double-clicking on a table row will open a <strong>window with details</strong> about the place reference and how it is
-        linked to a place in Recogito (Fig. 5). This window also allows you to change incorrect links, and add additional
+        linked to a place in Recogito (Fig. 6). This window also allows you to change incorrect links, and add additional
         information about the place reference, e.g. tags or comments.</p>
       
       <div class="figure">
         <img class="screenshot" src="images/screenshot-details.jpg">  
-        <p>Fig.5 Toponym Details.</p>
+        <p>Fig.6 Toponym Details.</p>
       </div>
       
       <p>The main component of the details window is a <strong>map</strong> <span class="image-marker">1</span>. If the place reference is already
