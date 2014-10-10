@@ -44,9 +44,11 @@ class CSVParser extends BaseParser {
     val idxStatus = idx(header, "status")
     val idxToponym = idx(header, "toponym")
     val idxOffset = idx(header, "offset")
+    val idxAnchor = idx(header, "anchor")
     val idxGazetteerURI = idx(header, "gazetteer_uri")
     val idxCorrectedToponym = idx(header, "toponym_corrected")
     val idxCorrectedOffset = idx(header, "offset_corrected")
+    val idxCorrectedAnchor = idx(header, "anchor_corrected")
     val idxCorrectedGazetteerURI = idx(header, "gazetteer_uri_corrected")
     val idxTags = idx(header, "tags")
     val idxComment = idx(header, "comment")
@@ -61,11 +63,11 @@ class CSVParser extends BaseParser {
           parseOptCol(idxStatus, fields).map(AnnotationStatus.withName(_)).getOrElse(AnnotationStatus.NOT_VERIFIED),
           parseOptCol(idxToponym, fields),
           parseOptCol(idxOffset, fields).map(_.toInt),
-          None,
+          parseOptCol(idxAnchor, fields),
           parseOptCol(idxGazetteerURI, fields),
           parseOptCol(idxCorrectedToponym, fields),
           parseOptCol(idxCorrectedOffset, fields).map(_.toInt),
-          None,
+          parseOptCol(idxCorrectedAnchor, fields),
           parseOptCol(idxCorrectedGazetteerURI, fields),
           parseOptCol(idxTags, fields),
           parseOptCol(idxComment, fields),

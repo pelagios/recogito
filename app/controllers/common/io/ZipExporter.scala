@@ -51,9 +51,10 @@ class ZipExporter {
     // Get GeoDocument parts & texts from the DB
     val parts = GeoDocumentParts.findByGeoDocument(gdoc.id.get)
     val texts = GeoDocumentTexts.findByGeoDocument(gdoc.id.get) 
+    val images = GeoDocumentImages.findByGeoDocument(gdoc.id.get)
       
     // Add JSON metadata file to ZIP
-    val metadata = createMetaFile(gdoc, parts, texts)   
+    val metadata = createMetaFile(gdoc, parts, texts, images)   
     addToZip(metadata.file, gdocNamePrefix + ".json", zipStream)
     metadata.finalize();
     
@@ -95,19 +96,22 @@ class ZipExporter {
     * @param parts the parts of the GeoDocument
     * @param texts the texts associated with the GeoDocument
     */
-  private def createMetaFile(gdoc: GeoDocument, parts: Seq[GeoDocumentPart], texts: Seq[GeoDocumentText])(implicit session: Session): TemporaryFile = {
+  private def createMetaFile(gdoc: GeoDocument, parts: Seq[GeoDocumentPart], texts: Seq[GeoDocumentText], images: Seq[GeoDocumentImage])(implicit session: Session): TemporaryFile = {
     val gdocNamePrefix = gdoc.author.map(escapeTitle(_) + "_").getOrElse("") + escapeTitle(gdoc.title) + gdoc.language.map("_" + _).getOrElse("")
     
     val jsonParts = parts.map(part => {
       val text = texts.find(_.gdocPartId == part.id).map(_ => gdocNamePrefix + File.separator + escapeTitle(part.title) + ".txt")
+      val image = images.find(_.gdocPartId == part.id).map(_.path)
       Json.obj(
         "title" -> part.title,
         "source" -> part.source,
-        "text" -> text
+        "text" -> text,
+        "image" -> image
       )
     })
     
-    val gdocText = texts.find(t => t.gdocId == gdoc.id.get && t.gdocPartId == None)
+    val gdocText = texts.find(t => t.gdocId == gdoc.id.get && t.gdocPartId.isEmpty)
+    val gdocImage = images.find(i => i.gdocId == gdoc.id.get && i.gdocPartId.isEmpty)
     val annotations =
       if (Annotations.countForGeoDocument(gdoc.id.get) > 0) Some(gdocNamePrefix + ".csv") else None
       
@@ -122,6 +126,7 @@ class ZipExporter {
       "source" -> gdoc.source,
       "ext_work_id" -> gdoc.externalWorkID,
       "text" -> gdocText.map(_ => gdocNamePrefix + File.separator + escapeTitle(gdoc.title) + ".txt"),
+      "image" -> gdocImage.map(_.path),
       "annotations" -> annotations,
       "parts" -> jsonParts
     )
