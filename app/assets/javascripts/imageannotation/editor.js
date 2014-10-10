@@ -97,7 +97,7 @@ define(['imageannotation/config'], function(config) {
         
     window = element.find('.window');
         
-    map.on('moveend', function(e) {
+    map.on(['moveend', 'pointerdrag'], function(e) {
       if (currentAnnotation)
         show(currentAnnotation);
     });
