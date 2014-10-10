@@ -147,8 +147,12 @@ define(['imageannotation/config'], function(Config) {
     
     eventBroker.addHandler('onEditAnnotation', show);
     
+    controls.keydown(function(e) {
+      if (e.which === 27)
+        hide();
+    });
     controls.on('keypress', 'input', function(e) {
-      if (e.which == 13)
+      if (e.which === 13)
         saveAnnotation();
     });
     
