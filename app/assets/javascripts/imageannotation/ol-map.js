@@ -27,7 +27,12 @@ define(['imageannotation/config', 'imageannotation/annotationLayer', 'imageannot
     
     this.map.getView().fitExtent([0, - config.height, config.width, 0], this.map.getSize());
     
-    annotationLayer = new AnnotationLayer(this, new EventBroker());
+    var self = this;
+    var eventBroker = new EventBroker();
+    eventBroker.addHandler('onAnnotationRemoved', function(annotation) {
+      self.removeAnnotation(annotation.id);
+    });
+    annotationLayer = new AnnotationLayer(this, eventBroker);
   }
   
   OpenLayersMap.prototype.getCoordinateFromPixel = function(px) {

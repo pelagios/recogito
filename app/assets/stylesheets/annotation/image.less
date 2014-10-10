@@ -16,6 +16,7 @@ html, body {
   top:0;
   bottom:0;
   background: #00ff00 url('/recogito/static/images/seamless_paper_texture.png');
+  overflow:hidden;
 }
 
 #ol-viewer {
@@ -61,7 +62,7 @@ html, body {
   
 } /* .tooltip */
 
-.editor {
+.editor-mask {
   position:absolute;
   width:100%;
   height:100%;
@@ -72,20 +73,21 @@ html, body {
     pointer-events:auto;
   }
   
-  .mask.top {
+  .top {
     width:100%;    
   }
   
   .middle {
     position:relative;
+    white-space: nowrap;
   }
   
-  .mask.left {
+  .left {
     display:inline-block;
     height:100%;
   }
   
-  .mask.right {
+  .right {
     position:absolute;
     top:0;
     right:0;
@@ -93,7 +95,7 @@ html, body {
     height:100%;
   }
   
-  .mask.bottom {
+  .bottom {
     position:absolute;
     bottom:0;
     width:100%;
@@ -106,44 +108,45 @@ html, body {
     border:1px solid rgba(0, 0, 0, 0.65);
   }
   
-  .editor-controls {
-    color:#727272;
-    position:absolute;
-    pointer-events:auto;
-    background-color:rgba(255, 255, 255, 0.8);
-    padding:10px 10px 0 10px;
-    box-sizing:border-box;
-    border-style:solid;
-    border-color:rgba(255, 255, 255, 0.6);
-    border-width:0 1px 1px 1px;
-    
-    .label {
-      display:block;
-      padding-bottom:7px;
-    }
-    
-    input {
-      box-sizing:border-box;
-      min-width:200px;
-      width:100%;
-      outline:none;
-      padding:2px 4px;
-    }
-    
-    .buttons {
-      text-align:right;
-      padding:10px 0 5px 0;
-      
-      .icon {
-        font-size:13px;
-      }
-      
-      button {
-        padding:4px 8px 5px 6px;
-      }
-      
-    }
-    
-  }
-      
 } /* .editor-mask */
+  
+.editor-controls {
+  color:#727272;
+  position:absolute;
+  pointer-events:auto;
+  background-color:rgba(255, 255, 255, 0.8);
+  padding:10px 10px 0 10px;
+  box-sizing:border-box;
+  border-style:solid;
+  border-color:rgba(255, 255, 255, 0.6);
+  border-width:0 1px 1px 1px;
+    
+  .label {
+    display:block;
+    padding-bottom:7px;
+  }
+    
+  input {
+    box-sizing:border-box;
+    min-width:200px;
+    width:100%;
+    outline:none;
+    padding:2px 4px;
+  }
+    
+  .buttons {
+    text-align:right;
+    padding:10px 0 5px 0;
+    
+    .icon {
+      font-size:13px;
+    }
+      
+    button {
+      padding:4px 8px 5px 6px;
+    }
+      
+  }
+    
+} /* .editor-controls */
+      

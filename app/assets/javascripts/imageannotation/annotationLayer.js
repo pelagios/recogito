@@ -28,11 +28,15 @@ define(['imageannotation/config',
     });
     _eventBroker = eventBroker;
     _popup = new Popup(_eventBroker);
-    _editor = new Editor(map, _eventBroker);
+    _editor = new Editor($('#annotation-area'), map, _eventBroker);
 
     map.addLayer(_mapLayer);
     map.on('pointermove', _onMouseMove);
     map.on('singleclick', _onClick);
+    
+    eventBroker.addHandler('onAnnotationSaved', function() {
+      _mapLayer.getSource().dispatchChangeEvent();
+    });
   };
   
   /** Draws a single annotation onto the canvas **/
