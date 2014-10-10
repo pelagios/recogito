@@ -4,7 +4,7 @@ define(['imageannotation/config'], function(config) {
       MIN_DRAG_TIME = 500;   // Minimum duration of an annotation drag (milliseconds)
       MIN_LINE_LENGTH = 10;  // Minimum length of a baseline
       
-  var canvasEl,          // canvas DOM element
+  var canvas,            // canvas DOM element
       ctx,               // 2D drawing context
       painting = false,  // Flag indicating whether painting is in progress or not
       extrude = false,   // Flag indidcating whether we're in extrusion mode
@@ -23,40 +23,42 @@ define(['imageannotation/config'], function(config) {
   };
   
   var DrawingCanvas = function(canvasId, olMap) {
-    canvasEl = document.getElementById(canvasId);  
-    canvasEl.width = $(canvasEl).width();
-    canvasEl.height = $(canvasEl).height();
-    
+    canvas = document.getElementById(canvasId);  
     map = olMap;
-  
-    ctx = canvasEl.getContext('2d');
-    ctx.strokeStyle = config.MARKER_RED;
-    ctx.lineWidth = config.MARKER_LINE_WIDTH;    
-
-    this.width = canvasEl.width;
-    this.height = canvasEl.height;
-    
+    ctx = canvas.getContext('2d');
     painting = false;
     
-    _addMouseDownHandler(this);
-    _addMouseMoveHandler(this);
-    _addMouseUpHandler(this);
+    var reset = function() {
+      canvas.width = $(canvas).width();
+      canvas.height = $(canvas).height();
+      ctx.strokeStyle = config.MARKER_RED;
+      ctx.lineWidth = config.MARKER_LINE_WIDTH;    
+    };
+    
+    reset();
+    
+    _addMouseDownHandler();
+    _addMouseMoveHandler();
+    _addMouseUpHandler();
+    
+    // Make sure the canvas adapts to window size changes
+    $(window).on('resize', reset);
   }
   
   DrawingCanvas.prototype.show = function() {
-    canvasEl.style.pointerEvents = 'auto';
+    canvas.style.pointerEvents = 'auto';
   }
   
   DrawingCanvas.prototype.hide = function() {
-    canvasEl.style.pointerEvents = 'none';
+    canvas.style.pointerEvents = 'none';
   }
   
   DrawingCanvas.prototype.on = function(event, handler) {
     handlers[event] = handler;
   }
     
-  var _addMouseDownHandler = function(self) {  
-    $(canvasEl).mousedown(function(e) {
+  var _addMouseDownHandler = function() {  
+    $(canvas).mousedown(function(e) {
       lastClicktime = new Date().getTime();
       
       if (extrude) {
@@ -65,7 +67,7 @@ define(['imageannotation/config'], function(config) {
         painting = false;
         
         // TODO could be optimized - we don't necessarily need to clear the entire canvas
-        ctx.clearRect(0, 0, self.width, self.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         if (handlers['annotationCreated']) {
           var imageAnchorCoords = map.getCoordinateFromPixel([anchorX, anchorY]);
@@ -117,7 +119,7 @@ define(['imageannotation/config'], function(config) {
     });
   }
   
-  var _addMouseMoveHandler = function(self) {
+  var _addMouseMoveHandler = function() {
     var getLength = function(coord) {
       return Math.sqrt(coord[0] * coord[0] + coord[1] * coord[1]);
     };
@@ -132,10 +134,10 @@ define(['imageannotation/config'], function(config) {
       return Math.acos(dotProduct);
     };
     
-    $(canvasEl).mousemove(function(e) {
+    $(canvas).mousemove(function(e) {
       if (painting) {
         // TODO could be optimized - we don't necessarily need to clear the entire canvas
-        ctx.clearRect(0, 0, self.width, self.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
       
         if (extrude) {
           // Baseline vector (start to end)
@@ -201,13 +203,13 @@ define(['imageannotation/config'], function(config) {
     });
   }
   
-  var _addMouseUpHandler = function(self) {    
-    $(canvasEl).mouseup(function(e) {
+  var _addMouseUpHandler = function() {    
+    $(canvas).mouseup(function(e) {
       if (painting) {
         if ((new Date().getTime() - lastClicktime) < MIN_DRAG_TIME) {
           // Just reset
           painting = false;
-          ctx.clearRect(0, 0, self.width, self.height);
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
         } else {
           baseEndX = (e.offsetX) ? e.offsetX : e.originalEvent.layerX;
           baseEndY = (e.offsetY) ? e.offsetY : e.originalEvent.layerY;
