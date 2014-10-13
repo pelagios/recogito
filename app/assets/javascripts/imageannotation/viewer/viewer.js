@@ -2,7 +2,7 @@ define(['imageannotation/config', 'imageannotation/viewer/annotationLayer'], fun
   
   var _map;
   
-  var Viewer = function(divId, eventBroker) {        
+  var Viewer = function(divId, eventBroker) {      
     var projection = new ol.proj.Projection({
           code: 'ZOOMIFY',
           units: 'pixels',

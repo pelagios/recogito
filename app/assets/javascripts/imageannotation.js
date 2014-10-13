@@ -6,8 +6,8 @@ require(['imageannotation/events',
       
   var eventBroker = new EventBroker(),
   
-      /** The viewer, based on OpenLayers 3 **/
-      viewer = new Viewer('ol-viewer', eventBroker),
+      /** The viewer (based on OpenLayers 3) **/
+      viewer = new Viewer('viewer', eventBroker),
       
       /** The drawing canvas that sits in front of the viewer **/
       drawingCanvas = new DrawingCanvas('drawing-canvas', viewer, eventBroker),
@@ -33,10 +33,11 @@ require(['imageannotation/events',
         btnAnnotate.addClass('selected');
       };
   
-  // Set up global GUI events
+  // Set up toolbar events
   btnNavigate.click(function(e) { switchToNavigate() });
   btnAnnotate.click(function(e) { switchToAnnotate() });
   
+  // Spacebar - mode toggle
   $(document).keyup(function(e) {
     if (e.target.tagName !== 'INPUT' && e.keyCode == 32) {
       if (btnAnnotate.hasClass('selected'))
@@ -46,7 +47,7 @@ require(['imageannotation/events',
     }
   });
 
-  // Start the application
+  // Ready to start!
   eventBroker.fireEvent(Events.INITIALIZE);
   
 });

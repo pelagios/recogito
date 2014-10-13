@@ -1,6 +1,7 @@
 define(['imageannotation/config', 'imageannotation/events'], function(Config, Events) {
   
   var DrawingCanvas = function(canvasId, viewer, eventBroker) {
+    
     var TWO_PI = 2 * Math.PI,  // Shorthand
         MIN_DRAG_TIME = 300,   // Minimum duration of an annotation drag (milliseconds)
         MIN_LINE_LENGTH = 10,  // Minimum length of a baseline 

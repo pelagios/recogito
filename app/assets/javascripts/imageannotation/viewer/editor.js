@@ -1,9 +1,7 @@
 define(['imageannotation/config', 'imageannotation/events'], function(Config, Events) {
   
   var Editor = function(div, viewer, eventBroker) {    
-        
     var currentAnnotation = false,
-    
         mask = 
           $('<div class="editor-mask">' +
             '  <div class="mask top"></div>' +

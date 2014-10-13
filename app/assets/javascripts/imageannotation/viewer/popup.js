@@ -1,7 +1,7 @@
 define(['imageannotation/events'], function(Events) {
   
   /** A popup bubble to displays information about annotations **/
-  var Popup = function(div, eventBroker) {
+  var Popup = function(parent, eventBroker) {
     var element =
           $('<div class="tooltip">' +
           '  <div class="transcription"></div>' +
@@ -24,7 +24,7 @@ define(['imageannotation/events'], function(Events) {
         };
         
     element.hide();
-    div.append(element);
+    parent.append(element);
 
     eventBroker.addHandler(Events.MOUSE_OVER_ANNOTATION, show);
     eventBroker.addHandler(Events.MOUSE_LEAVE_ANNOTATION, function() { element.hide(); });
