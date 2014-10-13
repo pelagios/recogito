@@ -1,6 +1,6 @@
-define(['imageannotation/config'], function(Config) {
+define(['imageannotation/config', 'imageannotation/events'], function(Config, Events) {
   
-  var Editor = function(canvas, map, eventBroker) {    
+  var Editor = function(div, viewer, eventBroker) {    
         
     var currentAnnotation = false,
     
@@ -35,41 +35,22 @@ define(['imageannotation/config'], function(Config) {
         commentInput = controls.find('#comment'),
         
         /** Saves the annotation to the server **/
-        saveAnnotation = function() {
+        updateAnnotation = function() {
           var transcription = transcriptionInput.val(),
-              comment = commentInput.val(),
-              data = (Config.gdoc_part_id) ? 
-                '{ "gdoc_part_d": ' + Config.gdoc_part_id + ', "corrected_toponym": "' + transcription + '", "comment": "' + comment + '" }' :
-                '{ "gdoc_id": ' + Config.gdoc_id + ', "corrected_toponym": "' + transcription + '", "comment": "' + comment + '" }';
-              
+              comment = commentInput.val();
+
           currentAnnotation.corrected_toponym = transcription;   
           currentAnnotation.comment = comment;
           currentAnnotation.status = 'NOT_VERIFIED';  
-    
-          $.ajax({
-            url: '/recogito/api/annotations/' + currentAnnotation.id,
-            type: 'PUT',
-            data: data,
-            contentType : 'application/json',
-            success: function() { 
-              eventBroker.fireEvent('onAnnotationSaved', currentAnnotation);
-              hide(); 
-            },
-            error: function() { console.log('ERROR updating annotation!'); }
-          });  
+          
+          eventBroker.fireEvent(Events.ANNOTATION_UPDATED, currentAnnotation);
+          hide();
         },
         
         /** Deletes the annotation **/
         deleteAnnotation = function() {
-          $.ajax({
-            url: '/recogito/api/annotations/' + currentAnnotation.id,
-            type: 'DELETE',
-            success: function(result) {
-              eventBroker.fireEvent('onAnnotationRemoved', currentAnnotation);
-              hide();
-            },
-            error: function(result) { console.log('ERROR deleting annotation!'); }
-          })
+          eventBroker.fireEvent(Events.ANNOTATION_DELETED, currentAnnotation);
+          hide();
         },
             
         /** Opens the black mask around the selection **/
@@ -122,7 +103,7 @@ define(['imageannotation/config'], function(Config) {
         /** Just a facade that opens the mask and the controls panel **/
         show = function(annotation) {
           currentAnnotation = annotation;
-          var bounds = map.toViewportCoordinates(annotation, 50);  
+          var bounds = viewer.toViewportBounds(annotation, 50);  
           showMask(bounds);
           showControls(bounds, annotation);
         },
@@ -140,31 +121,30 @@ define(['imageannotation/config'], function(Config) {
     controls.hide();
 
     // Set up events
-    map.on(['moveend', 'postrender'], function(e) {
+    viewer.on(['moveend', 'postrender'], function(e) {
       if (currentAnnotation)
         show(currentAnnotation);
     });
     
-    eventBroker.addHandler('onEditAnnotation', show);
+    eventBroker.addHandler(Events.EDIT_ANNOTATION, show);
     
     controls.keydown(function(e) {
-      if (e.which === 27)
+      if (e.which === 27) // Escape
         hide();
     });
     controls.on('keypress', 'input', function(e) {
-      if (e.which === 13)
-        saveAnnotation();
+      if (e.which === 13) // Enter on the input field
+        updateAnnotation();
     });
     
-    controls.find('.ok').click(saveAnnotation);
+    controls.find('.ok').click(updateAnnotation);
     controls.find('.delete').click(deleteAnnotation);
     controls.find('.cancel').click(hide); 
 
-    canvas.append(mask);
-    canvas.append(controls);
+    div.append(mask);
+    div.append(controls);
   };
   
   return Editor;
   
 });
-

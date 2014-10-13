@@ -1,24 +1,40 @@
-require(['imageannotation/ol-map', 'imageannotation/drawing-canvas', 'imageannotation/storage'], function(Map, DrawingCanvas, Storage) {
+require(['imageannotation/events',
+         'imageannotation/eventbroker', 
+         'imageannotation/viewer/viewer', 
+         'imageannotation/drawingCanvas', 
+         'imageannotation/storage'], function(Events, EventBroker, Viewer, DrawingCanvas, Storage) {
       
-  var btnNavigate   = $('.navigate'),
+  var eventBroker = new EventBroker(),
+  
+      /** The viewer, based on OpenLayers 3 **/
+      viewer = new Viewer('ol-viewer', eventBroker),
+      
+      /** The drawing canvas that sits in front of the viewer **/
+      drawingCanvas = new DrawingCanvas('drawing-canvas', viewer, eventBroker),
+      
+      /** Takes care of AJAX-communication with the backend **/      
+      storage = new Storage(eventBroker),
+
+      /** Toolbar component shorthands **/
+      btnNavigate   = $('.navigate'),
       btnAnnotate   = $('.annotate'),
-      map           = new Map('ol-viewer'),
-      drawingCanvas = new DrawingCanvas('drawing-canvas', map),
-      storage       = new Storage();
-      
-  var switchToNavigate = function() {
-        drawingCanvas.hide();
+    
+      /** Switches the GUI to navigation mode **/
+      switchToNavigate = function() {
+        eventBroker.fireEvent(Events.SWITCH_TO_NAVIGATE);
         btnNavigate.addClass('selected');
         btnAnnotate.removeClass('selected');
       },
+      
+      /** Switches the GUI to annotation mode **/
       switchToAnnotate = function() {
-        drawingCanvas.show();
+        eventBroker.fireEvent(Events.SWITCH_TO_ANNOTATE);
         btnNavigate.removeClass('selected');
         btnAnnotate.addClass('selected');
       };
   
+  // Set up global GUI events
   btnNavigate.click(function(e) { switchToNavigate() });
-  
   btnAnnotate.click(function(e) { switchToAnnotate() });
   
   $(document).keyup(function(e) {
@@ -29,15 +45,8 @@ require(['imageannotation/ol-map', 'imageannotation/drawing-canvas', 'imageannot
         switchToAnnotate();
     }
   });
-      
-  drawingCanvas.on('annotationCreated', function(annotation) { 
-    storage.create(annotation, function(annotation) {
-      map.addAnnotations(annotation);
-    });    
-  });
-  
-  var annotations = storage.loadAll(function(annotations) {
-    map.addAnnotations(annotations);
-  });
+
+  // Start the application
+  eventBroker.fireEvent(Events.INITIALIZE);
   
 });

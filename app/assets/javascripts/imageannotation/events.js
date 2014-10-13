@@ -1,37 +1,35 @@
 define([], function() {
-  
-  var _handlers = [];
-  
-  /** A central event broker for communication between UI components **/
-  var EventBroker = function() {};
-  
-  /** Adds an event handler **/
-  EventBroker.prototype.addHandler = function(type, handler) {
-    if (!_handlers[type])
-      _handlers[type] = [];
-      
-    _handlers[type].push(handler);
-  };
-  
-  /** Removes an event handler **/
-  EventBroker.prototype.removeHandler = function(type, handler) {
-    var handlers = _handlers[type];
-    if (handlers) {
-      var idx = handlers.indexOf(handler);
-      handlers.splice(idx, 1);  
-    }
-  };   
-  
-  /** Fires an event **/
-  EventBroker.prototype.fireEvent = function(type, opt_event) {
-    var handlers = _handlers[type];
-    if (handlers) {
-      jQuery.each(handlers, function(idx, handler) {
-        handler(opt_event);
-      });
-    }    
-  }
+	
+	var Events = {
+		
+		INITIALIZE : 'initialize',
+    
+    SWITCH_TO_NAVIGATE : 'switchToNavigate',
+    
+    SWITCH_TO_ANNOTATE : 'switchToAnnotate',
+    
+    EDIT_ANNOTATION : 'editAnnotation',
 
-  return EventBroker;
-  
+		ANNOTATION_CREATED : 'annotationCreated',
+		
+		ANNOTATION_UPDATED : 'annotationUpdated',
+		
+		ANNOTATION_DELETED : 'annotationDeleted',
+    
+    MOUSE_OVER_ANNOTATION : 'mouseOverAnnotation',
+    
+    MOUSE_LEAVE_ANNOTATION : 'mouseLeaveAnnotation',
+		
+		STORE_ANNOTATIONS_LOADED : 'annotationsLoaded',
+		
+		STORE_CREATE_ERROR : 'createError',
+    
+    STORE_UPDATE_ERROR : 'updateError',
+    
+    STORE_DELETE_ERROR : 'deleteError'
+		
+	};
+	
+	return Events;
+	
 });
