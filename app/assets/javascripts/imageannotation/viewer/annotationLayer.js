@@ -69,7 +69,7 @@ define(['imageannotation/config',
         },
           
         /** Drawing loop that renders all annotations onto the viewer layer **/
-        redrawAll = function(extent, resolution, pixelRatio, size, projection) {                
+        redrawAll = function(extent, resolution, pixelRatio, size, projection) {                          
           var canvas = document.createElement('canvas');
           canvas.width = size[0];
           canvas.height = size[1];
@@ -79,7 +79,7 @@ define(['imageannotation/config',
           var self = this;
           jQuery.each(annotations.getAll(), function(idx, annotation) {
             // TODO optimize so that stuff outside the visible area isn't drawn
-            if (annotation.id != currentHighlight.id) {
+            if (!annotation.id || annotation.id != currentHighlight.id) {
               var color;
               if (Annotations.getTranscription(annotation)) {
                 // Colour-code according to status
@@ -148,9 +148,9 @@ define(['imageannotation/config',
         
         /** Batch-adds annotations to the view layer **/
         addAnnotations = function(a) {
-          console.log(a);
           annotations.add(a);
-          setTimeout(function() { layer.getSource().dispatchChangeEvent(); }, 50 ); 
+          currentHightlight = false;
+          layer.getSource().dispatchChangeEvent(); 
         },
         
         /** Removes an annotation from the view layer **/
