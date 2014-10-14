@@ -75,6 +75,9 @@ POST    /recogito/admin/documents/:id/annotations  controllers.admin.DocumentAdm
 DELETE  /recogito/admin/documents/:id/annotations  controllers.admin.DocumentAdminController.deleteAnnotations(id: Int)
 GET     /recogito/admin/documents                  controllers.admin.DocumentAdminController.listAll
 
+GET     /recogito/admin/parts/:id                  controllers.admin.DocumentPartAdminController.editDocumentPart(id: Int)
+POST    /recogito/admin/parts/:id                  controllers.admin.DocumentPartAdminController.updateDocumentPart(id: Int)
+
 GET     /recogito/admin/users/signup               controllers.admin.UserAdminController.signup
 POST    /recogito/admin/users/signup               controllers.admin.UserAdminController.processSignup
 DELETE  /recogito/admin/users/:username            controllers.admin.UserAdminController.deleteUser(username: String)

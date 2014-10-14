@@ -1,0 +1,29 @@
+@(docPartId: Int, gdocId: Int, form: Form[GeoDocumentPart])
+
+<html>
+  <head>
+    <title>Recogito > Admin > Document > Part</title>
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/admin/main.css")" />
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
+  </head>
+  
+  <body>
+    <div id="header">
+      <div id="title">ADMINISTRATION » Document » Part
+        <div id="home-button"><a href="@routes.ApplicationController.index(None)" class="icon">&#xf015;</a></div>
+      </div>
+      
+      <div id="menu">
+        <ul>
+          <li><a href="@controllers.admin.routes.DocumentAdminController.listAll()">Documents</a></li>
+          <li><a href="@controllers.admin.routes.UserAdminController.listAll()">Users</a></li>
+          <li><a href="@controllers.admin.routes.BackupRestoreController.index()" >Backup &amp; Restore</a></li>
+        </ul>
+      </div>      
+    </div>
+  
+    <div id="content">
+      
+    </div>
+  </body>
+</html>

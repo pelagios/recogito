@@ -67,7 +67,7 @@ object DocumentAdminController extends Controller with Secured {
   }
     
   /** Delete a document (and associated data) from the database **/
-  def deleteDocument(id: Int) = protectedDBAction(Secure.REJECT) { username => implicit session =>
+  def deleteDocument(id: Int) = adminAction { username => implicit session =>
     // Annotations
     Annotations.deleteForGeoDocument(id)
     
@@ -121,20 +121,21 @@ object DocumentAdminController extends Controller with Secured {
   }
 
   /** Edit an existing document in the UI form **/
-  def editDocument(id: Int) = DBAction { implicit session =>
+  def editDocument(id: Int) = adminAction { username => implicit session =>
     GeoDocuments.findById(id).map { doc =>
+      val parts = GeoDocumentParts.findByGeoDocument(id)
       val collections = CollectionMemberships.findForGeoDocument(doc.id.get)
-      Ok(views.html.admin.documentDetails(id, documentForm.fill(doc), collections))
+      Ok(views.html.admin.documentDetails(id, parts, collections, documentForm.fill(doc)))
     }.getOrElse(NotFound)
   }
   
   /** Save a document from the UI form **/
-  def updateDocument(id: Int) = protectedDBAction(Secure.REJECT) { implicit username => implicit session =>
+  def updateDocument(id: Int) = adminAction { username => implicit session =>
     documentForm.bindFromRequest.fold(
       formWithErrors => {
-        Logger.info("foo")
+        val parts = GeoDocumentParts.findByGeoDocument(id)
         val collections = CollectionMemberships.findForGeoDocument(id)
-	    BadRequest(views.html.admin.documentDetails(id, formWithErrors, collections))
+	    BadRequest(views.html.admin.documentDetails(id, parts, collections, formWithErrors))
 	  },
 	  
       document => {
@@ -161,15 +162,18 @@ object DocumentAdminController extends Controller with Secured {
   }  
   
   /** Import annotations from a CSV file into the document with the specified ID **/
-  def uploadAnnotations(doc: Int) = DBAction(parse.multipartFormData) { implicit session =>
+  def uploadAnnotations(doc: Int) = adminAction { username => implicit session =>
     val gdoc = GeoDocuments.findById(doc)
     if (gdoc.isDefined) {
-      session.request.body.file("csv").map(filePart => {
-        val parser = new CSVParser()
-        val annotations = parser.parseAnnotations(filePart.ref.file.getAbsolutePath, gdoc.get.id.get)
-        Logger.info("Importing " + annotations.size + " annotations to " + gdoc.get.title)
-        Annotations.insertAll(annotations)
-      })
+      val formData = session.request.body.asMultipartFormData
+      if (formData.isDefined) {
+          formData.get.file("csv").map(filePart => {
+          val parser = new CSVParser()
+          val annotations = parser.parseAnnotations(filePart.ref.file.getAbsolutePath, gdoc.get.id.get)
+          Logger.info("Importing " + annotations.size + " annotations to " + gdoc.get.title)
+          Annotations.insertAll(annotations)
+        })
+      }
     }
     Redirect(routes.DocumentAdminController.listAll)
   }

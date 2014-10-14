@@ -1,15 +1,15 @@
-@(docId: Int, form: Form[GeoDocument], collections: Seq[String])
+@(docId: Int, parts: Seq[GeoDocumentPart], collections: Seq[String], form: Form[GeoDocument])
 
 <html>
   <head>
-    <title>Recogito > Admin > Users</title>
+    <title>Recogito > Admin > Document</title>
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/admin/main.css")" />
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
   </head>
   
   <body>
     <div id="header">
-      <div id="title">ADMINISTRATION » Users
+      <div id="title">ADMINISTRATION » Document
         <div id="home-button"><a href="@routes.ApplicationController.index(None)" class="icon">&#xf015;</a></div>
       </div>
       
@@ -31,6 +31,18 @@
             <label for="title">Title <em>*</em></label>
             <input name="title" id="title" type="text" placeholder="Title..." value="@form("title").value">
           </li>
+          
+          @if(parts.size > 0) {
+            <li>
+              <label for="parts">@parts.size Parts</label>
+              <select id="parts" onChange="window.location.href='/recogito/admin/parts/' + $('#parts').val();">
+                <option selected disabled hidden value=""></option>
+                @for(part <- parts) {
+                  <option value="@part.id">@part.title</option>
+                }
+              </select>
+            </li>
+          }
           
           <li>
             <label for="author">Author</label>
