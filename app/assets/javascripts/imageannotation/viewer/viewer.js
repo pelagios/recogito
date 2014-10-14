@@ -27,9 +27,9 @@ define(['imageannotation/config', 'imageannotation/viewer/annotationLayer'], fun
         
         annotationLayer = new AnnotationLayer($('#' + divId).parent(), map, eventBroker);    
         
-    // map.addLayer(annotationLayer.getLayer());
     map.getView().fitExtent([0, - Config.height, Config.width, 0], map.getSize());
     
+    // Slightly ugly - but we need to wrap getCoordinateFromPixel so that the drawing canvas can use it
     _map = map;
   };
   
