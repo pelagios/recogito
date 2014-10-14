@@ -1,5 +1,7 @@
 define(['imageannotation/config', 'imageannotation/viewer/annotationLayer'], function(Config, AnnotationLayer) {
   
+  var _map;
+  
   var Viewer = function(divId, eventBroker) {      
     var projection = new ol.proj.Projection({
           code: 'ZOOMIFY',
@@ -27,6 +29,12 @@ define(['imageannotation/config', 'imageannotation/viewer/annotationLayer'], fun
         
     // map.addLayer(annotationLayer.getLayer());
     map.getView().fitExtent([0, - Config.height, Config.width, 0], map.getSize());
+    
+    _map = map;
+  };
+  
+  Viewer.prototype.getCoordinateFromPixel = function(coord) {
+    return _map.getCoordinateFromPixel(coord);
   };
   
   return Viewer;
