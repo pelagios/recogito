@@ -23,7 +23,26 @@
     </div>
   
     <div id="content">
-      
+      @helper.form(controllers.admin.routes.DocumentPartAdminController.updateDocumentPart(docPartId)) { 
+        <input name="id" id="id" type="hidden" value="@form("id").value">
+        <input name="gdocId" id="gdocId" type="hidden" value="@form("gdocId").value">
+        
+        <ol>
+      	  <li>
+            <label for="title">Title <em>*</em></label>
+            <input name="title" id="title" type="text" placeholder="Title..." value="@form("title").value">
+          </li>
+          
+      	  <li>
+            <label for="source">Source</label>
+            <input name="source" id="source" type="text" placeholder="e.g. 'http://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A1999.01.0133'" value="@form("source").value">
+          </li>
+          
+	        <li>
+		        <input type="submit" value="SAVE" class="btn primary">
+		      </li>
+        </ol>
+      }
     </div>
   </body>
 </html>

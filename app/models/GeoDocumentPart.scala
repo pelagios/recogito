@@ -18,7 +18,7 @@ class GeoDocumentParts(tag: Tag) extends Table[GeoDocumentPart](tag, "gdocument_
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   
   def gdocId = column[Int]("gdoc")
-  
+   
   def title = column[String]("title")
   
   def source = column[String]("source", O.Nullable)
@@ -38,6 +38,9 @@ object GeoDocumentParts {
   
   def insert(geoDocumentPart: GeoDocumentPart)(implicit s: Session) =
     query returning query.map(_.id) += geoDocumentPart
+    
+  def update(geoDocumentPart: GeoDocumentPart)(implicit s: Session) =
+    query.where(_.id === geoDocumentPart.id).update(geoDocumentPart)
 
   def findById(id: Int)(implicit s: Session): Option[GeoDocumentPart] =
     query.where(_.id === id).firstOption

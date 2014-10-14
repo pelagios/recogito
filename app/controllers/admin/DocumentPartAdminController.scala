@@ -28,7 +28,20 @@ object DocumentPartAdminController extends Controller with Secured {
   }
   
   def updateDocumentPart(id: Int) = adminAction { username => implicit session =>
-    Ok("")
+    val gdocPart = GeoDocumentParts.findById(id)
+    if (gdocPart.isDefined) {
+      documentPartForm.bindFromRequest.fold(
+        formWithErrors => {
+	      BadRequest(views.html.admin.documentPartDetails(id, gdocPart.get.gdocId, formWithErrors))
+	    },
+	  
+        part => {
+          GeoDocumentParts.update(part)
+          Redirect(routes.DocumentAdminController.editDocument(gdocPart.get.gdocId))
+        })
+    } else {
+      NotFound
+    }
   }
 
 }
