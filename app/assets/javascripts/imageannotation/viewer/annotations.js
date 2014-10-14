@@ -42,8 +42,9 @@ define([], function() {
   
   /** Tests if the given coordinate intersects the rectangle **/
   var _intersects = function(x, y, rect) {
-    var inside = false;
-    var j = 3; // rect.length - 1 (but we know rect.length is always 4)
+    var inside = false,
+        j = 3; // rect.length - 1 (but we know rect.length is always 4)
+        
     for (var i=0; i<4; i++) {
       if ((rect[i].y > y) != (rect[j].y > y) && 
           (x < (rect[j].x - rect[i].x) * (y - rect[i].y) / (rect[j].y-rect[i].y) + rect[i].x)) {

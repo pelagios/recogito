@@ -4,9 +4,7 @@ define(['imageannotation/config',
         'imageannotation/viewer/editor',
         'imageannotation/viewer/annotations'], function(Config, Events, Popup, Editor, Annotations) {
   
-  var layer;
-  
-  var AnnotationLayer = function(div, viewer, eventBroker) {
+  var AnnotationLayer = function(div, map, eventBroker) {
     var TWO_PI = 2 * Math.PI, // shorthand
     
         /** Annotations **/
@@ -15,7 +13,7 @@ define(['imageannotation/config',
         
         /** UI components **/
         popup = new Popup(div, eventBroker),
-        editor = new Editor(div, viewer, eventBroker),
+        editor = new Editor(div, map, eventBroker),
         
         /** Helper function to draws a single annotation onto the canvas **/
         drawOne = function(annotation, extent, scale, ctx, color) {    
@@ -157,25 +155,24 @@ define(['imageannotation/config',
         removeAnnotation = function(a) {
           annotations.remove(a.id);
           layer.getSource().dispatchChangeEvent();
-        };
+        },
         
-    layer = new ol.layer.Image({
-      source: new ol.source.ImageCanvas({
-        canvasFunction: redrawAll,
-        projection: 'ZOOMIFY'
-      })
-    });
+        layer = new ol.layer.Image({
+          source: new ol.source.ImageCanvas({
+            canvasFunction: redrawAll,
+            projection: 'ZOOMIFY'
+          })
+        });
         
-    viewer.on('pointermove', onMouseMove);
-    viewer.on('singleclick', onClick);
+    map.on('pointermove', onMouseMove);
+    map.on('singleclick', onClick);
+    map.addLayer(layer);
             
     eventBroker.addHandler(Events.STORE_ANNOTATIONS_LOADED, addAnnotations);   
     eventBroker.addHandler(Events.ANNOTATION_CREATED, addAnnotations); 
     eventBroker.addHandler(Events.ANNOTATION_UPDATED, function() { layer.getSource().dispatchChangeEvent(); });
     eventBroker.addHandler(Events.ANNOTATION_DELETED, removeAnnotation);
   };
-  
-  AnnotationLayer.prototype.getLayer = function() { return layer };
    
   return AnnotationLayer; 
 

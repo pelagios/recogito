@@ -1,6 +1,6 @@
 define(['imageannotation/config', 'imageannotation/events'], function(Config, Events) {
   
-  var Editor = function(div, viewer, eventBroker) {    
+  var Editor = function(parent, map, eventBroker) {    
     var currentAnnotation = false,
         mask = 
           $('<div class="editor-mask">' +
@@ -50,6 +50,43 @@ define(['imageannotation/config', 'imageannotation/events'], function(Config, Ev
           eventBroker.fireEvent(Events.ANNOTATION_DELETED, currentAnnotation);
           hide();
         },
+        
+        toViewportBounds = function(annotation, opt_buffer) {
+          var buffer = (opt_buffer) ? opt_buffer : 0,   
+              resolution = map.getView().getResolution(),
+              geom = annotation.shapes[0].geometry,
+    
+              anchor = map.getPixelFromCoordinate([ geom.x, - geom.y ]),
+              angle = geom.a - map.getView().getRotation(),
+    
+              a = { x: anchor[0], y: anchor[1] },
+              b = {
+                x: a.x + Math.cos(angle) * geom.l / resolution,
+                y: a.y - Math.sin(angle) * geom.l / resolution
+              },
+              c = {
+                x: b.x - geom.h / resolution * Math.sin(angle),
+                y: b.y - geom.h / resolution * Math.cos(angle)
+              },
+              d = {
+                x: a.x - geom.h / resolution * Math.sin(angle),
+                y: a.y - geom.h / resolution * Math.cos(angle)      
+              },
+              
+              top = Math.min(a.y, b.y, c.y, d.y),
+              right = Math.max(a.x, b.x, c.x, d.x),
+              bottom = Math.max(a.y, b.y, c.y, d.y),
+              left = Math.min(a.x, b.x, c.x, d.x),
+
+              bounds = {
+                left: Math.round(left) - buffer,
+                top: Math.round(top) - buffer,
+                width: Math.round(right - left) + 2 * buffer,
+                height: Math.round(bottom - top) + 2 * buffer
+              };
+          
+          return bounds;
+        },
             
         /** Opens the black mask around the selection **/
         showMask = function(bounds) {
@@ -71,19 +108,19 @@ define(['imageannotation/config', 'imageannotation/events'], function(Config, Ev
                         
           maskRight.css('left', (bounds.left + bounds.width) + 'px');
           maskBottom.css('top', (bounds.top + bounds.height) + 'px');
-
           mask.show();            
         },
         
         /** Opens the editor controls panel **/
         showControls = function(bounds, annotation) {
+          var transcription = (annotation.corrected_toponym) ? annotation.corrected_toponym : annotation.toponym;
+          
           controls.css({
             left: (bounds.left + 1) + 'px',
             top: (bounds.top + bounds.height) + 'px',
             minWidth: bounds.width + 'px'
           });
           
-          var transcription = (annotation.corrected_toponym) ? annotation.corrected_toponym : annotation.toponym;
           if (transcription)
             transcriptionInput.val(transcription);
           else 
@@ -100,8 +137,9 @@ define(['imageannotation/config', 'imageannotation/events'], function(Config, Ev
   
         /** Just a facade that opens the mask and the controls panel **/
         show = function(annotation) {
+          var bounds = toViewportBounds(annotation, 50);  
+          
           currentAnnotation = annotation;
-          var bounds = viewer.toViewportBounds(annotation, 50);  
           showMask(bounds);
           showControls(bounds, annotation);
         },
@@ -119,7 +157,7 @@ define(['imageannotation/config', 'imageannotation/events'], function(Config, Ev
     controls.hide();
 
     // Set up events
-    viewer.on(['moveend', 'postrender'], function(e) {
+    map.on(['moveend', 'postrender'], function(e) {
       if (currentAnnotation)
         show(currentAnnotation);
     });
@@ -139,8 +177,8 @@ define(['imageannotation/config', 'imageannotation/events'], function(Config, Ev
     controls.find('.delete').click(deleteAnnotation);
     controls.find('.cancel').click(hide); 
 
-    div.append(mask);
-    div.append(controls);
+    parent.append(mask);
+    parent.append(controls);
   };
   
   return Editor;
