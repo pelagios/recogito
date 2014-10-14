@@ -29,8 +29,11 @@ case class GeoDocument(
     /** Additional free-text date comment (e.g. "middle of 3rd century") - will be used for display **/
     dateComment: Option[String],
     
+    /** Flag indicating whether the document is safe to publish openly **/
+    hasOpenLicense: Boolean = false,
+    
     /** Document language **/
-    language: Option[String],
+    language: Option[String] = None,
     
     /** Free-text description **/
     description: Option[String] = None, 
@@ -48,7 +51,10 @@ case class GeoDocument(
     findspot: Option[String] = None,
     
     /** A geographical location associated with the author (gazetteer URI) **/
-    authorLocation: Option[String]) {
+    authorLocation: Option[String] = None,
+    
+    /** Any comment you may want to supply with the document **/
+    comment: Option[String] = None) {
   
   /** Wraps the comma-separated URL list to a proper Seq **/
   val primaryTopicOf = _primaryTopicOf.map(_.split(",").toSeq.map(_.trim)).getOrElse(Seq.empty[String])
@@ -70,6 +76,8 @@ class GeoDocuments(tag: Tag) extends Table[GeoDocument](tag, "gdocuments") {
   
   def dateComment = column[String]("date_comment", O.Nullable)
   
+  def hasOpenLicense = column[Boolean]("open_license", O.NotNull)
+  
   def language = column[String]("language", O.Nullable)
 
   def description = column[String]("description", O.Nullable, O.DBType("text"))
@@ -84,10 +92,12 @@ class GeoDocuments(tag: Tag) extends Table[GeoDocument](tag, "gdocuments") {
   
   def authorLocation = column[String]("geo_author_location", O.Nullable)
   
+  def comment = column[String]("comment", O.Nullable)
+  
   def _collections = column[String]("collections", O.Nullable)
 
-  def * = (id.?, externalWorkID.?, author.?, title, date.?, dateComment.?, language.?,
-    description.?, source.?, primaryTopicOf.?, origin.?, findspot.?, authorLocation.?) <> (GeoDocument.tupled, GeoDocument.unapply)
+  def * = (id.?, externalWorkID.?, author.?, title, date.?, dateComment.?, hasOpenLicense, language.?,
+    description.?, source.?, primaryTopicOf.?, origin.?, findspot.?, authorLocation.?, comment.?) <> (GeoDocument.tupled, GeoDocument.unapply)
     
 }
     

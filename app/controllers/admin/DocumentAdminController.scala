@@ -35,13 +35,15 @@ object DocumentAdminController extends Controller with Secured {
 		"title" -> text, 
 		"date" -> optional(number), 
 		"dateComment" -> optional(text),
+		"openLicense" -> boolean,
 		"language" -> optional(text),
 		"description" -> optional(text),
 		"source" -> optional(text),
 		"primaryTopicOf" -> optional(text),
 		"origin" -> optional(text),
 		"findspot" -> optional(text),
-		"authorLocation" -> optional(text)
+		"authorLocation" -> optional(text),
+		"comment" -> optional(text)
 	)(GeoDocument.apply)(GeoDocument.unapply)
   )
   
@@ -130,6 +132,7 @@ object DocumentAdminController extends Controller with Secured {
   def updateDocument(id: Int) = protectedDBAction(Secure.REJECT) { implicit username => implicit session =>
     documentForm.bindFromRequest.fold(
       formWithErrors => {
+        Logger.info("foo")
         val collections = CollectionMemberships.findForGeoDocument(id)
 	    BadRequest(views.html.admin.documentDetails(id, formWithErrors, collections))
 	  },

@@ -19,6 +19,17 @@ form {
     vertical-align: top;
   }
   
+  dd, dl { 
+    display: inline;
+    margin-left:0;
+    padding-left:0; 
+  }
+  
+  input[type="checkbox"] { display: inline; }
+  
+  /** Ignore Play-generated helper for now (a legacy of Bojan's hack...) **/
+  dt, dd.info { display: none; }
+  
   input[type="text"] {
     width:350px;
     padding:2px;

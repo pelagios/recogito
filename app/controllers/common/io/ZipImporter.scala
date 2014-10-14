@@ -69,9 +69,9 @@ object ZipImporter {
       // Insert the document
       Logger.info("... document")
       val gdocId = GeoDocuments.insert(
-        GeoDocument(None, docExtWorkID, docAuthor, docTitle, docDate, docDateComment,
+        GeoDocument(None, docExtWorkID, docAuthor, docTitle, docDate, docDateComment, false,
           docLanguage, docDescription, docSource, docPrimaryTopicOf.map(_.mkString(",")),
-          docOrigin, docFindspot, docAuthorLocation))
+          docOrigin, docFindspot, docAuthorLocation, None))
         
       // Assign to collections, if any
       if (docCollections.isDefined)

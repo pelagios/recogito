@@ -53,6 +53,11 @@
           </li>
           
           <li>
+            <label for="openLicense">Open License</label>
+            @helper.checkbox(form("openLicense"))
+          </li>
+          
+          <li>
             <label for="date">Language</label>
             <input name="language" id="language" type="text" placeholder="e.g. 'gr'" value="@form("language").value">
           </li>
@@ -85,6 +90,11 @@
 	      <li>
             <label for="authorLocation">Author Location</label>
             <input name="authorLocation" id="authorLocation" type="text" placeholder="e.g. 'http://pleiades.stoa.org/places/423025'" value="@form("authorLocation").value">
+	      </li>
+	      
+	      <li>
+	        <label for="comment">Comment</label>
+	        <input name="comment" id="commetn" type="text" value="@form("comment").value">
 	      </li>
 	      
 	      <li>
