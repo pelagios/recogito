@@ -28,6 +28,11 @@
         <input name="gdocId" id="gdocId" type="hidden" value="@form("gdocId").value">
         
         <ol>
+          <li>
+            <label for="sequenceNumber">Page <em>*</em></label>
+            <input name="sequenceNumber" id="sequenceNumber" type="text" placeholder="A page or sequence number..." value="@form("sequenceNumber").value">
+          </li>
+          
       	  <li>
             <label for="title">Title <em>*</em></label>
             <input name="title" id="title" type="text" placeholder="Title..." value="@form("title").value">
@@ -40,6 +45,7 @@
           
 	        <li>
 		        <input type="submit" value="SAVE" class="btn primary">
+            <input type="button" value="CANCEL" onclick="window.location.href='@controllers.admin.routes.DocumentAdminController.editDocument(gdocId)'" class="btn primary">
 		      </li>
         </ol>
       }
