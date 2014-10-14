@@ -10,7 +10,7 @@ import scala.slick.lifted.Tag
   *
   * @author Rainer Simon <rainer.simon@ait.ac.at>
   */
-case class GeoDocumentPart(id: Option[Int] = None, gdocId: Int, title: String, source: Option[String] = None)
+case class GeoDocumentPart(id: Option[Int] = None, gdocId: Int, sequenceNumber: Int, title: String, source: Option[String] = None)
 
 /** Geospatial database table **/
 class GeoDocumentParts(tag: Tag) extends Table[GeoDocumentPart](tag, "gdocument_parts") {
@@ -18,12 +18,14 @@ class GeoDocumentParts(tag: Tag) extends Table[GeoDocumentPart](tag, "gdocument_
   def id = column[Int]("id", O.PrimaryKey, O.AutoInc)
   
   def gdocId = column[Int]("gdoc")
+  
+  def sequenceNumber = column[Int]("sequence_number", O.NotNull)
    
   def title = column[String]("title")
   
   def source = column[String]("source", O.Nullable)
   
-  def * = (id.?, gdocId, title, source.?) <> (GeoDocumentPart.tupled, GeoDocumentPart.unapply)
+  def * = (id.?, gdocId, sequenceNumber, title, source.?) <> (GeoDocumentPart.tupled, GeoDocumentPart.unapply)
   
   /** Foreign key constraints **/
   def gdocFk = foreignKey("gdoc_fk", gdocId, TableQuery[GeoDocuments])(_.id)
@@ -46,10 +48,10 @@ object GeoDocumentParts {
     query.where(_.id === id).firstOption
     
   def findByIds(ids: Seq[Int])(implicit s: Session): Map[Int, Seq[GeoDocumentPart]] =
-    query.where(_.id inSet ids).list.groupBy(_.gdocId)
+    query.where(_.id inSet ids).list.groupBy(_.gdocId).mapValues(_.sortBy(_.sequenceNumber))
     
   def findByGeoDocument(id: Int)(implicit s: Session): Seq[GeoDocumentPart] =
-    query.where(_.gdocId === id).list
+    query.where(_.gdocId === id).sortBy(_.sequenceNumber).list
     
   def countForGeoDocument(id: Int)(implicit s: Session): Int =
     Query(query.where(_.gdocId === id).length).first
