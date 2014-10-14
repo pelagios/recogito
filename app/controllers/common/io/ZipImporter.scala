@@ -92,7 +92,7 @@ object ZipImporter {
       
       // Insert parts
       if (docParts.isDefined) {
-        docParts.get.foreach(docPart => {
+        docParts.get.zipWithIndex.foreach { case (docPart, idx) => {
           val partTitle = (docPart \ "title").as[String]
           val partSource = (docPart \ "source").asOpt[String]
           val partText = (docPart \ "text").asOpt[String]
@@ -100,7 +100,7 @@ object ZipImporter {
         
           // Insert the document part          
           Logger.info("... part " + partTitle)
-          val gdocPartId = GeoDocumentParts.insert(GeoDocumentPart(None, gdocId, partTitle, partSource))
+          val gdocPartId = GeoDocumentParts.insert(GeoDocumentPart(None, gdocId, idx + 1, partTitle, partSource))
         
           if (partText.isDefined) {
             Logger.info("... text")
@@ -111,7 +111,7 @@ object ZipImporter {
             Logger.info("... image")
             importImage(file, partImage.get, gdocId, Some(gdocPartId))
           }
-        })
+        }}
       }
       
       // Insert annotations

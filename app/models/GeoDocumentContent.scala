@@ -22,14 +22,14 @@ object GeoDocumentContent {
   def findByGeoDocument(gdocId: Int)(implicit session: Session): Seq[(GeoDocumentContent, Option[String])] = {
     val textQuery = for {
       (text, part) <- GeoDocumentTexts.query.where(_.gdocId === gdocId) leftJoin GeoDocumentParts.query on (_.gdocPartId === _.id)
-    } yield (text, part.title.?)
+    } yield (text, part.title.?, part.sequenceNumber)
     
     val imageQuery = for {
       (image, part) <- GeoDocumentImages.query.where(_.gdocId === gdocId) leftJoin GeoDocumentParts.query on (_.gdocPartId === _.id) 
-    } yield (image, part.title.?)
+    } yield (image, part.title.?, part.sequenceNumber)
     
-    val texts: List[(GeoDocumentContent, Option[String])] = textQuery.list
-    val images: List[(GeoDocumentContent, Option[String])] = imageQuery.list
+    val texts: List[(GeoDocumentContent, Option[String])] = textQuery.list.sortBy(_._3).map(t => (t._1, t._2))
+    val images: List[(GeoDocumentContent, Option[String])] = imageQuery.list.sortBy(_._3).map(t => (t._1, t._2))
     
     texts ++ images
   }

@@ -16,6 +16,7 @@ object DocumentPartAdminController extends Controller with Secured {
 	mapping(
 		"id" -> optional(number),
 		"gdocId" -> number,
+		"sequenceNumber" -> number,
 		"title" -> text, 
 		"source" -> optional(text) 
 	)(GeoDocumentPart.apply)(GeoDocumentPart.unapply)
