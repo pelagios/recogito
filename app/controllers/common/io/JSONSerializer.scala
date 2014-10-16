@@ -151,7 +151,7 @@ object JSONSerializer {
       val p = place.get._1
       Some(Json.obj(
         "uri" -> p.uri,
-        "title" -> p.title,
+        "title" -> p.label,
         "description" -> p.descriptions.map(_.chars).mkString(", "),
         "names" -> p.names.map(_.chars).mkString(", "),
         "category" -> p.category.map(_.toString),

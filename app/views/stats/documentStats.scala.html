@@ -143,7 +143,7 @@
             <tbody>
               @for((place, count, toponymStats) <- placeStats.uniquePlaces) {
                 <tr class="place">
-                  <td><a href="@place.uri" title="@place.descriptions.headOption.map(_.chars)" target="_blank">@place.title</a></td>
+                  <td><a href="@place.uri" title="@place.descriptions.headOption.map(_.chars)" target="_blank">@place.label</a></td>
                   <td>
                     @if(place.category.isDefined) {
                       @tags.placeCategory(place.category.get)
