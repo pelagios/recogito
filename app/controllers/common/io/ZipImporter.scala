@@ -130,9 +130,13 @@ object ZipImporter {
     val entries = zipFile.entries.asScala.toSeq.filter(!_.getName.startsWith("__MACOSX"))
     
     def validateText(entryName: String): Option[String] = {
-      val text = getEntry(zipFile, entryName).get    
-      val plainText = text.getLines.mkString("\n")
-      RX_HTML_ENTITY.findFirstIn(plainText).map(_ => "Text " + entryName + " contains invalid characters (HTML entities are not allowed)")
+      val text = getEntry(zipFile, entryName)
+      if (text.isDefined) {
+        val plainText = text.get.getLines.mkString("\n")
+        RX_HTML_ENTITY.findFirstIn(plainText).map(_ => "Text " + entryName + " contains invalid characters (HTML entities are not allowed)")
+      } else {
+        None
+      }
     }
  
     // We can have multiple JSON files in the Zip, one per document
@@ -152,10 +156,12 @@ object ZipImporter {
         docText.flatMap(validateText(_)),
         docImage.flatMap(img => if (entryExists(img, zipFile)) None else Some(name + ": referenced image file" + img + " is missing from ZIP")),
         docAnnotations.flatMap(csv => if (entryExists(csv, zipFile)) None else Some(name + ": referenced annotations file " + csv + " is missing from ZIP pacakge"))
-      ) ++ docParts.map(part => {
-        val partText = (part \ "text").as[Option[String]]
-        partText.flatMap(txt => if (entryExists(txt, zipFile)) None else Some(name + ": referenced text file " + txt + " is missing from ZIP"))
-        partText.flatMap(validateText(_))
+      ) ++ docParts.flatMap(part => {
+        val partText = (part \ "text").asOpt[String]
+        Seq(
+          partText.flatMap(txt => if (entryExists(txt, zipFile)) None else Some(name + ": referenced text file " + txt + " is missing from ZIP")),
+          partText.flatMap(validateText(_))
+        )
       })
     
       warnings.filter(_.isDefined).map(_.get)
