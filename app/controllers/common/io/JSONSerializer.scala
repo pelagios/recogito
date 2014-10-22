@@ -16,22 +16,12 @@ object JSONSerializer {
   private val UTF8 = "UTF-8"  
   private val CONTEXT_SIZE = 80
   
-  def toJson(annotations: Seq[Annotation])(implicit s: Session): Seq[JsObject] = {
+  def toJson(annotations: Seq[Annotation]): Seq[JsObject] = {
     annotations.map(a => {
-      val anchor = if (a.correctedAnchor.isDefined) a.correctedAnchor else a.anchor
-      
-      // Temporary! This generates one DB request per annotation.
-      // If we use this more often annotation + most recent edit event
-      // need to be retrieved in a Join (or we need denormalization for
-      // the most recent edit?)
-      val lastEdit = EditHistory.findByAnnotation(a.uuid, 1).headOption
-      
+      val anchor = if (a.correctedAnchor.isDefined) a.correctedAnchor else a.anchor      
       Json.obj(
         "id" -> a.uuid.toString,
         "status" -> a.status.toString,
-        "last_edit" -> lastEdit.map(event => Json.obj(
-          "username" -> event.username,
-          "timestamp" -> event.timestamp.getTime)),
         "toponym" -> { if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym },
         "comment" -> a.comment,
         "shapes" -> anchor.map(anchor => Json.toJson(Seq(Json.parse(anchor)))))
