@@ -5,6 +5,9 @@ define([], function() {
     /** The initialize event is broadcast when the application is ready to start **/
     INITIALIZE : 'initialize',
     
+    /** Global shortcut to the ESC key event **/
+    ESCAPE : 'escape',
+    
     /** Toolbar: the user activated navigation mode **/
     SWITCH_TO_NAVIGATE : 'switchToNavigate',
     

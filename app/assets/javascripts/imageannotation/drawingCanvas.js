@@ -59,6 +59,13 @@ define(['imageannotation/config', 'imageannotation/events'], function(Config, Ev
         /** Hide the canvas **/
         hide = function() { canvas.style.pointerEvents = 'none'; },
         
+        /** Cancels drawing **/
+        cancel = function() {
+          painting = false;
+          extrude = false;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+        },
+        
         /** Mouse down handler **/
         onMouseDown = function(e) {  
           lastClicktime = new Date().getTime();
@@ -216,6 +223,7 @@ define(['imageannotation/config', 'imageannotation/events'], function(Config, Ev
     
     eventBroker.addHandler(Events.SWITCH_TO_ANNOTATE, show);
     eventBroker.addHandler(Events.SWITCH_TO_NAVIGATE, hide);
+    eventBroker.addHandler(Events.ESCAPE, cancel);
     
     reset();    
     $(window).on('resize', reset);

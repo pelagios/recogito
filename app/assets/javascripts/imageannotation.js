@@ -39,7 +39,10 @@ require(['imageannotation/events',
   
   // Spacebar - mode toggle
   $(document).keyup(function(e) {
-    if (e.target.tagName !== 'INPUT' && e.keyCode == 32) {
+    if (e.which == 27)
+      eventBroker.fireEvent(Events.ESCAPE);
+      
+    if (e.target.tagName !== 'INPUT' && e.which == 32) {
       if (btnAnnotate.hasClass('selected'))
         switchToNavigate();
       else

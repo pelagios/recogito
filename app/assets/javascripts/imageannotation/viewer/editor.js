@@ -163,11 +163,8 @@ define(['imageannotation/config', 'imageannotation/events'], function(Config, Ev
     });
     
     eventBroker.addHandler(Events.EDIT_ANNOTATION, show);
-    
-    controls.keydown(function(e) {
-      if (e.which === 27) // Escape
-        hide();
-    });
+    eventBroker.addHandler(Events.ESCAPE, hide);
+     
     controls.on('keypress', 'input', function(e) {
       if (e.which === 13) // Enter on the input field
         updateAnnotation();
