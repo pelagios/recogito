@@ -35,8 +35,7 @@ define(['georesolution/common'], function(common) {
       center: new L.LatLng(41.893588, 12.488022),
       zoom: 5,
       layers: [dareLayer],
-      minZoom: 3,
-      maxZoom: 11
+      minZoom: 3
     });
     
     var baseLayers = { 'Satellite': bingLayer, 

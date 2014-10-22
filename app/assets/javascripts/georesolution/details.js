@@ -395,8 +395,7 @@ define(['georesolution/common'], function(common) {
         
         map = new L.Map(mapDiv, {
           layers: [ dareLayer ],
-          minZoom: 3,
-          maxZoom: 11
+          minZoom: 3
         }),
         
         baseLayers = { 'Satellite': bingLayer, 
