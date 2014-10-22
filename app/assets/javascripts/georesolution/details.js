@@ -380,7 +380,8 @@ define(['georesolution/common'], function(common) {
    */
   DetailsPopup.prototype._initMap = function(mapDiv) {  
     var dareLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
-          attribution: 'Tiles: <a href="http://pelagios.org/maps/greco-roman/about.html">Pelagios</a>, 2012'
+          attribution: 'Tiles: <a href="http://pelagios.org/maps/greco-roman/about.html">Pelagios</a>, 2012',
+          maxZoom: 11
         }),
         awmcLayer = L.tileLayer('http://a.tiles.mapbox.com/v3/isawnyu.map-knmctlkh/{z}/{x}/{y}.png', {
           attribution: 'Tiles &copy; <a href="http://mapbox.com/" target="_blank">MapBox</a> | ' +
@@ -404,6 +405,11 @@ define(['georesolution/common'], function(common) {
                        'Roman Empire Base Map (<a href="http://imperium.ahlfeldt.se/" target="_blank">DARE</a>)': dareLayer };
   
     map.addControl(new L.Control.Layers(baseLayers, null, { position: 'topleft' }));
+    
+    map.on('baselayerchange', function(e) { 
+      if (map.getZoom() > e.layer.options.maxZoom)
+        map.setZoom(e.layer.options.maxZoom);
+    });
     return map;
   }
 

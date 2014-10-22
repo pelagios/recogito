@@ -4,7 +4,8 @@ var recogito = (window.recogito) ? window.recogito : { };
 recogito.PublicMap = function(mapDiv, dataURL) {
   var self = this,
       dareLayer = L.tileLayer('http://pelagios.org/tilesets/imperium/{z}/{x}/{y}.png', {
-    	  attribution: 'Tiles: <a href="http://imperium.ahlfeldt.se/">DARE 2014</a>'
+    	  attribution: 'Tiles: <a href="http://imperium.ahlfeldt.se/">DARE 2014</a>',
+        maxZoom:11
       }),     
       awmcLayer = L.tileLayer('http://a.tiles.mapbox.com/v3/isawnyu.map-knmctlkh/{z}/{x}/{y}.png', {
         attribution: 'Tiles &copy; <a href="http://mapbox.com/" target="_blank">MapBox</a> | ' +
@@ -45,6 +46,12 @@ recogito.PublicMap = function(mapDiv, dataURL) {
     zoom: 5,
     layers: [awmcLayer],
     minZoom: 3
+  });
+  
+  var self = this;
+  this._map.on('baselayerchange', function(e) { 
+    if (self._map.getZoom() > e.layer.options.maxZoom)
+      self._map.setZoom(e.layer.options.maxZoom);
   });
   
   var baseLayers = { 'Satellite': bingLayer, 

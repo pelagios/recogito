@@ -15,7 +15,8 @@ define(['georesolution/common'], function(common) {
   
     var self = this,
         dareLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
-          attribution: 'Tiles: <a href="http://imperium.ahlfeldt.se/">DARE 2014</a>'
+          attribution: 'Tiles: <a href="http://imperium.ahlfeldt.se/">DARE 2014</a>',
+          maxZoom:11
         }),
         awmcLayer = L.tileLayer('http://a.tiles.mapbox.com/v3/isawnyu.map-knmctlkh/{z}/{x}/{y}.png', {
           attribution: 'Tiles &copy; <a href="http://mapbox.com/" target="_blank">MapBox</a> | ' +
@@ -43,6 +44,11 @@ define(['georesolution/common'], function(common) {
                        'Empty Base Map (<a href="http://awmc.unc.edu/wordpress/tiles/map-tile-information" target="_blank">AWMC</a>)': awmcLayer, 
                        'Roman Empire Base Map (<a href="http://imperium.ahlfeldt.se/" target="_blank">DARE</a>)': dareLayer };
     this._map.addControl(new L.Control.Layers(baseLayers, null, { position: 'topleft' }));
+
+    this._map.on('baselayerchange', function(e) { 
+      if (self._map.getZoom() > e.layer.options.maxZoom)
+        self._map.setZoom(e.layer.options.maxZoom);
+    });
 
     // List of current EGD parts
     // [{ name: { visible: true | false, tags: [ { name: ..., visible: true | false }] }]
