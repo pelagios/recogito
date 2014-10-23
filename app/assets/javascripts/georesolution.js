@@ -5,7 +5,7 @@
  * @param {String} dataURL the URL from where to retrieve the JSON data
  * @constructor
  */
-require(["georesolution/map", "georesolution/table", "georesolution/footer"], function(Map, Table, Footer) {
+require(["georesolution/map", "georesolution/table/table", "georesolution/footer"], function(Map, Table, Footer) {
    
   var self = this,
       relatedLinks = $.grep($('link'), function(element) { return $(element).attr('rel') == 'related'; }),
