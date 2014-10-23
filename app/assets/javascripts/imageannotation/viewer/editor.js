@@ -111,15 +111,18 @@ define(['imageannotation/config', 'imageannotation/events'], function(Config, Ev
           mask.show();            
         },
         
-        /** Opens the editor controls panel **/
-        showControls = function(bounds, annotation) {
-          var transcription = (annotation.corrected_toponym) ? annotation.corrected_toponym : annotation.toponym;
-          
+        /** Shorthand function, sets the position of the controls **/
+        setControlsPosition = function(bounds) {
           controls.css({
             left: (bounds.left + 1) + 'px',
             top: (bounds.top + bounds.height) + 'px',
             minWidth: bounds.width + 'px'
-          });
+          });          
+        },
+        
+        /** Opens the editor controls panel **/
+        showControls = function(bounds, annotation) {
+          var transcription = (annotation.corrected_toponym) ? annotation.corrected_toponym : annotation.toponym;
           
           if (transcription)
             transcriptionInput.val(transcription);
@@ -131,6 +134,7 @@ define(['imageannotation/config', 'imageannotation/events'], function(Config, Ev
           else 
             commentInput.val('');   
           
+          setControlsPosition(bounds);
           controls.show();
           transcriptionInput.focus();
         },
@@ -138,10 +142,16 @@ define(['imageannotation/config', 'imageannotation/events'], function(Config, Ev
         /** Just a facade that opens the mask and the controls panel **/
         show = function(annotation) {
           var bounds = toViewportBounds(annotation, 50);  
-          
           currentAnnotation = annotation;
           showMask(bounds);
           showControls(bounds, annotation);
+        },
+        
+        /** Updates the position of the editor (mask and controls) **/
+        updatePosition = function() {
+          var bounds = toViewportBounds(currentAnnotation, 50);  
+          showMask(bounds);
+          setControlsPosition(bounds);
         },
         
         /** Hide mask and controls panel **/
@@ -151,7 +161,6 @@ define(['imageannotation/config', 'imageannotation/events'], function(Config, Ev
           controls.hide();
         };
     
-    
     // Hide editor elements
     mask.hide();
     controls.hide();
@@ -159,7 +168,7 @@ define(['imageannotation/config', 'imageannotation/events'], function(Config, Ev
     // Set up events
     map.on(['moveend', 'postrender'], function(e) {
       if (currentAnnotation)
-        show(currentAnnotation);
+        updatePosition();
     });
     
     eventBroker.addHandler(Events.EDIT_ANNOTATION, show);
