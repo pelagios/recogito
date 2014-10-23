@@ -19,7 +19,7 @@ object SearchController extends Controller {
   private val PLEIADES_PREFIX = "http://pleiades.stoa.org"
     
   def placeSearch(query: String) = Action {
-    val networks = Global.index.query(query, true).map(Global.index.getNetwork(_))
+    val networks = Global.index.query(query).map(Global.index.getNetwork(_))
     val results = Network.conflateNetworks(networks.toSeq, 
         Some(PLEIADES_PREFIX), // prefer Pleiades URIs
         Some(DARE_PREFIX),     // prefer DARE for coordinates
