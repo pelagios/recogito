@@ -16,6 +16,8 @@ import play.api.db.slick._
 import scala.slick.jdbc.meta.MTable
 import play.api.mvc.RequestHeader
 import models.GlobalStatsHistory
+import org.pelagios.api.gazetteer.Place
+import scala.collection.mutable.ListBuffer
 
 /** Play Global object **/
 object Global extends GlobalSettings {
@@ -36,15 +38,12 @@ object Global extends GlobalSettings {
         
       dumps.foreach(f => {
         Logger.info("Loading gazetteer dump: " + f)
-        val is = if (f.endsWith(".gz"))
-            new GZIPInputStream(new FileInputStream(new File(GAZETTEER_DIR, f)))
+        val (is, filename) = if (f.endsWith(".gz"))
+            (new GZIPInputStream(new FileInputStream(new File(GAZETTEER_DIR, f))), f.substring(0, f.lastIndexOf('.')))
           else
-            new FileInputStream(new File(GAZETTEER_DIR, f))
-        
-        val places = Scalagios.readPlaces(is, Scalagios.TURTLE)
-        val names = places.flatMap(_.names)
-        Logger.info("Inserting " + places.size + " places with " + names.size + " names into index")
-        idx.addPlaces(places)
+            (new FileInputStream(new File(GAZETTEER_DIR, f)), f)
+         
+        idx.addPlaceStream(is, filename, true)
       })
       
       Logger.info("Index complete")      

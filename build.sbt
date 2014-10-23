@@ -23,8 +23,8 @@ libraryDependencies ++= Seq(
   * TODO: remove once Scalagios is included as managed dependency!
   */
 libraryDependencies ++= Seq(
-  "org.apache.lucene" % "lucene-analyzers-common" % "4.8.1",
-  "org.apache.lucene" % "lucene-queryparser" % "4.8.1",
+  "org.apache.lucene" % "lucene-analyzers-common" % "4.9.0",
+  "org.apache.lucene" % "lucene-queryparser" % "4.9.0",
   "org.openrdf.sesame" % "sesame-rio-n3" % "2.7.5",
   "org.openrdf.sesame" % "sesame-rio-rdfxml" % "2.7.5",
   "com.vividsolutions" % "jts" % "1.13",
