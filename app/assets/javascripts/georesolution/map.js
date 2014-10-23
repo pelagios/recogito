@@ -1,4 +1,4 @@
-define(['georesolution/common'], function(common) {
+define(['georesolution/common', 'georesolution/mapBase'], function(common, MapBase) {
   
   /**
    * The map component of the UI.
@@ -27,11 +27,11 @@ define(['georesolution/common'], function(common) {
         bingLayer = new L.BingLayer("Au8CjXRugayFe-1kgv1kR1TiKwUhu7aIqQ31AjzzOQz0DwVMjkF34q5eVgsLU5Jn"),
         osmLayer = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 	        attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
-        }),
+        }), 
         selector_template = 
           '<div class="map-selector">' +
           '</div>';
-        
+          
     this._map = new L.Map(mapDiv, {
       center: new L.LatLng(41.893588, 12.488022),
       zoom: 5,

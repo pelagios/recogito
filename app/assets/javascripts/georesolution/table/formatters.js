@@ -40,7 +40,6 @@ define(['georesolution/common'], function(common) {
     
     /** A  cell formatter for the status column **/
     StatusFormatter : function (row, cell, value, columnDef, dataContext) {
-      console.log(row, value);
       var icons = {
             VERIFIED:         '&#xf14a;',
             NOT_VERIFIED:     '&#xf059;',
