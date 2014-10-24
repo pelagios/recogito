@@ -4,31 +4,16 @@ define(['georesolution/common'], function(common) {
     
     /** A cell formatter for gazetteer URIs **/
     GazeeteerURIFormatter: function(row, cell, value, columnDef, dataContext) {
-      var toHTML = function(value, prefix, offset) {
-        var html,
-            id = value.uri.substring(offset);
-          
-        if (id.indexOf('#') > -1)
-          id = id.substring(0, id.indexOf('#'));
-              
-        html = 
+      if (value) {
+        var html = 
           '<a href="' + value.uri + 
           '" target="_blank" title="' + value.title + common.Utils.formatCategory(value.category, ' ({{category}})') +
-          '">' + prefix + ':' + id + '</a>';
+          '">' + common.Utils.formatGazetteerURI(value.uri) + '</a>';
        
         if (value.coordinate)
           return '<span class="icon empty"></span>' + html;  
         else
           return '<span title="Place has no coordinates" class="icon no-coords">&#xf041;</span>' + html;
-      };
-    
-      if (value) {
-        if (value.uri.indexOf('http://pleiades.stoa.org') == 0)
-          return toHTML(value, 'pleiades', 32);
-        else if (value.uri.indexOf('http://data.pastplace.org/') == 0)
-          return toHTML(value, 'pastplace', 35);
-        else
-          return value.title;
       }
     },
     

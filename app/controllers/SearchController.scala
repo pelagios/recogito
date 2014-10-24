@@ -28,7 +28,7 @@ object SearchController extends Controller {
     Ok(Json.obj("query" -> query, "results" -> results.map(place => Json.obj(
         "uri" -> place.uri,
         "title" -> place.label,
-        "names" -> place.names.map(_.chars).mkString(", "),
+        "names" -> Json.toJson(place.names.map(_.chars)),
         "description" -> place.descriptions.map(_.chars).mkString(", "),
         "category" -> place.category.map(_.toString),
         "coordinate" -> place.getCentroid.map(coords => Json.toJson(Seq(coords.y, coords.x)))))))

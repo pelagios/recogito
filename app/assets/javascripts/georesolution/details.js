@@ -1,4 +1,4 @@
-define(['georesolution/common'], function(common) {
+define(['georesolution/common', 'georesolution/mapBase'], function(common, Map) {
 
   /**
    * A popup showing all details about a single annotation, with extra functionality
@@ -77,7 +77,7 @@ define(['georesolution/common'], function(common) {
     this.element.appendTo(document.body);
   
     // Leaflet map
-    var map = this._initMap(document.getElementById('details-map'));
+    var map = new Map(document.getElementById('details-map'));
 
     /**
      * Generates a view of a search result by rendering an HTML table row and attach a marker to the map
@@ -85,38 +85,17 @@ define(['georesolution/common'], function(common) {
      * @param {Object!} opt_style the map marker style
      */
     var displaySearchResult = function(result, opt_style) {
-      var category = (result.category) ? common.Utils.formatCategory(result.category) : 'uncategorized';
-      var warning = (result.coordinate) ? '<td></td>' : '<td><span title="Place has no coordinates" class="icon no-coords">&#xf041;</span></td>'     
-      var tr = $('<tr><td>' + common.Utils.categoryTag(result.category) + '</td>' + warning + '<td><a href="javascript:void(0);" title="' + category + ' - ' + result.uri + ' (' + result.names + ')" class="details-content-candidate-link">' + result.title + '</a></td><td>' + result.description + '</td></tr>');
-      var marker = undefined;
-      if (result.coordinate) {
-        if (opt_style)
-          marker = L.circleMarker(result.coordinate, opt_style).addTo(map); 
-        else
-          marker = L.marker(result.coordinate).addTo(map);
-        
-        marker.on('click', function(e) { saveCorrection(result); });
-        marker.on('mouseover', function(e) { 
-          marker.bindPopup(result.title).openPopup();
-          $(tr).addClass('hilighted'); 
-        });
-        marker.on('mouseout', function(e) { 
-          marker.closePopup();
-          $(tr).removeClass('hilighted'); 
-        });
-      }
-     
-      var candidateLink = $(tr).find('.details-content-candidate-link');
-      if (marker) {
-        candidateLink.mouseover(function() { 
-          marker.bindPopup(result.title).openPopup(); 
-          map.panTo(marker.getLatLng());
-        });
-        candidateLink.mouseout(function() { marker.closePopup(); });
-      }
-      candidateLink.click(function(e) { saveCorrection(result); });
-    
-      return { html: tr, marker: marker };
+      var category = (result.category) ? common.Utils.formatCategory(result.category) : 'uncategorized',
+          warning = (result.coordinate) ? '<td></td>' : '<td><span title="Place has no coordinates" class="icon no-coords">&#xf041;</span></td>',
+          tableRow = $(
+            '<tr>' + 
+            '  <td>' + common.Utils.categoryTag(result.category) + '</td>' + warning + 
+            '  <td><a href="' + result.uri + '" title="' + category + ' - ' + result.uri + ' (' + result.names + ')" class="details-content-candidate-link">' + result.title + '</a></td>' +
+            '  <td>' + result.description + '</td>' + 
+            '</tr>');
+            
+      map.addSearchresult(result);
+      return tableRow;      
     };
     
     /**
@@ -139,6 +118,8 @@ define(['georesolution/common'], function(common) {
         self.fireEvent('skip-next');
       }
     };
+    
+    map.on('selectSearchresult', saveCorrection);
     
     // Populate the template
     $('.popup-exit').click(function() { self.destroy(); });
@@ -262,67 +243,36 @@ define(['georesolution/common'], function(common) {
       }
     });
       
-    // Popuplate the map
-    if (annotation.marker) {
-      // Marker for auto-match
-      if (annotation.place && annotation.place.coordinate) {
-        var marker = L.circleMarker(annotation.place.coordinate, { color:'blue', opacity:1, fillOpacity:0.6 }).addTo(map);    
-        var popup = '<strong>Auto-Match:</strong> ' + annotation.place.title;
-        marker.on('mouseover', function(e) { marker.bindPopup(popup).openPopup(); });
-        $('#details-content-automatch').mouseover(function() { marker.bindPopup(popup).openPopup(); });
-      }
-  
-      // Marker for manual correction (if any)
-      if (annotation.place_fixed && annotation.place_fixed.coordinate) {
-        var markerFixed = L.circleMarker(annotation.place_fixed.coordinate, { color:'red', opacity:1, fillOpacity:0.6 }).addTo(map);   
-        var popupFixed =   '<strong>Correction:</strong> ' + annotation.place_fixed.title;
-        markerFixed.on('mouseover', function(e) { markerFixed.bindPopup(popupFixed).openPopup(); });
-        $('#details-content-correction').mouseover(function() { markerFixed.bindPopup(popupFixed).openPopup(); });
-      }
-  
-      // Sequence
-      if (prev_annotations && next_annotations) {
-        var coords = [];
-    
-        for (var i = 0; i < prev_annotations.length; i++)
-          coords.push(prev_annotations[i].marker.getLatLng());
-       
-        if (annotation.place_fixed && annotation.place_fixed.coordinate)
-          coords.push(annotation.place_fixed.coordinate);
-        else if (annotation.place && annotation.place.coordinate)
-          coords.push(annotation.place.coordinate);
-      
-        for (var i = 0; i < next_annotations.length; i++)
-          coords.push(next_annotations[i].marker.getLatLng());
-      
-        var line = L.polyline(coords, { color:annotation.marker.options.color, opacity:1, weight:8 });
-        line.setText('►', { repeat: true, offset: 3, attributes: { fill: '#fff', 'font-size':10 }});    
-        map.fitBounds(line.getBounds());
-        line.addTo(map);
-        line.bringToBack();
-      }
-    } else {
-      map.setView([48.69096, 9.14062], 4);
-    }
+    // Populate the map
+    map.addAnnotation(annotation);
+    map.addSequence(annotation, prev_annotations, next_annotations);
   
     // Other candidates list
-    $.getJSON('api/search/place?query=' + annotation.toponym.toLowerCase(), function(data) {
-      var html = [],
-          automatchURI = (annotation.place) ? annotation.place.uri : undefined,
-          relevantURI = (annotation.place_fixed) ? annotation.place_fixed.uri : automatchURI;
+    $('#details-content-searchresults').on('click', 'a', function(e) {
+      map.selectSearchresult(e.target.href);
+      return false;
+    });
     
-      $.each(data.results, function(idx, result) {
-        if (result.uri != relevantURI) {
-          html.push(displaySearchResult(result, { color:'#0055ff', radius:5, stroke:false, fillOpacity:0.8 }).html);
+    if (annotation.toponym) {
+      $.getJSON('api/search/place?query=' + annotation.toponym.toLowerCase(), function(data) {
+        var html = [],
+            automatchURI = (annotation.place) ? annotation.place.uri : undefined,
+            relevantURI = (annotation.place_fixed) ? annotation.place_fixed.uri : automatchURI;
+    
+        $.each(data.results, function(idx, result) {
+          if (result.uri != relevantURI) {
+            html.push(displaySearchResult(result, { color:'#0055ff', radius:5, stroke:false, fillOpacity:0.8 }));
+          }
+        });
+        map.fitToSearchresults();
+
+        if (html.length == 0) {
+          $('#details-content-searchresults').html('<tr><td>No alternatives found.</td></tr>');
+        } else {
+          $('#details-content-searchresults').append(html);
         }
       });
-
-      if (html.length == 0) {
-        $('#details-content-searchresults').html('<tr><td>No alternatives found.</td></tr>');
-      } else {
-        $('#details-content-searchresults').append(html);
-      }
-    });
+    }
   
     // Toponym context (i.e. fulltext preview snippet)
     $.getJSON('api/annotations/' + annotation.id, function(a) {
@@ -350,7 +300,7 @@ define(['georesolution/common'], function(common) {
           var html = [];
           $.each(response.results, function(idx, result) {
             var displayedResult = displaySearchResult(result)
-            html.push(displayedResult.html);
+            html.push(displayedResult);
           
             if (displayedResult.marker)
               markers.push(displayedResult.marker);
@@ -362,61 +312,23 @@ define(['georesolution/common'], function(common) {
             $('#details-content-searchresults').append(html);
           }
         
-          map.fitBounds(new L.featureGroup(markers).getBounds());
+          map.fitToSearchresults();
         });
       }
     });
     
+    this.map = map;
     $('.details-content-search-input').focus();
   }
 
   // Inheritance - not the nicest pattern but works for our case
   DetailsPopup.prototype = new common.HasEvents();
 
-  /**
-   * Initializes the Leaflet map
-   * @param {Element} parentEl the DOM element to attach to 
-   * @private
-   */
-  DetailsPopup.prototype._initMap = function(mapDiv) {  
-    var dareLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
-          attribution: 'Tiles: <a href="http://pelagios.org/maps/greco-roman/about.html">Pelagios</a>, 2012',
-          maxZoom: 11
-        }),
-        awmcLayer = L.tileLayer('http://a.tiles.mapbox.com/v3/isawnyu.map-knmctlkh/{z}/{x}/{y}.png', {
-          attribution: 'Tiles &copy; <a href="http://mapbox.com/" target="_blank">MapBox</a> | ' +
-                       'Data &copy; <a href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> and contributors, CC-BY-SA | '+
-                       'Tiles and Data &copy; 2013 <a href="http://www.awmc.unc.edu" target="_blank">AWMC</a> ' +
-                       '<a href="http://creativecommons.org/licenses/by-nc/3.0/deed.en_US" target="_blank">CC-BY-NC 3.0</a>'
-        }),
-        bingLayer = new L.BingLayer("Au8CjXRugayFe-1kgv1kR1TiKwUhu7aIqQ31AjzzOQz0DwVMjkF34q5eVgsLU5Jn"),
-        osmLayer = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-	        attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
-        }),
-        
-        map = new L.Map(mapDiv, {
-          layers: [ dareLayer ],
-          minZoom: 3
-        }),
-        
-        baseLayers = { 'Satellite': bingLayer, 
-                       'OSM': osmLayer,
-                       'Empty Base Map (<a href="http://awmc.unc.edu/wordpress/tiles/map-tile-information" target="_blank">AWMC</a>)': awmcLayer, 
-                       'Roman Empire Base Map (<a href="http://imperium.ahlfeldt.se/" target="_blank">DARE</a>)': dareLayer };
-  
-    map.addControl(new L.Control.Layers(baseLayers, null, { position: 'topleft' }));
-    
-    map.on('baselayerchange', function(e) { 
-      if (map.getZoom() > e.layer.options.maxZoom)
-        map.setZoom(e.layer.options.maxZoom);
-    });
-    return map;
-  }
-
   /** 
    * Destroys the popup.
    */
   DetailsPopup.prototype.destroy = function() {
+    this.map.destroy();
     $(this.element).remove();
   }
   

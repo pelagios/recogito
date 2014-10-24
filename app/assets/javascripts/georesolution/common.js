@@ -164,6 +164,23 @@ define(function() {
         return uri.substring(0, uri.indexOf('#this'));
       }
     },
+    
+    formatGazetteerURI: function(uri) {
+      // Shorthand
+      var format = function(uri, prefix, offset) {
+        var id = uri.substring(offset);
+        if (id.indexOf('#') > -1)
+          id = id.substring(0, id.indexOf('#'));
+        return prefix + ':' + id;        
+      };
+    
+      if (uri.indexOf('http://pleiades.stoa.org') == 0)
+        return format(uri, 'pleiades', 32);
+      else if (uri.indexOf('http://data.pastplace.org/') == 0)
+        return format(uri, 'pastplace', 35);
+      else
+        return uri;
+    },
   
     formatCategory: function(category, opt_template) {
       if (!category)
