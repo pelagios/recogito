@@ -60,7 +60,7 @@ define(['georesolution/common'], function(common) {
     searchresultsLayer = L.featureGroup();
     searchresultsLayer.addTo(map);
     
-    $(div).on('click', '.searchresult-popup', function(e) {
+    $(div).on('click', '.gazetteer-id', function(e) {
       self.fireEvent('selectSearchresult', searchresults[e.target.href].result);
       return false;
     });
@@ -146,7 +146,7 @@ define(['georesolution/common'], function(common) {
         '<br/>' +
         '<small>' + result.names.slice(0, 10).join(', ') + '</small>' +
         '<br/>' + 
-        '<a href="' + result.uri + '" class="searchresult-popup" onclick="return false;">' + common.Utils.formatGazetteerURI(result.uri)) + '</a>';
+        '<a href="' + result.uri + '" class="gazetteer-id" title="Click to confirm" onclick="return false;"><span class="icon">&#xf14a;</span> ' + common.Utils.formatGazetteerURI(result.uri)) + '</a>';
       
       searchresults[result.uri] = { result: result, marker: marker };
       searchresultsLayer.addLayer(marker);

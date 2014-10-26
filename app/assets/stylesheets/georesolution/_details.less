@@ -44,7 +44,28 @@
     border:1px dotted #bbb;
     top:0;
     left:0;
+    
+    .gazetteer-id {
+      display:inline-block;
+      margin:3px 0 1px 0;
+      font-size:11px;
+      text-shadow:1px 1px rgba(0, 0, 0, 0.4);
+      padding:5px 4px 5px 2px;
+      letter-spacing:0.5px;
+      .rounded-corners(3);
+      color:#fff;
+      line-height:90%;
+      text-decoration:none;
+      background-color:#999;
+      box-shadow:inset 1px 1px 0 rgba(255, 255, 255, 0.2), inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+    }
+    
+    .gazetteer-id:hover {
+      background-color:#009900;
+      box-shadow:inset 1px 1px 0 rgba(255, 255, 255, 0.2), inset -1px -1px 0 rgba(0, 0, 0, 0.2);
+    }
   }
+  
   
   #details-content-search {
     position:absolute;
