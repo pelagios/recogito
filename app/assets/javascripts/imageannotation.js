@@ -1,8 +1,8 @@
-require(['imageannotation/events',
-         'imageannotation/eventbroker', 
+require(['common/eventbroker', 
+         'imageannotation/events',
          'imageannotation/viewer/viewer', 
          'imageannotation/drawingCanvas', 
-         'imageannotation/storage'], function(Events, EventBroker, Viewer, DrawingCanvas, Storage) {
+         'imageannotation/storage'], function(EventBroker, Events, Viewer, DrawingCanvas, Storage) {
       
   var eventBroker = new EventBroker(),
   

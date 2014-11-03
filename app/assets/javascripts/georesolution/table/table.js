@@ -1,4 +1,4 @@
-define(['georesolution/common', 'georesolution/details', 'georesolution/batch', 'georesolution/table/formatters'], function(common, DetailsPopup, BatchPopup, Formatters) {
+define(['georesolution/common', 'common/hasEvents', 'georesolution/details', 'georesolution/batch', 'georesolution/table/formatters'], function(common, HasEvents, DetailsPopup, BatchPopup, Formatters) {
 
   /**
    * The table component of the UI.
@@ -13,7 +13,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch', 
    */
   var TableView = function(tableDiv) {  
     // Inheritance - not the nicest pattern but works for our case
-    common.HasEvents.call(this);
+    HasEvents.call(this);
   
     var self = this,
         rightClickMenu = new RightClickMenu(),
@@ -147,7 +147,7 @@ define(['georesolution/common', 'georesolution/details', 'georesolution/batch', 
   };
 
   // Inheritance - not the nicest pattern but works for our case
-  TableView.prototype = new common.HasEvents();
+  TableView.prototype = new HasEvents();
 
   /**
    * Opens the details popup.

@@ -1,4 +1,4 @@
-define(['georesolution/common', 'georesolution/mapBase'], function(common, Map) {
+define(['georesolution/common', 'common/hasEvents', 'georesolution/details/detailsMap'], function(common, HasEvents, Map) {
 
   /**
    * A popup showing all details about a single annotation, with extra functionality
@@ -13,7 +13,7 @@ define(['georesolution/common', 'georesolution/mapBase'], function(common, Map) 
    */
   var DetailsPopup = function(annotation, prev_annotations, next_annotations) {
     // Inheritance - not the nicest pattern but works for our case
-    common.HasEvents.call(this);
+    HasEvents.call(this);
     
     var self = this,
         template = 
@@ -94,7 +94,16 @@ define(['georesolution/common', 'georesolution/mapBase'], function(common, Map) 
             '  <td>' + result.description + '</td>' + 
             '</tr>');
             
-      map.addSearchresult(result);
+      if (result.coordinate)
+        // If there's a coordinate, add to map
+        map.addSearchresult(result);
+      else
+        // If not, skip the map and call saveCorrection on click
+        tableRow.find('a').click(function(e) { 
+          saveCorrection(result); 
+          return false;
+        });
+      
       return tableRow;      
     };
     
@@ -118,7 +127,7 @@ define(['georesolution/common', 'georesolution/mapBase'], function(common, Map) 
         self.fireEvent('skip-next');
       }
     };
-    
+
     map.on('selectSearchresult', saveCorrection);
     
     // Populate the template
@@ -315,7 +324,7 @@ define(['georesolution/common', 'georesolution/mapBase'], function(common, Map) 
   }
 
   // Inheritance - not the nicest pattern but works for our case
-  DetailsPopup.prototype = new common.HasEvents();
+  DetailsPopup.prototype = new HasEvents();
 
   /** 
    * Destroys the popup.

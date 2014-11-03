@@ -1,3 +1,4 @@
+/** A generic event broker implementation **/
 define([], function() {
   
   var _handlers = [];
