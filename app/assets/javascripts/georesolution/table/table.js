@@ -1,5 +1,7 @@
 define(['georesolution/common', 'common/hasEvents', 'georesolution/details', 'georesolution/batch', 'georesolution/table/formatters'], function(common, HasEvents, DetailsPopup, BatchPopup, Formatters) {
 
+  var baseMap;
+
   /**
    * The table component of the UI.
    *   
@@ -159,7 +161,7 @@ define(['georesolution/common', 'common/hasEvents', 'georesolution/details', 'ge
         prev2 = this.getPrevN(idx, 2),
         next2 = this.getNextN(idx, 2);
     
-    var popup = new DetailsPopup(this._grid.getDataItem(idx), prev2, next2);
+    var popup = new DetailsPopup(this._grid.getDataItem(idx), prev2, next2, baseMap);
     popup.on('update', function(annotation) {
       self._grid.invalidate();
       self.fireEvent('update', annotation);
@@ -177,6 +179,10 @@ define(['georesolution/common', 'common/hasEvents', 'georesolution/details', 'ge
         popup.destroy();
         self._openDetailsPopup(idx + 1);
       }
+    });
+    
+    popup.on('baselayerchange', function(e) {
+      baseMap = e.name;
     });
   };
 

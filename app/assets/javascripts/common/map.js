@@ -5,7 +5,7 @@ define(['common/hasEvents'], function(HasEvents) {
       annotationsLayer;
   
   /** Code that is common across the main and the details map **/
-  var Map = function(div, eventBroker, opt_active_basemap) {  
+  var Map = function(div, opt_active_basemap) {  
     var self = this,
         Layers = {
       
@@ -35,7 +35,7 @@ define(['common/hasEvents'], function(HasEvents) {
             'Empty Base Map (<a href="http://awmc.unc.edu/wordpress/tiles/map-tile-information" target="_blank">AWMC</a>)': Layers.AWMC, 
             'Roman Empire Base Map (<a href="http://imperium.ahlfeldt.se/" target="_blank">DARE</a>)': Layers.DARE },
             
-        activeBaseLayer = (opt_active_basemap) ? Layers[opt_active_basemap] : Layers.AWMC;
+        activeBaseLayer = (opt_active_basemap) ? baseLayers[opt_active_basemap] : Layers.AWMC;
     
     // Configure the map
     this.map = new L.Map(div, {
@@ -45,8 +45,11 @@ define(['common/hasEvents'], function(HasEvents) {
     });
     this.map.addControl(new L.Control.Layers(baseLayers, null, { position: 'topleft' }));
     this.map.on('baselayerchange', function(e) { 
-      if (map.getZoom() > e.layer.options.maxZoom)
-        map.setZoom(e.layer.options.maxZoom);
+      if (self.map.getZoom() > e.layer.options.maxZoom)
+        self.map.setZoom(e.layer.options.maxZoom);
+        
+      // Forward
+      self.fireEvent('baselayerchange', e);
     });
 
     annotationsLayer = L.featureGroup();

@@ -4,7 +4,7 @@ define(['georesolution/common', 'common/map'], function(common, MapBase) {
       searchresultsLayer,
       clearResultsButton = $('<div id="clear-results">Clear Results</div>');
   
-  var DetailsMap = function(div, opt_active_basemap) {
+  var DetailsMap = function(div, opt_basemap) {
     var self = this;
     
     MapBase.apply(this, arguments);

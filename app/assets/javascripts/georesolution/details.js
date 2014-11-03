@@ -11,7 +11,7 @@ define(['georesolution/common', 'common/hasEvents', 'georesolution/details/detai
    * @param {Array.<Object>} prev_annotations previous annotations in the list (if any)
    * @param {Array.<Object>} next_annotations next annotations in the list (if any)
    */
-  var DetailsPopup = function(annotation, prev_annotations, next_annotations) {
+  var DetailsPopup = function(annotation, prev_annotations, next_annotations, opt_basemap) {
     // Inheritance - not the nicest pattern but works for our case
     HasEvents.call(this);
     
@@ -77,7 +77,8 @@ define(['georesolution/common', 'common/hasEvents', 'georesolution/details/detai
     this.element.appendTo(document.body);
   
     // Leaflet map
-    var map = new Map(document.getElementById('details-map'));
+    var map = new Map(document.getElementById('details-map'), opt_basemap);
+    map.on('baselayerchange', function(e) { self.fireEvent('baselayerchange', e); });
 
     /**
      * Generates a view of a search result by rendering an HTML table row and attach a marker to the map
