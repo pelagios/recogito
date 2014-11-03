@@ -127,13 +127,6 @@ define(['georesolution/common', 'georesolution/mapBase'], function(common, Map) 
     $('.details-skip-prev').click(function() { self.fireEvent('skip-prev'); });
     $('.details-skip-next').click(function() { self.fireEvent('skip-next'); });
     
-    $('.details').keydown(function(e) {
-      if (e.keyCode == 37)
-        self.fireEvent('skip-prev');
-      else if (e.keyCode == 39)
-        self.fireEvent('skip-next');
-    });
-    
     var sourceLabel = '';
     if (annotation.part)
       sourceLabel += ' in ' + annotation.part;
