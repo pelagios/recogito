@@ -155,7 +155,7 @@ define(['georesolution/common', 'georesolution/details/detailsMap'], function(co
         meta += annotation.place.description + '<br/>';
         
       if (annotation.place.names)
-        meta += annotation.place.names + '<br/>';
+        meta += annotation.place.names.slice(0, 8).join(', ') + '<br/>';
                               
       if (!annotation.place.coordinate)
         meta += '<span class="icon no-coords ">&#xf041;</span>No coordinates for this place!</a>';
@@ -176,7 +176,7 @@ define(['georesolution/common', 'georesolution/details/detailsMap'], function(co
         meta += annotation.place_fixed.description + '<br/>';
         
       if (annotation.place_fixed.names)
-        meta += annotation.place_fixed.names + '<br/>';
+        meta += annotation.place_fixed.names.slice(0, 8).join(', ') + '<br/>';
         
       if (!annotation.place_fixed.coordinate)
         meta += '<span class="icon no-coords ">&#xf041;</span>No coordinates for this place!</a>';

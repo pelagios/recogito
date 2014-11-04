@@ -29,7 +29,7 @@ define(['georesolution/common', 'common/map'], function(common, MapBase) {
       marker.bindPopup(
         '<strong>' + result.title + '</strong>' +
         '<br/>' +
-        '<small>' + result.names.slice(0, 10).join(', ') + '</small>' +
+        '<small>' + result.names.slice(0, 8).join(', ') + '</small>' +
         '<br/>' + 
         '<a href="' + result.uri + '" class="gazetteer-id" title="Click to confirm" onclick="return false;"><span class="icon">&#xf14a;</span> ' + common.Utils.formatGazetteerURI(result.uri)) + '</a>';
       

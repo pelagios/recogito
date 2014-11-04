@@ -146,7 +146,7 @@ object JSONSerializer {
         "uri" -> p.uri,
         "title" -> p.label,
         "description" -> p.descriptions.map(_.chars).mkString(", "),
-        "names" -> p.names.map(_.chars).mkString(", "),
+        "names" -> Json.toJson(p.names.map(_.chars)),
         "category" -> p.category.map(_.toString),
         "coordinate" -> place.get._2.map(coords => Json.toJson(Seq(coords.y, coords.x)))
       ))      
