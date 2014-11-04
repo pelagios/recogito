@@ -108,7 +108,22 @@ object ApplicationController extends Controller with Secured with CTSClient {
     else
       NotFound
   }
-    
+  
+  def showImage(id: Int) = DBAction { implicit rs =>
+    val image = GeoDocumentImages.findById(id)
+    if (image.isDefined) {
+      val gdoc = GeoDocuments.findById(image.get.gdocId)
+      if (gdoc.get.hasOpenLicense) {
+        val gdocPart = image.get.gdocPartId.flatMap(GeoDocumentParts.findById(_))
+        Ok(views.html.publicImage(image.get, gdoc.get, gdocPart))
+      } else {
+        Forbidden("Not Authorized")
+      }
+    } else { 
+      NotFound
+    }
+  }
+  
   /** Shows the text annotation UI for the specified text.
     * 
     * @param text the internal ID of the text in the DB 

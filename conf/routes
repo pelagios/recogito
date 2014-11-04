@@ -43,6 +43,7 @@ GET     /recogito/feeds/recent                     controllers.FeedController.re
 
 # Public views
 GET     /recogito/map                              controllers.ApplicationController.showMap(doc: Int)
+GET     /recogito/image/:imageId                   controllers.ApplicationController.showImage(imageId: Int)
 GET     /recogito/docs                             controllers.ApplicationController.showDocumentation
 GET     /recogito/about                            controllers.ApplicationController.showAbout
 
