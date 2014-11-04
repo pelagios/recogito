@@ -4,13 +4,13 @@ define(['common/hasEvents'], function(HasEvents) {
   var annotations = {},
       annotationsLayer;
   
-  /** Code that is common across the main and the details map **/
-  var Map = function(div, opt_active_basemap) {  
+  var Map = function(div, opt_basemap) {  
     var self = this,
         Layers = {
       
           DARE : L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
                    attribution: 'Tiles: <a href="http://imperium.ahlfeldt.se/">DARE 2014</a>',
+                   minZoom:3,
                    maxZoom:11
                  }), 
                  
@@ -35,9 +35,9 @@ define(['common/hasEvents'], function(HasEvents) {
             'Empty Base Map (<a href="http://awmc.unc.edu/wordpress/tiles/map-tile-information" target="_blank">AWMC</a>)': Layers.AWMC, 
             'Roman Empire Base Map (<a href="http://imperium.ahlfeldt.se/" target="_blank">DARE</a>)': Layers.DARE },
             
-        activeBaseLayer = (opt_active_basemap) ? baseLayers[opt_active_basemap] : Layers.AWMC;
+        activeBaseLayer = (opt_basemap) ? baseLayers[opt_basemap] : Layers.AWMC;
     
-    // Configure the map
+    // We'll add the map as global field, so that subclasses can have access
     this.map = new L.Map(div, {
       center: new L.LatLng(41.893588, 12.488022),
       zoom: 5,
@@ -48,7 +48,6 @@ define(['common/hasEvents'], function(HasEvents) {
       if (self.map.getZoom() > e.layer.options.maxZoom)
         self.map.setZoom(e.layer.options.maxZoom);
         
-      // Forward
       self.fireEvent('baselayerchange', e);
     });
 
@@ -56,14 +55,14 @@ define(['common/hasEvents'], function(HasEvents) {
     annotationsLayer.addTo(this.map);
     
     // Forward click events
-    this.map.on('click', function(e) {
-      self.fireEvent('click', e);
-    });
+    this.map.on('click', function(e) { self.fireEvent('click', e); });
     
     HasEvents.call(this);
   };
+  
   Map.prototype = new HasEvents();
   
+  /** Marker styles **/
   Map.Styles = {
     VERIFIED: { color: '#118128', fillColor: '#1bcc3f', opacity: 1, fillOpacity: 1, radius: 6 },
     NOT_VERIFIED: { color: '#808080', fillColor:'#aaa', opacity: 1, fillOpacity: 1, radius: 6 },
@@ -71,6 +70,34 @@ define(['common/hasEvents'], function(HasEvents) {
     REGION: { opacity: 0.5, fillOpacity: 0.2, radius: 20 }
   };
   
+  /** Returns the bounds of all annotations currently on the map **/
+  Map.prototype.getAnnotationBounds = function() {
+    return annotationsLayer.getBounds();
+  };
+  
+  /** Returns the minimum zoom level of the currently active base layer **/
+  Map.prototype.getCurrentMinZoom = function() {
+    var zoom;
+    
+    this.map.eachLayer(function(layer) {
+      // Warning: this is a real hack - there doesn't seem to be a way to get
+      // the active baselayer, so we get ALL layers and check if they have
+      // a _url field. If so - that's a tile layer
+      if (layer._url)
+        if (layer.options)
+          zoom = layer.options.minZoom;
+    });
+
+    return zoom;
+  };
+  
+  /** Destroys the map **/  
+  Map.prototype.destroy = function() {
+    annotations = {};
+    this.map.remove();
+  };
+  
+  /** Adds an annotation to the map **/
   Map.prototype.addAnnotation = function(annotation) {    
     var self = this, 
         place = (annotation.place_fixed) ? annotation.place_fixed : annotation.place,
@@ -100,7 +127,8 @@ define(['common/hasEvents'], function(HasEvents) {
       }      
     }
   };
-  
+
+  /** Adds a sequence line to the map **/  
   Map.prototype.addSequence = function(annotation, prev_annotations, next_annotations) {
     var i, coords = [], line,
         pushLatLon = function(annotation) {
@@ -122,7 +150,7 @@ define(['common/hasEvents'], function(HasEvents) {
     for (var i = 0; i < next_annotations.length; i++)
       pushLatLon(next_annotations[i]);
     
-    var style = $.extend(true, {}, Map.Styles.SEQUENCE);
+    var style = jQuery.extend(true, {}, Map.Styles.SEQUENCE);
     style.color = (Map.Styles[annotation.status]) ? Map.Styles[annotation.status].color : Map.Styles.NOT_VERIFIED.color;
     line = L.polyline(coords, style);
     line.setText('►', { repeat: true, offset: 3, attributes: { fill: '#fff', 'font-size':10 }});    
@@ -130,25 +158,11 @@ define(['common/hasEvents'], function(HasEvents) {
     line.bringToBack();
   };
   
-  Map.prototype.getAnnotationBounds = function() {
-    return annotationsLayer.getBounds();
-  };
-  
+  /** Fits the map zoom level to cover the bounds of all annotations **/
   Map.prototype.fitToAnnotations = function() {
     var bounds = annotationsLayer.getBounds();
     if (bounds.isValid())
-      map.fitBounds(annotationsLayer.getBounds());
-  };
-  
-  Map.prototype.clearSearchresults = function() {
-    searchresultsLayer.clearLayers();
-    clearResultsButton.hide();
-    this.fitToAnnotations();
-  };
-  
-  Map.prototype.destroy = function() {
-    annotations = {};
-    this.map.remove();
+      this.map.fitBounds(annotationsLayer.getBounds());
   };
   
   return Map;

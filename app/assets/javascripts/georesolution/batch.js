@@ -1,4 +1,4 @@
-define(['georesolution/common', 'common/hasEvents'], function(common, HasEvents) {
+define(['georesolution/common'], function(common) {
   
   /**
    * A popup containing 'batch processing' features that affect a list of annotations 
@@ -11,7 +11,7 @@ define(['georesolution/common', 'common/hasEvents'], function(common, HasEvents)
    */
   var BatchPopup = function(annotations) {
     // Inheritance - not the nicest pattern but works for our case
-    HasEvents.call(this);
+    common.HasEvents.call(this);
   
     var self = this,
         template =
@@ -75,7 +75,7 @@ define(['georesolution/common', 'common/hasEvents'], function(common, HasEvents)
   }
 
   // Inheritance - not the nicest pattern but works for our case
-  BatchPopup.prototype = new HasEvents();
+  BatchPopup.prototype = new common.HasEvents();
 
   /**
    * Destroys the popup.

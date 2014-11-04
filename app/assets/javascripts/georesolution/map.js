@@ -1,4 +1,4 @@
-define(['georesolution/common', 'common/hasEvents'], function(common, HasEvents) {
+define(['georesolution/common'], function(common) {
   
   /**
    * The map component of the UI.
@@ -11,7 +11,7 @@ define(['georesolution/common', 'common/hasEvents'], function(common, HasEvents)
    */
   var MapView = function(mapDiv) {
     // Inheritance - not the nicest pattern but works for our case
-    HasEvents.call(this);
+    common.HasEvents.call(this);
   
     var self = this,
         dareLayer = L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
@@ -72,7 +72,7 @@ define(['georesolution/common', 'common/hasEvents'], function(common, HasEvents)
   }
 
   // Inheritance - not the nicest pattern but works for our case
-  MapView.prototype = new HasEvents();
+  MapView.prototype = new common.HasEvents();
 
   MapView.prototype._isVisible = function(annotation) {
     var part_settings = this._parts[annotation.part];

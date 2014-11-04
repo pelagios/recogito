@@ -1,4 +1,4 @@
-define(['georesolution/common', 'common/hasEvents', 'georesolution/details/detailsMap'], function(common, HasEvents, Map) {
+define(['georesolution/common', 'georesolution/details/detailsMap'], function(common, Map) {
 
   /**
    * A popup showing all details about a single annotation, with extra functionality
@@ -13,7 +13,7 @@ define(['georesolution/common', 'common/hasEvents', 'georesolution/details/detai
    */
   var DetailsPopup = function(annotation, prev_annotations, next_annotations, opt_basemap) {
     // Inheritance - not the nicest pattern but works for our case
-    HasEvents.call(this);
+    common.HasEvents.call(this);
     
     var self = this,
         template = 
@@ -315,7 +315,7 @@ define(['georesolution/common', 'common/hasEvents', 'georesolution/details/detai
             $('#details-content-searchresults').append(html);
           }
         
-          map.fitToSearchresults();
+          // map.fitToSearchresults();
         });
       }
     });
@@ -325,7 +325,7 @@ define(['georesolution/common', 'common/hasEvents', 'georesolution/details/detai
   }
 
   // Inheritance - not the nicest pattern but works for our case
-  DetailsPopup.prototype = new HasEvents();
+  DetailsPopup.prototype = new common.HasEvents();
 
   /** 
    * Destroys the popup.

@@ -1,3 +1,4 @@
+/** Various helpers and common components **/
 define(['common/hasEvents'], function(HasEvents) {
 
   /**
@@ -193,6 +194,8 @@ define(['common/hasEvents'], function(HasEvents) {
   }
   
   return {
+    
+    HasEvents: HasEvents,
     
     TagList: TagList,
     

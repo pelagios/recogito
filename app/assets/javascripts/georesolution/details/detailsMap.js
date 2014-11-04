@@ -46,7 +46,8 @@ define(['georesolution/common', 'common/map'], function(common, MapBase) {
   }
   
   DetailsMap.prototype.fitToSearchresults = function() {
-    var bounds,
+    var self = this,
+        bounds,
         searchBounds = searchresultsLayer.getBounds(),
         annotationBounds = this.getAnnotationBounds();
     
@@ -55,7 +56,7 @@ define(['georesolution/common', 'common/map'], function(common, MapBase) {
       bounds.extend(annotationBounds);
       
     if (bounds)
-      this.map.fitBounds(bounds);
+      this.map.fitBounds(bounds, { maxZoom: self.getCurrentMinZoom() });
   };
   
   DetailsMap.prototype.clearSearchresults = function() {
