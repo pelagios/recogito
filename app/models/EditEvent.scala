@@ -144,8 +144,20 @@ object EditHistory {
   def findByAnnotation(uuid: UUID, limit: Int = Int.MaxValue)(implicit s: Session): Seq[EditEvent] =
     query.where(_.annotationId === uuid.bind).sortBy(_.timestamp.desc).take(limit).list
     
-  def getAll()(implicit s: Session): Seq[EditEvent] =
+  def listAll()(implicit s: Session): Seq[EditEvent] =
     query.sortBy(_.timestamp.desc).list
+    
+  def listFromTo(from: Long, to: Long)(implicit s: Session): Seq[EditEvent] =
+    query.where(_.timestamp >= new Timestamp(from)).where(_.timestamp <= new Timestamp(to)).sortBy(_.timestamp.desc).list
+    
+  def listFromToWithDocuments(from: Long, to: Long)(implicit s: Session): Seq[(EditEvent, GeoDocument)] = {
+    val q = for {
+      (event, annotation) <- query.where(_.timestamp >= new Timestamp(from)).where(_.timestamp <= new Timestamp(to)) leftJoin Annotations.query on (_.annotationId === _.uuid)
+      gdoc <- GeoDocuments.query if annotation.gdocId === gdoc.id
+    } yield (event, gdoc)
+    
+    q.sortBy(_._1.timestamp.desc).list
+  }
     
   def getMostRecent(limit: Int)(implicit s: Session): Seq[(EditEvent, Option[Int])] = {
     val q = for {
@@ -191,7 +203,7 @@ object EditHistory {
 
     second.sortBy(_._2.desc).list
   }
-    
+
   def listHighscores(limit: Int)(implicit s: Session): Seq[(User, Int)] = {
     val q = for {
       (username, numberOfEdits) <- query.groupBy(_.username).map(tuple => (tuple._1, tuple._2.length))
@@ -201,4 +213,28 @@ object EditHistory {
     q.sortBy(_._2.desc).take(limit).list
   }
       
+}
+
+object EditAnalytics {
+  
+  def distinctUsers(events: Seq[EditEvent]): Seq[String] =
+    events.groupBy(_.username).keys.toSeq
+    
+  def groupByEventType(events: Seq[EditEvent]): Map[String, Seq[EditEvent]] = {
+    // Types: image tag, image transcription, text selection, gazetteer assignment, other
+    events.map(event => {
+      if (event.annotationBefore.isEmpty && event.updatedToponym.isEmpty) {
+        ("IMAGE_TAG", event)
+      } else if (event.toponymChange.isDefined && event.toponymChange.get._1.isEmpty && event.annotationBefore.isDefined) {
+        ("IMAGE_TRANSCRIPTION", event)
+      } else if (event.toponymChange.isDefined && event.toponymChange.get._1.isEmpty && event.annotationBefore.isEmpty) {
+        ("TEXT_SELECTION", event)
+      } else if (event.uriChange.isDefined) {
+        ("GEORESOLUTION", event)
+      } else {
+        ("OTHER", event)
+      }
+    }).groupBy(_._1).mapValues(_.map(_._2))
+  }
+  
 }

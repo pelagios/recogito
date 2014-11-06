@@ -154,7 +154,8 @@ object ZipImporter {
       val warnings = Seq(
         docText.flatMap(txt => if (entryExists(txt, zipFile)) None else Some(name + ": referenced text file " + txt + " is missing from ZIP")),
         docText.flatMap(validateText(_)),
-        docImage.flatMap(img => if (entryExists(img, zipFile)) None else Some(name + ": referenced image file" + img + " is missing from ZIP")),
+        // Note: we allow upload of images without data for the time being
+        // docImage.flatMap(img => if (entryExists(img, zipFile)) None else Some(name + ": referenced image file" + img + " is missing from ZIP")),
         docAnnotations.flatMap(csv => if (entryExists(csv, zipFile)) None else Some(name + ": referenced annotations file " + csv + " is missing from ZIP pacakge"))
       ) ++ docParts.flatMap(part => {
         val partText = (part \ "text").asOpt[String]
@@ -194,21 +195,26 @@ object ZipImporter {
     })
   
     val unzippedImage = new File(Global.uploadDir, entryName)    
-    if (unzippedImage.isFile) {
-      // Image file
-      val img = ImageIO.read(unzippedImage)
-      GeoDocumentImages.insert(GeoDocumentImage(None, gdocId, gdocPartId, ImageType.IMAGE, img.getWidth, img.getHeight, entryName))
-    } else {
-      // Tileset directory - we only support Zoomify at the moment
-      val imageProperties = Source.fromFile(new File(unzippedImage, "ImageProperties.xml"))
-        .getLines.mkString("\n")
-        .toLowerCase // There's an ugly habit of case inconsistency in Zoomify-land, so we force XML to lowercase before parsing 
+    if (unzippedImage.exists) {
+      if (unzippedImage.isFile) {
+        // Image file
+        val img = ImageIO.read(unzippedImage)
+        GeoDocumentImages.insert(GeoDocumentImage(None, gdocId, gdocPartId, ImageType.IMAGE, img.getWidth, img.getHeight, entryName))
+      } else {
+        // Tileset directory - we only support Zoomify at the moment
+        val imageProperties = Source.fromFile(new File(unzippedImage, "ImageProperties.xml"))
+          .getLines.mkString("\n")
+          .toLowerCase // There's an ugly habit of case inconsistency in Zoomify-land, so we force XML to lowercase before parsing 
           
-      val xml = XhtmlParser(Source.fromString(imageProperties))
-      val w = (xml \\ "@width").toString.toInt
-      val h = (xml \\ "@height").toString.toInt
-      val path = if (unzippedImage.getName.endsWith("/")) unzippedImage.getName else unzippedImage.getName + "/"
-      GeoDocumentImages.insert(GeoDocumentImage(None, gdocId, gdocPartId, ImageType.ZOOMIFY, w, h, path))
+        val xml = XhtmlParser(Source.fromString(imageProperties))
+        val w = (xml \\ "@width").toString.toInt
+        val h = (xml \\ "@height").toString.toInt
+        val path = if (unzippedImage.getName.endsWith("/")) unzippedImage.getName else unzippedImage.getName + "/"
+        GeoDocumentImages.insert(GeoDocumentImage(None, gdocId, gdocPartId, ImageType.ZOOMIFY, w, h, path))
+      }
+    } else {
+      // Just the metadata, without the content
+      GeoDocumentImages.insert(GeoDocumentImage(None, gdocId, gdocPartId, ImageType.ZOOMIFY, 0, 0, ""))
     }
   }
   

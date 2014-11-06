@@ -100,6 +100,7 @@ object DocumentAdminController extends Controller with Secured {
         if (f.isDefined) {
           val zipFile = f.get.ref.file
           val errors = ZipImporter.validateZip(zipFile)
+          Logger.info(errors.toString)
           if (errors.size == 0) {
             val imported = ZipImporter.importZip(zipFile)
             Redirect(routes.DocumentAdminController.listAll).flashing("success" -> { "Uploaded " + imported + " document(s)." })
