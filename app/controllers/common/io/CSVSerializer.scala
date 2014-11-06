@@ -123,7 +123,7 @@ class CSVSerializer extends BaseSerializer {
       esc(user.username) + SEPARATOR +
       user.hash + SEPARATOR +
       user.salt + SEPARATOR +
-      user.memberSince + SEPARATOR +
+      user.memberSince.getTime + SEPARATOR +
       user.editableDocuments + SEPARATOR +
       user.isAdmin.toString + SEPARATOR + "\n"
     })
