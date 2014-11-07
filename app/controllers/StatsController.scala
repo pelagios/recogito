@@ -7,6 +7,7 @@ import models.stats.CompletionStats
 import play.api.mvc.Controller
 import play.api.db.slick._
 import play.api.Logger
+import java.util.Calendar
 
 object StatsController extends Controller with Secured {
   
@@ -76,9 +77,48 @@ object StatsController extends Controller with Secured {
   }
   
   def showStats() = DBAction { implicit request =>
+    /* WARNING: hacked analytics code for Heidelberg workshop
+    val cal = Calendar.getInstance()
+    cal.set(Calendar.MONTH, Calendar.OCTOBER)
+    cal.set(Calendar.DAY_OF_MONTH, 31)
+    cal.set(Calendar.HOUR_OF_DAY, 6)
+    cal.set(Calendar.MINUTE, 0)
+   
+    val start = cal.getTimeInMillis
+    cal.set(Calendar.MONTH, Calendar.NOVEMBER)
+    cal.set(Calendar.DAY_OF_MONTH, 1)
+    cal.set(Calendar.HOUR_OF_DAY, 9)
+    val end = cal.getTimeInMillis
+    
+    val events = EditHistory.listFromToWithDocumentIDs(start, end)
+    Logger.info("Got " + events.size + " events")
+    
+    // val users = EditAnalytics.distinctUsers(events.map(_._1))
+    // Logger.info(users.size + " users")
+    // users.foreach(u => Logger.info(u))
+    
+    // val byType = EditAnalytics.groupByEventType(events.map(_._1))
+    // byType.foreach { case (typ, edits) =>
+    //  Logger.info(typ + " - " + edits.size) }
+    
+    val docIds = events.flatMap(_._2).distinct
+    Logger.info(docIds.size + " documents")
+    
+    val docsWithContent = GeoDocuments.findByIdsWithContent(docIds)
+    val textDocs = docsWithContent.filter(_._2.size > 0)
+    val imageDocs = docsWithContent.filter(_._3.size > 0)
+    Logger.info(textDocs.size + " text documents")
+    Logger.info(imageDocs.size + " image documents")
+    
+    val textDocsByLanguage = textDocs.map(_._1).groupBy(_.language)
+    textDocsByLanguage.foreach { case (language, docs) => {
+      Logger.info(language + " -> " + docs.size)
+    }}
+    */
+    
     // Get activity timeline from DB and append today's live stats
     val activityTimeline = {
-      val history = GlobalStatsHistory.listRecent(50)
+      val history = GlobalStatsHistory.listRecent(70)
       
       // Time of last history snapshot, or 24hrs if no history yet 
       val liveIntervalStart = history.reverse.headOption.map(_.timestamp).getOrElse(new Timestamp(System.currentTimeMillis - DAY_IN_MILLIS))

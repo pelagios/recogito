@@ -150,13 +150,12 @@ object EditHistory {
   def listFromTo(from: Long, to: Long)(implicit s: Session): Seq[EditEvent] =
     query.where(_.timestamp >= new Timestamp(from)).where(_.timestamp <= new Timestamp(to)).sortBy(_.timestamp.desc).list
     
-  def listFromToWithDocuments(from: Long, to: Long)(implicit s: Session): Seq[(EditEvent, GeoDocument)] = {
+  def listFromToWithDocumentIDs(from: Long, to: Long)(implicit s: Session): Seq[(EditEvent, Option[Int])] = {
     val q = for {
       (event, annotation) <- query.where(_.timestamp >= new Timestamp(from)).where(_.timestamp <= new Timestamp(to)) leftJoin Annotations.query on (_.annotationId === _.uuid)
-      gdoc <- GeoDocuments.query if annotation.gdocId === gdoc.id
-    } yield (event, gdoc)
-    
-    q.sortBy(_._1.timestamp.desc).list
+    } yield (event, annotation.gdocId.?)
+
+    q.list
   }
     
   def getMostRecent(limit: Int)(implicit s: Session): Seq[(EditEvent, Option[Int])] = {
