@@ -58,8 +58,12 @@ var PolylineTextPath = {
 
         /* If empty text, hide */
         if (!text) {
-            if (this._textNode)
+            if (this._textNode && this._textNode.parentNode) {
                 this._map._pathRoot.removeChild(this._textNode);
+                
+                /* delete the node, so it will not be removed a 2nd time if the layer is later removed from the map */
+                delete this._textNode;
+            }
             return this;
         }
 
@@ -94,8 +98,16 @@ var PolylineTextPath = {
             textNode.setAttribute(attr, options.attributes[attr]);
         textPath.appendChild(document.createTextNode(text));
         textNode.appendChild(textPath);
-        svg.appendChild(textNode);
+        svg.insertBefore(textNode, svg.firstChild);
         this._textNode = textNode;
+        
+        /* Center text according to the path's bounding box */
+        if (options.center) {
+            var textWidth = textNode.getBBox().width;
+            var pathWidth = this._path.getBoundingClientRect().width;
+            /* Set the position for the left side of the textNode */
+            textNode.setAttribute('dx', ((pathWidth / 2) - (textWidth / 2)));
+        }
 
         /* Initialize mouse events for the additional nodes */
         if (this.options.clickable) {

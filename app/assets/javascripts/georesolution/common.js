@@ -150,6 +150,8 @@ define(['common/hasEvents'], function(HasEvents) {
         return format(uri, 'pleiades', 32);
       else if (uri.indexOf('http://data.pastplace.org/') == 0)
         return format(uri, 'pastplace', 35);
+      else if (uri.indexOf('http://www.imperium.ahlfeldt.se') == 0)
+        return format(uri, 'dare', 39);
       else
         return uri;
     },

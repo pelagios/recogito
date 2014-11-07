@@ -1,72 +1,137 @@
-define(['georesolution/common', 'common/map'], function(common, MapBase) {
+define(['georesolution/common', 'common/map', 'georesolution/details/searchresultsFilter'], function(common, MapBase, FilterOverlay) {
   
-  var searchresults = {},
-      searchresultsLayer,
-      clearResultsButton = $('<div id="clear-results">Clear Results</div>');
+  var locatedResults = {},
+      resultLayers = {},
+      filterOverlay; 
+                  
+      /** List of supported gazetteers **/
+      KnownGazetteers = {
+        'http://pleiades.stoa.org' : 'Pleiades',
+        'http://data.pastplace.org' : 'PastPlace',
+        'http://www.imperium.ahlfeldt.se': 'DARE'
+      },
+      
+      /** Helper function that groups search results by gazetteers **/
+      groupByGazetteer = function(results) {
+        var allGrouped = {};
+        
+        jQuery.each(results, function(idx, result) {
+          var gazetteer = KnownGazetteers[result.uri.substr(0, result.uri.indexOf('/', 7))],
+              key = (gazetteer) ? gazetteer : 'Other', 
+              group = allGrouped[key];
+          
+          if (group)
+            group.push(result);
+          else
+            allGrouped[key] = [result];
+        });     
+        
+        return allGrouped
+      };
   
-  var DetailsMap = function(div, opt_basemap) {
-    var self = this;
+  var DetailsMap = function(mapDiv, overlayDiv) {
+    var self = this,
+        setLayerVisibility = function(name, visible) {
+          var layer = resultLayers[name];
+          if (layer) {
+            if (visible)
+              self.map.addLayer(layer);
+            else
+              self.map.removeLayer(layer);
+          }
+        };
+        
+    MapBase.apply(this, [ mapDiv ]);
     
-    MapBase.apply(this, arguments);
-    
-    searchresultsLayer = L.featureGroup();
-    searchresultsLayer.addTo(this.map);
-    
-    $(div).on('click', '.gazetteer-id', function(e) {
-      self.fireEvent('selectSearchresult', searchresults[e.target.href].result);
-      return false;
+    filterOverlay = new FilterOverlay(jQuery(overlayDiv));
+    filterOverlay.on('hideGazetteer', function(gazetteer) {
+      setLayerVisibility(gazetteer, false);
+    });
+    filterOverlay.on('showGazetteer', function(gazetteer) {
+      setLayerVisibility(gazetteer, true);
     });
     
-    clearResultsButton.hide();
-    clearResultsButton.on('click', function() { self.clearSearchresults(); });
-    $(div).append(clearResultsButton);
+    $(mapDiv).on('click', '.gazetteer-id', function(e) {
+      self.fireEvent('selectSearchresult', locatedResults[e.target.href].result);
+      return false;
+    });
   }
   DetailsMap.prototype = Object.create(MapBase.prototype);
   
-  DetailsMap.prototype.addSearchresult = function(result) {
-    if (result.coordinate) {
-      var marker = L.marker(result.coordinate);
-      marker.bindPopup(
-        '<strong>' + result.title + '</strong>' +
-        '<br/>' +
-        '<small>' + result.names.slice(0, 8).join(', ') + '</small>' +
-        '<br/>' + 
-        '<a href="' + result.uri + '" class="gazetteer-id" title="Click to confirm" onclick="return false;"><span class="icon">&#xf14a;</span> ' + common.Utils.formatGazetteerURI(result.uri)) + '</a>';
+  DetailsMap.prototype.showSearchresults = function(response) {
+    var self = this,
+        resultsByGazetteer = groupByGazetteer(response.results);
+    
+    jQuery.each(resultsByGazetteer, function(gazetteer, results) {
+      // Create new layer for each gazetteer
+      var layer = L.featureGroup();
+      layer.addTo(self.map);
+      resultLayers[gazetteer] = layer;
+    
+      // Now add the result markers
+      jQuery.each(results, function(idx, result) {
+        var marker;
       
-      searchresults[result.uri] = { result: result, marker: marker };
-      searchresultsLayer.addLayer(marker);
-      clearResultsButton.show();
-    }
+        if (result.coordinate) {
+          marker = L.marker(result.coordinate);
+          marker.bindPopup(
+            '<strong>' + result.title + '</strong>' +
+            '<br/>' +
+            '<small>' + result.names.slice(0, 8).join(', ') + '</small>' +
+            '<br/>' + 
+            '<strong>Correct mapping to</strong> <a href="' + result.uri + '" class="gazetteer-id" title="Click to confirm" onclick="return false;"><span class="icon">&#xf14a;</span> ' + common.Utils.formatGazetteerURI(result.uri)) + '</a>';
+
+          layer.addLayer(marker);
+          locatedResults[result.uri] = { result: result, marker: marker };
+        } 
+      });
+    });
+
+    filterOverlay.show(response.results.length, response.query, resultsByGazetteer);
   };
   
   DetailsMap.prototype.selectSearchresult = function(uri) {
-    var result = searchresults[uri];
+    var result = locatedResults[uri];
     if (result)
       result.marker.openPopup();
   }
   
   DetailsMap.prototype.fitToSearchresults = function() {
-    var self = this,
-        bounds,
-        searchBounds = searchresultsLayer.getBounds(),
+    var self = this, 
+        searchBounds,
         annotationBounds = this.getAnnotationBounds();
     
-    bounds = (searchBounds.isValid()) ? searchBounds : annotationBounds;
-    if (annotationBounds.isValid())
-      bounds.extend(annotationBounds);
+    jQuery.each(resultLayers, function(name, layer) {
+      var bounds = layer.getBounds();
+      if (bounds.isValid()) {
+        if (searchBounds)
+          searchBounds.extend(bounds);
+        else
+          searchBounds = bounds;
+      }
+    });
+    
+    if (searchBounds.isValid()) {
+      if (annotationBounds.isValid())
+        searchBounds.extend(annotationBounds);
       
-    if (bounds)
-      this.map.fitBounds(bounds, { maxZoom: self.getCurrentMinZoom() });
+      this.map.fitBounds(searchBounds, { minZoom: self.getCurrentMinZoom() });
+    }
   };
   
   DetailsMap.prototype.clearSearchresults = function() {
-    searchresultsLayer.clearLayers();
-    clearResultsButton.hide();
-    this.fitToAnnotations();
+    jQuery.each(resultLayers, function(gazetteer, layer) {
+      layer.clearLayers();
+    });
+    filterOverlay.clear();
   };
   
   DetailsMap.prototype.destroy = function() {
-    searchresults = {};
+    this.clearSearchresults();
+    
+    locatedResults = {};
+    resultLayers = {};
+    
     MapBase.prototype.destroy.call(this);
   };
   

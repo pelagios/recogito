@@ -5,13 +5,14 @@
  * @param {String} dataURL the URL from where to retrieve the JSON data
  * @constructor
  */
-require(['georesolution/map', 'georesolution/table/table', 'georesolution/footer'], function(Map, Table, Footer) {
+require(['georesolution/map', 'georesolution/table/table', 'georesolution/footer', 'common/eventbroker', 'georesolution/events'], function(Map, Table, Footer, EventBroker, events) {
    
   var self = this,
+      eventBroker = new EventBroker(events),
       relatedLinks = $.grep($('link'), function(element) { return $(element).attr('rel') == 'related'; }),
       dataURL = $(relatedLinks[0]).attr('href'),
       map = new Map(document.getElementById('map')),
-      table = new Table(document.getElementById('table')),
+      table = new Table(document.getElementById('table'), eventBroker),
       footer = new Footer(document.getElementById('footer'));
         
   // Set up inter-component eventing

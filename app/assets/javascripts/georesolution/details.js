@@ -15,6 +15,8 @@ define(['georesolution/common', 'georesolution/details/detailsMap'], function(co
     // Inheritance - not the nicest pattern but works for our case
     common.HasEvents.call(this);
     
+    window.location.hash = annotation.id;
+    
     var self = this,
         template = 
           '<div class="clicktrap">' +
@@ -332,6 +334,7 @@ define(['georesolution/common', 'georesolution/details/detailsMap'], function(co
    */
   DetailsPopup.prototype.destroy = function() {
     this.map.destroy();
+    window.location.hash = '';
     $(this.element).remove();
   }
   
