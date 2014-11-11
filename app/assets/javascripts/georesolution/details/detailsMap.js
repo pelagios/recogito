@@ -108,8 +108,6 @@ define(['georesolution/common', 'common/map', 'georesolution/details/searchresul
             return element[0];
           }
         };
-        
-    MapBase.apply(this, [ mapDiv, createPopup ]);
     
     resultsControl = new SearchresultsControl(jQuery(overlayDiv));
     resultsControl.on('hideGazetteer', function(gazetteer) {
@@ -123,6 +121,8 @@ define(['georesolution/common', 'common/map', 'georesolution/details/searchresul
       self.fireEvent('selectSearchresult', locatedResults[e.target.href].result);
       return false;
     });
+    
+    MapBase.apply(this, [ mapDiv, createPopup ]);
   }
   DetailsMap.prototype = Object.create(MapBase.prototype);
   

@@ -1,4 +1,4 @@
-define(['georesolution/common', 'georesolution/details/detailsMap', 'georesolution/annotationContext'], function(common, Map, AnnotationContext) {
+define(['georesolution/common', 'georesolution/details/detailsMap', 'georesolution/annotationContext', 'georesolution/tagList'], function(common, Map, AnnotationContext, TagList) {
   
   var DetailsView = function(eventBroker) {
     var map,
@@ -31,6 +31,8 @@ define(['georesolution/common', 'georesolution/details/detailsMap', 'georesoluti
           '            <div class="status not-identifiable" title="Not Identifiable"><span class="icon">&#xf024;</span></div>' + 
           '          </div>' +
           '          <p class="quote"></p>' +
+          '          <div class="tags">' +
+          '          </div>' +
           '        </div>' +
           
           '        <div id="details-map">' +
@@ -78,6 +80,8 @@ define(['georesolution/common', 'georesolution/details/detailsMap', 'georesoluti
         statusAmbiguous = element.find('.status.ambiguous'),
         statusMultiple = element.find('.status.multiple'),
         statusNotIdentifiable = element.find('.status.not-identifiable'),
+        
+        tagList = new TagList(element.find('.tags')),
         
         contentPreview = element.find('.quote'),
         
@@ -155,6 +159,9 @@ define(['georesolution/common', 'georesolution/details/detailsMap', 'georesoluti
           context.fetchContentPreview(function(preview) {
             contentPreview.html('...' + preview.pre + '<em>' + preview.toponym + '</em>' + preview.post + '...');
           });
+          
+          // Tag list
+          tagList.show(annotation.tags);
           
           // Show popup
           element.show();
@@ -254,6 +261,10 @@ define(['georesolution/common', 'georesolution/details/detailsMap', 'georesoluti
     /** Controls events **/
     jQuery.each(statusButtons, function(status, button) {
       button.click(function() { changeStatus(status); });
+    });
+    tagList.on('update', function(tags) {
+      currentAnnotation.tags = tags;
+      eventBroker.fireEvent('updateAnnotation', currentAnnotation);   
     });
   };
   
