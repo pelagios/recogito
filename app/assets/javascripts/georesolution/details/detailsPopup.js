@@ -246,7 +246,10 @@ define(['georesolution/common', 'georesolution/details/detailsMap', 'georesoluti
     btnSearch.click(function() { search(searchInput.val().toLowerCase()); });
     btnFuzzySearch.click(function() { search(searchInput.val().toLowerCase() +  '~'); });
     btnZoomAll.click(function() { map.fitToSearchresults(); });
-      //  btnClearSearch = element.find('#search-input .clear'),
+    btnClearSearch.click(function() { 
+      resetSearch(); 
+      searchInput.focus();
+    });
     
     /** Controls events **/
     jQuery.each(statusButtons, function(status, button) {
