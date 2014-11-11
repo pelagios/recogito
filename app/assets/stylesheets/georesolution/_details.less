@@ -67,10 +67,41 @@
     right:0px; 
     bottom:0px;
     
+    .btn {
+      position:relative;
+      color:#aaa;
+      text-align:center;
+      vertical-align:middle;
+      display:inline-block;
+      box-sizing:border-box;
+      padding:4px;
+      min-width:24px;
+      font-size:12px;
+      border:1px solid #bbb;
+      cursor:pointer;
+        
+      .icon {
+        margin:0;
+        padding:0;
+      }
+          
+    } /* .btn */
+        
+    .btn.labeled {
+      padding-right:5px;
+      padding-left:5px;
+    }
+        
+    .btn:hover {
+      background-color:#efefef;
+      border-color:#999;
+      color:#777;
+    }
+    
     #details-map {
       height:100%;
-      border-right:1px solid #ccc;
-      
+      border-right:1px solid #ccc;    
+        
       .quote {
         color:#424242;
         font-size:16px;
@@ -86,37 +117,6 @@
       .gazetteer-id {
         font-size:12px;
         color:#555;
-      }
-      
-      .btn {
-        position:relative;
-        color:#aaa;
-        text-align:center;
-        vertical-align:middle;
-        display:inline-block;
-        box-sizing:border-box;
-        padding:2px 3px;
-        min-width:24px;
-        font-size:12px;
-        border:1px solid #bbb;
-        cursor:pointer;
-        
-        .icon {
-          margin:0;
-          padding:0;
-        }
-          
-      } /* .btn */
-        
-      .btn.labeled {
-        padding-right:5px;
-        padding-left:5px;
-      }
-        
-      .btn:hover {
-        background-color:#efefef;
-        border-color:#999;
-        color:#777;
       }
       
       .search-result-popup {
@@ -140,11 +140,11 @@
     
     #details-search {
       position:absolute;
-      top:15px;
-      right:15px;
+      bottom:0;
       background-color:#fff;
-      border:1px solid #bbb;
-      z-index:7;
+      border-style:solid;
+      border-color:#bbb;
+      border-width:1px 1px 0 0;
       color:#bbb;
 
       #search-input {
@@ -154,7 +154,6 @@
         input {
           vertical-align:middle;
           border:1px solid #bbb;
-          width:280px;
           height:24px;
           box-sizing:border-box;
           padding:4px 6px;
@@ -189,9 +188,9 @@
         }
         
       } /* #search-results */
-        
+         
     } /* #details-search */
-      
+    
     .controls {
       float:right;
       width:25%;

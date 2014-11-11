@@ -14,7 +14,7 @@ define(['georesolution/common', 'georesolution/details/detailsMap', 'georesoluti
           '          <a class="next icon" title="Skip to Next Annotation">&#xf0da;</a>' +
           '          <a class="exit icon" title="Close">&#xf00d;</a>' + 
           '        </span>' +
-          '      </div> <!-- header -->' +
+          '      </div>' + //  <!-- header -->
           
           '      <div class="body">' +
           '        <div class="controls">' +
@@ -23,31 +23,32 @@ define(['georesolution/common', 'georesolution/details/detailsMap', 'georesoluti
           '          <div class="statusbar">' +
           '            <div class="status verified" title="Verified"><span class="icon">&#xf14a;</span></div>' +        
           '            <div class="status not-verified" title="Not Verified"><span class="icon">&#xf059;</span></div>' +     
-          '            <div class="status false-detection" title="False Detection"><span class="icon">&#xf057;</span></div>' +   
           '            <div class="status ignore" title="Ignore this toponym"><span class="icon">&#xf05e;</span></div>' + 
           '            <div class="status no-suitable-match" title="No suitable gazetteer match available"><span class="icon">&#xf024;</span></div>' + 
           '            <div class="status ambiguous" title="Multiple possible gazetteer matches available"><span class="icon">&#xf024;</span></div>' + 
           '            <div class="status multiple" title="Toponym refers to multiple places"><span class="icon">&#xf024;</span></div>' + 
           '            <div class="status not-identifiable" title="Not Identifiable"><span class="icon">&#xf024;</span></div>' + 
+          '            <div class="status false-detection" title="False Detection"><span class="icon">&#xf057;</span></div>' +   
           '          </div>' +
           '          <p class="quote"></p>' +
           '          <div class="tags">' +
           '          </div>' +
           '        </div>' +
           
-          '        <div id="details-map">' +
-          '          <div id="details-search">' +
-          '            <div id="search-input">' +
-          '              <input>' +
-          '              <div class="btn search" title="Search"><span class="icon">&#xf002;</span></div>' + 
-          '              <div class="btn labeled fuzzy-search" title="Search including similar terms"><span class="icon">&#xf002;</span> Fuzzy</div>' + 
-          '              <div class="btn labeled zoom-all" title="Zoom to All Results"><span class="icon">&#xf0b2;</span> All</div>' + 
-          '              <div class="btn labeled clear" title="Clear Search Results"><span class="icon">&#xf05e;</span> Clear</div>' + 
-          '            </div>' +
-          '            <div id="search-results"></div>' +
+          '        <div id="details-map"></div>' +
+          
+          '        <div id="details-search">' +
+          '          <div id="search-input">' +
+          '            <input>' +
+          '            <div class="btn search" title="Search"><span class="icon">&#xf002;</span></div>' + 
+          '            <div class="btn labeled fuzzy-search" title="Search including similar terms"><span class="icon">&#xf002;</span> Fuzzy</div>' + 
+          '            <div class="btn labeled zoom-all" title="Zoom to All Results"><span class="icon">&#xf0b2;</span> All</div>' + 
+          '            <div class="btn labeled clear" title="Clear Search Results"><span class="icon">&#xf05e;</span> Clear</div>' + 
           '          </div>' +
-          '        </div>' +
-          '      </div> <!-- body -->' +
+          '          <div id="search-results"></div>' +
+          '        </div>' + // -- details-search -->
+          
+          '      </div>' + // <!-- body -->
           '    </div>' +
           '  </div>' +
           '</div>'
@@ -62,6 +63,7 @@ define(['georesolution/common', 'georesolution/details/detailsMap', 'georesoluti
         btnNext = element.find('.header-icons .next'),
         btnExit = element.find('.header-icons .exit'),
 
+        mapElement = element.find('#details-map'),
         searchContainer = element.find('#details-search'),
         searchInput = element.find('#details-search input'),
         btnSearch = element.find('#search-input .search'),
@@ -74,12 +76,12 @@ define(['georesolution/common', 'georesolution/details/detailsMap', 'georesoluti
 
         statusVerified = element.find('.status.verified'),
         statusNotVerified = element.find('.status.not-verified'),
-        statusFalseDetection = element.find('.status.false-detection'),
         statusIgnore = element.find('.status.ignore'),
         statusNoSuitableMatch = element.find('.status.no-suitable-match'),
         statusAmbiguous = element.find('.status.ambiguous'),
         statusMultiple = element.find('.status.multiple'),
         statusNotIdentifiable = element.find('.status.not-identifiable'),
+        statusFalseDetection = element.find('.status.false-detection'),
         
         tagList = new TagList(element.find('.tags')),
         
@@ -89,12 +91,12 @@ define(['georesolution/common', 'georesolution/details/detailsMap', 'georesoluti
         statusButtons = {
           VERIFIED          : statusVerified,
           NOT_VERIFIED      : statusNotVerified,
-          FALSE_DETECTION   : statusFalseDetection,
           IGNORE            : statusIgnore,
           NO_SUITABLE_MATCH : statusNoSuitableMatch,
           AMBIGUOUS         : statusAmbiguous,
           MULTIPLE          : statusMultiple,
-          NOT_IDENTIFYABLE  : statusNotIdentifiable
+          NOT_IDENTIFYABLE  : statusNotIdentifiable,
+          FALSE_DETECTION   : statusFalseDetection
         },
         
         /** Shorthand **/
