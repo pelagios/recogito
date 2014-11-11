@@ -1,4 +1,4 @@
-define(['georesolution/common', 'georesolution/details/detailsMap'], function(common, Map) {
+define(['georesolution/common', 'georesolution/details/detailsMap', 'georesolution/annotationContext'], function(common, Map, AnnotationContext) {
   
   var DetailsView = function(eventBroker) {
     var map,
@@ -11,7 +11,7 @@ define(['georesolution/common', 'georesolution/details/detailsMap'], function(co
           '        »<span class="toponym"></span>«' +
           '        <span class="header-icons">' + 
           '          <a class="prev icon" title="Skip to Previous Annotation">&#xf0d9;</a>' + 
-          '          <a class="next icon" title="Skipt to Next Annotation">&#xf0da;</a>' +
+          '          <a class="next icon" title="Skip to Next Annotation">&#xf0da;</a>' +
           '          <a class="exit icon" title="Close">&#xf00d;</a>' + 
           '        </span>' +
           '      </div> <!-- header -->' +
@@ -30,15 +30,15 @@ define(['georesolution/common', 'georesolution/details/detailsMap'], function(co
           '            <div class="status multiple" title="Toponym refers to multiple places"><span class="icon">&#xf024;</span></div>' + 
           '            <div class="status not-identifiable" title="Not Identifiable"><span class="icon">&#xf024;</span></div>' + 
           '          </div>' +
-          '          <p class="content-preview"></p>' +
+          '          <p class="quote"></p>' +
           '        </div>' +
           
           '        <div id="details-map">' +
           '          <div id="details-search">' +
           '            <div id="search-input">' +
           '              <input>' +
-          '              <div class="btn search"><span class="icon">&#xf002;</span></div>' + 
-          '              <div class="btn labeled fuzzy-search"><span class="icon">&#xf002;</span> Fuzzy</div>' + 
+          '              <div class="btn search" title="Search"><span class="icon">&#xf002;</span></div>' + 
+          '              <div class="btn labeled fuzzy-search" title="Search including similar terms"><span class="icon">&#xf002;</span> Fuzzy</div>' + 
           '              <div class="btn labeled zoom-all" title="Zoom to All Results"><span class="icon">&#xf0b2;</span> All</div>' + 
           '              <div class="btn labeled clear" title="Clear Search Results"><span class="icon">&#xf05e;</span> Clear</div>' + 
           '            </div>' +
@@ -79,7 +79,7 @@ define(['georesolution/common', 'georesolution/details/detailsMap'], function(co
         statusMultiple = element.find('.status.multiple'),
         statusNotIdentifiable = element.find('.status.not-identifiable'),
         
-        contentPreview = element.find('.content-preview'),
+        contentPreview = element.find('.quote'),
         
         /** Status: value-to-button mapping **/
         statusButtons = {
@@ -118,35 +118,19 @@ define(['georesolution/common', 'georesolution/details/detailsMap'], function(co
           }
         },
         
+        /** Resets the search **/
         resetSearch = function(presetQuery) {
           searchInput.val(presetQuery);
           btnZoomAll.hide();
           btnClearSearch.hide();
           map.clearSearchresults();
         },
-        
-        /** Load the text (or, TODO, image) preview **/
-        loadContentPreview = function(id) {
-          jQuery.getJSON('api/annotations/' + id, function(a) {
-            var startIdx, endIdx, pre, post;
-            
-            if (a.context) {
-              startIdx = a.context.indexOf(a.toponym);
-              endIdx = startIdx + a.toponym.length;
-              
-              if (startIdx > -1 && endIdx <= a.context.length) {
-                pre = a.context.substring(0, startIdx);
-                post = a.context.substring(endIdx);
-              
-                contentPreview.html('...' + pre + '<em>' + a.toponym + '</em>' + post + '...');
-              }
-            }    
-          });
-        },
     
         /** Open the details view with a new annotation **/
         show = function(annotation, previous, next, autofit) {
-          var activeStatusButton = statusButtons[annotation.status];
+          var activeStatusButton = statusButtons[annotation.status],
+              context = new AnnotationContext(annotation);
+              
           currentAnnotation = annotation;
           
           // Update browser URL bar
@@ -167,8 +151,10 @@ define(['georesolution/common', 'georesolution/details/detailsMap'], function(co
           if (activeStatusButton)
             activeStatusButton.addClass('active');
 
-          // Text/image preview            
-          loadContentPreview(annotation.id);
+          // Text/image preview        
+          context.fetchContentPreview(function(preview) {
+            contentPreview.html('...' + preview.pre + '<em>' + preview.toponym + '</em>' + preview.post + '...');
+          });
           
           // Show popup
           element.show();
@@ -176,13 +162,14 @@ define(['georesolution/common', 'georesolution/details/detailsMap'], function(co
           // Refresh map
           map.clearAnnotations();
           map.refresh();
-          map.addAnnotation(annotation);
+          map.addAnnotation(annotation, context);
           map.addSequence(annotation, previous, next);
-          map.showMarker(annotation);
           
           if (autofit)
             map.fitToAnnotations();
             
+          map.showMarker(annotation);
+                    
           searchInput.focus();
         },
         
@@ -190,6 +177,7 @@ define(['georesolution/common', 'georesolution/details/detailsMap'], function(co
         hide = function() {
           currentAnnotation = false;
           window.location.hash = '';
+          contentPreview.html('');    
           map.clearSearchresults();
           map.clearAnnotations();
           element.hide();          
@@ -245,6 +233,9 @@ define(['georesolution/common', 'georesolution/details/detailsMap'], function(co
     
     /** Map events **/
     map.on('selectSearchresult', correctGazetteerMapping);
+    map.on('verify', function() { changeStatus('VERIFIED'); });
+    map.on('findAlternatives', function() { search(currentAnnotation.toponym); });
+    map.on('skipNext', function() { eventBroker.fireEvent('skipNext'); });
     searchInput.keypress(function(e) {
       if (e.which == 13)
         search(e.target.value.toLowerCase());

@@ -3,9 +3,10 @@ define(['common/hasEvents'], function(HasEvents) {
   
   var annotations = {},
       annotationsLayer,
-      sequenceLayer;
+      sequenceLayer,
+      createPopup;
   
-  var Map = function(div, opt_basemap) {  
+  var Map = function(div, popup_fn, opt_basemap) {  
     var self = this,
         Layers = {
       
@@ -57,6 +58,12 @@ define(['common/hasEvents'], function(HasEvents) {
     
     sequenceLayer = L.featureGroup();
     sequenceLayer.addTo(this.map);
+    
+    // Use provided popup fuction, or create a default one
+    createPopup = (popup_fn) ? popup_fn : function(place, annotationsWithContext) {
+      return '<strong>' + place.title + '</strong><br/>' +
+             '<small>' + place.names.slice(0, 8).join(', ') + '</small>';
+    };
     
     // Forward click events
     this.map.on('click', function(e) { self.fireEvent('click', e); });
@@ -118,7 +125,7 @@ define(['common/hasEvents'], function(HasEvents) {
   };
   
   /** Adds an annotation to the map **/
-  Map.prototype.addAnnotation = function(annotation) {    
+  Map.prototype.addAnnotation = function(annotation, opt_context) {    
     var self = this, 
         place = (annotation.place_fixed) ? annotation.place_fixed : annotation.place,
         style = (Map.Styles[annotation.status]) ? Map.Styles[annotation.status] : Map.Styles.NOT_VERIFIED;
@@ -139,14 +146,14 @@ define(['common/hasEvents'], function(HasEvents) {
           a = (annotationsForPlace) ? annotationsForPlace.annotations : false;
           
       if (annotationsForPlace) {
-        a.push(annotation);
+        a.push([ annotation, opt_context ]);
       } else { 
         annotationsForPlace = {
           marker: createMarker(place, style),
-          annotations: [annotation]
+          annotations: [[ annotation, opt_context ]]
         };
         annotations[place.uri] = annotationsForPlace;
-      }      
+      }
     }
   };
 
@@ -183,16 +190,12 @@ define(['common/hasEvents'], function(HasEvents) {
   /** Highlights a marker by opening its popup **/
   Map.prototype.showMarker = function(annotation) {
     var place = (annotation.place_fixed) ? annotation.place_fixed : annotation.place,
-        markerAndAnnotations;
+        markerAndAnnotations, popupHtml;
         
     if (place) {
       markerAndAnnotations = annotations[place.uri];
-      if (markerAndAnnotations) {
-        console.log(place);
-        markerAndAnnotations.marker.bindPopup(
-          '<strong>' + place.title + '</strong><br/>' +
-          '<small>' + place.names.slice(0, 8).join(', ') + '</small>').openPopup();
-      }
+      if (markerAndAnnotations)
+        markerAndAnnotations.marker.bindPopup(createPopup(place, markerAndAnnotations.annotations)).openPopup();          
     }
   };
   
@@ -200,7 +203,7 @@ define(['common/hasEvents'], function(HasEvents) {
   Map.prototype.fitToAnnotations = function() {
     var bounds = this.getAnnotationBounds();
     if (bounds.isValid())
-      this.map.fitBounds(bounds);
+      this.map.fitBounds(bounds, { animate: false });
   };
   
   /** Removes all annotations from the map **/

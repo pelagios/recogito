@@ -1,8 +1,8 @@
-define(['georesolution/common', 'common/map', 'georesolution/details/searchresultsFilter'], function(common, MapBase, FilterOverlay) {
+define(['georesolution/common', 'common/map', 'georesolution/details/searchresultsControl',  'georesolution/annotationContext'], function(common, MapBase, SearchresultsControl, AnnotationContext) {
   
   var locatedResults = {},
       resultLayers = {},
-      filterOverlay; 
+      resultsControl; 
                   
       /** List of supported gazetteers **/
       KnownGazetteers = {
@@ -39,15 +39,83 @@ define(['georesolution/common', 'common/map', 'georesolution/details/searchresul
             else
               self.map.removeLayer(layer);
           }
+        },
+        
+        /** HTML template for the annotation popup **/
+        popupTemplate = '<div>' +
+                        '  <p class="quote">' +
+                        '    <span class="pre"></span><em class="toponym"></em><span class="post"></span>' +
+                        '  </p>' +
+                        '  <p class="matched-to">' +
+                        '    <strong class="label"></strong><br/>' +
+                        '    <small class="names"></small><br/>' +
+                        '    <a class="gazetteer-id" target="_blank"></a>' +
+                        '  </p>' +
+                        '  <div class="actions">' +
+                        '    <div class="btn labeled verify"><span class="icon">&#xf14a;</span> OK</div>' +
+                        '    <div class="btn labeled alternatives">Alternatives</div>' +
+                        '    <div class="btn labeled skip-next">Next <span class="icon">&#xf105;</span></div>' +
+                        '  </div>' +
+                        '</div>',
+        
+        // Popup for the current annotation
+        createPopup = function(place, annotationsWithContext) {          
+          var annotation,
+              status,
+              element = jQuery(popupTemplate),
+              quoteToponym = element.find('.toponym'),
+              quotePre = element.find('.pre'),
+              quotePost = element.find('.post'),
+              matchedURI = element.find('.gazetteer-id'),
+              matchedLabel = element.find('.label'),
+              matchedNames = element.find('.names'),
+              btnOk = element.find('.btn.verify'),
+              btnAlternatives = element.find('.btn.alternatives'),
+              btnSkip = element.find('.btn.skip-next');
+
+          if (annotations.length > 0) { // Should always be the case
+            annotation = annotationsWithContext[0][0];
+            status = annotation.status.toLowerCase();
+            context = annotationsWithContext[0][1];
+            
+            quoteToponym.html(annotation.toponym);
+            quoteToponym.addClass(status);
+            
+            context.fetchContentPreview(function(preview) {
+              var pre = AnnotationContext.truncateWordsRight(preview.pre, 4),
+                  post = AnnotationContext.truncateWords(preview.post, 4);
+                  
+              quotePre.html('...' + pre);
+              quotePost.html(post + '...');             
+            });
+            
+            matchedLabel.html(place.title + common.Utils.categoryTag(place.category));
+            matchedNames.html(place.names.slice(0, 8).join(', '));
+            matchedURI.attr('href', place.uri);
+            matchedURI.html(common.Utils.formatGazetteerURI(place.uri));
+            
+            if (status === 'verified')
+              btnOk.hide();
+            else
+              btnOk.click(function() { self.fireEvent('verify'); });
+              
+            btnAlternatives.click(function() { 
+              self.map.closePopup();
+              self.fireEvent('findAlternatives'); 
+            });
+            btnSkip.click(function() { self.fireEvent('skipNext'); }); 
+
+            return element[0];
+          }
         };
         
-    MapBase.apply(this, [ mapDiv ]);
+    MapBase.apply(this, [ mapDiv, createPopup ]);
     
-    filterOverlay = new FilterOverlay(jQuery(overlayDiv));
-    filterOverlay.on('hideGazetteer', function(gazetteer) {
+    resultsControl = new SearchresultsControl(jQuery(overlayDiv));
+    resultsControl.on('hideGazetteer', function(gazetteer) {
       setLayerVisibility(gazetteer, false);
     });
-    filterOverlay.on('showGazetteer', function(gazetteer) {
+    resultsControl.on('showGazetteer', function(gazetteer) {
       setLayerVisibility(gazetteer, true);
     });
     
@@ -75,11 +143,16 @@ define(['georesolution/common', 'common/map', 'georesolution/details/searchresul
         if (result.coordinate) {
           marker = L.marker(result.coordinate);
           marker.bindPopup(
-            '<strong>' + result.title + '</strong>' +
-            '<br/>' +
-            '<small>' + result.names.slice(0, 8).join(', ') + '</small>' +
-            '<br/>' + 
-            '<strong>Correct mapping to</strong> <a href="' + result.uri + '" class="gazetteer-id" title="Click to confirm" onclick="return false;"><span class="icon">&#xf14a;</span> ' + common.Utils.formatGazetteerURI(result.uri)) + '</a>';
+            '<div class="search-result-popup">' + 
+            '  <strong>' + result.title + '</strong>' + common.Utils.categoryTag(result.category) +
+            '  <br/><small>' + result.names.slice(0, 8).join(', ') + '</small><br/>' +
+            '  <p>' +
+            '    <strong>Correct?</strong><br/>Assign to ' + 
+            '    <a href="' + result.uri + '" class="gazetteer-id" title="Click to confirm" onclick="return false;">' +
+            '      <span class="icon">&#xf14a;</span> ' + common.Utils.formatGazetteerURI(result.uri) + 
+            '    </a>' +
+            '  </p>' +
+            '</div>');
 
           layer.addLayer(marker);
           locatedResults[result.uri] = { result: result, marker: marker };
@@ -87,7 +160,7 @@ define(['georesolution/common', 'common/map', 'georesolution/details/searchresul
       });
     });
 
-    filterOverlay.show(response.results.length, response.query, resultsByGazetteer);
+    resultsControl.show(response.results.length, response.query, resultsByGazetteer);
   };
   
   DetailsMap.prototype.selectSearchresult = function(uri) {
@@ -123,7 +196,7 @@ define(['georesolution/common', 'common/map', 'georesolution/details/searchresul
     jQuery.each(resultLayers, function(gazetteer, layer) {
       layer.clearLayers();
     });
-    filterOverlay.clear();
+    resultsControl.clear();
   };
   
   DetailsMap.prototype.destroy = function() {
