@@ -141,11 +141,13 @@
     #details-search {
       position:absolute;
       bottom:0;
+      max-width:400px;
       background-color:#fff;
       border-style:solid;
       border-color:#bbb;
       border-width:1px 1px 0 0;
       color:#bbb;
+      z-index:1000;
 
       #search-input {
         padding:10px;  
@@ -171,20 +173,53 @@
       } /* .search-input */
       
       #search-results {
-        padding:5px 12px;    
         font-size:14px;
-        color:#555;
+        overflow-y:auto;
+        overflow-x:hidden;
+        box-sizing:border-box;
         
-        ul {
-          list-style-type:none;
-          padding-left:0;
+        .toggle { cursor:pointer; }
+        
+        table {
+          border-collapse:collapse;
+          width:100%;
         }
+        
+        tbody {
+          display: block; 
+          width:100%;
+        }
+        
+        th, td {
+          padding:6px 4px 4px 4px;
+          color:#777;
+          line-height:120%;
+        }
+        
+        th {
+          color:#555;
+          border-bottom:1px solid #ccc;
+          background-color:#dfdfdf;
+          font-weight:normal;
+          text-align:left;
+        }
+        
+        th.min { 
+          padding:0;
+          width:1px; 
+        }
+        
+        td {
+          border-bottom:1px solid #ccc;
+          cursor:pointer;
+        }
+        
+        th:last-child, td:last-child { width:100%; }
         
         input[type=checkbox] {
           position:relative;
-          top:2px;
+          top:1px;
           outline:none;
-          margin-right:5px;
         }
         
       } /* #search-results */

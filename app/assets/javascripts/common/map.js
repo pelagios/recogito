@@ -6,8 +6,9 @@ define(['common/hasEvents'], function(HasEvents) {
       sequenceLayer,
       createPopup;
   
-  var Map = function(div, popup_fn, opt_basemap) {  
+  var Map = function(div, popup_fn, opt_basemap, opt_controlposition) {  
     var self = this,
+        control_position = (opt_controlposition) ? opt_controlposition : 'topleft';
         Layers = {
       
           DARE : L.tileLayer('http://pelagios.org/tilesets/imperium//{z}/{x}/{y}.png', {
@@ -38,14 +39,17 @@ define(['common/hasEvents'], function(HasEvents) {
             'Roman Empire Base Map (<a href="http://imperium.ahlfeldt.se/" target="_blank">DARE</a>)': Layers.DARE },
             
         activeBaseLayer = (opt_basemap) ? baseLayers[opt_basemap] : Layers.AWMC;
-    
+
     // We'll add the map as global field, so that subclasses can have access
     this.map = new L.Map(div, {
       center: new L.LatLng(41.893588, 12.488022),
       zoom: 5,
+      zoomControl: false,
       layers: [ activeBaseLayer ]
     });
-    this.map.addControl(new L.Control.Layers(baseLayers, null, { position: 'topleft' }));
+
+    this.map.addControl(L.control.zoom({ position: control_position }) )
+    this.map.addControl(new L.Control.Layers(baseLayers, null, { position: control_position }));
     this.map.on('baselayerchange', function(e) { 
       if (self.map.getZoom() > e.layer.options.maxZoom)
         self.map.setZoom(e.layer.options.maxZoom);

@@ -1,8 +1,14 @@
-define(['georesolution/common', 'georesolution/details/detailsMap', 'georesolution/annotationContext', 'georesolution/tagList'], function(common, Map, AnnotationContext, TagList) {
+define(['georesolution/common',
+        'georesolution/details/detailsMap',
+        'georesolution/details/searchControl',
+        'georesolution/annotationContext',
+        'georesolution/tagList'], function(common, Map, SearchControl, AnnotationContext, TagList) {
   
   var DetailsView = function(eventBroker) {
-    var map,
+    var map, 
+        searchControl,
         currentAnnotation,
+        
         element = jQuery(
           '<div id="annotation-details">' +
           '  <div id="clicktrap">' +
@@ -37,16 +43,7 @@ define(['georesolution/common', 'georesolution/details/detailsMap', 'georesoluti
           
           '        <div id="details-map"></div>' +
           
-          '        <div id="details-search">' +
-          '          <div id="search-input">' +
-          '            <input>' +
-          '            <div class="btn search" title="Search"><span class="icon">&#xf002;</span></div>' + 
-          '            <div class="btn labeled fuzzy-search" title="Search including similar terms"><span class="icon">&#xf002;</span> Fuzzy</div>' + 
-          '            <div class="btn labeled zoom-all" title="Zoom to All Results"><span class="icon">&#xf0b2;</span> All</div>' + 
-          '            <div class="btn labeled clear" title="Clear Search Results"><span class="icon">&#xf05e;</span> Clear</div>' + 
-          '          </div>' +
-          '          <div id="search-results"></div>' +
-          '        </div>' + // -- details-search -->
+          '        <div id="details-search"></div>' +
           
           '      </div>' + // <!-- body -->
           '    </div>' +
@@ -54,7 +51,7 @@ define(['georesolution/common', 'georesolution/details/detailsMap', 'georesoluti
           '</div>'
         ),
         
-        /** Event map **/
+        /** Events **/
         Events = eventBroker.events,
         
         /** DOM element shorthands **/
@@ -63,14 +60,6 @@ define(['georesolution/common', 'georesolution/details/detailsMap', 'georesoluti
         btnNext = element.find('.header-icons .next'),
         btnExit = element.find('.header-icons .exit'),
 
-        mapElement = element.find('#details-map'),
-        searchContainer = element.find('#details-search'),
-        searchInput = element.find('#details-search input'),
-        btnSearch = element.find('#search-input .search'),
-        btnFuzzySearch = element.find('#search-input .fuzzy-search'),
-        btnZoomAll = element.find('#search-input .zoom-all'),
-        btnClearSearch = element.find('#search-input .clear'),
-        
         mappingInfoAuto = element.find('.mapping-info.auto'),
         mappingInfoCorrected = element.find('.mapping-info.corrected'),
 
@@ -123,14 +112,6 @@ define(['georesolution/common', 'georesolution/details/detailsMap', 'georesoluti
             paragraph.html('-');
           }
         },
-        
-        /** Resets the search **/
-        resetSearch = function(presetQuery) {
-          searchInput.val(presetQuery);
-          btnZoomAll.hide();
-          btnClearSearch.hide();
-          map.clearSearchresults();
-        },
     
         /** Open the details view with a new annotation **/
         show = function(annotation, previous, next, autofit) {
@@ -143,7 +124,7 @@ define(['georesolution/common', 'georesolution/details/detailsMap', 'georesoluti
           window.location.hash = annotation.id;
           
           // Set toponym as search term
-          resetSearch(annotation.toponym);
+          searchControl.resetSearch(annotation.toponym);
           
           // Populate the template
           toponym.html(annotation.toponym);
@@ -179,7 +160,8 @@ define(['georesolution/common', 'georesolution/details/detailsMap', 'georesoluti
             
           map.showMarker(annotation);
                     
-          searchInput.focus();
+          searchControl.setMaxHeight(map.height());
+          searchControl.focus();
         },
         
         /** Close the details view **/
@@ -190,16 +172,6 @@ define(['georesolution/common', 'georesolution/details/detailsMap', 'georesoluti
           map.clearSearchresults();
           map.clearAnnotations();
           element.hide();          
-        },
-        
-        /** Gazetteer search **/
-        search = function(query) {
-          map.clearSearchresults();
-          jQuery.getJSON('api/search/place?query=' + query, function(response) {
-            map.showSearchresults(response);
-            btnZoomAll.show();
-            btnClearSearch.show();
-          });
         },
         
         /** Stores a correction to the gazetteer URI **/
@@ -233,7 +205,11 @@ define(['georesolution/common', 'georesolution/details/detailsMap', 'georesoluti
     /** Create DOM elements **/        
     element.hide();
     jQuery(document.body).append(element);   
-    map = new Map(document.getElementById('details-map'), document.getElementById('search-results'));     
+    
+    map = new Map(document.getElementById('details-map')); // Must be instatiated after it's part of the DOM
+    searchControl = new SearchControl(element.find('#details-search'), map);
+    searchControl.on('selectSearchresult', correctGazetteerMapping);
+    $(window).resize(function() { searchControl.setMaxHeight(map.height()); });
     
     /** Header events **/
     btnPrevious.click(function() { eventBroker.fireEvent('skipPrevious'); });
@@ -245,20 +221,6 @@ define(['georesolution/common', 'georesolution/details/detailsMap', 'georesoluti
     map.on('verify', function() { changeStatus('VERIFIED'); });
     map.on('findAlternatives', function() { search(currentAnnotation.toponym); });
     map.on('skipNext', function() { eventBroker.fireEvent('skipNext'); });
-    searchInput.keypress(function(e) {
-      if (e.which == 13)
-        search(e.target.value.toLowerCase());
-    });
-    searchContainer.dblclick(stopPropagation);
-    searchContainer.mousemove(stopPropagation);
-    
-    btnSearch.click(function() { search(searchInput.val().toLowerCase()); });
-    btnFuzzySearch.click(function() { search(searchInput.val().toLowerCase() +  '~'); });
-    btnZoomAll.click(function() { map.fitToSearchresults(); });
-    btnClearSearch.click(function() { 
-      resetSearch(); 
-      searchInput.focus();
-    });
     
     /** Controls events **/
     jQuery.each(statusButtons, function(status, button) {

@@ -1,45 +1,12 @@
-define(['georesolution/common', 'common/map', 'georesolution/details/searchresultsControl',  'georesolution/annotationContext'], function(common, MapBase, SearchresultsControl, AnnotationContext) {
+define(['georesolution/common', 'common/map', 'georesolution/annotationContext'], function(common, MapBase, AnnotationContext) {
   
-  var locatedResults = {},
+  var parentEl,
+      locatedResults = {},
       resultLayers = {},
-      resultsControl; 
-                  
-      /** List of supported gazetteers **/
-      KnownGazetteers = {
-        'http://pleiades.stoa.org' : 'Pleiades',
-        'http://data.pastplace.org' : 'PastPlace',
-        'http://www.imperium.ahlfeldt.se': 'DARE'
-      },
-      
-      /** Helper function that groups search results by gazetteers **/
-      groupByGazetteer = function(results) {
-        var allGrouped = {};
-        
-        jQuery.each(results, function(idx, result) {
-          var gazetteer = KnownGazetteers[result.uri.substr(0, result.uri.indexOf('/', 7))],
-              key = (gazetteer) ? gazetteer : 'Other', 
-              group = allGrouped[key];
-          
-          if (group)
-            group.push(result);
-          else
-            allGrouped[key] = [result];
-        });     
-        
-        return allGrouped
-      };
+      leftPadding = 0; 
   
   var DetailsMap = function(mapDiv, overlayDiv) {
     var self = this,
-        setLayerVisibility = function(name, visible) {
-          var layer = resultLayers[name];
-          if (layer) {
-            if (visible)
-              self.map.addLayer(layer);
-            else
-              self.map.removeLayer(layer);
-          }
-        },
         
         /** HTML template for the annotation popup **/
         popupTemplate = '<div>' +
@@ -109,26 +76,37 @@ define(['georesolution/common', 'common/map', 'georesolution/details/searchresul
           }
         };
     
-    resultsControl = new SearchresultsControl(jQuery(overlayDiv));
-    resultsControl.on('hideGazetteer', function(gazetteer) {
-      setLayerVisibility(gazetteer, false);
-    });
-    resultsControl.on('showGazetteer', function(gazetteer) {
-      setLayerVisibility(gazetteer, true);
-    });
-    
     $(mapDiv).on('click', '.gazetteer-id', function(e) {
       self.fireEvent('selectSearchresult', locatedResults[e.target.href].result);
       return false;
     });
     
-    MapBase.apply(this, [ mapDiv, createPopup ]);
+    parentEl = jQuery(mapDiv);
+    
+    MapBase.apply(this, [ mapDiv, createPopup, false, 'topright' ]);
   }
   DetailsMap.prototype = Object.create(MapBase.prototype);
   
-  DetailsMap.prototype.showSearchresults = function(response) {
-    var self = this,
-        resultsByGazetteer = groupByGazetteer(response.results);
+  DetailsMap.prototype.height = function() {
+    return parentEl.height();
+  };
+  
+  DetailsMap.prototype.setLayerVisibility = function(name, visible) {
+    var layer = resultLayers[name];
+    if (layer) {
+      if (visible)
+        this.map.addLayer(layer);
+      else
+        this.map.removeLayer(layer);
+    }
+  };
+  
+  DetailsMap.prototype.setLeftPadding = function(padding) {
+    leftPadding = padding;
+  };
+  
+  DetailsMap.prototype.showSearchresults = function(resultsByGazetteer) {
+    var self = this;
     
     jQuery.each(resultsByGazetteer, function(gazetteer, results) {
       // Create new layer for each gazetteer
@@ -159,14 +137,17 @@ define(['georesolution/common', 'common/map', 'georesolution/details/searchresul
         } 
       });
     });
-
-    resultsControl.show(response.results.length, response.query, resultsByGazetteer);
   };
   
   DetailsMap.prototype.selectSearchresult = function(uri) {
-    var result = locatedResults[uri];
-    if (result)
+    var result = locatedResults[uri], popup;
+    if (result) {
+      popupOptions = result.marker.getPopup().options;
+      popupOptions.autoPanPadding = [leftPadding + 5, 5, 5, 5];
       result.marker.openPopup();
+    } else {
+      this.map.closePopup();
+    }
   }
   
   DetailsMap.prototype.fitToSearchresults = function() {
@@ -196,7 +177,6 @@ define(['georesolution/common', 'common/map', 'georesolution/details/searchresul
     jQuery.each(resultLayers, function(gazetteer, layer) {
       layer.clearLayers();
     });
-    resultsControl.clear();
   };
   
   DetailsMap.prototype.destroy = function() {
