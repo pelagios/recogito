@@ -52,7 +52,7 @@ trait AbstractAnnotationController extends Controller with Secured {
         val json = body.get.as[JsObject]
         try {
           createOne(json, user.get.username) match {
-            case Success(annotation) => Ok(JSONSerializer.toJson(annotation, false, false, true))
+            case Success(annotation) => Ok(new JSONSerializer().toJson(annotation, false, false, true))
             case Failure(exception) => BadRequest(Json.parse("{ \"success\": false, \"message\": \"" + exception.getMessage + "\" }"))
           }
         } catch {
@@ -77,7 +77,7 @@ trait AbstractAnnotationController extends Controller with Secured {
   def get(uuid: UUID) = DBAction { implicit session =>
     val annotation = Annotations.findByUUID(uuid)
     if (annotation.isDefined) {          
-      Ok(JSONSerializer.toJson(annotation.get, true, true, true))
+      Ok(new JSONSerializer().toJson(annotation.get, true, true, true))
     } else {
       NotFound
     }
@@ -124,7 +124,7 @@ trait AbstractAnnotationController extends Controller with Secured {
           BadRequest(Json.parse("{ \"success\": false, \"message\": \"Missing JSON body\" }"))
         } else {
           updateOne(body.get.as[JsObject], uuid, username) match {
-            case Success(annotation) => Ok(JSONSerializer.toJson(annotation, false, false, true))
+            case Success(annotation) => Ok(new JSONSerializer().toJson(annotation, false, false, true))
             case Failure(exception) => BadRequest(Json.parse("{ \"success\": false, \"message\": \"" + exception.getMessage + "\" }"))
           }
         }
@@ -201,7 +201,7 @@ trait AbstractAnnotationController extends Controller with Secured {
     val updatedTags = if (before.tags.equals(after.tags)) None else after.tags
     val updateComment = if (before.comment.equals(after.comment)) None else after.comment
     
-    EditEvent(None, before.uuid, username, new Timestamp(new Date().getTime), Some(JSONSerializer.toJson(before, false, false, false).toString),
+    EditEvent(None, before.uuid, username, new Timestamp(new Date().getTime), Some(new JSONSerializer().toJson(before, false, false, false).toString),
               updatedToponym, updatedStatus, updatedURI, updatedTags, updateComment)
   }
 

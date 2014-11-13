@@ -1,11 +1,6 @@
 /** A generic base map component **/
 define(['common/hasEvents'], function(HasEvents) {
   
-  var annotations = {},
-      annotationsLayer,
-      sequenceLayer,
-      createPopup;
-  
   var Map = function(div, popup_fn, opt_basemap, opt_controlposition) {  
     var self = this,
         control_position = (opt_controlposition) ? opt_controlposition : 'topleft';
@@ -49,7 +44,7 @@ define(['common/hasEvents'], function(HasEvents) {
     });
 
     this.map.addControl(L.control.zoom({ position: control_position }) )
-    this.map.addControl(new L.Control.Layers(baseLayers, null, { position: control_position }));
+    this.map.addControl(new L.Control.Layers(baseLayers, null, { position: control_position }));    
     this.map.on('baselayerchange', function(e) { 
       if (self.map.getZoom() > e.layer.options.maxZoom)
         self.map.setZoom(e.layer.options.maxZoom);
@@ -57,14 +52,15 @@ define(['common/hasEvents'], function(HasEvents) {
       self.fireEvent('baselayerchange', e);
     });
 
-    annotationsLayer = L.featureGroup();
-    annotationsLayer.addTo(this.map);
+    this.annotations = {};
+    this.annotationsLayer = L.featureGroup();
+    this.annotationsLayer.addTo(this.map);
     
-    sequenceLayer = L.featureGroup();
-    sequenceLayer.addTo(this.map);
-    
+    this.sequenceLayer = L.featureGroup();
+    this.sequenceLayer.addTo(this.map);
+        
     // Use provided popup fuction, or create a default one
-    createPopup = (popup_fn) ? popup_fn : function(place, annotationsWithContext) {
+    this.createPopup = (popup_fn) ? popup_fn : function(place, annotationsWithContext) {
       return '<strong>' + place.title + '</strong><br/>' +
              '<small>' + place.names.slice(0, 8).join(', ') + '</small>';
     };
@@ -93,8 +89,8 @@ define(['common/hasEvents'], function(HasEvents) {
   
   /** Returns the bounds of all annotations currently on the map **/
   Map.prototype.getAnnotationBounds = function() {
-    var annotationBounds = annotationsLayer.getBounds(),
-        sequenceBounds = sequenceLayer.getBounds();
+    var annotationBounds = this.annotationsLayer.getBounds(),
+        sequenceBounds = this.sequenceLayer.getBounds();
         
     if (sequenceBounds.isValid())
       annotationBounds.extend(sequenceBounds);
@@ -124,45 +120,50 @@ define(['common/hasEvents'], function(HasEvents) {
   
   /** Destroys the map **/  
   Map.prototype.destroy = function() {
-    annotations = {};
+    this.annotations = {};
     this.map.remove();
   };
   
   /** Adds an annotation to the map **/
   Map.prototype.addAnnotation = function(annotation, opt_context) {    
-    var self = this, 
-        place = (annotation.place_fixed) ? annotation.place_fixed : annotation.place,
-        style = (Map.Styles[annotation.status]) ? Map.Styles[annotation.status] : Map.Styles.NOT_VERIFIED;
+    var self = this, place, style, annotationsForPlace, marker, a,
     
         /** Helper function to create the marker **/
         createMarker = function(place, style) {
           var marker = L.circleMarker(place.coordinate, style);
           marker.on('click', function(e) {
-            self.fireEvent('selectAnnotation', annotations[place.uri].annotations);
+            self.fireEvent('selectAnnotation', self.annotations[place.uri].annotations);
           });
-          annotationsLayer.addLayer(marker); 
+          self.annotationsLayer.addLayer(marker); 
           return marker;
         };
     
-    if ((place && place.coordinate) && (annotation.status == 'VERIFIED' || annotation.status == 'NOT_VERIFIED')) {
-      var annotationsForPlace = annotations[place.uri],
-          marker = (annotationsForPlace) ? annotationsForPlace.marker : false,
-          a = (annotationsForPlace) ? annotationsForPlace.annotations : false;
+    if (annotation.status == 'VERIFIED' || annotation.status == 'NOT_VERIFIED') {   
+      place = (annotation.place_fixed) ? annotation.place_fixed : annotation.place;    
+    
+      if (place && place.coordinate) {
+        style = (Map.Styles[annotation.status]) ? Map.Styles[annotation.status] : Map.Styles.NOT_VERIFIED;
+              
+        annotationsForPlace = this.annotations[place.uri],
+        marker = (annotationsForPlace) ? annotationsForPlace.marker : false,
+        a = (annotationsForPlace) ? annotationsForPlace.annotations : false;
           
-      if (annotationsForPlace) {
-        a.push([ annotation, opt_context ]);
-      } else { 
-        annotationsForPlace = {
-          marker: createMarker(place, style),
-          annotations: [[ annotation, opt_context ]]
-        };
-        annotations[place.uri] = annotationsForPlace;
+        if (annotationsForPlace) {
+          a.push([ annotation, opt_context ]);
+        } else { 
+          annotationsForPlace = {
+            marker: createMarker(place, style),
+            annotations: [[ annotation, opt_context ]]
+          };
+          this.annotations[place.uri] = annotationsForPlace;
+        }
       }
+    
     }
   };
 
   /** Adds a sequence line to the map **/  
-  Map.prototype.addSequence = function(annotation, previous, next) {
+  Map.prototype.setSequence = function(annotation, previous, next) {
     var i, coords = [], line, style,
         pushLatLon = function(annotation) {
           var c;
@@ -174,6 +175,8 @@ define(['common/hasEvents'], function(HasEvents) {
             coords.push(annotation.place.coordinate);
           }          
         };
+    
+    this.sequenceLayer.clearLayers();
     
     for (i = 0; i < previous.length; i++)
       pushLatLon(previous[i]);
@@ -187,8 +190,8 @@ define(['common/hasEvents'], function(HasEvents) {
     style.color = (Map.Styles[annotation.status]) ? Map.Styles[annotation.status].color : Map.Styles.NOT_VERIFIED.color;
     line = L.polyline(coords, style);
     line.setText('►', { repeat: true, offset: 5, attributes: { fill: style.color, 'font-size':17 }});    
-    sequenceLayer.addLayer(line);
-    sequenceLayer.bringToBack();
+    this.sequenceLayer.addLayer(line);
+    this.sequenceLayer.bringToBack();
   };
   
   /** Highlights a marker by opening its popup **/
@@ -197,24 +200,26 @@ define(['common/hasEvents'], function(HasEvents) {
         markerAndAnnotations, popupHtml;
         
     if (place) {
-      markerAndAnnotations = annotations[place.uri];
-      if (markerAndAnnotations)
-        markerAndAnnotations.marker.bindPopup(createPopup(place, markerAndAnnotations.annotations)).openPopup();          
+      markerAndAnnotations = this.annotations[place.uri];
+      if (markerAndAnnotations) {
+        markerAndAnnotations.marker.bindPopup(this.createPopup(place, markerAndAnnotations.annotations)).openPopup();          
+      }
     }
   };
   
   /** Fits the map zoom level to cover the bounds of all annotations **/
   Map.prototype.fitToAnnotations = function() {
     var bounds = this.getAnnotationBounds();
-    if (bounds.isValid())
+    if (bounds.isValid()) {
       this.map.fitBounds(bounds, { animate: false });
+    }
   };
   
   /** Removes all annotations from the map **/
   Map.prototype.clearAnnotations = function() {
-    annotations = {};
-    annotationsLayer.clearLayers();
-    sequenceLayer.clearLayers();
+    this.annotations = {};
+    this.annotationsLayer.clearLayers();
+    this.sequenceLayer.clearLayers();
   };
   
   return Map;

@@ -5,7 +5,7 @@
  * @param {String} dataURL the URL from where to retrieve the JSON data
  * @constructor
  */
-require(['georesolution/map', 'georesolution/table/table', 'georesolution/footer', 'common/eventbroker', 'georesolution/events'], function(Map, Table, Footer, EventBroker, events) {
+require(['georesolution/overviewMap', 'georesolution/table/table', 'georesolution/footer', 'common/eventbroker', 'georesolution/events'], function(Map, Table, Footer, EventBroker, events) {
    
   var self = this,
       eventBroker = new EventBroker(events),
@@ -24,7 +24,8 @@ require(['georesolution/map', 'georesolution/table/table', 'georesolution/footer
   table.on('selectionChanged', function(args, annotation) { 
     var prev3 = table.getPrevN(args.rows[0], 3);
     var next2 = table.getNextN(args.rows[0], 2);
-    map.selectPlace(annotation, prev3, next2); 
+    map.setSequence(annotation, prev3, next2);
+    map.showMarker(annotation); 
   });
   
   table.on('update', function(annotations) {
@@ -32,13 +33,15 @@ require(['georesolution/map', 'georesolution/table/table', 'georesolution/footer
           
     if (!$.isArray(annotations))
       annotations = [ annotations ];
-      
-    $.each(annotations, function(idx, annotation) {    
-  	  if (annotation.marker)
-	      map.removePlaceMarker(annotation);
     
-      map.addPlaceMarker(annotation);
+    /*
+    $.each(annotations, function(idx, annotation) {    
+  	  // if (annotation.marker)
+	    //  map.removePlaceMarker(annotation);
+    
+      // map.addPlaceMarker(annotation);
  	  });
+    */
     
     if (self.annotations)
       footer.setData(self.annotations);
@@ -48,11 +51,13 @@ require(['georesolution/map', 'georesolution/table/table', 'georesolution/footer
   table.on('mouseout', function(annotation) { map.deemphasizePlace(annotation); });
 
   // Fetch JSON data
+  console.log('Fetching data');
   $.getJSON(dataURL, function(data) {
     // Flatten & repackage response
     var annotations = [];
     var runningIdx = 0;
-        
+      
+    console.log('Repackaging');
     if (data.annotations) {
       $.each(data.annotations, function(idx, annotation) {
         annotation.idx = runningIdx;
@@ -72,11 +77,15 @@ require(['georesolution/map', 'georesolution/table/table', 'georesolution/footer
     }
     
     // Set data on table
+    console.log('Rendering table');
     table.setData(annotations, true);
     table.render();
   
     // Set data on map
-    $.each(annotations, function(idx, annotation) { map.addPlaceMarker(annotation) });
+    console.log('Drawing map');
+    $.each(annotations, function(idx, annotation) { map.addAnnotation(annotation) });
+    map.fitToAnnotations();
+    console.log('Done.');
     
     // Set data on Footer
     footer.setData(annotations);

@@ -154,7 +154,7 @@ define(['georesolution/common',
           map.clearAnnotations();
           map.refresh();
           map.addAnnotation(annotation, context);
-          map.addSequence(annotation, previous, next);
+          map.setSequence(annotation, previous, next);
           
           if (autofit)
             map.fitToAnnotations();

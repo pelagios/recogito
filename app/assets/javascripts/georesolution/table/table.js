@@ -345,7 +345,8 @@ define(['georesolution/common', 'georesolution/details/detailsPopup', 'georesolu
       if (!dataItem)
         break;
       
-      if (dataItem.marker) {
+      var place = (dataItem.place_fixed) ? dataItem.place_fixed : dataItem.place;
+      if (place && place.coordinate) {
         if (step > 0)
           neighbours.push(dataItem);
         else 

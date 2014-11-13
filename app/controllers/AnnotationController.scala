@@ -47,10 +47,10 @@ object AnnotationController extends AbstractAnnotationController with TextAnnota
       Ok(forCtsURI(ctsURI.get)).withHeaders(CONTENT_TYPE -> "application/rdf+xml", CONTENT_DISPOSITION -> ("attachment; filename=pelagios-egd.rdf"))
     } else if (gdocPartId.isDefined) {
       val annotations = Annotations.findByGeoDocumentPart(gdocPartId.get.toInt)
-      Ok(Json.toJson(JSONSerializer.toJson(annotations)))
+      Ok(Json.toJson(new JSONSerializer().toJson(annotations)))
     } else if (gdocId.isDefined) {
       val annotations = Annotations.findByGeoDocument(gdocId.get.toInt)
-      Ok(Json.toJson(JSONSerializer.toJson(annotations)))
+      Ok(Json.toJson(new JSONSerializer().toJson(annotations)))
     } else {
       BadRequest
     }

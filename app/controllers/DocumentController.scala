@@ -98,7 +98,7 @@ object DocumentController extends Controller with Secured {
   }
       
   private def get_JSON(doc: GeoDocument)(implicit s: Session) =
-    Ok(JSONSerializer.toJson(doc, true))
+    Ok(new JSONSerializer().toJson(doc, true))
     
   def signOff(textId: Option[Int], imageId: Option[Int]) = protectedDBAction(Secure.REJECT) { username => implicit request =>
     if (textId.isDefined) {
