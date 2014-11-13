@@ -2,6 +2,9 @@ define(['georesolution/common'], function(common) {
           
   var element, map,
   
+      /** A coordinate we use to sort the result by distance **/
+      searchFocus,
+  
       /** DOM element templates **/
       searchContainer = jQuery(
         '<div id="search-input">' +
@@ -43,7 +46,33 @@ define(['georesolution/common'], function(common) {
           } else {
             allGrouped[key] = [result];
           }
-        });     
+        });    
+        
+        // All results are now in a map [ String -> Array[Result] ]
+        if (searchFocus) {
+          // We sort the result array by distance to the 'focus' coordinate, if any
+          jQuery.each(allGrouped, function(gazetteer, results) {
+            var fy = searchFocus[0] + 90, // Shift interval from [-90,90] to [0, 180]
+                fx = searchFocus[1] + 180; // Shift interval from [-180, 180] to [0, 360]
+                
+            results.sort(function(a, b) {
+              var distSqA, distSqB;
+              
+              if (a.coordinate && b.coordinate) {
+                distSqA = Math.pow(a.coordinate[0] + 90 - fy, 2) + Math.pow(a.coordinate[1] + 180 - fx, 2);
+                distSqB = Math.pow(b.coordinate[0] + 90 - fy, 2) + Math.pow(b.coordinate[1] + 180 - fx, 2);
+                
+                return distSqB < distSqA;
+              } else {
+                return 0;
+              }
+            });
+          });
+        }
+        
+        jQuery.each(allGrouped, function(gazetteer, results) {
+          console.log(results);
+        });
         
         return allGrouped
       };
@@ -193,7 +222,9 @@ define(['georesolution/common'], function(common) {
   };
   
   /** Resets the search **/
-  SearchControl.prototype.resetSearch = function(presetQuery) {
+  SearchControl.prototype.resetSearch = function(presetQuery, opt_prev_annotation) {
+    var previousPlace; 
+        
     searchInput.val(presetQuery);
     btnZoomAll.hide();
     btnClearSearch.hide();
@@ -202,6 +233,13 @@ define(['georesolution/common'], function(common) {
     resultsContainer.hide();
     resultsContainer.css('height', 'auto');
     map.setLeftPadding(0);
+    
+    if (opt_prev_annotation) {
+      previousPlace = (opt_prev_annotation.place_fixed) ? opt_prev_annotation.place_fixed : opt_prev_annotation.place;
+      if (previousPlace) {
+        searchFocus = previousPlace.coordinate;
+      }
+    }
   };
   
   return SearchControl;

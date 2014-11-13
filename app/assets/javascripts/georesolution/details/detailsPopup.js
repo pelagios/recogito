@@ -116,7 +116,8 @@ define(['georesolution/common',
         /** Open the details view with a new annotation **/
         show = function(annotation, previous, next, autofit) {
           var activeStatusButton = statusButtons[annotation.status],
-              context = new AnnotationContext(annotation);
+              context = new AnnotationContext(annotation),
+              previousTail = (previous.length > 0) ? previous[previous.length - 1] : false;
               
           currentAnnotation = annotation;
           
@@ -124,7 +125,7 @@ define(['georesolution/common',
           window.location.hash = annotation.id;
           
           // Set toponym as search term
-          searchControl.resetSearch(annotation.toponym);
+          searchControl.resetSearch(annotation.toponym, previousTail);
           
           // Populate the template
           toponym.html(annotation.toponym);
