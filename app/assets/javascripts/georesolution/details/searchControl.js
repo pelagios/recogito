@@ -54,25 +54,35 @@ define(['georesolution/common'], function(common) {
           jQuery.each(allGrouped, function(gazetteer, results) {
             var fy = searchFocus[0] + 90, // Shift interval from [-90,90] to [0, 180]
                 fx = searchFocus[1] + 180; // Shift interval from [-180, 180] to [0, 360]
-                
+            
             results.sort(function(a, b) {
               var distSqA, distSqB;
               
               if (a.coordinate && b.coordinate) {
-                distSqA = Math.pow(a.coordinate[0] + 90 - fy, 2) + Math.pow(a.coordinate[1] + 180 - fx, 2);
-                distSqB = Math.pow(b.coordinate[0] + 90 - fy, 2) + Math.pow(b.coordinate[1] + 180 - fx, 2);
-                
-                return distSqB < distSqA;
+                distSqA = Math.sqrt(Math.pow(a.coordinate[0] + 90 - fy, 2) + Math.pow(a.coordinate[1] + 180 - fx, 2));
+                distSqB = Math.sqrt(Math.pow(b.coordinate[0] + 90 - fy, 2) + Math.pow(b.coordinate[1] + 180 - fx, 2));
+                return distSqA - distSqB;
               } else {
                 return 0;
               }
             });
           });
+          
+          /*
+          jQuery.each(allGrouped, function(gazetteer, results) {
+            console.log(gazetteer + ' ####');
+            jQuery.each(results, function(idx, result) {
+              if (result.coordinate) {
+                var fy = searchFocus[0] + 90, // Shift interval from [-90,90] to [0, 180]
+                    fx = searchFocus[1] + 180, // Shift interval from [-180, 180] to [0, 360]
+                    dist = Math.sqrt(Math.pow(result.coordinate[0] + 90 - fy, 2) + Math.pow(result.coordinate[1] + 180 - fx, 2));
+                
+                console.log(result.title + ' - distance ' + dist);
+              }
+            });
+          });
+          */
         }
-        
-        jQuery.each(allGrouped, function(gazetteer, results) {
-          console.log(results);
-        });
         
         return allGrouped
       };

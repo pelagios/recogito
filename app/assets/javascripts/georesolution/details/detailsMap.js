@@ -143,7 +143,7 @@ define(['georesolution/common', 'common/map', 'georesolution/annotationContext']
     var result = locatedResults[uri], popup;
     if (result) {
       popupOptions = result.marker.getPopup().options;
-      popupOptions.autoPanPadding = [leftPadding + 5, 5, 5, 5];
+      popupOptions.autoPanPadding = [leftPadding + 5, 5, 5, 5];      
       result.marker.openPopup();
     } else {
       this.map.closePopup();
