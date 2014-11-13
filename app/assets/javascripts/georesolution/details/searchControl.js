@@ -38,10 +38,11 @@ define(['georesolution/common'], function(common) {
               key = (gazetteer) ? gazetteer : 'Other', 
               group = allGrouped[key];
           
-          if (group)
+          if (group) {
             group.push(result);
-          else
+          } else {
             allGrouped[key] = [result];
+          }
         });     
         
         return allGrouped
@@ -64,8 +65,9 @@ define(['georesolution/common'], function(common) {
     
     // Events
     searchInput.keypress(function(e) {
-      if (e.which == 13)
+      if (e.which == 13) {
         search(e.target.value.toLowerCase());
+      }
     });
     
     btnSearch.click(function() { search(searchInput.val().toLowerCase()); });
@@ -90,15 +92,17 @@ define(['georesolution/common'], function(common) {
   
   /** Shows search results **/
   SearchControl.prototype.showResults = function(results, resultsGrouped) {
-    var self = this, html = '<table>',
+    var self = this, 
+        html = '<p class="total">' + results.length + ' results</p><table>',
     
         /** A function to make the control scrollable if it exceeds the height of the map **/
         toggleScrollBarsIfNeeded = function() {
           var maxHeight = element.height() - searchContainer.outerHeight(),
               resultsHeight = resultsContainer.outerHeight();
           
-          if (resultsHeight > maxHeight)
+          if (resultsHeight > maxHeight) {
             resultsContainer.css('height', maxHeight);
+          }
         };
     
     jQuery.each(resultsGrouped, function(gazetteer, results) {
@@ -116,9 +120,10 @@ define(['georesolution/common'], function(common) {
                 '  <td></td>' +
                 '  <td colspan="2" class="names">';
                
-        if (!result.coordinate)
+        if (!result.coordinate) {
           html += '<span class="icon no-coords" title="No coordinates for this place">&#xf041;</span>';
-              
+        }
+        
         html += '    <strong title="' + common.Utils.formatGazetteerURI(result.uri) + '">' + result.title + '</strong>' +
                      common.Utils.categoryTag(result.category) + '<br/>' +
                 '    <small>' + result.names.slice(0, 8).join(', ') + '<br/>' + result.description + '</small>' +
@@ -140,10 +145,11 @@ define(['georesolution/common'], function(common) {
     // Enable checkboxes
     resultsContainer.on('click', ':checkbox', function(e) {
       var checkbox = $(this);
-      if (checkbox.is(':checked'))
+      if (checkbox.is(':checked')) {
         map.setLayerVisibility(checkbox.val(), true);
-      else
+      } else {
         map.setLayerVisibility(checkbox.val(), false);
+      }
     });
     
     // Enable mouse hover
@@ -151,8 +157,9 @@ define(['georesolution/common'], function(common) {
       var uri, tr = jQuery(e.target).closest('tr');
       if (tr) {
         uri = tr.data('uri');
-        if (uri)
+        if (uri) {
           map.selectSearchresult(uri);
+        }
       }
     });
     
@@ -163,11 +170,16 @@ define(['georesolution/common'], function(common) {
         return result.uri === uri;
       });
 
-      if (selected.length > 0)
+      if (selected.length > 0) {
         self.fireEvent('selectSearchresult', selected[0]);
+      }
     });
     
     resultsContainer.show();
+    
+    // Note: not ideal, but at least a simple policy. We set map
+    // padding as soon as we have search results
+    map.setLeftPadding(400);
   };
   
   /** Sets the focus to the search box **/
@@ -177,11 +189,6 @@ define(['georesolution/common'], function(common) {
   
   /** Sets the maximum height for the control **/
   SearchControl.prototype.setMaxHeight = function(height) {
-    var offset = searchContainer.outerHeight();
-    
-    // TODO when do we do this?    
-    map.setLeftPadding(400);
-        
     element.css('max-height', height + 'px');
   };
   
@@ -193,6 +200,8 @@ define(['georesolution/common'], function(common) {
     map.clearSearchresults();
     resultsContainer.empty();
     resultsContainer.hide();
+    resultsContainer.css('height', 'auto');
+    map.setLeftPadding(0);
   };
   
   return SearchControl;
