@@ -159,7 +159,7 @@ define(['georesolution/common',
           if (autofit)
             map.fitToAnnotations();
             
-          map.showMarker(annotation);
+          map.showPopup(annotation);
                     
           searchControl.setMaxHeight(map.height());
           searchControl.focus();
@@ -176,8 +176,8 @@ define(['georesolution/common',
         },
         
         /** Stores a correction to the gazetteer URI **/
-        correctGazetteerMapping = function(result) {
-          if (confirm('Are you sure you want to correct the mapping to ' + result.title + '?')) {            
+        correctGazetteerMapping = function(result) {          
+          if (confirm('Are you sure you want to correct the mapping to ' + result.title + '?')) {  
             currentAnnotation.place_fixed = {
               category : result.category,
               coordinate : result.coordinate,
@@ -186,7 +186,6 @@ define(['georesolution/common',
               uri : result.uri
             }
             currentAnnotation.status = 'VERIFIED';
-        
             eventBroker.fireEvent('updateAnnotation', currentAnnotation);        
             eventBroker.fireEvent('skipNext');
           }

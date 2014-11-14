@@ -5,6 +5,8 @@ import models._
 import models.content._
 import play.api.db.slick._
 import play.api.libs.json.{ Json, JsObject }
+import org.pelagios.api.gazetteer.Place
+import com.vividsolutions.jts.geom.Coordinate
 
 /** Utility object to serialize Annotation data to JSON.
   * 
@@ -88,7 +90,7 @@ class JSONSerializer extends BaseSerializer {
     * @param doc the GeoDocument
     * @param includeAnnotations whether to include the annotations in the JSON
     */  
-  def toJson(doc: GeoDocument, includeAnnotations: Boolean)(implicit session: Session): JsObject = {
+def toJson(doc: GeoDocument, includeAnnotations: Boolean)(implicit session: Session): JsObject = {
     val startTime = System.currentTimeMillis
     val annotations = if (includeAnnotations) Some(Annotations.findByGeoDocument(doc.id.get)) else None
     val parts = GeoDocumentParts.findByGeoDocument(doc.id.get)
@@ -121,7 +123,7 @@ class JSONSerializer extends BaseSerializer {
     
     result
   }
-    
+  
   /** Renders a JSON object for the place with the specified gazetteer URI **/
   private def placeUriToJson(uri: String): Option[JsObject] = {
     val place = getPlace(uri)
@@ -140,5 +142,6 @@ class JSONSerializer extends BaseSerializer {
       None
     }
   }
+
   
 }

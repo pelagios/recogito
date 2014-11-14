@@ -74,7 +74,7 @@ define(['georesolution/common', 'georesolution/details/detailsPopup', 'georesolu
         currentSelection = false;
       } else {
         currentSelection = args.rows;
-        if (args.rows.length == 1) {
+        if (args.rows.length > 0) {
           var place = self._grid.getDataItem(args.rows[0]);
           self.fireEvent('selectionChanged', args, place);
         }
@@ -345,12 +345,14 @@ define(['georesolution/common', 'georesolution/details/detailsPopup', 'georesolu
       if (!dataItem)
         break;
       
-      var place = (dataItem.place_fixed) ? dataItem.place_fixed : dataItem.place;
-      if (place && place.coordinate) {
-        if (step > 0)
-          neighbours.push(dataItem);
-        else 
-          neighbours.unshift(dataItem);
+      if (dataItem.status == 'VERIFIED' || dataItem.status == 'NOT_VERIFIED') {
+        var place = (dataItem.place_fixed) ? dataItem.place_fixed : dataItem.place;
+        if (place && place.coordinate) {
+          if (step > 0)
+            neighbours.push(dataItem);
+          else 
+            neighbours.unshift(dataItem);
+        }
       }
       
       ctr++;
