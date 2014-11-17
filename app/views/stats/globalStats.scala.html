@@ -8,6 +8,7 @@
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/numeral/numeral.min.js")"></script>   
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/timeago/jquery.timeago.js")"></script>  
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/d3/d3.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/d3/d3.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/d3/rickshaw.min.js")"></script>
   </head>
   
@@ -23,6 +24,14 @@
           <h2>Contribution Activity</h2>
           <div id="activity-timeline"></div>
         </div>
+        
+        <div class="box">
+          <h2>Annotation Progress</h2>
+          <div id="progress-history-container">
+	          <div id="y-axis"></div>
+	          <div id="progress-history"></div>
+          </div>
+        </div> <!-- .box -->
         
         <div class="box">
           <h2>Top Contributors</h2>
@@ -56,21 +65,44 @@
     <script>
       $(document).ready(function() {
         // Activity line chart
-        var data = 
+        var editHistory = 
           [@{ activityTimeline.map(record => "{ x:" + (record.timestamp.getTime / 1000 - 86400) + ", y:" + record.totalEdits + " }").mkString(",") }];
           
-        var graph = new Rickshaw.Graph({
+        var progressHistory = [
+          {
+            data: [@{ activityTimeline.init.map(record => "{ x:" + (record.timestamp.getTime / 1000 - 86400) + ", y:" + record.verifiedToponyms + " }").mkString(",") }],
+            name: 'Verified',
+            color: 'green'
+          },{
+            data: [@{ activityTimeline.init.map(record => "{ x:" + (record.timestamp.getTime / 1000 - 86400) + ", y:" + record.unidentifiableToponyms + " }").mkString(",") }],
+            name: 'Not Identifiable',
+            color: 'yellow'           
+          },{
+            data: [@{ activityTimeline.init.map(record => "{ x:" + (record.timestamp.getTime / 1000 - 86400) + ", y:" + record.unverifiedToponyms + " }").mkString(",") }],
+            name: 'Not Verified',
+            color: '#ccc'           
+          }
+        ];
+          
+        var editHistoryGaph = new Rickshaw.Graph({
           element: document.querySelector("#activity-timeline"),
           width: 900,
           height: 140,
           series: [{
-            data: data,
-            name: "Contributions"
+            data: editHistory,
+            name: 'Contributions'
           }]
         });
         
-        var hoverDetail = new Rickshaw.Graph.HoverDetail( {
-          graph: graph,
+        var progressHistoryGaph = new Rickshaw.Graph({
+          element: document.querySelector("#progress-history"),
+          width: 900,
+          height: 140,
+          series: progressHistory
+        });
+        
+        var hoverDetailEditHistory = new Rickshaw.Graph.HoverDetail( {
+          graph: editHistoryGaph,
           xFormatter: function(t) {
             var date = new Date(t * 1000);
             return date.getUTCDate() + "." + (date.getUTCMonth() + 1) + "." + date.getUTCFullYear();
@@ -78,12 +110,36 @@
           yFormatter: function(n) { return n; }
         } );
         
-        var xAxis = new Rickshaw.Graph.Axis.Time({
-          graph: graph,
+        var hoverDetailProgressHistory = new Rickshaw.Graph.HoverDetail( {
+          graph: progressHistoryGaph,
+          xFormatter: function(t) {
+            var date = new Date(t * 1000);
+            return date.getUTCDate() + "." + (date.getUTCMonth() + 1) + "." + date.getUTCFullYear();
+          },
+          yFormatter: function(n) { return n; }
+        } );
+        
+        var xAxisEditHistory = new Rickshaw.Graph.Axis.Time({
+          graph: editHistoryGaph,
           timeUnit: new Rickshaw.Fixtures.Time().unit('month')
         });
+        
+        var xAxisProgressHistory = new Rickshaw.Graph.Axis.Time({
+          graph: progressHistoryGaph,
+          timeUnit: new Rickshaw.Fixtures.Time().unit('month')
+        });
+        
+        /*
+        var yAxisProgressHistory = new Rickshaw.Graph.Axis.Y( {
+	        graph: progressHistoryGaph,
+	        orientation: 'left',
+	        element: document.getElementById('y-axis'),
+          tickFormat: function(y){return y.toPrecision(3)}
+        });
+        */
      
-        graph.render();
+        editHistoryGaph.render();
+        progressHistoryGaph.render();
          
         // Format numbers
         $.each($('.number'), function(idx, el) {

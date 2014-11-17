@@ -9,7 +9,11 @@ import scala.slick.lifted.Tag
   *
   * @author Rainer Simon <rainer.simon@ait.ac.at>
   */
-case class StatsHistoryRecord(id: Option[Int], timestamp: Timestamp, verifiedToponyms: Int, unidentifiableToponyms: Int, totalToponyms: Int, totalEdits: Int)
+case class StatsHistoryRecord(id: Option[Int], timestamp: Timestamp, verifiedToponyms: Int, unidentifiableToponyms: Int, totalToponyms: Int, totalEdits: Int) {
+  
+  lazy val unverifiedToponyms = totalToponyms - verifiedToponyms - unidentifiableToponyms
+
+}
 
 /** Global stats history database table **/
 class GlobalStatsHistory(tag: Tag) extends Table[StatsHistoryRecord](tag, "global_stats_history") {

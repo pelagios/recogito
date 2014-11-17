@@ -118,7 +118,7 @@ object StatsController extends Controller with Secured {
     
     // Get activity timeline from DB and append today's live stats
     val activityTimeline = {
-      val history = GlobalStatsHistory.listRecent(70)
+      val history = GlobalStatsHistory.listRecent(60)
       
       // Time of last history snapshot, or 24hrs if no history yet 
       val liveIntervalStart = history.reverse.headOption.map(_.timestamp).getOrElse(new Timestamp(System.currentTimeMillis - DAY_IN_MILLIS))
@@ -131,14 +131,14 @@ object StatsController extends Controller with Secured {
       history :+ StatsHistoryRecord(None, liveIntervalEnd, 0, 0, 0, liveActivity) 
     }
     
-    val scores = EditHistory.listHighscores(20)
+    val scores = EditHistory.listHighscores(10)
 
     // Edit events remain in the DB even if the annotations they refer to no longer exist.
     // The link Event-to-GeoDocument is defined through the annotation, so we only can
     // obtain GeoDocuments in case the annotation is still there.
     
     // Grab the events and (if the annotation still exists) the corresponding GDoc ID
-    val editHistory: Seq[(EditEvent, Option[Int])] = EditHistory.getMostRecent(100)
+    val editHistory: Seq[(EditEvent, Option[Int])] = EditHistory.getMostRecent(20)
 
     // Retrieve the GeoDocuments for which we have IDs
     val gdocIds = editHistory.map(_._2).filter(_.isDefined).map(_.get).distinct
