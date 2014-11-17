@@ -139,7 +139,8 @@ define(['georesolution/common',
           if (activeStatusButton)
             activeStatusButton.addClass('active');
 
-          // Text/image preview        
+          // Text/image preview    
+          contentPreview.empty();    
           context.fetchContentPreview(function(preview) {
             contentPreview.html('...' + preview.pre + '<em>' + preview.toponym + '</em>' + preview.post + '...');
           });

@@ -176,7 +176,7 @@ define(['georesolution/common'], function(common) {
     
     // Hide results and add toggle
     resultsContainer.find('.results').hide();
-    resultsContainer.find('.toggle').click(function(e) {
+    resultsContainer.find('.toggle, .gazetteer-name').click(function(e) {
       resultsContainer.css('height', 'auto');
       jQuery(this).closest('tbody').nextUntil('.group').slideToggle(300, toggleScrollBarsIfNeeded);
     });

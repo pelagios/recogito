@@ -4,6 +4,8 @@ define(['georesolution/common', 'common/map'], function(common, MapBase) {
  
     var self = this,
     
+        emphasizedMarkers = [],
+    
         setMarkerSize = function(annotation, size) {
           var marker = self.getMarkerForAnnotation(annotation);
           if (marker) {
@@ -19,6 +21,12 @@ define(['georesolution/common', 'common/map'], function(common, MapBase) {
     /****                ****/
     
     this.emphasizePlace = function(annotation) {
+      // Clear all other markers that may still be emphasized
+      jQuery.each(emphasizedMarkers, function(idx, marker) {
+        marker.setRadius(self.Styles.VERIFIED.radius);
+      });
+      emphasizedMarkers = [];
+      
       setMarkerSize(annotation, self.Styles.VERIFIED.radius * 2);
     }
 
