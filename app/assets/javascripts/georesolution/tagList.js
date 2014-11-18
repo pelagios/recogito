@@ -39,13 +39,14 @@ define(['common/hasEvents'], function(HasEvents) {
         /** Handles ENTER key on tag editor **/
         onEnter = function(newTags) {
           if (newTags.length > 0) {
+            // TODO filter out existing tags
             jQuery.each(newTags, function(idx, newTag) { 
               addTag(currentTags.length, newTag); 
               currentTags.push(newTag);
             });
             self.fireEvent('update', currentTags);
+            closeEditor();
           }
-          tagEditor = false;
         };
 
     ul = jQuery('<ul></ul>');
@@ -54,10 +55,14 @@ define(['common/hasEvents'], function(HasEvents) {
     
     btnToggleEditor.click(function(e) {
       var offset = btnToggleEditor.offset(); 
-      if (tagEditor)
-        closeEditor();
-      else
+      if (tagEditor) {
+        var tags = tagEditor.getTags();
+        if (tags.length > 0) {
+          onEnter(tags);
+        }
+      } else {
         tagEditor = new TagEditor(e.target.offsetParent, e.target.offsetTop - 5, e.target.offsetLeft + e.target.offsetWidth + 5, onEnter, closeEditor);
+      }
     });
     
     jQuery(parent).on('click', '.remove-tag', function(e) {
@@ -104,13 +109,18 @@ define(['common/hasEvents'], function(HasEvents) {
     this.element.click(function(e) { e.stopPropagation(); });
   
     var textField = this.element.find('input')[0];    
-    textField.focus()
+    textField.focus();
+    
+    this.getTags =  function() {
+      var tags = textField.value.toLowerCase().split(",");
+      return jQuery.map(tags, function(str) { return $.trim(str); });    
+    };
+    
     this.element.keydown(function(e) {
       if (e.keyCode == 13) {
         // Enter
         if (onEnter) {
-          var tags = textField.value.toLowerCase().split(",");
-          onEnter($.map(tags, function(str) { return $.trim(str); }));
+          onEnter(self.getTags());
         }
         
         self.destroy();
@@ -122,11 +132,11 @@ define(['common/hasEvents'], function(HasEvents) {
         self.destroy();
       }    
     }); 
-  }
+  };
 
   TagEditor.prototype.destroy = function() {
     $(this.element).remove(); 
-  }
+  };
 
   return TagList;
 

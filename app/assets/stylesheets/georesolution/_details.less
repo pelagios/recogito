@@ -383,6 +383,28 @@
       }
   
     } /* .quote */
+    
+    .comment {
+      border-top:1px solid #ccc;
+      padding:10px;
+      width:100%;
+      box-sizing:border-box;
+      
+      textarea {
+        box-sizing:border-box;
+        width:100%;
+        height:75px;
+        margin-right:10px;
+        outline:none;
+      }
+      
+      textarea:focus {
+        -moz-box-shadow:inset 0px 0px 5px rgba(0,0,0,0.2);
+        -webkit-box-shadow:inset 0px 0px 5px rgba(0,0,0,0.2);
+        box-shadow:inset 0px 0px 5px rgba(0,0,0,0.2);
+      }
+      
+    } /* .comment */
   
   } /* #details-popup */
   

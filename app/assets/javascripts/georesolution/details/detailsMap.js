@@ -77,6 +77,7 @@ define(['georesolution/common', 'common/map', 'georesolution/annotationContext']
         };
     
     $(mapDiv).on('click', '.gazetteer-id', function(e) {
+      e.stopPropagation();
       self.fireEvent('selectSearchresult', locatedResults[e.target.href].result);
       return false;
     });

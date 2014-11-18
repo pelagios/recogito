@@ -2,6 +2,17 @@ define(['georesolution/common'], function(common) {
   
   return {
     
+    /** Formatter for the toponym column **/
+    ToponymFormatter : function(row, cell, value, columnDef, dataContext) {
+      if (value) {
+        if (dataContext.comment) {
+          return '<span title="' + dataContext.comment + '" class="icon has-comment">&#xf075;</span>' + value;
+        } else {
+          return '<span class="icon empty"></span>' + value;
+        }
+      }
+    },
+    
     /** A cell formatter for gazetteer URIs **/
     GazeeteerURIFormatter: function(row, cell, value, columnDef, dataContext) {
       if (value) {

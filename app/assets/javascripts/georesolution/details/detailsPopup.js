@@ -36,8 +36,14 @@ define(['georesolution/common',
           '            <div class="status not-identifiable" title="Not Identifiable"><span class="icon">&#xf024;</span></div>' + 
           '            <div class="status false-detection" title="False Detection"><span class="icon">&#xf057;</span></div>' +   
           '          </div>' +
+          
           '          <p class="quote"></p>' +
-          '          <div class="tags">' +
+          
+          '          <div class="tags"></div>' +
+          
+          '          <div class="comment">' +
+          '            <textarea></textarea>' + 
+          '            <button class="button dark save-comment" type="button">Save Comment</button>' +
           '          </div>' +
           '        </div>' +
           
@@ -75,6 +81,9 @@ define(['georesolution/common',
         tagList = new TagList(element.find('.tags')),
         
         contentPreview = element.find('.quote'),
+        
+        commentField = element.find('.comment textarea'),
+        btnStoreComment = element.find('.save-comment'),
         
         /** Status: value-to-button mapping **/
         statusButtons = {
@@ -148,6 +157,13 @@ define(['georesolution/common',
           // Tag list
           tagList.show(annotation.tags);
           
+          // Comment field
+          if (annotation.comment) {
+            commentField.val(annotation.comment);
+          } else {
+            commentField.val('');
+          }
+          
           // Show popup
           element.show();
           
@@ -199,6 +215,15 @@ define(['georesolution/common',
             eventBroker.fireEvent('updateAnnotation', currentAnnotation);        
             eventBroker.fireEvent('skipNext');
           }
+        },
+        
+        /** Stores a comment update **/
+        storeComment = function(comment) {
+          var comment = commentField.val().trim();
+          if (currentAnnotation.comment != comment) {
+            currentAnnotation.comment = comment;
+            eventBroker.fireEvent('updateAnnotation', currentAnnotation);
+          }
         };
        
     eventBroker.addHandler(Events.SHOW_ANNOTATION_DETAILS, function(e) { show(e.annotation, e.previous, e.next, e.autofit); });
@@ -230,6 +255,9 @@ define(['georesolution/common',
     tagList.on('update', function(tags) {
       currentAnnotation.tags = tags;
       eventBroker.fireEvent('updateAnnotation', currentAnnotation);   
+    });
+    btnStoreComment.click(function() {
+      storeComment(commentField.val());
     });
   };
   
