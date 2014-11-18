@@ -178,17 +178,7 @@ define(['georesolution/common'], function(common) {
       resultsContainer.css('height', 'auto');
       jQuery(this).closest('tbody').nextUntil('.group').slideToggle(300, toggleScrollBarsIfNeeded);
     });
-    
-    // Enable checkboxes
-    resultsContainer.on('click', ':checkbox', function(e) {
-      var checkbox = $(this);
-      if (checkbox.is(':checked')) {
-        map.setLayerVisibility(checkbox.val(), true);
-      } else {
-        map.setLayerVisibility(checkbox.val(), false);
-      }
-    });
-    
+        
     // Enable mouse hover
     resultsContainer.on('mouseenter', 'tbody.results tr', function(e) {
       var uri, tr = jQuery(e.target).closest('tr');
@@ -202,14 +192,17 @@ define(['georesolution/common'], function(common) {
     
     // Enable gazetteer assignment on click
     resultsContainer.find('tr').click(function(e) {
-      var selected = jQuery.grep(results, function(result) {
-        var uri = jQuery(e.target).data('uri');
-        return result.uri === uri;
-      });
+      var tr = jQuery(e.target).closest('tr'),
+          selected = jQuery.grep(results, function(result) {
+            var uri = tr.data('uri');
+            return result.uri === uri;
+          });
+ 
 
       if (selected.length > 0) {
         self.fireEvent('selectSearchresult', selected[0]);
       }
+      e.stopImmediatePropagation();
     });
     
     resultsContainer.show();
