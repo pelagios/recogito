@@ -210,6 +210,8 @@ define(['georesolution/common'], function(common) {
       if (selected.length > 0) {
         self.fireEvent('selectSearchresult', selected[0]);
       }
+      
+      e.stopImmediatePropagation();
     });
     
     resultsContainer.show();
@@ -217,7 +219,6 @@ define(['georesolution/common'], function(common) {
     // Note: not ideal, but at least a simple policy. We set map
     // padding as soon as we have search results
     map.setLeftPadding(400);
-    e.stopImmediatePropagation();
   };
   
   /** Sets the focus to the search box **/
