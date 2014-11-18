@@ -4,6 +4,9 @@ define(['georesolution/common'], function(common) {
   
       /** A coordinate we use to sort the result by distance **/
       searchFocus,
+      
+      /** A flag indicating whether the search was reset in the mean time **/
+      mostRecentQuery = false,
   
       /** DOM element templates **/
       searchContainer = jQuery(
@@ -74,16 +77,21 @@ define(['georesolution/common'], function(common) {
       
       /** Fires the search request **/
       search = function(query, self, rerun_fuzzy_if_zero) {
+        var thisQuery = query;
+        
+        mostRecentQuery = query;
         map.clearSearchresults();
         jQuery.getJSON('api/search/place?query=' + query, function(response) {
-          if (rerun_fuzzy_if_zero && response.results.length === 0) {
-            search(query + '~', self);
-          } else {
-            var grouped = groupByGazetteer(response.results);
-            map.showSearchresults(grouped);
-            btnZoomAll.show();
-            btnClearSearch.show();
-            self.showResults(response.results, grouped);
+          if (thisQuery === mostRecentQuery) {
+            if (rerun_fuzzy_if_zero && response.results.length === 0) {
+              search(query + '~', self);
+            } else {
+              var grouped = groupByGazetteer(response.results);
+              map.showSearchresults(grouped);
+              btnZoomAll.show();
+              btnClearSearch.show();
+              self.showResults(response.results, grouped);
+            }
           }
         });
       };
@@ -99,8 +107,8 @@ define(['georesolution/common'], function(common) {
       }
     });
     
-    btnSearch.click(function() { search(searchInput.val().toLowerCase()); });
-    btnFuzzySearch.click(function() { search(searchInput.val().toLowerCase() +  '~'); });
+    btnSearch.click(function() { search(searchInput.val().toLowerCase(), self); });
+    btnFuzzySearch.click(function() { search(searchInput.val().toLowerCase() +  '~', self); });
     btnZoomAll.click(function() { detailsMap.fitToSearchresults(); });
     btnClearSearch.click(function() { 
       self.resetSearch(); 
@@ -226,7 +234,8 @@ define(['georesolution/common'], function(common) {
   /** Resets the search **/
   SearchControl.prototype.resetSearch = function(presetQuery, opt_prev_annotation, opt_search_immediately) {
     var previousPlace; 
-        
+    
+    mostRecentQuery = false;
     searchInput.val(presetQuery);
     btnZoomAll.hide();
     btnClearSearch.hide();
