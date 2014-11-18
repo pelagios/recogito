@@ -70,27 +70,32 @@ define(['georesolution/common'], function(common) {
         }
         
         return allGrouped
+      },
+      
+      /** Fires the search request **/
+      search = function(query, self, rerun_fuzzy_if_zero) {
+        map.clearSearchresults();
+        jQuery.getJSON('api/search/place?query=' + query, function(response) {
+          if (rerun_fuzzy_if_zero && response.results.length === 0) {
+            search(query + '~', self);
+          } else {
+            var grouped = groupByGazetteer(response.results);
+            map.showSearchresults(grouped);
+            btnZoomAll.show();
+            btnClearSearch.show();
+            self.showResults(response.results, grouped);
+          }
+        });
       };
   
   /** An overlay component for the details map to filter search results **/
   var SearchControl = function(parentEl, detailsMap) {
-    var self = this,
-        
-        search = function(query) {
-          detailsMap.clearSearchresults();
-          jQuery.getJSON('api/search/place?query=' + query, function(response) {
-            var grouped = groupByGazetteer(response.results);
-            detailsMap.showSearchresults(grouped);
-            btnZoomAll.show();
-            btnClearSearch.show();
-            self.showResults(response.results, grouped);
-          });
-        };
+    var self = this;
     
     // Events
     searchInput.keypress(function(e) {
       if (e.which == 13) {
-        search(e.target.value.toLowerCase());
+        search(e.target.value.toLowerCase(), self);
       }
     });
     
@@ -219,7 +224,7 @@ define(['georesolution/common'], function(common) {
   };
   
   /** Resets the search **/
-  SearchControl.prototype.resetSearch = function(presetQuery, opt_prev_annotation) {
+  SearchControl.prototype.resetSearch = function(presetQuery, opt_prev_annotation, opt_search_immediately) {
     var previousPlace; 
         
     searchInput.val(presetQuery);
@@ -236,6 +241,10 @@ define(['georesolution/common'], function(common) {
       if (previousPlace) {
         searchFocus = previousPlace.coordinate;
       }
+    }
+    
+    if (opt_search_immediately) {
+      search(presetQuery, this, true);
     }
   };
   

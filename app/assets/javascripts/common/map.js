@@ -282,7 +282,7 @@ define(['common/hasEvents'], function(HasEvents) {
           
           popupTimer = window.setTimeout(function() {
             markerAndAnnotations.marker.bindPopup(createPopup(place, markerAndAnnotations.annotations)).openPopup();          
-          }, 500);
+          }, 100);
         } else {
           self.map.closePopup();
         }

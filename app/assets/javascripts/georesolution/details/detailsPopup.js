@@ -134,7 +134,7 @@ define(['georesolution/common',
           window.location.hash = annotation.id;
           
           // Set toponym as search term
-          searchControl.resetSearch(annotation.toponym, previousTail);
+          searchControl.resetSearch(annotation.toponym, previousTail, true);
           
           // Populate the template
           toponym.html(annotation.toponym);
