@@ -202,6 +202,7 @@ define(['georesolution/common'], function(common) {
     
     // Enable gazetteer assignment on click
     resultsContainer.on('click', 'tbody.results tr', function(e) {
+      console.log('event!');
       e.stopPropagation();
       
       var selected = jQuery.grep(results, function(result) {
