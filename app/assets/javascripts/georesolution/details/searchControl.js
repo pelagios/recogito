@@ -201,17 +201,15 @@ define(['georesolution/common'], function(common) {
     });
     
     // Enable gazetteer assignment on click
-    resultsContainer.on('click', 'tbody.results tr', function(e) {
+    resultsContainer.find('tr').click(function(e) {
       var selected = jQuery.grep(results, function(result) {
-        var uri = jQuery(e.target).closest('tr').data('uri');
+        var uri = jQuery(e.target).data('uri');
         return result.uri === uri;
       });
 
       if (selected.length > 0) {
         self.fireEvent('selectSearchresult', selected[0]);
       }
-      
-      e.stopImmediatePropagation();
     });
     
     resultsContainer.show();
