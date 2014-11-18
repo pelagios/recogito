@@ -192,7 +192,7 @@ define(['georesolution/common',
         },
         
         /** Stores a correction to the gazetteer URI **/
-        correctGazetteerMapping = function(result) {          
+        correctGazetteerMapping = function(result) {                    
           if (confirm('Are you sure you want to correct the mapping to ' + result.title + '?')) {  
             currentAnnotation.place_fixed = {
               category : result.category,
@@ -202,8 +202,8 @@ define(['georesolution/common',
               uri : result.uri
             }
             currentAnnotation.status = 'VERIFIED';
-            eventBroker.fireEvent('updateAnnotation', currentAnnotation);        
             eventBroker.fireEvent('skipNext');
+            eventBroker.fireEvent('updateAnnotation', currentAnnotation);        
           }
         },
         
@@ -233,7 +233,10 @@ define(['georesolution/common',
     
     map = new Map(document.getElementById('details-map')); // Must be instatiated after it's part of the DOM
     searchControl = new SearchControl(element.find('#details-search'), map);
-    searchControl.on('selectSearchresult', correctGazetteerMapping);
+    searchControl.on('selectSearchresult', function(result) {
+      console.log('correcting from search');
+      correctGazetteerMapping(result);
+    });
     $(window).resize(function() { searchControl.setMaxHeight(map.height()); });
     
     jQuery(document.body).on('keyup', function(e) {
@@ -256,7 +259,10 @@ define(['georesolution/common',
     btnExit.click(hide);
     
     /** Map events **/
-    map.on('selectSearchresult', correctGazetteerMapping);
+    map.on('selectSearchresult', function(result) {
+      console.log('correcting from map');
+      correctGazetteerMapping(result);
+    });
     map.on('verify', function() { changeStatus('VERIFIED'); });
     map.on('findAlternatives', function() { search(currentAnnotation.toponym); });
     map.on('skipNext', function() { eventBroker.fireEvent('skipNext'); });

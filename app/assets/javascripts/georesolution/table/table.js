@@ -153,8 +153,10 @@ define(['georesolution/common', 'georesolution/details/detailsPopup', 'georesolu
     });
     
     eventBroker.addHandler('updateAnnotation', function(annotation) {
+      console.log('updating');
       self._grid.invalidate();
       self.fireEvent('update', annotation);
+      console.log('done updating');
     });
     
     eventBroker.addHandler('skipPrevious', function() {
@@ -165,6 +167,7 @@ define(['georesolution/common', 'georesolution/details/detailsPopup', 'georesolu
     });
     
     eventBroker.addHandler('skipNext', function() {
+      console.log('skipping to next');
       if (currentIdx < self._grid.getDataLength() - 1) {
         currentIdx += 1;
         self._openDetailsPopup(currentIdx);
