@@ -4,7 +4,7 @@ define(['georesolution/common',
         'georesolution/annotationContext',
         'georesolution/tagList'], function(common, Map, SearchControl, AnnotationContext, TagList) {
   
-  var DetailsView = function(eventBroker) {
+  var DetailsPopup = function(eventBroker) {
     var map, 
         searchControl,
         currentAnnotation,
@@ -179,7 +179,6 @@ define(['georesolution/common',
           map.showPopup(annotation);
                     
           searchControl.setMaxHeight(map.height());
-          searchControl.focus();
         },
         
         /** Close the details view **/
@@ -237,6 +236,20 @@ define(['georesolution/common',
     searchControl.on('selectSearchresult', correctGazetteerMapping);
     $(window).resize(function() { searchControl.setMaxHeight(map.height()); });
     
+    jQuery(document.body).on('keyup', function(e) {
+      var target = e.target.tagName;
+      
+      if (currentAnnotation) {
+        if (target !== 'INPUT' && target !== 'TEXTAREA') {
+          if (e.which === 37) {
+            eventBroker.fireEvent('skipPrevious');
+          } else if (e.which === 39) {
+            eventBroker.fireEvent('skipNext');
+          } 
+        }
+      }
+    });
+    
     /** Header events **/
     btnPrevious.click(function() { eventBroker.fireEvent('skipPrevious'); });
     btnNext.click(function() { eventBroker.fireEvent('skipNext'); });
@@ -261,6 +274,6 @@ define(['georesolution/common',
     });
   };
   
-  return DetailsView;
+  return DetailsPopup;
   
 });

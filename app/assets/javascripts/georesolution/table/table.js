@@ -84,6 +84,7 @@ define(['georesolution/common', 'georesolution/details/detailsPopup', 'georesolu
     // Double click -> Details popup
     this._grid.onDblClick.subscribe(function(e, args) { 
       currentIdx = args.row;
+      contextTooltip.hide();
       self._openDetailsPopup(args.row, true); 
     });  
   
@@ -417,10 +418,13 @@ define(['georesolution/common', 'georesolution/details/detailsPopup', 'georesolu
   };
 
   ContextTooltip.prototype.hide = function(id) {
-    if (id == this.currentId && this.timer) {
-      this.template.removeClass('visible');
+    if (this.timer) {
       clearTimeout(this.timer);
-      this.timer = false;
+      this.time = false;
+    }
+      
+    if (id == this.currentId) {
+      this.template.removeClass('visible');
     }
   };
 
