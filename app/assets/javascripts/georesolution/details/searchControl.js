@@ -202,9 +202,6 @@ define(['georesolution/common'], function(common) {
     
     // Enable gazetteer assignment on click
     resultsContainer.on('click', 'tbody.results tr', function(e) {
-      console.log('event!');
-      e.stopImmediatePropagation();
-      
       var selected = jQuery.grep(results, function(result) {
         var uri = jQuery(e.target).closest('tr').data('uri');
         return result.uri === uri;
@@ -220,6 +217,7 @@ define(['georesolution/common'], function(common) {
     // Note: not ideal, but at least a simple policy. We set map
     // padding as soon as we have search results
     map.setLeftPadding(400);
+    e.stopImmediatePropagation();
   };
   
   /** Sets the focus to the search box **/
