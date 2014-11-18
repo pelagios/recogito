@@ -153,10 +153,8 @@ define(['georesolution/common', 'georesolution/details/detailsPopup', 'georesolu
     });
     
     eventBroker.addHandler('updateAnnotation', function(annotation) {
-      console.log('updating');
       self._grid.invalidate();
       self.fireEvent('update', annotation);
-      console.log('done updating');
     });
     
     eventBroker.addHandler('skipPrevious', function() {

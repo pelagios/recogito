@@ -11,6 +11,7 @@ define(['georesolution/common', 'common/map'], function(common, MapBase) {
           if (marker) {
             marker.setRadius(size);
             marker.bringToFront();
+            return marker;
           }
         };
  
@@ -21,13 +22,16 @@ define(['georesolution/common', 'common/map'], function(common, MapBase) {
     /****                ****/
     
     this.emphasizePlace = function(annotation) {
+      var marker = setMarkerSize(annotation, self.Styles.VERIFIED.radius * 2);
+      
       // Clear all other markers that may still be emphasized
       jQuery.each(emphasizedMarkers, function(idx, marker) {
         marker.setRadius(self.Styles.VERIFIED.radius);
       });
       emphasizedMarkers = [];
       
-      setMarkerSize(annotation, self.Styles.VERIFIED.radius * 2);
+      if (marker)
+        emphasizedMarkers.push(marker);
     }
 
     this.deemphasizePlace = function(annotation) {

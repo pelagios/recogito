@@ -194,16 +194,19 @@ define(['georesolution/common',
         /** Stores a correction to the gazetteer URI **/
         correctGazetteerMapping = function(result) {                    
           if (confirm('Are you sure you want to correct the mapping to ' + result.title + '?')) {  
-            currentAnnotation.place_fixed = {
+            var annotation = currentAnnotation;
+            
+            annotation.place_fixed = {
               category : result.category,
               coordinate : result.coordinate,
               names : result.names,
               title : result.title,
               uri : result.uri
             }
-            currentAnnotation.status = 'VERIFIED';
+            annotation.status = 'VERIFIED';
+            
             eventBroker.fireEvent('skipNext');
-            eventBroker.fireEvent('updateAnnotation', currentAnnotation);        
+            eventBroker.fireEvent('updateAnnotation', annotation);        
           }
         },
         
@@ -233,10 +236,7 @@ define(['georesolution/common',
     
     map = new Map(document.getElementById('details-map')); // Must be instatiated after it's part of the DOM
     searchControl = new SearchControl(element.find('#details-search'), map);
-    searchControl.on('selectSearchresult', function(result) {
-      console.log('correcting from search');
-      correctGazetteerMapping(result);
-    });
+    searchControl.on('selectSearchresult', correctGazetteerMapping);
     $(window).resize(function() { searchControl.setMaxHeight(map.height()); });
     
     jQuery(document.body).on('keyup', function(e) {
@@ -259,10 +259,7 @@ define(['georesolution/common',
     btnExit.click(hide);
     
     /** Map events **/
-    map.on('selectSearchresult', function(result) {
-      console.log('correcting from map');
-      correctGazetteerMapping(result);
-    });
+    map.on('selectSearchresult', correctGazetteerMapping);
     map.on('verify', function() { changeStatus('VERIFIED'); });
     map.on('findAlternatives', function() { search(currentAnnotation.toponym); });
     map.on('skipNext', function() { eventBroker.fireEvent('skipNext'); });
