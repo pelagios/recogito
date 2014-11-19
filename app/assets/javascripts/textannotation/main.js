@@ -391,6 +391,16 @@ recogito.TextAnnotationUI.prototype.openEditor = function(title, selection, msg,
     this._editor.find('.button-ok').focus().click(function() { ok_callback(); self.closeEditor(); });
     this._editor.find('.button-cancel').click(function() { self.closeEditor(); });
     this._editor.draggable({ handle: header });
+    
+    // TODO move into view
+    var right = this._editor.width() + x,
+        // bottom = this._editor.height() + y,
+        maxRight = jQuery(document.body).width();
+        // maxBottom = jQuery(document.body).height();
+
+    if (right > maxRight) {
+      this._editor.css('left', (maxRight - this._editor.width() - 20) + 'px');
+    }
   }
 }
 
