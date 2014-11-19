@@ -1,6 +1,6 @@
 package controllers.admin
 
-import controllers.{ Secure, Secured }
+import controllers.Secured
 import controllers.common.io.{ CSVParser, ZipExporter, ZipImporter }
 import java.util.zip.ZipFile
 import models._

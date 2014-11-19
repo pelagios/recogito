@@ -84,6 +84,9 @@ POST    /recogito/admin/users/signup               controllers.admin.UserAdminCo
 DELETE  /recogito/admin/users/:username            controllers.admin.UserAdminController.deleteUser(username: String)
 GET     /recogito/admin/users                      controllers.admin.UserAdminController.listAll
 
+GET     /recogito/admin/dumps                      controllers.admin.DataDumpsController.index
+GET     /recogito/admin/dumps/places               controllers.admin.DataDumpsController.annotatedPlaces(collection: String)
+
 # Index page (available in public and private version)
 GET     /recogito/                                 controllers.ApplicationController.index(collection: Option[String])
 GET     /recogito                                  controllers.ApplicationController.index(collection: Option[String])
