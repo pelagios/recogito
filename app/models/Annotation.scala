@@ -256,9 +256,13 @@ object Annotations extends HasStatusColumn {
   }
     
   /** Get place stats (based on annotation status and gazetteer URI) for a GeoDocument **/
-  def getPlaceStats(gdocId: Int)(implicit s: Session): PlaceStats = {
+  def getPlaceStats(gdocId: Int)(implicit s: Session): PlaceStats =
+    getPlaceStats(Seq(gdocId))
+  
+  /** Get place stats (based on annotation status and gazetteer URI) for a GeoDocument **/
+  def getPlaceStats(gdocIds: Seq[Int])(implicit s: Session): PlaceStats = {
     val q = for {
-      ((gazetteerURI, toponym), count) <- query.where(_.gdocId === gdocId)
+      ((gazetteerURI, toponym), count) <- query.where(_.gdocId inSet gdocIds)
         .filter(_.status === AnnotationStatus.VERIFIED)
         .map(t => (t.correctedGazetteerURI.ifNull(t.gazetteerURI), t.correctedToponym.ifNull(t.toponym)))
         .groupBy(t => (t._1, t._2))
