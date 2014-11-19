@@ -70,7 +70,7 @@ trait TextAnnotationController extends AbstractAnnotationController {
           
         } else if (Annotations.getOverlappingAnnotations(annotation).size > 0) {
           // Annotation overlaps with existing ones - something is wrong
-          Logger.info("Overlap error: " + correctedToponym + " - " + correctedOffset + " GDoc Part: " + gdocPart.get.id)
+          Logger.info("Overlap error: " + correctedToponym + " - " + correctedOffset + " GDoc Part: " + gdocPart.map(_.id))
           Annotations.getOverlappingAnnotations(annotation).foreach(a => Logger.warn("Overlaps with " + a.uuid))
           Failure(new RuntimeException("Annotation overlaps with an existing one (details were logged)."))
           
