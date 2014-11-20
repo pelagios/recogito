@@ -281,7 +281,9 @@ define(['common/hasEvents'], function(HasEvents) {
           }
           
           popupTimer = window.setTimeout(function() {
-            markerAndAnnotations.marker.bindPopup(createPopup(place, markerAndAnnotations.annotations)).openPopup();          
+            if (markerAndAnnotations.marker.map) { // The marker may have been detached in the meantime
+              markerAndAnnotations.marker.bindPopup(createPopup(place, markerAndAnnotations.annotations)).openPopup();          
+            }
           }, 100);
         } else {
           self.map.closePopup();

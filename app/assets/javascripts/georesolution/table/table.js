@@ -182,42 +182,44 @@ define(['georesolution/common', 'georesolution/details/detailsPopup', 'georesolu
    */
   TableView.prototype._openDetailsPopup = function(idx, autofit) {
     var self = this,
+        annotation = this._grid.getDataItem(idx),
         prev2 = this.getPrevN(idx, 2),
         next2 = this.getNextN(idx, 2), 
-        Events = eventBroker.events;
-    
+        Events = eventBroker.events,
+        
+        findPreviousCorrections = function(toponym) {
+          var currentMapping = (annotation.place_fixed) ? annotation.place_fixed : annotation.place,
+              place, alternatives = [];
+              
+          if (toponym) {
+            jQuery.each(self.findByToponym(toponym), function(idx, a) {
+              // Only consider other verified annotations 
+              if (a.status === 'VERIFIED' && a.id !== annotation.id) {
+                place = (a.place_fixed) ? a.place_fixed : a.place;
+                
+                // They need to have a place mapping...
+                if (place) {
+                  // ...and it needs to differ from the current mapping
+                  if (currentMapping) {
+                    if (place.uri !== currentMapping.uri)
+                      alternatives.push(place);
+                  } else {
+                    alternatives.push(place);
+                  }
+                }
+              }
+            });
+            return alternatives;
+          }
+        };
+            
     eventBroker.fireEvent(Events.SHOW_ANNOTATION_DETAILS, {
-      annotation : self._grid.getDataItem(idx),
+      annotation : annotation,
       previous : prev2,
+      suggestions: findPreviousCorrections(annotation.toponym),
       next : next2,
       autofit : autofit
     });
-    
-    // detailsPopup.show(this._grid.getDataItem(idx), prev2, next2, baseMap);
-    /*
-    detailsPopup.on('update', function(annotation) {
-      self._grid.invalidate();
-      self.fireEvent('update', annotation);
-    });
-    
-    detailsPopup.on('skip-prev', function() {
-      if (idx > 0) {
-        popup.destroy();
-        self._openDetailsPopup(idx - 1); 
-      }
-    });
-    
-    detailsPopup.on('skip-next', function() {
-      if (idx < self._grid.getDataLength() - 1) {
-        popup.destroy();
-        self._openDetailsPopup(idx + 1);
-      }
-    });
-    
-    detailsPopup.on('baselayerchange', function(e) {
-      baseMap = e.name;
-    });
-    */
   };
 
   /**
@@ -269,6 +271,21 @@ define(['georesolution/common', 'georesolution/details/detailsPopup', 'georesolu
     if (rows.length > 0)
       this._grid.scrollRowIntoView(rows[0], true);
   };
+  
+  TableView.prototype.findByToponym = function(toponym) {
+    // Note: we could optimize with an index, but individual EGDs should be small enough
+    var size = this._grid.getDataLength();
+    var annotations = [];
+    for (var i = 0; i < size; i++) {
+      var row = this._grid.getDataItem(i);
+    
+      if (row.toponym === toponym) {
+        annotations.push(this._grid.getDataItem(i));
+      }
+    }
+    
+    return annotations;
+  };
 
   /**
    * Sets data on the backing SlickGrid DataView.  
@@ -314,7 +331,7 @@ define(['georesolution/common', 'georesolution/details/detailsPopup', 'georesolu
   TableView.prototype.getPrevN = function(idx, n)  {
     return getNeighbours(this._grid, idx, n, -1); 
   };
-
+  
   /**
    * Returns N neighbours of the annotation with the specified index, based
    * on a (positive or  negative) step value.

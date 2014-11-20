@@ -57,6 +57,21 @@ define(['georesolution/common',
           '</div>'
         ),
         
+        /** HTML template for the suggestions popup **/
+        suggestionsTemplate = 
+          '<div class="suggestions-popup">' +
+          '  <div class="header">SUGGESTION' +
+          '    <span class="exit icon" title="Close">&#xf00d;</span>' + 
+          '  </div>' +
+          '  <div class="body">' +
+          '    <p>' +
+          '      »<em class="toponym"></em>« was also mapped to:' +
+          '    </p>' +
+          '    <table class="suggestions">' + // <!-- add place info here -->
+          '    </table>' +
+          '  </div>' +
+          '</div>',
+        
         /** Events **/
         Events = eventBroker.events,
         
@@ -121,14 +136,60 @@ define(['georesolution/common',
             paragraph.html('-');
           }
         },
+        
+        /** Opens a popup dialog suggesting previous toponym->gazetteer mappings **/
+        showSuggestionDialog = function(toponym, suggestions) {
+          var popup = jQuery(suggestionsTemplate),
+              placeList = popup.find('.suggestions');
+
+          popup.find('.toponym').html(toponym);
+          jQuery.each(suggestions, function(idx, place) {
+            var html = 
+              '<tr>' +
+              '  <td class="place">' +
+              '    <strong>' + place.title + '</strong>' + common.Utils.categoryTag(place.category) +
+              '    <br/><small>' + place.names.slice(0, 8).join(', ') +
+              '    <br/>' + place.description + '</small>' +
+              '  </td>' +
+              '  <td class="confirm">' +
+              '    <div class="btn labeled" data-uri="' + place.uri + '"><span class="icon">&#xf14a;</span> Confirm</div>' +
+              '  </td>' +
+              '</tr>';
+              
+            placeList.html(html);
+          });
+          
+          popup.find('.exit').click(destroySuggestionsDialog);          
+          popup.find('.btn').click(function(e) {
+            var uri = jQuery(e.target).data('uri'),
+                suggestion = jQuery.grep(suggestions, function(s) {
+                  return s.uri === uri;
+                });
+                
+            if (suggestion && suggestion.length > 0) {
+              correctGazetteerMapping(suggestion[0]);
+            }
+          });
+          
+          jQuery(document.body).append(popup);  
+          popup.draggable({ handle: popup.find('.header') });
+        },
+        
+        /** Destroys the popup dialog **/
+        destroySuggestionsDialog = function() {
+          jQuery('.suggestions-popup').remove();
+        },
     
         /** Open the details view with a new annotation **/
-        show = function(annotation, previous, next, autofit) {
+        show = function(annotation, previous, next, suggestions, autofit) {
           var activeStatusButton = statusButtons[annotation.status],
               context = new AnnotationContext(annotation),
               previousTail = (previous.length > 0) ? previous[previous.length - 1] : false;
               
           currentAnnotation = annotation;
+
+          // If the user switches annotations without closing the dialog          
+          destroySuggestionsDialog();
           
           // Update browser URL bar
           window.location.hash = annotation.id;
@@ -179,12 +240,17 @@ define(['georesolution/common',
           map.showPopup(annotation);
                     
           searchControl.setMaxHeight(map.height());
+          
+          if (suggestions && suggestions.length > 0) {
+            showSuggestionDialog(annotation.toponym, suggestions);
+          }
         },
         
         /** Close the details view **/
         hide = function() {
           currentAnnotation = false;
           window.location.hash = '';
+          destroySuggestionsDialog();
           contentPreview.html('');    
           map.clearSearchresults();
           map.clearAnnotations();
@@ -228,7 +294,7 @@ define(['georesolution/common',
           }
         };
        
-    eventBroker.addHandler(Events.SHOW_ANNOTATION_DETAILS, function(e) { show(e.annotation, e.previous, e.next, e.autofit); });
+    eventBroker.addHandler(Events.SHOW_ANNOTATION_DETAILS, function(e) { show(e.annotation, e.previous, e.next, e.suggestions, e.autofit); });
     
     /** Create DOM elements **/        
     element.hide();
