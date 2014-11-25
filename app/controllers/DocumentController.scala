@@ -39,12 +39,18 @@ object DocumentController extends Controller with Secured {
     * @param id the document ID
     * @param the format
     */
-  def get(id: Int, format: Option[String]) = DBAction { implicit session =>
-    val doc = GeoDocuments.findById(id)
+  def get(id: String) = DBAction { implicit session =>
+    val (idInt, format) = id match {
+      case id if id.endsWith(".csv") => (id.substring(0, id.lastIndexOf(".")).toInt, CSV)
+      case id if id.endsWith(".rdf") => (id.substring(0, id.lastIndexOf(".")).toInt, RDF_XML)
+      case _ => (id.toInt, JSON)
+    }
+    
+    val doc = GeoDocuments.findById(idInt)
     if (doc.isDefined) {
-      if (format.isDefined && format.get.equalsIgnoreCase(CSV))
+      if (format.equalsIgnoreCase(CSV))
         get_CSV(doc.get)
-      else if (format.isDefined && format.get.equalsIgnoreCase(RDF_XML))
+      else if (format.equalsIgnoreCase(RDF_XML))
         get_RDF(doc.get, Scalagios.RDFXML, routes.ApplicationController.index(None).absoluteURL(false))
       else
         get_JSON(doc.get)

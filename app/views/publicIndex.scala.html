@@ -119,7 +119,7 @@
             <a class="button small" href="@routes.StatsController.showDocumentStats(entry.doc.id.get)" title="View Annotation Statistics">
               Stats
             </a>
-            <a class="button small" href="@routes.DocumentController.get(entry.doc.id.get, Some("csv"))" title="Download Data as CSV">
+            <a class="button small" href="@routes.DocumentController.get(entry.doc.id.get + ".csv")" title="Download Data as CSV">
               <span class="icon">&#xf019;</span>
             </a>
             @if(entry.firstSource.isDefined) {
