@@ -10,6 +10,7 @@ define(['imageannotation/config',
         /** Annotations **/
         annotations = new Annotations(),
         currentHighlight = false,
+        currentEdit = false,
         
         /** UI components **/
         popup = new Popup(div, eventBroker),
@@ -36,11 +37,14 @@ define(['imageannotation/config',
           ctx.strokeStyle = color;
           ctx.lineWidth = 1;
           ctx.globalAlpha = Config.MARKER_OPACITY;
-          ctx.beginPath();
-          traceRect();
-          ctx.stroke();
-          ctx.fill();
-          ctx.closePath();
+
+          if (!annotation.id || annotation.id != currentEdit.id) {
+            ctx.beginPath();
+            traceRect();
+            ctx.stroke();
+            ctx.fill();
+            ctx.closePath();
+          }
     
           // Draw rectangle outline
           ctx.globalAlpha = Config.MARKER_OPACITY * 1.5;
@@ -140,8 +144,11 @@ define(['imageannotation/config',
         
         /** Click handler that fires the 'edit' event in case we have a highlight **/
         onClick = function(e) {
-          if (currentHighlight)
+          if (currentHighlight) {
+            currentEdit = currentHighlight;
             eventBroker.fireEvent(Events.EDIT_ANNOTATION, currentHighlight);
+            layer.getSource().dispatchChangeEvent(); 
+          }
         },
         
         /** Batch-adds annotations to the view layer **/
@@ -170,7 +177,14 @@ define(['imageannotation/config',
             
     eventBroker.addHandler(Events.STORE_ANNOTATIONS_LOADED, addAnnotations);   
     eventBroker.addHandler(Events.ANNOTATION_CREATED, addAnnotations); 
-    eventBroker.addHandler(Events.ANNOTATION_UPDATED, function() { layer.getSource().dispatchChangeEvent(); });
+    eventBroker.addHandler(Events.ANNOTATION_UPDATED, function() { 
+      currentEdit = false;
+      layer.getSource().dispatchChangeEvent();
+    });
+    eventBroker.addHandler(Events.ANNOTATION_EDIT_CANCELED, function() {
+      currentEdit = false;
+      layer.getSource().dispatchChangeEvent();
+    });
     eventBroker.addHandler(Events.ANNOTATION_DELETED, removeAnnotation);
   };
    

@@ -159,6 +159,7 @@ define(['imageannotation/config', 'imageannotation/events'], function(Config, Ev
           currentAnnotation = false;
           mask.hide();
           controls.hide();
+          eventBroker.fireEvent(Events.ANNOTATION_EDIT_CANCELED);
         };
     
     // Hide editor elements

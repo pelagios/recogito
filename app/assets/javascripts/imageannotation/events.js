@@ -26,6 +26,9 @@ define([], function() {
     /** The user deleted an annotation **/
     ANNOTATION_DELETED : 'annotationDeleted',
     
+    /** Annotation editing was canceled **/
+    ANNOTATION_EDIT_CANCELED : 'annotationEditCanceled',
+    
     /** The mouse was moved over an annotation **/
     MOUSE_OVER_ANNOTATION : 'mouseOverAnnotation',
     
