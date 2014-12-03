@@ -10,8 +10,12 @@ define([], function() {
             '    <h2>Keyboard Shortcuts</h2>' +
             '    <table>' +
             '      <tr><td class="keys">SPACE</td><td>toggle between Navigation and Annotation mode</td></tr>' +
-            '      <tr><td class="keys">SHIFT+Alt</td><td>rotate the map (hold keys and drag mouse)</td></tr>' +
             '      <tr><td class="keys">ESCAPE</td><td>cancel while drawing an annotation</td></tr>' +          
+            '    </table>' +
+            '    <h2>Map Navigation</h2>' +
+            '    <table>' +
+            '      <tr><td>Hold <span class="keys">SHIFT</span></td><td>to drag a box and zoom to the area</td></tr>' +
+            '      <tr><td>Hold <span class="keys">SHIFT+Alt</span></td><td>to rotate the map around the center of the screen</td></tr>' +
             '    </table>' +
             '  </div>' +
             '</div>'),
