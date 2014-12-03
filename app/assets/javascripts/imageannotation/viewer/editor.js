@@ -1,4 +1,4 @@
-define(['imageannotation/config', 'imageannotation/events'], function(Config, Events) {
+define(['imageannotation/config', 'imageannotation/events', 'imageannotation/viewer/editorAutosuggest'], function(Config, Events, EditorAutoSuggest) {
   
   var Editor = function(parent, map, eventBroker) {    
     var currentAnnotation = false,
@@ -28,9 +28,12 @@ define(['imageannotation/config', 'imageannotation/events'], function(Config, Ev
             '    <button class="button cancel"><span class="icon">&#xf05e;</span> Cancel</button>' +
             '    <button class="button red delete"><span class="icon">&#xf00d;</span> Delete Annotation</button>' +
             '  </div>' +
+            '  <div class="autosuggest"></div>' +
             '</div>'),
         transcriptionInput = controls.find('#transcription'),
         commentInput = controls.find('#comment'),
+        
+        autoSuggest = new EditorAutoSuggest(controls.find('.autosuggest'), transcriptionInput),
         
         /** Saves the annotation to the server **/
         updateAnnotation = function() {
