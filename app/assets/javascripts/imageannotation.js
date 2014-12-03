@@ -2,7 +2,8 @@ require(['common/eventbroker',
          'imageannotation/events',
          'imageannotation/viewer/viewer', 
          'imageannotation/drawingCanvas', 
-         'imageannotation/storage'], function(EventBroker, Events, Viewer, DrawingCanvas, Storage) {
+         'imageannotation/storage',
+         'imageannotation/helpWindow'], function(EventBroker, Events, Viewer, DrawingCanvas, Storage, HelpWindow) {
       
   var eventBroker = new EventBroker(),
   
@@ -14,10 +15,14 @@ require(['common/eventbroker',
       
       /** Takes care of AJAX-communication with the backend **/      
       storage = new Storage(eventBroker),
+      
+      /** The help popup window **/
+      helpWindow = new HelpWindow(),
 
       /** Toolbar component shorthands **/
       btnNavigate   = $('.navigate'),
       btnAnnotate   = $('.annotate'),
+      btnHelp       = $('.help'),
     
       /** Switches the GUI to navigation mode **/
       switchToNavigate = function() {
@@ -31,11 +36,20 @@ require(['common/eventbroker',
         eventBroker.fireEvent(Events.SWITCH_TO_ANNOTATE);
         btnNavigate.removeClass('selected');
         btnAnnotate.addClass('selected');
+      },
+      
+      toggleHelp = function() {
+        if (helpWindow.isVisible()) {
+          helpWindow.hide();
+        } else {
+          helpWindow.show();
+        }
       };
   
   // Set up toolbar events
-  btnNavigate.click(function(e) { switchToNavigate() });
-  btnAnnotate.click(function(e) { switchToAnnotate() });
+  btnNavigate.click(switchToNavigate);
+  btnAnnotate.click(switchToAnnotate);
+  btnHelp.click(toggleHelp);
   
   // Spacebar - mode toggle
   $(document).keyup(function(e) {
