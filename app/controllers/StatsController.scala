@@ -79,15 +79,15 @@ object StatsController extends Controller with Secured {
   def showStats() = DBAction { implicit request =>
     // WARNING: hacked analytics code for Heidelberg workshop
     val cal = Calendar.getInstance()
-    cal.set(Calendar.MONTH, Calendar.OCTOBER)
-    cal.set(Calendar.DAY_OF_MONTH, 31)
+    cal.set(Calendar.MONTH, Calendar.DECEMBER)
+    cal.set(Calendar.DAY_OF_MONTH, 4)
     cal.set(Calendar.HOUR_OF_DAY, 6)
     cal.set(Calendar.MINUTE, 0)
    
     val start = cal.getTimeInMillis
-    cal.set(Calendar.MONTH, Calendar.NOVEMBER)
-    cal.set(Calendar.DAY_OF_MONTH, 1)
-    cal.set(Calendar.HOUR_OF_DAY, 9)
+    cal.set(Calendar.MONTH, Calendar.DECEMBER)
+    cal.set(Calendar.DAY_OF_MONTH, 4)
+    cal.set(Calendar.HOUR_OF_DAY, 23)
     val end = cal.getTimeInMillis
     
     val events = EditHistory.listFromToWithDocumentIDs(start, end)
