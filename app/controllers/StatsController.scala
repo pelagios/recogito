@@ -77,7 +77,7 @@ object StatsController extends Controller with Secured {
   }
   
   def showStats() = DBAction { implicit request =>
-    /* WARNING: hacked analytics code for Heidelberg workshop
+    // WARNING: hacked analytics code for Heidelberg workshop
     val cal = Calendar.getInstance()
     cal.set(Calendar.MONTH, Calendar.OCTOBER)
     cal.set(Calendar.DAY_OF_MONTH, 31)
@@ -93,13 +93,13 @@ object StatsController extends Controller with Secured {
     val events = EditHistory.listFromToWithDocumentIDs(start, end)
     Logger.info("Got " + events.size + " events")
     
-    // val users = EditAnalytics.distinctUsers(events.map(_._1))
-    // Logger.info(users.size + " users")
-    // users.foreach(u => Logger.info(u))
+    val users = EditAnalytics.distinctUsers(events.map(_._1))
+    Logger.info(users.size + " users")
+    users.foreach(u => Logger.info(u))
     
-    // val byType = EditAnalytics.groupByEventType(events.map(_._1))
-    // byType.foreach { case (typ, edits) =>
-    //  Logger.info(typ + " - " + edits.size) }
+    val byType = EditAnalytics.groupByEventType(events.map(_._1))
+    byType.foreach { case (typ, edits) =>
+    Logger.info(typ + " - " + edits.size) }
     
     val docIds = events.flatMap(_._2).distinct
     Logger.info(docIds.size + " documents")
@@ -114,7 +114,6 @@ object StatsController extends Controller with Secured {
     textDocsByLanguage.foreach { case (language, docs) => {
       Logger.info(language + " -> " + docs.size)
     }}
-    */
     
     // Get activity timeline from DB and append today's live stats
     val activityTimeline = {

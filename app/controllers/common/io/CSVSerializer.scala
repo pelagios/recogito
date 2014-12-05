@@ -74,19 +74,19 @@ class CSVSerializer extends BaseSerializer {
     * @return the CSV
     */
   def serializeAnnotationsAsDBBackup(annotations: Seq[Annotation])(implicit s: Session): String = {
-    val header = Seq("uuid", "gdoc_part", "status", "toponym", "offset", "anchor", "gazetteer_uri", "latlon", "place_category", "toponym_corrected", 
-                     "offset_corrected", "anchor_corrected", "gazetteer_uri_corrected", "latlon_corrected", "place_category_corrected", "tags", "comment", "source", "see_also")
+    val header = Seq("uuid", "gdoc_part", "status", "toponym", "offset", "anchor", "gazetteer_uri", "toponym_corrected", 
+                     "offset_corrected", "anchor_corrected", "gazetteer_uri_corrected", "tags", "comment", "source", "see_also")
                      .mkString(SEPARATOR) + SEPARATOR + "\n"
       
     annotations.foldLeft(header)((csv, annotation) => {
-      val queryResultForURI = annotation.gazetteerURI.map(uri => CrossGazetteerUtils.getPlace(uri)).flatten
-      val queryResultForCorrectedURI = annotation.correctedGazetteerURI.map(uri => CrossGazetteerUtils.getPlace(uri)).flatten
+      // val queryResultForURI = annotation.gazetteerURI.map(uri => CrossGazetteerUtils.getPlace(uri)).flatten
+      // val queryResultForCorrectedURI = annotation.correctedGazetteerURI.map(uri => CrossGazetteerUtils.getPlace(uri)).flatten
           
-      val placeCategory = queryResultForURI.map(_._1.category).flatten
-      val coordinate = queryResultForURI.map(_._2).flatten
+      // val placeCategory = queryResultForURI.map(_._1.category).flatten
+      // val coordinate = queryResultForURI.map(_._2).flatten
       
-      val correctedPlaceCategory = queryResultForCorrectedURI.map(_._1.category).flatten
-      val correctedCoordinate = queryResultForCorrectedURI.map(_._2).flatten
+      // val correctedPlaceCategory = queryResultForCorrectedURI.map(_._1.category).flatten
+      // val correctedCoordinate = queryResultForCorrectedURI.map(_._2).flatten
       
       csv + 
       annotation.uuid + SEPARATOR +
@@ -96,14 +96,10 @@ class CSVSerializer extends BaseSerializer {
       annotation.offset.getOrElse("") + SEPARATOR +
       annotation.anchor.getOrElse("") + SEPARATOR +
       annotation.gazetteerURI.map(GazetteerUtils.normalizeURI(_)).getOrElse("") + SEPARATOR +
-      coordinate.map(c => c.x + "," + c.y).getOrElse("") + SEPARATOR +
-      placeCategory.map(_.toString).getOrElse("") + SEPARATOR +
       esc(annotation.correctedToponym.getOrElse("")) + SEPARATOR +
       annotation.correctedOffset.getOrElse("") + SEPARATOR +
       annotation.correctedAnchor.getOrElse("") + SEPARATOR +
       annotation.correctedGazetteerURI.map(GazetteerUtils.normalizeURI(_)).getOrElse("") + SEPARATOR +
-      correctedCoordinate.map(c => c.x + "," + c.y).getOrElse("") + SEPARATOR +
-      correctedPlaceCategory.map(_.toString).getOrElse("") + SEPARATOR +
       esc(annotation.tags.getOrElse("")) + SEPARATOR +
       esc(annotation.comment.getOrElse("")) + SEPARATOR +
       annotation.source.getOrElse("") + SEPARATOR +
