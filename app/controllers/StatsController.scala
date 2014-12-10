@@ -77,7 +77,7 @@ object StatsController extends Controller with Secured {
   }
   
   def showStats() = DBAction { implicit request =>
-    // WARNING: hacked analytics code for Heidelberg workshop
+    /* WARNING: hacked analytics code for Heidelberg workshop
     val cal = Calendar.getInstance()
     cal.set(Calendar.MONTH, Calendar.DECEMBER)
     cal.set(Calendar.DAY_OF_MONTH, 4)
@@ -114,6 +114,7 @@ object StatsController extends Controller with Secured {
     textDocsByLanguage.foreach { case (language, docs) => {
       Logger.info(language + " -> " + docs.size)
     }}
+    */
     
     // Get activity timeline from DB and append today's live stats
     val activityTimeline = {
