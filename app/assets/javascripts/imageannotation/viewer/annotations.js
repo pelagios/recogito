@@ -12,17 +12,19 @@ define([], function() {
   var Annotations = function() { };
   
   /** Helper to compute the rectangle from an annotation geometry **/
-  Annotations.getRect = function(annotation) {     
-    var geom = annotation.shapes[0].geometry,
+  Annotations.getRect = function(annotation, opt_minheight) {     
+    var minheight = (opt_minheight) ? opt_minheight : 0,
+        geom = annotation.shapes[0].geometry,
+        height = (Math.abs(geom.h) > 1) ? geom.h : minheight, // Make sure annotation is clickable, even with null height!
         a = { x: geom.x, 
               y: geom.y },
         b = { x: a.x + Math.cos(geom.a) * geom.l,
               y: a.y - Math.sin(geom.a) * geom.l },
-        c = { x: b.x - geom.h  * Math.sin(geom.a),
-              y: b.y - geom.h * Math.cos(geom.a) },
-        d = { x: a.x - geom.h * Math.sin(geom.a),
-              y: a.y - geom.h * Math.cos(geom.a) };
-        
+        c = { x: b.x - height  * Math.sin(geom.a),
+              y: b.y - height * Math.cos(geom.a) },
+        d = { x: a.x - height * Math.sin(geom.a),
+              y: a.y - height * Math.cos(geom.a) };
+
     return [ a, b, c, d ];
   };   
   
@@ -65,7 +67,7 @@ define([], function() {
     // TODO optimize with a quadtree
     var hovered = [];
     jQuery.each(_annotations, function(idx, annotation) {
-      var rect = Annotations.getRect(annotation);
+      var rect = Annotations.getRect(annotation, 5);
       if(_intersects(x, y, rect))
         hovered.push(annotation);
     });
