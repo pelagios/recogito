@@ -91,13 +91,20 @@ define(['imageannotation/config', 'imageannotation/events'], function(Config, Ev
           
             var corr = 0;
             if (dx < 0 && dy >= 0)
-              corr = Math.PI
+              corr = Math.PI;
             else if (dx < 0 && dy < 0)
-              corr = - Math.PI
-           
+              corr = - Math.PI;
+            
             var baselineAngle = Math.atan(dy / dx) + corr;
             var baselineLength = Math.sqrt(dx * dx + dy * dy);
             var height = Math.sqrt(dh[0]*dh[0] + dh[1]*dh[1]);
+            if (corr == 0 && dh[1] < 0) {
+              height = -1 * height;
+            } else if (corr < 0 && dh[0] < 0) {
+              height = -1 * height;
+            } else if (corr > 0 && dh[0] > 0) {
+              height = -1 * height;
+            }
           
             var annotation = {
               shapes: [{ 
