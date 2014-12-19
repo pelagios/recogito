@@ -161,8 +161,13 @@ define(['georesolution/common'], function(common) {
           html += '<span class="icon no-coords" title="No coordinates for this place">&#xf041;</span>';
         }
         
-        html += '    <strong title="' + common.Utils.formatGazetteerURI(result.uri) + '">' + result.title + '</strong>' +
-                     common.Utils.categoryTag(result.category) + '<br/>' +
+        if (result.uri.indexOf('pastplace') > 0) {
+          html += '    <strong title="' + common.Utils.formatGazetteerURI(result.uri) + '">' + result.names[0] + '</strong>';
+        } else {
+          html += '    <strong title="' + common.Utils.formatGazetteerURI(result.uri) + '">' + result.title + '</strong>';
+        }
+        
+        html += common.Utils.categoryTag(result.category) + '<br/>' +
                 '    <small>' + result.names.slice(0, 8).join(', ') + '<br/>' + result.description + '</small>' +
                 '   </td>' +
                 '</tr>';

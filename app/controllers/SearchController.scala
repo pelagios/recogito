@@ -24,14 +24,26 @@ object SearchController extends Controller {
         Some(PLEIADES_PREFIX), // prefer Pleiades URIs
         Some(DARE_PREFIX),     // prefer DARE for coordinates
         Some(PLEIADES_PREFIX)) // prefer Pleiades for descriptions
-    
-    Ok(Json.obj("query" -> query, "results" -> results.map(place => Json.obj(
-        "uri" -> place.uri,
-        "title" -> place.label,
-        "names" -> Json.toJson(place.names.map(_.chars)),
-        "description" -> place.descriptions.map(_.chars).mkString(", "),
-        "category" -> place.category.map(_.toString),
-        "coordinate" -> place.getCentroid.map(coords => Json.toJson(Seq(coords.y, coords.x)))))))
+            
+    Ok(Json.obj("query" -> query, "results" -> results.map(place => {
+      
+        val namesEnDeFrEsIt = {
+          place.names.filter(_.lang == Some("eng")) ++
+          place.names.filter(_.lang == Some("deu")) ++
+          place.names.filter(_.lang == Some("fra")) ++
+          place.names.filter(_.lang == Some("spa")) ++
+          place.names.filter(_.lang == Some("ita"))
+        } map (_.chars)
+        
+        val otherNames = place.names.map(_.chars) diff namesEnDeFrEsIt
+        
+        Json.obj(
+          "uri" -> place.uri,
+          "title" -> place.label,
+          "names" -> Json.toJson(namesEnDeFrEsIt ++ otherNames), // place.names.map(_.chars)),
+          "description" -> place.descriptions.map(_.chars).mkString(", "),
+          "category" -> place.category.map(_.toString),
+          "coordinate" -> place.getCentroid.map(coords => Json.toJson(Seq(coords.y, coords.x)))) })))
   }
 
 }
