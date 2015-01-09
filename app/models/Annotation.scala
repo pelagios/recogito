@@ -6,7 +6,6 @@ import models.stats._
 import play.api.Play.current
 import play.api.db.slick.Config.driver.simple._
 import scala.slick.lifted.Tag
-import play.api.Logger
 
 /** Annotation case class.
   *  
@@ -142,7 +141,7 @@ object Annotations extends HasStatusColumn {
     else
       (a.gdocPartId, 0)
   }
-  
+
   def create()(implicit s: Session) = query.ddl.create
   
   def insert(annotation: Annotation)(implicit s: Session) = query.insert(annotation)
@@ -158,8 +157,8 @@ object Annotations extends HasStatusColumn {
     query.where(_.uuid === uuid.bind).delete
     
   /** Retrieve all annotations on a specific GeoDocument **/
-  def findByGeoDocument(id: Int)(implicit s: Session): Seq[Annotation] =
-    query.where(_.gdocId === id).list.sortBy(sortByOffset)      
+  def findByGeoDocument(id: Int)(implicit s: Session): Seq[Annotation] =    
+    query.where(_.gdocId === id).list.sortBy(sortByOffset)
   
   /** Count all annotations on a specific GeoDocument **/
   def countForGeoDocument(id: Int)(implicit s: Session): Int = 

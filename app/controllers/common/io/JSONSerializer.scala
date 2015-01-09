@@ -7,6 +7,8 @@ import play.api.db.slick._
 import play.api.libs.json.{ Json, JsObject }
 import org.pelagios.api.gazetteer.Place
 import com.vividsolutions.jts.geom.Coordinate
+import controllers.common.ImageAnnotationSorter
+import play.api.Logger
 
 /** Utility object to serialize Annotation data to JSON.
   * 
@@ -90,9 +92,22 @@ class JSONSerializer extends BaseSerializer {
     * @param doc the GeoDocument
     * @param includeAnnotations whether to include the annotations in the JSON
     */  
-def toJson(doc: GeoDocument, includeAnnotations: Boolean)(implicit session: Session): JsObject = {
+  def toJson(doc: GeoDocument, includeAnnotations: Boolean)(implicit session: Session): JsObject = {
     val startTime = System.currentTimeMillis
-    val annotations = if (includeAnnotations) Some(Annotations.findByGeoDocument(doc.id.get)) else None
+    val annotations = if (includeAnnotations) {
+      val all = Annotations.findByGeoDocument(doc.id.get)
+      
+      // Check if these are image annotations - per convention, we assume either ALL or NONE of the annotations are image annotations
+      val imageAnnotations = all.filter(a => a.anchor.isDefined || a.correctedAnchor.isDefined)
+      
+      if (imageAnnotations.isEmpty) {
+        Some(all)
+      } else {
+        Some(ImageAnnotationSorter.sortByNearestNeighbour(all))
+      }
+    } else {
+      None
+    }
     val parts = GeoDocumentParts.findByGeoDocument(doc.id.get)
     
     val result = if (parts.size == 0) {
