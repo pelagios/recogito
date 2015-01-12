@@ -33,7 +33,8 @@ define([], function() {
   }; 
   
   /** Helper function to compute the bounding box for a rectangle **/
-  var _getBBox = function(rect) {
+  Annotations.getBBox = function(annotation) {
+    var rect = Annotations.getRect(annotation, 5);
     return {
       top: Math.min(rect[0].y, rect[1].y, rect[2].y, rect[3].y),
       right: Math.max(rect[0].x, rect[1].x, rect[2].x, rect[3].x),
@@ -60,6 +61,15 @@ define([], function() {
   /** Returns all annotations **/
   Annotations.prototype.getAll = function() {
     return _annotations;
+  };
+  
+  Annotations.prototype.findById = function(id) {
+    var annotation = jQuery.grep(_annotations, function(annotation, idx) {
+      return annotation.id === id;
+    });
+    
+    if (annotation.length > 0)
+      return annotation[0];
   };
   
   /** Returns the annotations at a specifix X/Y coordinate **/

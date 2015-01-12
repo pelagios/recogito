@@ -121,6 +121,19 @@ define(['imageannotation/config',
           layer.getSource().dispatchChangeEvent();
         },
         
+        /** Pans and zooms the view to the annotation with the specified ID **/
+        moveViewToAnnotation = function(id) {
+          var annotation = annotations.findById(id), 
+              mapHeight = Config.height,
+              rect, extent;
+          
+          if (annotation) {
+            rect = Annotations.getBBox(annotation);
+            extent = [ rect.left, - rect.bottom, rect.right,  - rect.top ];
+            map.getView().fitExtent(extent, map.getSize());
+          }         
+        },
+        
         /** Handler that performs collision detection and highlighting **/
         onMouseMove = function(e) {    
           var hovered = annotations.getAnnotationsAt(e.coordinate[0], - e.coordinate[1]);
@@ -158,6 +171,17 @@ define(['imageannotation/config',
           layer.getSource().dispatchChangeEvent(); 
         },
         
+        /** If we have a specific annotation ID in the URL hash, the map should zoom there **/
+        focusAnnotation = function() {
+          var hashFragment, a;
+          
+          if (window.location.hash) {
+            // Grab the hash fragment and check if there's an annotation with that ID
+            hashFragment = window.location.hash.substring(1);
+            moveViewToAnnotation(hashFragment);
+          }
+        },
+        
         /** Removes an annotation from the view layer **/
         removeAnnotation = function(a) {
           annotations.remove(a.id);
@@ -176,6 +200,7 @@ define(['imageannotation/config',
     map.addLayer(layer);
             
     eventBroker.addHandler(Events.STORE_ANNOTATIONS_LOADED, addAnnotations);   
+    eventBroker.addHandler(Events.STORE_ANNOTATIONS_LOADED, focusAnnotation);
     eventBroker.addHandler(Events.ANNOTATION_CREATED, addAnnotations); 
     eventBroker.addHandler(Events.ANNOTATION_UPDATED, function() { 
       currentEdit = false;
