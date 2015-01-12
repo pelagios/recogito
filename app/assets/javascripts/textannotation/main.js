@@ -161,6 +161,20 @@ recogito.TextAnnotationUI = function(textDiv, textId, gdocId, opt_gdocPartId, op
   $(textDiv).mouseup(function(e) {
     window.setTimeout(function() { handleSelection(e) }, 1);    
   });
+  
+  // If we have a specific annotation ID in the URL hash, the annotation should be highlighted
+  $(document).ready(function() {
+    var hashFragment, node;
+    
+    if (window.location.hash) {
+      hashFragment = window.location.hash.substring(1);
+      node = $(self._nodeType + '[data-id="' + hashFragment + '"]');
+      if (node.length > 0) {
+        node.addClass('highlighted');
+        $('html, body').animate({ scrollTop: $(node).offset().top - ($(window).height() - $(node).outerHeight(true)) / 2 }, 200);
+      }
+    }
+  });
 }
 
 /**

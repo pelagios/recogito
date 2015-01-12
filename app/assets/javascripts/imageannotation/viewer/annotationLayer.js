@@ -173,10 +173,9 @@ define(['imageannotation/config',
         
         /** If we have a specific annotation ID in the URL hash, the map should zoom there **/
         focusAnnotation = function() {
-          var hashFragment, a;
+          var hashFragment;
           
           if (window.location.hash) {
-            // Grab the hash fragment and check if there's an annotation with that ID
             hashFragment = window.location.hash.substring(1);
             moveViewToAnnotation(hashFragment);
           }
