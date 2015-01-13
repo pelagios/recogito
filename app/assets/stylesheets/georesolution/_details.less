@@ -349,11 +349,10 @@
       } /* .statusbar */   
       
       .quote {
-        text-align:center;
         border-bottom:1px solid #ccc;
         padding:20px 15px;
-        font-size:15px;
         line-height:150%;
+        font-size:15px;
       } /* .quote */
       
     } /* .controls */
@@ -362,24 +361,36 @@
       width:100%;
       box-sizing:border-box;
       margin:0;
+      padding-bottom:10px;
       font-family:"Times New Roman", Times, serif;
+      text-align:center;
       word-wrap:break-word;
       font-style:italic;
-    
-      em {
-        background-color: #cfcfcf;
-        padding:0 2px;
-        border-bottom: 1px dotted #444;
-      }
       
-      em.verified {
-        background-color:#88ee88;
-        border-bottom-color:#339933;
-      }
+      .quote-text {
+        em {
+          background-color: #cfcfcf;
+          padding:0 2px;
+          border-bottom: 1px dotted #444;
+        }
       
-      em.not_identifyable, em.ambiguous, em.multiple, em.no_suitable_match {
-        background-color:#f2ee00;
-        border-bottom-color:#99940b;
+        em.verified {
+          background-color:#88ee88;
+          border-bottom-color:#339933;
+        }
+      
+        em.not_identifyable, em.ambiguous, em.multiple, em.no_suitable_match {
+          background-color:#f2ee00;
+          border-bottom-color:#99940b;
+        }
+      
+      } /* .quote-text */
+      
+      .quote-link {
+        padding:10px 0 0 0;
+        margin:0;
+        text-align:right;
+        font-size:13px;
       }
   
     } /* .quote */

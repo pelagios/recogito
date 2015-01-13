@@ -55,6 +55,7 @@ GET     /recogito/stats                            controllers.StatsController.s
 # Private views - TODO needs a little cleanup
 GET     /recogito/annotation/text                  controllers.ApplicationController.showTextAnnotationUI(text: Option[Int], ctsURI: Option[String])
 GET     /recogito/annotation/image/:id             controllers.ApplicationController.showImageAnnotationUI(id: Int)
+GET     /recogito/annotation/:id                   controllers.ApplicationController.showAnnotationInContext(id: String)
 GET     /recogito/georesolution                    controllers.ApplicationController.showGeoResolutionUI(doc: Int)
 
 # Admin

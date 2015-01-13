@@ -37,7 +37,10 @@ define(['georesolution/common',
           '            <div class="status false-detection" title="False Detection"><span class="icon">&#xf057;</span></div>' +   
           '          </div>' +
           
-          '          <p class="quote"></p>' +
+          '          <div class="quote">' +
+          '            <span class="quote-text"></span>' +
+          '            <p class="quote-link"><a href="#">Switch to Document</a></p>' +
+          '          </div>' +
           
           '          <div class="tags"></div>' +
           
@@ -95,7 +98,8 @@ define(['georesolution/common',
         
         tagList = new TagList(element.find('.tags')),
         
-        contentPreview = element.find('.quote'),
+        quotePreview = element.find('.quote .quote-text'),
+        quoteLink = element.find('.quote .quote-link a'),
         
         commentField = element.find('.comment textarea'),
         btnStoreComment = element.find('.save-comment'),
@@ -210,10 +214,11 @@ define(['georesolution/common',
             activeStatusButton.addClass('active');
 
           // Text/image preview    
-          contentPreview.empty();    
+          quotePreview.empty();    
           context.fetchContentPreview(function(preview) {
-            contentPreview.html('...' + preview.pre + '<em>' + preview.toponym + '</em>' + preview.post + '...');
+            quotePreview.html('...' + preview.pre + '<em>' + preview.toponym + '</em>' + preview.post + '...');
           });
+          quoteLink.attr('href', '/recogito/annotation/' + annotation.id);
           
           // Tag list
           tagList.show(annotation.tags);
@@ -251,7 +256,7 @@ define(['georesolution/common',
           currentAnnotation = false;
           window.location.hash = '';
           destroySuggestionsDialog();
-          contentPreview.html('');    
+          quotePreview.empty();    
           map.clearSearchresults();
           map.clearAnnotations();
           element.hide();          

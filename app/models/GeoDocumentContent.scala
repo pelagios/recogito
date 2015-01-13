@@ -34,4 +34,10 @@ object GeoDocumentContent {
     texts ++ images
   }
   
+  def findByGeoDocumentPart(gdocPartId: Int)(implicit session: Session): Option[GeoDocumentContent] = {
+    val text = GeoDocumentTexts.query.where(_.gdocPartId === gdocPartId).firstOption
+    val image = GeoDocumentImages.query.where(_.gdocPartId === gdocPartId).firstOption
+    text orElse image
+  }
+  
 }

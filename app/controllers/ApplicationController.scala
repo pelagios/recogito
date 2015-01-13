@@ -8,6 +8,7 @@ import play.api.Play.current
 import play.api.libs.json.Json
 import play.api.mvc.{ Action, Controller }
 import play.api.Logger
+import java.util.UUID
 
 /** Encapsulates the information shown in one row of the landing page's document index **/
 case class DocumentIndexRow(doc: GeoDocument, stats: CompletionStats, firstSource: Option[String], firstText: Option[Int], firstImage: Option[Int])
@@ -240,6 +241,33 @@ object ApplicationController extends Controller with Secured with CTSClient {
       val gdocPart = gdocImage.get.gdocPartId.flatMap(GeoDocumentParts.findById(_))
       val allImages = GeoDocumentContent.findByGeoDocument(gdoc.get.id.get)      
       Ok(views.html.imageAnnotation(gdocImage.get, gdoc.get, gdocPart, allImages, username))
+    } else {
+      NotFound
+    }
+  }
+  
+  /** A shorthand to open a document annotation view (text or image), with a specific annotation highlighted **/
+  def showAnnotationInContext(id: String) = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit request =>
+    val annotation = Annotations.findByUUID(UUID.fromString(id))
+    if (annotation.isDefined) {
+      val gdocId = annotation.get.gdocId.get
+      val gdocPartId = annotation.get.gdocPartId
+      val content = 
+        if (gdocPartId.isDefined)
+          // Content for a specific part
+          GeoDocumentContent.findByGeoDocumentPart(gdocPartId.get)
+        else
+          // Content attached DIRECTLY to a GeoDocument (not parts of it)
+          GeoDocumentContent.findByGeoDocument(gdocId).headOption.map(_._1)
+        
+      if (content.isDefined)  {
+        content.get match {
+          case c: GeoDocumentText => Redirect(controllers.routes.ApplicationController.showTextAnnotationUI(c.id, None).url + "#" + id)
+          case _: GeoDocumentImage => Ok("image")
+        }
+      } else {
+        NotFound
+      }
     } else {
       NotFound
     }
