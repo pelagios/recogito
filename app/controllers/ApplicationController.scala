@@ -263,7 +263,7 @@ object ApplicationController extends Controller with Secured with CTSClient {
       if (content.isDefined)  {
         content.get match {
           case c: GeoDocumentText => Redirect(controllers.routes.ApplicationController.showTextAnnotationUI(c.id, None).url + "#" + id)
-          case _: GeoDocumentImage => Ok("image")
+          case c: GeoDocumentImage => Redirect(controllers.routes.ApplicationController.showImageAnnotationUI(c.id.get).url + "#" + id)
         }
       } else {
         NotFound
