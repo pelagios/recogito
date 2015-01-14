@@ -11,6 +11,7 @@ import org.pelagios.api.annotation.{ AnnotatedThing, Annotation => OAnnotation, 
 import java.io.ByteArrayOutputStream
 import play.api.Logger
 import org.pelagios.api.annotation.selector.TextOffsetSelector
+import scala.io.Source
 
 /** GeoDocument JSON API.
   *
@@ -22,6 +23,9 @@ object DocumentController extends Controller with Secured {
   private val RDF_XML = "rdfxml"
   private val UTF8 = "UTF-8"
   
+  private val voidTemplate =
+    Source.fromFile("conf/void-template.ttl").getLines().takeWhile(!_.trim.startsWith(".")).mkString("\n") + "\n"
+  
   /** Returns the list of all geo documents in the database as JSON **/
   def listAll = DBAction { implicit session =>
     val documents = GeoDocuments.listAll().map(doc => Json.obj(
@@ -29,6 +33,28 @@ object DocumentController extends Controller with Secured {
       "title" -> doc.title
     ))
     Ok(Json.toJson(documents))
+  }
+  
+  def getVoID() = DBAction { implicit session =>
+    val collections = CollectionMemberships.listCollections()
+    
+    val voidHeader =
+      voidTemplate + 
+      Seq.fill[String](collections.size)("  void:subset :collection")
+        .zipWithIndex
+        .map(t => t._1 + (t._2 + 1) + ";")
+        .mkString("\n") +
+      "\n  .\n\n"
+        
+    val subsets = collections.zipWithIndex.map { case (collection, index) => {
+      ":collection" + (index + 1) + " a void:dataset;\n" +
+      "  dcterms:title \"" + collection + "\";\n" + 
+      CollectionMemberships.getGeoDocumentsInCollection(collection).map(id => {
+        "  void:dataDump <"  + routes.DocumentController.get(id + ".csv").absoluteURL(false) + ">;"
+      }).mkString("\n")
+    }}.mkString("\n  .\n\n") + "\n  ."
+      
+    Ok(voidHeader + subsets)  
   }
 
   /** Returns the data for a specific document in the specified format.
@@ -117,5 +143,5 @@ object DocumentController extends Controller with Secured {
       NotFound
     }
   }
-  
+    
 }

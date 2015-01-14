@@ -20,6 +20,7 @@ POST    /recogito/settings                         controllers.UserController.pr
 GET     /recogito/api/documents/:id                controllers.DocumentController.get(id: String)
 POST    /recogito/api/documents/signoff            controllers.DocumentController.signOff(textId: Option[Int], imageId: Option[Int])
 GET     /recogito/api/documents                    controllers.DocumentController.listAll
+GET     /recogito/void.ttl                         controllers.DocumentController.getVoID
 
 # Annotations
 GET     /recogito/api/annotations/:id              controllers.AnnotationController.get(id: java.util.UUID)

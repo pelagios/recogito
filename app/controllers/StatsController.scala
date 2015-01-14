@@ -65,7 +65,7 @@ object StatsController extends Controller with Secured {
     val byGDocAndPlace = byGDocIdAndPlaceURI.map(tuple =>
 	  ((documents.get(tuple._1._1).get, tuple._1._2), tuple._2))
         
-    Ok(views.html.stats.toponymStats(byGDocAndPlace, places))
+    Ok(views.html.stats.toponymStats(toponym, byGDocAndPlace, places))
   }
   
   /** Shows detailed stats for a specific place (= gazetteer URI) **/    

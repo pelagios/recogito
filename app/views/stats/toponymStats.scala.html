@@ -1,4 +1,4 @@
-@(stats: Seq[((GeoDocument, Option[String]), Int)], places: Map[String, org.pelagios.api.gazetteer.Place])
+@(toponym: String, stats: Seq[((GeoDocument, Option[String]), Int)], places: Map[String, org.pelagios.api.gazetteer.Place])
 <html>
   <head>
     <title>RECOGITO Toponym Stats &raquo;</title>
@@ -6,15 +6,14 @@
   
   <body>
     <div class="column">
+    <h1>@toponym</h1>
 	  <h2>By Document</h2>
 	  <table>
-	    @for((gdoc, count) <- stats.groupBy(_._1._1).toSeq
-	                            .map(t => (t._1, t._2.foldLeft(0)(_ + _._2)))
-	                                .sortBy(- _._2))  {
+	    @for((gdoc, count) <- stats.groupBy(_._1._1).toSeq.map(t => (t._1, t._2.foldLeft(0)(_ + _._2))).sortBy(- _._2))  {
 	      <tr>
-		    <td>@gdoc.title</td>
-		    <td>@count</td>
-		  </tr>
+		      <td><a href="@routes.StatsController.showDocumentStats(gdoc.id.get)">@gdoc.title</a></td>
+		      <td>@count</td>
+		    </tr>
 	    }
 	  </table>
 	  

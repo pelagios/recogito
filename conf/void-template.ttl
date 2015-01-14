@@ -1,0 +1,12 @@
+@prefix : <http://pelagios.org/recogito/> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+:pelagios3 a void:Dataset;
+  dcterms:title "Pelagios 3";
+  dcterms:publisher "Pelagios 3 Project";
+  foaf:homepage <http://pelagios-project.blogspot.co.uk>;
+  dcterms:description "Early Geospatial Documents annotated and/or made available as part of the Pelagios 3 research project, funded by the Andrew W. Mellon Foundation.";
+  dcterms:license <http://creativecommons.org/publicdomain/zero/1.0/>;
+  .
