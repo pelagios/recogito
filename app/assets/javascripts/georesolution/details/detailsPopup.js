@@ -39,7 +39,7 @@ define(['georesolution/common',
           
           '          <div class="quote">' +
           '            <span class="quote-text"></span>' +
-          '            <p class="quote-link"><a href="#">Switch to Document</a></p>' +
+          '            <p class="quote-link"><a target="_blank">Switch to Document</a></p>' +
           '          </div>' +
           
           '          <div class="tags"></div>' +
