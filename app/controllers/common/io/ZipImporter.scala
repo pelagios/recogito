@@ -133,7 +133,7 @@ object ZipImporter {
       val text = getEntry(zipFile, entryName)
       if (text.isDefined) {
         val plainText = text.get.getLines.mkString("\n")
-        RX_HTML_ENTITY.findFirstIn(plainText).map(_ => "Text " + entryName + " contains invalid characters (HTML entities are not allowed)")
+        RX_HTML_ENTITY.findFirstIn(plainText).map(error => "Text " + entryName + " contains invalid characters '" + error + "' (HTML entities are not allowed)")
       } else {
         None
       }
