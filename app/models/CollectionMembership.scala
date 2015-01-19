@@ -38,6 +38,15 @@ object CollectionMemberships {
   
   def listAll()(implicit s: Session): Seq[CollectionMembership] =
     query.list
+    
+  def repairCollectionMemperships()(implicit s: Session): Seq[Int] = {
+    val allIds = query.map(_.gdocId).list
+    val conflicts = allIds diff GeoDocuments.findByIds(allIds).flatMap(_.id)
+    
+    // Remove the entries that point to docs that are not in the database
+    query.where(_.gdocId inSet conflicts).delete
+    conflicts
+  }
   
   /** Get the collections the specified gdoc is part of **/
   def findForGeoDocument(gdocId: Int)(implicit s: Session): Seq[String] =

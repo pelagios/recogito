@@ -136,6 +136,11 @@ object Global extends GlobalSettings {
         Logger.info("CollectionStatsHistory DB table does not exist - creating")
         CollectionStatsHistory.create
       }
+      
+      // Clean up inconsistencies from the collections table
+      val conflicts = CollectionMemberships.repairCollectionMemperships()
+      if (conflicts.size > 0)
+        Logger.warn("Removed " + conflicts.size + " broken collection associations: " + conflicts.mkString(", "))
     }
     
     // Periodic stats logging
