@@ -24,7 +24,7 @@ class CSVSerializer extends BaseSerializer {
     * @param annotations the annotations
     * @return the CSV
     */
-  def serializeAnnotationsConsolidated(gdoc: GeoDocument, annotations: Seq[Annotation])(implicit s: Session): String = {
+  def serializeAnnotationsConsolidated(gdoc: GeoDocument, annotations: Seq[Annotation], includeCoordinates: Boolean = true)(implicit s: Session): String = {
     val meta = {
         Seq("title" -> gdoc.title) ++
         Seq("author" -> gdoc.author,
@@ -40,19 +40,25 @@ class CSVSerializer extends BaseSerializer {
     annotations.foldLeft(meta + "\n" + header)((csv, annotation) => {
       val uri = 
         if (annotation.status == AnnotationStatus.VERIFIED) {
-		  if (annotation.correctedGazetteerURI.isDefined && !annotation.correctedGazetteerURI.get.isEmpty)
-		    annotation.correctedGazetteerURI
-		  else
-		    annotation.gazetteerURI
-	    } else {
-		  None // We remove any existing URI in case the status is not VERIFIED
-		}
+		      if (annotation.correctedGazetteerURI.isDefined && !annotation.correctedGazetteerURI.get.isEmpty)
+		        annotation.correctedGazetteerURI
+		      else
+		        annotation.gazetteerURI
+	      } else {
+		      None // We remove any existing URI in case the status is not VERIFIED
+		  }
+      
       val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
       
-      val queryResult = uri.flatMap(CrossGazetteerUtils.getPlace(_))
-      val category = queryResult.flatMap(_._1.category)
-      val coord = queryResult.flatMap(_._2)
-        
+      val (category, coord) = {
+        if (includeCoordinates) {
+          val queryResult = uri.flatMap(CrossGazetteerUtils.getPlace(_))
+          (queryResult.flatMap(_._1.category), queryResult.flatMap(_._2))
+        } else {
+          (None, None)
+        }
+      }
+      
       csv + 
       esc(toponym.getOrElse("")) + SEPARATOR + 
       uri.map(uri => GazetteerUtils.normalizeURI(uri)).getOrElse("") + SEPARATOR + 

@@ -12,6 +12,7 @@ import java.io.ByteArrayOutputStream
 import play.api.Logger
 import org.pelagios.api.annotation.selector.TextOffsetSelector
 import scala.io.Source
+import play.api.mvc.AnyContent
 
 /** GeoDocument JSON API.
   *
@@ -50,7 +51,7 @@ object DocumentController extends Controller with Secured {
       ":collection" + (index + 1) + " a void:dataset;\n" +
       "  dcterms:title \"" + collection + "\";\n" + 
       CollectionMemberships.getGeoDocumentsInCollection(collection).map(id => {
-        "  void:dataDump <"  + routes.DocumentController.get(id + ".csv").absoluteURL(false) + ">;"
+        "  void:dataDump <"  + routes.DocumentController.get(id + ".csv").absoluteURL(false) + "?nocoords=true>;"
       }).mkString("\n")
     }}.mkString("\n  .\n\n") + "\n  ."
       
@@ -86,7 +87,7 @@ object DocumentController extends Controller with Secured {
     }
   }
   
-  private def get_CSV(doc: GeoDocument)(implicit session: Session) = {
+  private def get_CSV(doc: GeoDocument)(implicit session: DBSessionRequest[_]) = {
     val id = doc.id.get
     val annotations = Annotations.findByGeoDocumentAndStatus(id, 
       AnnotationStatus.VERIFIED, 
@@ -95,12 +96,16 @@ object DocumentController extends Controller with Secured {
       AnnotationStatus.MULTIPLE,
       AnnotationStatus.NOT_IDENTIFYABLE)
       
+    val excludeCoordinates = session.request.queryString
+      .filter(_._1.toLowerCase.equals("nocoords"))
+      .headOption.flatMap(_._2.headOption.map(_.toBoolean)).getOrElse(false)
+      
     val serializer = new CSVSerializer()
     
     def escapeTitle(title: String) = 
       title.replace(" ", "_").replace(",", "_")
     
-    Ok(serializer.serializeAnnotationsConsolidated(doc, annotations))
+    Ok(serializer.serializeAnnotationsConsolidated(doc, annotations, !excludeCoordinates))
       .withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=" + escapeTitle(doc.title) + doc.language.map("_" + _).getOrElse("") + ".csv"))
   }
   
