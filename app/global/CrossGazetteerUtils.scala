@@ -21,11 +21,17 @@ object CrossGazetteerUtils {
     } else {
       // We use DARE coordinates if we have them
       val coordinate = place.map(place => {
-        val dareEquivalent = Global.index.getNetwork(place).places.filter(_.uri.startsWith(DARE_PREFIX))
+        val network = Global.index.getNetwork(place).places
+        val dareEquivalent = network.filter(_.uri.startsWith(DARE_PREFIX))
         if (dareEquivalent.size > 0) {
           dareEquivalent(0).getCentroid
         } else {
-          place.getCentroid
+          if (place.getCentroid.isDefined) {
+            place.getCentroid
+          } else {
+            // Or ANY in the network if neither DARE nor the original place has one
+            network.flatMap(_.getCentroid).headOption
+          }
         }
       }).flatten
     
