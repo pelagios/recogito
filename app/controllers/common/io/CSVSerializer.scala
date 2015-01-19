@@ -5,6 +5,7 @@ import models._
 import org.pelagios.gazetteer.GazetteerUtils
 import play.api.db.slick._
 import models.StatsHistoryRecord
+import controllers.common.ImageAnchor
 
 /** Utility object to serialize Annotation data to CSV.
   * 
@@ -34,8 +35,8 @@ class CSVSerializer extends BaseSerializer {
             "description" -> gdoc.description,
             "external ID" -> gdoc.externalWorkID).filter(_._2.isDefined).map(tuple => (tuple._1, tuple._2.get))
       }.map(tuple => "# " + tuple._1 + ": " + tuple._2).mkString("\n")
-    
-    val header = Seq("toponym","gazetteer_uri","lat","lng", "place_category", "document_part", "status", "tags", "source").mkString(SEPARATOR) + SEPARATOR + "\n"
+      
+    val header = Seq("toponym","gazetteer_uri","lat","lng", "place_category", "document_part", "status", "tags", "source", "img_x", "img_y").mkString(SEPARATOR) + SEPARATOR + "\n"
     
     annotations.foldLeft(meta + "\n" + header)((csv, annotation) => {
       val uri = 
@@ -59,6 +60,16 @@ class CSVSerializer extends BaseSerializer {
         }
       }
       
+      val imgCoord = {
+        val anchorJson = if (annotation.correctedAnchor.isDefined) annotation.correctedAnchor else annotation.anchor
+        if (anchorJson.isDefined) {
+          val anchor = new ImageAnchor(anchorJson.get)
+          Some((anchor.x, anchor.y))
+        } else {
+          None
+        }
+      }
+      
       csv + 
       esc(toponym.getOrElse("")) + SEPARATOR + 
       uri.map(uri => GazetteerUtils.normalizeURI(uri)).getOrElse("") + SEPARATOR + 
@@ -68,7 +79,9 @@ class CSVSerializer extends BaseSerializer {
       annotation.gdocPartId.map(getPart(_).map(_.title)).flatten.getOrElse("") + SEPARATOR +
       annotation.status.toString + SEPARATOR + 
       { if (annotation.tags.size > 0) "\"" + annotation.tags.mkString(",") + "\"" else "" } + SEPARATOR + 
-      getSourceForAnnotation(annotation).getOrElse("") + SEPARATOR + "\n"
+      getSourceForAnnotation(annotation).getOrElse("") + SEPARATOR +
+      imgCoord.map(_._1).getOrElse("") + SEPARATOR +
+      imgCoord.map(_._2).getOrElse("") + SEPARATOR + "\n"
     })
   }
   
@@ -84,16 +97,7 @@ class CSVSerializer extends BaseSerializer {
                      "offset_corrected", "anchor_corrected", "gazetteer_uri_corrected", "tags", "comment", "source", "see_also")
                      .mkString(SEPARATOR) + SEPARATOR + "\n"
       
-    annotations.foldLeft(header)((csv, annotation) => {
-      // val queryResultForURI = annotation.gazetteerURI.map(uri => CrossGazetteerUtils.getPlace(uri)).flatten
-      // val queryResultForCorrectedURI = annotation.correctedGazetteerURI.map(uri => CrossGazetteerUtils.getPlace(uri)).flatten
-          
-      // val placeCategory = queryResultForURI.map(_._1.category).flatten
-      // val coordinate = queryResultForURI.map(_._2).flatten
-      
-      // val correctedPlaceCategory = queryResultForCorrectedURI.map(_._1.category).flatten
-      // val correctedCoordinate = queryResultForCorrectedURI.map(_._2).flatten
-      
+    annotations.foldLeft(header)((csv, annotation) => {      
       csv + 
       annotation.uuid + SEPARATOR +
       annotation.gdocPartId.map(getPart(_).map(_.title)).flatten.getOrElse("") + SEPARATOR +
