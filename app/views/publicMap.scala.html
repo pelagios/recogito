@@ -1,4 +1,4 @@
-@(doc: models.GeoDocument)
+@(doc: models.GeoDocument, source: Option[String])
 <html>
   <head>
     <title>PELAGIOS Geo-Resolution Correction Tool</title>
@@ -20,6 +20,9 @@
     <div id="meta" class="overlay">
       <h1>@doc.author.map(_ + ": ").getOrElse("") @doc.title @doc.dateComment.map("(" + _ + ")").getOrElse("")</h1>
       @Html(doc.description.map("<p>" + _ + "</p>").getOrElse(""))
+      @if(source.isDefined) {
+        <a href="@source" target="_blank">Visit Source</a>
+      }
     </div>
     <div id="beta-badge" class="overlay">BETA!</div>
   </body>

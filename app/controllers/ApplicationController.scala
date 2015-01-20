@@ -104,10 +104,17 @@ object ApplicationController extends Controller with Secured with CTSClient {
     */  
   def showMap(doc: Int) = DBAction { implicit rs =>
     val document = GeoDocuments.findById(doc)
-    if (document.isDefined)
-      Ok(views.html.publicMap(document.get))
-    else
+    if (document.isDefined) {
+      val source = {
+        if (document.get.source.isDefined)
+          document.get.source
+        else
+          GeoDocumentParts.findByGeoDocument(doc).flatMap(_.source).headOption
+      }
+      Ok(views.html.publicMap(document.get, source))
+    } else {
       NotFound
+    }
   }
   
   def showImage(id: Int) = DBAction { implicit rs =>
