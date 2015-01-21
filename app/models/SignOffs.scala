@@ -33,18 +33,24 @@ class SignOffs(tag: Tag) extends Table[SignOff](tag, "signoffs") {
 
 object SignOffs {
   
-  private val query = TableQuery[SignOffs]
+  private[models] val query = TableQuery[SignOffs]
   
   def create()(implicit s: Session) = query.ddl.create
   
   def deleteForGeoDocumentText(gdocId: Int)(implicit s: Session) =
     query.where(_.gdocTextId === gdocId).delete
-  
+      
   def countForGeoDocumentText(id: Int)(implicit s: Session): Int =
     Query(query.where(_.gdocTextId === id).length).first
     
+  def countForGeoDocumentTexts(ids: Seq[Int])(implicit s: Session): Map[Int, Int] =
+    query.where(_.gdocTextId inSet ids).groupBy(_.gdocTextId).map(row => (row._1, row._2.length)).list.toMap
+    
   def countForGeoDocumentImage(id: Int)(implicit s: Session): Int =
     Query(query.where(_.gdocImageId === id).length).first
+
+  def countForGeoDocumentImages(ids: Seq[Int])(implicit s: Session): Map[Int, Int] =
+    query.where(_.gdocImageId inSet ids).groupBy(_.gdocImageId).map(row => (row._1, row._2.length)).list.toMap
     
   def findForGeoDocumentText(id: Int)(implicit s: Session): Seq[(String, Timestamp)] =
     query.where(_.gdocTextId === id).map(row => (row.username, row.timestamp)).list

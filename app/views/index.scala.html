@@ -110,7 +110,15 @@
           <td class="center">@tags.languageLabel(entry.doc.language)</td>
                 
           <!-- # of toponyms -->
-          <td class="center">@entry.stats.total</td>     
+          <td class="center">
+            @if(entry.signOffRatio == 0) {
+              <span class="red" title="This Document is not signed off">@entry.stats.total</span>
+            } else { @if(entry.signOffRatio < 1) {
+              <span class="orange" title="Parts of this Document are not signed off">@entry.stats.total</span>
+            } else {
+              @entry.stats.total
+            }}
+          </td>     
                
           <!-- completion ratio --> 
           <td class="stats" title="@{ "%.2f" format (entry.stats.percentComplete * 100) } % Complete">

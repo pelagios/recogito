@@ -11,7 +11,7 @@ import play.api.Logger
 import java.util.UUID
 
 /** Encapsulates the information shown in one row of the landing page's document index **/
-case class DocumentIndexRow(doc: GeoDocument, stats: CompletionStats, firstSource: Option[String], firstText: Option[Int], firstImage: Option[Int])
+case class DocumentIndexRow(doc: GeoDocument, stats: CompletionStats, firstSource: Option[String], firstText: Option[Int], firstImage: Option[Int], signOffRatio: Double)
 
 /** Main application entrypoint.
   *
@@ -71,6 +71,9 @@ object ApplicationController extends Controller with Secured with CTSClient {
       val parts: Map[Int, Seq[GeoDocumentPart]] =
         GeoDocumentParts.findByIds(ids)
 
+      val textSignOffs = SignOffs.countForGeoDocumentTexts(gdocsWithcontent.flatMap(_._2))
+      val imageSignOffs = SignOffs.countForGeoDocumentImages(gdocsWithcontent.flatMap(_._2))
+
       // Merge docs, stats & first content IDs to form the 'index row'
       val indexRows = gdocsWithcontent.map { case (gdoc, texts, images) => {
         val firstSource =
@@ -79,7 +82,21 @@ object ApplicationController extends Controller with Secured with CTSClient {
           else
             parts.get(gdoc.id.get).flatMap(_.filter(_.source.isDefined).headOption).flatMap(_.source)
         
-        DocumentIndexRow(gdoc, stats.get(gdoc.id.get).getOrElse(CompletionStats.empty), firstSource, texts.headOption, images.headOption)
+        val signedTexts = textSignOffs.filter { case (id, numberOfSignOffs) => texts.contains(id) }.size
+        val signedImages = imageSignOffs.filter { case (id, numberOfSignOffs) => images.contains(id) }.size
+        val signOffRatio =
+          if ((texts.size  + images.size) == 0)
+            1.0
+          else
+            (signedTexts + signedImages).toDouble / (texts.size +  images.size)
+        
+        DocumentIndexRow(
+          gdoc, 
+          stats.get(gdoc.id.get).getOrElse(CompletionStats.empty), 
+          firstSource, 
+          texts.headOption, 
+          images.headOption,
+          signOffRatio)
       }}
                   
       // The information require for the collection selection widget
