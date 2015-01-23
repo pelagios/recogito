@@ -173,13 +173,24 @@
 
           <!-- # of toponyms -->
           @defining((entries.map(_.stats.total).min, entries.map(_.stats.total).max)) { toponyms =>
-            <td class="center">
-              @if(toponyms._1 == toponyms._2) {
-                @toponyms._1	
-              } else {
-                @toponyms._1 - @toponyms._2
-              }
-            </td>
+            @defining(entries.map(_.signOffRatio).sum / entries.size) { signOffRatio =>
+              <td class="center">
+                @if(signOffRatio == 0) { 
+                  <span class="red" title="This Document is not signed off"> 
+                } else { @if(signOffRatio < 1) {
+                  <span class="orange" title="Parts of this Document are not signed off"> 
+                } else { 
+                  <span> 
+                } }
+                
+                  @if(toponyms._1 == toponyms._2) {
+                    @toponyms._1	
+                  } else {
+                    @toponyms._1 - @toponyms._2
+                  }
+                </span>
+              </td>
+            }
           }     
           
           <!-- completion ratio -->
