@@ -3,6 +3,7 @@ define(['imageannotation/config', 'imageannotation/events'], function(Config, Ev
   var Storage = function(eventBroker) {
 	  
     var STORE_URI = '/recogito/api/annotations',
+        SIGNOFF_URI = '/recogito/api/documents/signoff?imageId=' + Config.image_id,
         GDOC_ID = Config.gdoc_id,
         GDOC_PART_ID = Config.gdoc_part_id,
         
@@ -56,6 +57,20 @@ define(['imageannotation/config', 'imageannotation/events'], function(Config, Ev
           })
         },
         
+        /** Signs off the image **/
+        toggleSignOff = function() {
+          $.ajax({
+            url: SIGNOFF_URI,
+            type: 'POST',
+            success: function(result) {
+              eventBroker.fireEvent(Events.SIGNOFF_CALLBACK, result);
+            },
+            error: function(result) {
+              console.log('ERROR signing off image!');
+            }
+          });   
+        },
+        
         /** Loads all annotations from the server **/
         loadAll = function() {
           var params = (GDOC_PART_ID) ? '?gdocPart=' + GDOC_PART_ID : '?gdoc=' + GDOC_ID;
@@ -67,6 +82,7 @@ define(['imageannotation/config', 'imageannotation/events'], function(Config, Ev
     eventBroker.addHandler(Events.ANNOTATION_CREATED, storeAnnotation);
     eventBroker.addHandler(Events.ANNOTATION_UPDATED, updateAnnotation);
     eventBroker.addHandler(Events.ANNOTATION_DELETED, deleteAnnotation);
+    eventBroker.addHandler(Events.TOGGLE_SIGNOFF, toggleSignOff);
   };
   
   return Storage;

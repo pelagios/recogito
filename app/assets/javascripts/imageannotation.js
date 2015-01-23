@@ -22,6 +22,7 @@ require(['common/eventbroker',
       /** Toolbar component shorthands **/
       btnNavigate   = $('.navigate'),
       btnAnnotate   = $('.annotate'),
+      btnSignOff    = $('.signoff'),
       btnHelp       = $('.help'),
     
       /** Switches the GUI to navigation mode **/
@@ -49,6 +50,7 @@ require(['common/eventbroker',
   // Set up toolbar events
   btnNavigate.click(switchToNavigate);
   btnAnnotate.click(switchToAnnotate);
+  btnSignOff.click(function(e) { eventBroker.fireEvent(Events.TOGGLE_SIGNOFF); });  
   btnHelp.click(toggleHelp);
   
   // Spacebar - mode toggle
@@ -61,6 +63,31 @@ require(['common/eventbroker',
         switchToNavigate();
       else
         switchToAnnotate();
+    }
+  });
+
+  // Update UI on successful signoff-status changes
+  eventBroker.addHandler(Events.SIGNOFF_CALLBACK, function(response) {
+    var signedOff = response.signed_off,
+        icon = btnSignOff.find('.icon'),
+        counter = btnSignOff.find('.signoff-count'),
+        count = parseInt(counter.text());
+        
+    if (response.success) {
+      if (signedOff) {
+        icon.addClass('signed');
+        icon.attr('title', 'You signed off this image');
+        counter.addClass('signed');
+        counter.html(count + 1);
+        counter.attr('title', (count + 1) + ' people have signed off this image');
+      } else {
+        icon.removeClass('signed');
+        icon.attr('title', 'Do you think this image is complete? Click to sign it off!');
+        if (count < 2)
+          counter.removeClass('signed');
+        counter.html(count - 1);
+        counter.attr('title', (count - 1) + ' people have signed off this image');          
+      }      
     }
   });
 

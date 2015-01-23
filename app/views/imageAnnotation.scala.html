@@ -2,7 +2,8 @@
   gdoc: GeoDocument,
   gdocPart: Option[GeoDocumentPart],
   allImages: Seq[(GeoDocumentContent, Option[String])],
-  username: String)(implicit request: RequestHeader)
+  username: String,
+  signedOff: Boolean, signedBy: Seq[String])(implicit request: RequestHeader)
 
 <!DOCTYPE html>
 <html>
@@ -24,6 +25,7 @@
         'width': @image.width,
         'height': @image.height,
         'url': '@{ global.Global.uploadBaseURL + image.path }',
+        'image_id': @image.id,
         'gdoc_id': @gdoc.id,
         'gdoc_part_id': @gdocPart.map(_.id.get).getOrElse("null")       
       };
@@ -80,6 +82,16 @@
         <div class="tool annotate" title="Annotate Image">
           <span class="icon">&#xf040;</span>
         </div>   
+        
+        <div class="tool signoff">
+          @if(signedOff) {
+            <span class="icon signed" title="You signed off this image">&#xf164;</span>
+            <span class="signoff-count signed" title="@signedBy.size people have signed off this image">@signedBy.size</span>
+          } else {
+            <span class="icon" title="Are you done transcribing toponyms on this image? Click to sign it off!">&#xf164;</span>
+            <span class="signoff-count@{ if (signedBy.size > 0)  " signed"}" title="@signedBy.size people have signed off this image">@signedBy.size</span>
+          }
+        </div>  
         
         <div class="tool help" title="Help">
           <span class="icon">&#xf059;</span>

@@ -72,7 +72,7 @@ object ApplicationController extends Controller with Secured with CTSClient {
         GeoDocumentParts.findByIds(ids)
 
       val textSignOffs = SignOffs.countForGeoDocumentTexts(gdocsWithcontent.flatMap(_._2))
-      val imageSignOffs = SignOffs.countForGeoDocumentImages(gdocsWithcontent.flatMap(_._2))
+      val imageSignOffs = SignOffs.countForGeoDocumentImages(gdocsWithcontent.flatMap(_._3))
 
       // Merge docs, stats & first content IDs to form the 'index row'
       val indexRows = gdocsWithcontent.map { case (gdoc, texts, images) => {
@@ -264,7 +264,9 @@ object ApplicationController extends Controller with Secured with CTSClient {
       val gdoc = GeoDocuments.findById(gdocImage.get.gdocId)
       val gdocPart = gdocImage.get.gdocPartId.flatMap(GeoDocumentParts.findById(_))
       val allImages = GeoDocumentContent.findByGeoDocument(gdoc.get.id.get)      
-      Ok(views.html.imageAnnotation(gdocImage.get, gdoc.get, gdocPart, allImages, username))
+      val signOffs = SignOffs.findForGeoDocumentImage(gdocImage.get.id.get).map(_._1)
+      
+      Ok(views.html.imageAnnotation(gdocImage.get, gdoc.get, gdocPart, allImages, username, signOffs.contains(username), signOffs))
     } else {
       NotFound
     }

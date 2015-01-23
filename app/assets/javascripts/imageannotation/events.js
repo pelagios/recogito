@@ -14,6 +14,12 @@ define([], function() {
     /** Toolbar: the users activated annotation mode **/
     SWITCH_TO_ANNOTATE : 'switchToAnnotate',
     
+    /** Toolbar: the users toggled the signoff status **/
+    TOGGLE_SIGNOFF: 'toggleSignOff',
+    
+    /** Callback event for signoff changes **/
+    SIGNOFF_CALLBACK: 'signOffCallback',
+    
     /** The users selected an annotation to edit **/
     EDIT_ANNOTATION : 'editAnnotation',
 
@@ -46,7 +52,7 @@ define([], function() {
     
     /** The storage encountered an error while deleting an annotation **/
     STORE_DELETE_ERROR : 'deleteError'
-    
+        
   };
     
 });
