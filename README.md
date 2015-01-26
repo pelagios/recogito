@@ -2,13 +2,17 @@
 
 A Web-based tool for geo-annotating texts and/or validating the results of automated geo-parsing. You can read an introduction
 to Recogito on the Pelagios project blog [here](http://pelagios-project.blogspot.co.at/2014/01/from-bordeaux-to-jerusalem-and-back.html) and
-[here](http://pelagios-project.blogspot.co.at/2014/01/theres-pliny-of-room-at-bottom-1.html).
+[here](http://pelagios-project.blogspot.co.at/2014/01/theres-pliny-of-room-at-bottom-1.html). A beginner's tutorial that explains how
+to use Recogito is available [here](http://pelagios.org/recogito/docs).
 
 ## Installation
 
+If you want to set up your own copy of Recogito, here's what you need to do:
+
 * Recogito requires Java 1.7 installed on your machine.
 * Install the [Play Framework v2.2.2](http://www.playframework.com/download). This should normally be a matter of downloading and unzipping the
-  _classic_ distribution. (No need to use the version packaged with the _Typesafe Activator_.)
+  _classic_ distribution. (No need to use the version packaged with the _Typesafe Activator_.) Be sure, __not__ to use a new version of Play,
+  since the framework introduced some breaking changes in v2.3.
 * Recogito depends on the _scalagios-core_ and _scalagios-gazetteer_ utility libraries from the [Scalagios](http://github.com/pelagios/scalagios)
   project. These are not yet available through a Maven repository. You need to add them manually to a `lib` folder in the `recogito` root folder.
   Build them from source using these [instructions](http://github.com/pelagios/scalagios), or drop us a line via 
@@ -20,7 +24,7 @@ to Recogito on the Pelagios project blog [here](http://pelagios-project.blogspot
 * Go to [http://localhost:9000/recogito](http://localhost:9000/recogito) (change the port number accordingly if you're running on a custom port).
   You should see the Recogito landing page, with a login button.
 
-## Importing Documents
+## Importing Text Documents
 
 To work with Recogito, you first need to import data. When starting up with an empty database, Recogito will automatically create a single user with 
 admin rights. Log in with this user (username = admin, password = admin) and go to the 'Administration' section. You should see an "Upload" button
@@ -60,6 +64,12 @@ The contents of the file `isidore.json` should look like this:
 
 The ZIP file can also contain data for multiple documents. In this case, each document must be defined in its own JSON file.
 
+## Importing Image Documents
+
+Recogito also works with high-resolution images. Ideally, these should be converted to [Zoomify](http://www.zoomify.com/) format.
+We are still working on proper support for easy conversion and upload. If you want to annotate images with your own
+copy of Recogito, we ask you to please get in touch with us for detailed info.
+
 ## Importing Annotations
 
 You can import annotations as CSV files. E.g. if you want to upload automatically generated annotations before you start 
@@ -79,6 +89,13 @@ Book IX;NOT_VERIFIED;Salii;2371;http://pleiades.stoa.org/places/99034;
 
 If the annotations pertain to a document that has parts, the ``gdoc_part`` column must match the name of the part. The other
 columns match with the fields in the Recogito data model, and are (generally) optional.
+
+## Some Known Issues
+
+* In the text annotation view, it is currently not possible to demarcate a toponym that crosses a forced line break, i.e.
+  a line break that is part of the source text. (Normal line wraps due to limited browser window width are not a problem.)
+* The image annotation view sometimes fails to load the image. We're investigating this issue. In the mean time, bear with us,
+  and refresh the page.
 
 ## Hacking on Recogito
 

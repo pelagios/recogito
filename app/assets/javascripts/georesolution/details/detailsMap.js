@@ -124,7 +124,8 @@ define(['georesolution/common', 'common/map', 'georesolution/annotationContext']
         var marker;
       
         if (result.coordinate) {
-          marker = L.marker(result.coordinate);
+          marker = L.marker(result.coordinate);            
+          // marker = L.geoJson({ 'type': 'Feature', 'geometry': result.geometry });
           marker.bindPopup(
             '<div class="search-result-popup">' + 
             '  <strong>' + result.title + '</strong>' + common.Utils.categoryTag(result.category) +

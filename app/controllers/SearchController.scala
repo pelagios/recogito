@@ -43,6 +43,7 @@ object SearchController extends Controller {
           "names" -> Json.toJson(namesEnDeFrEsIt ++ otherNames), // place.names.map(_.chars)),
           "description" -> place.descriptions.map(_.chars).mkString(", "),
           "category" -> place.category.map(_.toString),
+          "geometry" -> place.locations.headOption.map(location => Json.parse(location.geoJSON)),
           "coordinate" -> place.getCentroid.map(coords => Json.toJson(Seq(coords.y, coords.x)))) })))
   }
 
