@@ -46,7 +46,16 @@ object Global extends GlobalSettings {
         idx.addPlaceStream(is, filename, true)
       })
       
-      Logger.info("Index complete")      
+      Logger.info("Index complete")
+      
+      val patches = Play.current.configuration.getString("recogito.gazetteer.patches")
+        .map(_.split(",").toSeq).getOrElse(Seq.empty[String]).map(_.trim)
+        
+      patches.foreach(patch => {
+        Logger.info("Applying gazetteer patch file " + patch)
+        idx.applyPatch(new File(GAZETTEER_DIR, patch).getAbsolutePath, true)
+        Logger.info("Done.")
+      })
     }
     idx
   }

@@ -70,6 +70,9 @@ logger.application=DEBUG
 # Note: Recogito will load the gazetteer dumps in the same order as the list
 recogito.gazetteers="pleiades-201207-migrated.ttl.gz, dare-20131210.ttl.gz"
 
+# A comma-separated list of gazetteer patch files
+# recogito.gazetteer.patches="pelagios_geojson.ttl"
+
 # Number of items to return in the ATOM feed
 recogito.feed.entries=20
 
