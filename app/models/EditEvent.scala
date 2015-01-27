@@ -97,7 +97,7 @@ case class EditEvent(
       val afterTags = if (updatedTags.isDefined) updatedTags else beforeTags
       val afterComment = if (updatedComment.isDefined) updatedComment else beforeComment
       
-      Some(Annotation(annotationId, None, None, afterStatus.get, afterToponym, None))
+      Some(Annotation(annotationId, None, None, afterStatus.get, afterToponym, None, None, None, None, None, None, None, None, None, None, None))
     }
   }
   

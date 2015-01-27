@@ -61,7 +61,7 @@ trait TextAnnotationController extends AbstractAnnotationController {
         val annotation = 
           Annotation(Annotations.newUUID, gdocId_verified, gdocPart.map(_.id).flatten, 
                      AnnotationStatus.NOT_VERIFIED, None, None, None, automatch.map(_.uri), 
-                     Some(correctedToponym), Some(correctedOffset))
+                     Some(correctedToponym), Some(correctedOffset), None, None, None, None, None, None)
           
         if (!isValid(annotation)) {
           // Annotation is mis-aligned with source text or has zero toponym length - something is wrong
@@ -95,7 +95,7 @@ trait TextAnnotationController extends AbstractAnnotationController {
     val annotation = 
       Annotation(Annotations.newUUID, None, None, 
                  AnnotationStatus.NOT_VERIFIED, None, None, None, None, 
-                 Some(correctedToponym), Some(correctedOffset), None, source = Some(source))
+                 Some(correctedToponym), Some(correctedOffset), None, None, None, None, Some(source), None)
 
     Annotations.insert(annotation)
     

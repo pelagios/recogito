@@ -34,7 +34,12 @@ trait ImageAnnotationController extends AbstractAnnotationController {
                    None, // gazetteer URI (automatch) 
                    None, // corrected toponym
                    None, // corrected offset
-                   Some(Json.stringify(jsonAnchor(0))))
+                   Some(Json.stringify(jsonAnchor(0))), // corrected anchor
+                   None, // corrected gazetteer URI
+                   None, // tags
+                   None, // comment
+                   None, // source
+                   None)
                    
       Annotations.insert(annotation)
     

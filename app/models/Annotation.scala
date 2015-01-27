@@ -26,37 +26,37 @@ case class Annotation(
     status: AnnotationStatus.Value,
     
     /** Toponym identified by the geoparser **/
-    toponym: Option[String] = None,
+    toponym: Option[String],
     
     /** Character offset of the toponym in the text **/
-    offset: Option[Int] = None,
+    offset: Option[Int],
     
     /** Anchor of the toponym in the document - this is used instead of 'offset' for images **/
-    anchor: Option[String] = None,
+    anchor: Option[String],
     
     /** Gazetteer URI identified by the georesolver **/
-    gazetteerURI: Option[String] = None, 
+    gazetteerURI: Option[String], 
     
     /** Toponym/correction identified by human expert **/
-    correctedToponym: Option[String] = None,
+    correctedToponym: Option[String],
     
     /** Offset of the fixed toponym **/ 
-    correctedOffset: Option[Int] = None,
+    correctedOffset: Option[Int],
 
     /** Anchor of the toponym in the document - this is used instead of 'offset' for images **/
-    correctedAnchor: Option[String] = None,
+    correctedAnchor: Option[String],
     
     /** Gazetteer URI identified by human expert **/
-    correctedGazetteerURI: Option[String] = None,
+    correctedGazetteerURI: Option[String],
     
     /** Tags **/
-    tags: Option[String] = None,
+    tags: Option[String],
     
     /** A comment **/
-    comment: Option[String] = None,
+    comment: Option[String],
     
     /** Source URL for the toponym **/
-    source: Option[String] = None,
+    source: Option[String],
     
     /** Reference(s) to (a) related annotation(s) 
       * 
@@ -64,7 +64,7 @@ case class Annotation(
       * annotations are related, this field contains multiple annotations
       * separated by comma.
       */
-    private val _seeAlso: Option[String] = None
+    private val _seeAlso: Option[String]
     
 ) {
   

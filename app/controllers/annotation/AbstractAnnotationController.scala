@@ -179,8 +179,8 @@ trait AbstractAnnotationController extends Controller with Secured {
     } else {
       val updated = Annotation(a.uuid, a.gdocId, a.gdocPartId,
                                AnnotationStatus.FALSE_DETECTION, 
-                               a.toponym, a.offset, a.gazetteerURI,
-                               None, None, None, None, None)
+                               a.toponym, a.offset, a.anchor, a.gazetteerURI,
+                               None, None, None, None, None, None, None, None)
                                  
       Annotations.update(updated)    
       Some(updated)
