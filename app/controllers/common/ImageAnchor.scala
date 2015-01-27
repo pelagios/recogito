@@ -1,6 +1,7 @@
 package controllers.common
 
 import play.api.libs.json.{ Json, JsValue }
+import play.api.Logger
 
 /** Wrapper around image annotation anchor JSON.
   *  
@@ -8,6 +9,8 @@ import play.api.libs.json.{ Json, JsValue }
   * result in a runtime exception.
   */
 class ImageAnchor(anchor: String) {
+  
+  Logger.info(anchor)
   
   private val json = Json.parse(anchor)
   

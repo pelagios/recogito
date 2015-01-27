@@ -148,55 +148,39 @@ object Annotations extends HasStatusColumn {
   
   def insertAll(annotations: Seq[Annotation])(implicit s: Session) = query.insertAll(annotations:_*)
   
-  /** Retrieve an annotation with the specified UUID (= primary key) **/
   def findByUUID(uuid: UUID)(implicit s: Session): Option[Annotation] =
     query.where(_.uuid === uuid.bind).firstOption
 
-  /** Delete an annotation with the specified UUID (= primary key) **/
   def delete(uuid: UUID)(implicit s: Session) = 
     query.where(_.uuid === uuid.bind).delete
     
-  /** Retrieve all annotations on a specific GeoDocument **/
+  def update(annotation: Annotation)(implicit s: Session) =
+    query.where(_.uuid === annotation.uuid.bind).update(annotation)
+    
   def findByGeoDocument(id: Int)(implicit s: Session): Seq[Annotation] =    
     query.where(_.gdocId === id).list.sortBy(sortByOffset)
   
-  /** Count all annotations on a specific GeoDocument **/
   def countForGeoDocument(id: Int)(implicit s: Session): Int = 
     Query(query.where(_.gdocId === id).length).first
-    
-  /** Update an annotation **/
-  def update(annotation: Annotation)(implicit s: Session) =
-    query.where(_.uuid === annotation.uuid.bind).update(annotation)
-  
-  /** Delete all annotations on a specific GeoDocument **/
+
   def deleteForGeoDocument(id: Int)(implicit s: Session) =
     query.where(_.gdocId === id).delete
-  
-  /** Retrieve all annotations for a specific source URI **/
-  def findBySource(source: String)(implicit s: Session): Seq[Annotation] =
-    query.where(_.source === source).list.sortBy(sortByOffset)
     
-  /** Retrieve all annotations on a specific GeoDocument that have (a) specific status(es) **/
   def findByGeoDocumentAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Seq[Annotation] =
     query.where(_.gdocId === id).filter(_.status inSet status).list.sortBy(sortByOffset)    
   
-  /** Count all annotations on a specific GeoDocument that have (a) specific status(es) **/
   def countForGeoDocumentAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Int =
     Query(query.where(_.gdocId === id).filter(_.status inSet status).length).first
     
-  /** Retrieve all annotations on a specific GeoDocumentPart **/    
   def findByGeoDocumentPart(id: Int)(implicit s: Session): Seq[Annotation] =
     query.where(_.gdocPartId === id).list.sortBy(sortByOffset)
   
-  /** Count all annotations on a specific GeoDocumentPart **/
   def countForGeoDocumentPart(id: Int)(implicit s: Session): Int =
     Query(query.where(_.gdocPartId === id).length).first
      
-  /** Retrieve all annotations on a specific GeoDocumentPart that have (a) specific status(es) **/
   def findByGeoDocumentPartAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Seq[Annotation] =
     query.where(_.gdocPartId === id).filter(_.status inSet status).list.sortBy(sortByOffset)
     
-  /** Count all annotations on a specific GeoDocumentPart that have (a) specific status(es) **/
   def countForGeoDocumentPartAndStatus(id: Int, status: AnnotationStatus.Value*)(implicit s: Session): Int =
     Query(query.where(_.gdocPartId === id).filter(_.status inSet status).length).first
     
@@ -204,36 +188,14 @@ object Annotations extends HasStatusColumn {
     query.where(row => (row.correctedToponym.toLowerCase === toponym.toLowerCase) || 
                        (row.correctedToponym.isNull && row.toponym.toLowerCase === toponym.toLowerCase))
          .list
+         
+  def findBySource(source: String)(implicit s: Session): Seq[Annotation] =
+    query.where(_.source === source).list.sortBy(sortByOffset)   
     
-  /** Helper method to retrieve annotations that overlap the specified annotation **/
-  def getOverlappingAnnotations(annotation: Annotation)(implicit s: Session) = {
-    val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
-    val offset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset
+  /** Retrieve all toponyms that are annotated with a specific place URI **/
+  def getToponymsForPlace(uri: String)(implicit s: Session): Seq[(String, Int)] =
+    Seq.empty[(String, Int)]	// TODO implement
     
-    if (toponym.isDefined && offset.isDefined) {
-      val all = if (annotation.gdocPartId.isDefined)
-                  findByGeoDocumentPart(annotation.gdocPartId.get)
-                else if (annotation.gdocId.isDefined)
-                  findByGeoDocument(annotation.gdocId.get)
-                else
-                  findBySource(annotation.source.get)
-                  
-      all.filter(a => {
-        val otherToponym = if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym
-        val otherOffset = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
-        if (otherToponym.isDefined && otherOffset.isDefined) {
-          val start = scala.math.max(otherOffset.get, offset.get)
-          val end = scala.math.min(otherOffset.get + otherToponym.get.size, offset.get + toponym.get.size)
-          (end - start) > 0
-        } else {
-          false
-        }
-      }).filter(_.uuid != annotation.uuid)
-    } else {
-      Seq.empty[Annotation]
-    }
-  }
-  
   /** Get completion stats (based on distribution of annotation status values) for all GeoDocuments **/
   def getCompletionStats()(implicit s: Session): Map[Int, CompletionStats] = {
     val q = query.where(_.gdocId.isNotNull)
@@ -258,7 +220,7 @@ object Annotations extends HasStatusColumn {
   def getPlaceStats(gdocId: Int)(implicit s: Session): PlaceStats =
     getPlaceStats(Seq(gdocId))
   
-  /** Get place stats (based on annotation status and gazetteer URI) for a GeoDocument **/
+  /** Get place stats (based on annotation status and gazetteer URI) for a list of GeoDocuments **/
   def getPlaceStats(gdocIds: Seq[Int])(implicit s: Session): PlaceStats = {
     val q = for {
       ((gazetteerURI, toponym), count) <- query.where(_.gdocId inSet gdocIds)
@@ -364,9 +326,35 @@ object Annotations extends HasStatusColumn {
 
     correctAutoMatches.toDouble / allAutoMatches
   }
-  
-  def getToponymsForPlace(uri: String)(implicit s: Session): Seq[(String, Int)] =
-    Seq.empty[(String, Int)]	  
+    
+  /** Helper method to retrieve annotations that overlap the specified annotation **/
+  def getOverlappingAnnotations(annotation: Annotation)(implicit s: Session) = {
+    val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
+    val offset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset
+    
+    if (toponym.isDefined && offset.isDefined) {
+      val all = if (annotation.gdocPartId.isDefined)
+                  findByGeoDocumentPart(annotation.gdocPartId.get)
+                else if (annotation.gdocId.isDefined)
+                  findByGeoDocument(annotation.gdocId.get)
+                else
+                  findBySource(annotation.source.get)
+                  
+      all.filter(a => {
+        val otherToponym = if (a.correctedToponym.isDefined) a.correctedToponym else a.toponym
+        val otherOffset = if (a.correctedOffset.isDefined) a.correctedOffset else a.offset
+        if (otherToponym.isDefined && otherOffset.isDefined) {
+          val start = scala.math.max(otherOffset.get, offset.get)
+          val end = scala.math.min(otherOffset.get + otherToponym.get.size, offset.get + toponym.get.size)
+          (end - start) > 0
+        } else {
+          false
+        }
+      }).filter(_.uuid != annotation.uuid)
+    } else {
+      Seq.empty[Annotation]
+    }
+  }
 
   /** Helper to retrieve a random UUID **/
   def newUUID: UUID = UUID.randomUUID

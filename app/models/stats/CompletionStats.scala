@@ -11,7 +11,7 @@ case class CompletionStats(stats: Map[AnnotationStatus.Value, Int]) {
   
   /** Shortcuts for all possible status values **/
   lazy val notVerified = get(NOT_VERIFIED)
-  
+    
   lazy val verified = get(VERIFIED)
 
   lazy val falseDetection = get(FALSE_DETECTION)
@@ -32,6 +32,7 @@ case class CompletionStats(stats: Map[AnnotationStatus.Value, Int]) {
   /** All - except 'false detection' and 'ignore' **/
   lazy val total = verified + yellow + notVerified
   
+  /** Percentages **/
   lazy val percentVerified = verified.toDouble / total
   
   lazy val percentYellow = yellow.toDouble / total

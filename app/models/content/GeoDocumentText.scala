@@ -1,6 +1,6 @@
 package models.content
 
-import models.{ Annotation, GeoDocumentContent }
+import models.{ Annotation, GeoDocuments, GeoDocumentParts, GeoDocumentContent }
 import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
@@ -25,6 +25,11 @@ class GeoDocumentTexts(tag: Tag) extends Table[GeoDocumentText](tag, "gdocument_
   def text = column[Array[Byte]]("text")
   
   def * = (id.?, gdocId, gdocPartId.?, text) <> (GeoDocumentText.tupled, GeoDocumentText.unapply)
+  
+  /** Foreign key constraints **/
+  def gdocFk = foreignKey("gdoc_fk", gdocId, TableQuery[GeoDocuments])(_.id)
+
+  def gdocPartFk = foreignKey("gdoc_part_fk", gdocPartId, TableQuery[GeoDocumentParts])(_.id)
   
 }
     

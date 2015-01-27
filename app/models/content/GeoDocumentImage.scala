@@ -1,6 +1,6 @@
 package models.content
 
-import models.GeoDocumentContent
+import models.{ GeoDocuments, GeoDocumentParts, GeoDocumentContent }
 import play.api.Play.current
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._
@@ -45,6 +45,11 @@ class GeoDocumentImages(tag: Tag) extends Table[GeoDocumentImage](tag, "gdocumen
   def path = column[String]("path")
   
   def * = (id.?, gdocId, gdocPartId.?, imageType, width, height, path) <> (GeoDocumentImage.tupled, GeoDocumentImage.unapply)
+  
+  /** Foreign key constraints **/
+  def gdocFk = foreignKey("gdoc_fk", gdocId, TableQuery[GeoDocuments])(_.id)
+
+  def gdocPartFk = foreignKey("gdoc_part_fk", gdocPartId, TableQuery[GeoDocumentParts])(_.id)
   
 }
 
