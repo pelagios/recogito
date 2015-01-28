@@ -1,6 +1,7 @@
 @(doc: models.GeoDocument, 
   content: Seq[(GeoDocumentContent, Option[String])],
   completionStats: models.stats.CompletionStats, 
+  untranscribed: Int,
   autoAnnotationStats: models.stats.AutoAnnotationStats,
   userStats: Seq[(String, Int)], 
   unidentifiedToponyms: Seq[(String, Seq[(AnnotationStatus.Value, Int)])],
@@ -76,6 +77,9 @@
           
             <ul>
               <li><em class="number">@completionStats.total</em> place names tagged</li>
+              @if(untranscribed > 0) {
+                <li><em class="number">@untranscribed</em> untranscribed</li>
+              }
               <li><em class="number">@completionStats.verified</em> verified</li>
               <li><em class="number">@completionStats.yellow</em> not located</li>
               <li><em>@complete</em> % complete (total vs. in progress)</li>
@@ -229,6 +233,11 @@
         var config = Chart.defaults.global.animation = false;
         
         var completionChartData = [
+          @if(untranscribed > 0) {
+            { value: @untranscribed,
+              color: '#cc0000',
+              label: 'Untranscribed' },
+          }
           { value: @completionStats.verified,
             color:'#83c783',
             label:'Verified' },

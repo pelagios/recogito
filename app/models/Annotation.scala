@@ -3,6 +3,7 @@ package models
 import global.Global
 import java.util.UUID
 import models.stats._
+import play.api.Logger
 import play.api.Play.current
 import play.api.db.slick.Config.driver.simple._
 import scala.slick.lifted.Tag
@@ -191,20 +192,6 @@ object Annotations extends HasStatusColumn {
          
   def findBySource(source: String)(implicit s: Session): Seq[Annotation] =
     query.where(_.source === source).list.sortBy(sortByOffset)   
-    
-  /** Retrieve all toponyms that are annotated with a specific place URI **/
-  def getToponymsForPlace(uri: String)(implicit s: Session): Seq[(String, Int)] =
-    Seq.empty[(String, Int)]	// TODO implement
-    
-  /** Get completion stats (based on distribution of annotation status values) for all GeoDocuments **/
-  def getCompletionStats()(implicit s: Session): Map[Int, CompletionStats] = {
-    val q = query.where(_.gdocId.isNotNull)
-                 .groupBy(t => (t.gdocId, t.status))
-                 .map(t => (t._1._1, t._1._2, t._2.length))
-    
-    q.list.groupBy(_._1).map { case (gdocId, statusDistribution) =>
-      (gdocId, CompletionStats(statusDistribution.map(t => (t._2, t._3)).toMap))}    
-  }
   
   /** Get completion stats for a list of geo documents **/
   def getCompletionStats(gdocIds: Seq[Int])(implicit s: Session): Map[Int, CompletionStats] = {
@@ -214,6 +201,54 @@ object Annotations extends HasStatusColumn {
   
     q.list.groupBy(_._1).map { case (gdocId, statusDistribution) =>
       (gdocId, CompletionStats(statusDistribution.map(t => (t._2, t._3)).toMap))}
+  }
+  
+  /** Get completion stats for all GeoDocuments **/
+  def getCompletionStats()(implicit s: Session): Map[Int, CompletionStats] =
+    getCompletionStats(GeoDocuments.query.map(_.id).list)
+    
+  /** Get detailed completion stats for a single document.
+    *
+    * In addition to the standard completion stats, this method
+    * also returns the number of untranscribed toponyms. (A slightly
+    * more expensive query, that is not done for the batch methods above.)  
+    */
+  def getCompletionStats(gdocId: Int)(implicit s: Session): Option[(CompletionStats, Int)] = {
+    // This query builds a map of the form
+    // (status, transcribedOrNot) -> count
+    val statsWithTranscriptionFlag = 
+      query.where(_.gdocId === gdocId)
+           .map(row => (row.status, row.correctedToponym.ifNull(row.toponym)))
+           .groupBy(t => (t._1, t._2.isNotNull))
+           .map(t => (t._1, t._2.length))
+           .list.toMap
+    
+    if (statsWithTranscriptionFlag.size == 0) {
+      None
+    } else {
+      val untranscribed = 
+        statsWithTranscriptionFlag.filter { case ((status, transcribed), count) => !transcribed }
+    
+      // Untranscribed records should ALWAYS be in NOT_VERIFIED status. If not, there's
+      // something wrong in the system - this is a good place to double-check and issue
+      // a warning
+      val invalidUntranscribed = 
+        untranscribed.filter { case ((status, _), _) => status != AnnotationStatus.NOT_VERIFIED }
+      
+      if (invalidUntranscribed.size > 0) {
+        Logger.warn("There are approved, but untranscribed annotations for document " + gdocId)
+        invalidUntranscribed.foreach { case ((status, _), count) =>
+          Logger.warn(count + " annotations, " + status) }
+      }
+        
+      val validUntranscribed = untranscribed.get((AnnotationStatus.NOT_VERIFIED, false)).getOrElse(0)
+      
+      val statsWithoutTranscriptionFlag = statsWithTranscriptionFlag
+        .groupBy(_._1._1)
+        .mapValues(_.foldLeft(0) { case (total, ((status, _), count)) => total + count })
+      
+      Some((CompletionStats(statsWithoutTranscriptionFlag), validUntranscribed))
+    }
   }
     
   /** Get place stats (based on annotation status and gazetteer URI) for a GeoDocument **/

@@ -29,12 +29,12 @@ object StatsController extends Controller with Secured {
     val doc = GeoDocuments.findById(docId)
     if (doc.isDefined) {        
       val id = doc.get.id.get
-      val completionStats = Annotations.getCompletionStats(Seq(id)).get(id).getOrElse(CompletionStats.empty)
+      val (completionStats, untranscribed) = Annotations.getCompletionStats(id).getOrElse((CompletionStats.empty, 0))
       val autoAnnotationStats = Annotations.getAutoAnnotationStats(id)
       val unidentifiedToponyms = Annotations.getUnidentifiableToponyms(id)
       val placeStats = Annotations.getPlaceStats(id)
       val userStats = Annotations.getContributorStats(id)
-      Ok(views.html.stats.documentStats(doc.get, GeoDocumentContent.findByGeoDocument(docId), completionStats, autoAnnotationStats, userStats, unidentifiedToponyms, placeStats, currentUser.map(_.username)))
+      Ok(views.html.stats.documentStats(doc.get, GeoDocumentContent.findByGeoDocument(docId), completionStats, untranscribed, autoAnnotationStats, userStats, unidentifiedToponyms, placeStats, currentUser.map(_.username)))
     } else {
       NotFound
     }
