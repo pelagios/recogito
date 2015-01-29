@@ -81,7 +81,7 @@ define(['georesolution/common'], function(common) {
         
         mostRecentQuery = query;
         map.clearSearchresults();
-        jQuery.getJSON('api/search' + query, function(response) {
+        jQuery.getJSON('api/search?query=' + query, function(response) {
           if (thisQuery === mostRecentQuery) {
             if (rerun_fuzzy_if_zero && response.results.length === 0) {
               search(query + '~', self);
