@@ -88,11 +88,10 @@
           }, '#activity-timeline', {
             sortX: function (a, b) { return a.idx - b.idx; },
             paddingTop: 20,
-            mouseover: function(data, i) {
-              console.log(data, i);
-            },
+            mouseover: function(data, i) { /* TODO */ },
             dataFormatX: function (x) { return d3.time.format('%d-%m-%Y').parse(x); },
             tickFormatX: function (x) { return d3.time.format('%d %b')(x); },
+            tickFormatY: function (y) { return numeral(y).format('0,0'); },
             tickHintY: 4
           });
           
@@ -112,11 +111,10 @@
           }, '#progress-history', {
             sortX: function (a, b) { return a.idx - b.idx; },
             paddingTop: 20,
-            mouseover: function(data, i) {
-              console.log(data, i);
-            },
+            mouseover: function(data, i) { /* TODO */ },
             dataFormatX: function (x) { return d3.time.format('%d-%m-%Y').parse(x); },
             tickFormatX: function (x) { return d3.time.format('%d %b')(x); },
+            tickFormatY: function (y) { return numeral(y).format('0,0'); },
             tickHintY: 6
           });
           
