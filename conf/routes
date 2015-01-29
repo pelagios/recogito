@@ -19,7 +19,7 @@ GET     /recogito/documentation                     controllers.unrestricted.Inf
 GET     /recogito/documents/:gdocId/map             controllers.unrestricted.DocumentController.showMap(gdocId: Int)
 GET     /recogito/documents/:gdocId/stats           controllers.unrestricted.DocumentController.showStats(gdocId: Int)
 GET     /recogito/documents/:gdocId/texts           controllers.unrestricted.DocumentController.redirectToFirstText(gdocId: Int)
-GET     /recogito/documents/:gdocId/images          controllers.unrestricted.DocumentController.redirectToFirstImages(gdocId: Int)
+GET     /recogito/documents/:gdocId/images          controllers.unrestricted.DocumentController.redirectToFirstImage(gdocId: Int)
 
 GET     /recogito/texts/:textId                     controllers.unrestricted.DocumentController.showText(textId: Int)
 

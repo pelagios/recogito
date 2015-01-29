@@ -59,7 +59,7 @@ object StatsController extends Controller {
   def showGlobalStats() = DBAction { implicit request =>    
     // Get activity timeline from DB and append today's live stats
     val activityTimeline = {
-      val history = GlobalStatsHistory.listRecent(60)
+      val history = GlobalStatsHistory.listRecent(42)
       
       // Time of last history snapshot, or 24hrs if no history yet 
       val liveIntervalStart = history.reverse.headOption.map(_.timestamp).getOrElse(new Timestamp(System.currentTimeMillis - DAY_IN_MILLIS))

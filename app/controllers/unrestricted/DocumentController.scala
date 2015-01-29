@@ -45,7 +45,7 @@ object DocumentController extends Controller with Secured {
     Ok("")
   }
   
-  def redirectToFirstImages(gdocId: Int) = Action {
+  def redirectToFirstImage(gdocId: Int) = Action {
     // TODO
     Ok("")
   } 
