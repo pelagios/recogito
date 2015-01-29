@@ -59,7 +59,7 @@ object StatsController extends Controller {
   def showGlobalStats() = DBAction { implicit request =>    
     // Get activity timeline from DB and append today's live stats
     val activityTimeline = {
-      val history = GlobalStatsHistory.listRecent(42)
+      val history = GlobalStatsHistory.listRecent(30)
       
       // Time of last history snapshot, or 24hrs if no history yet 
       val liveIntervalStart = history.reverse.headOption.map(_.timestamp).getOrElse(new Timestamp(System.currentTimeMillis - DAY_IN_MILLIS))
@@ -67,9 +67,10 @@ object StatsController extends Controller {
       
       val liveActivity = EditHistory.countSince(liveIntervalStart)
       
-      // TODO compute other live stats
+      val liveToponymCount = Annotations.getCompletionStats().values.foldLeft(0, 0, 0) { case((verified, yellow, total), stats)  =>
+          (verified + stats.verified, yellow + stats.yellow, total + stats.total) }    
       
-      history :+ StatsHistoryRecord(None, liveIntervalEnd, 0, 0, 0, liveActivity) 
+      history :+ StatsHistoryRecord(None, liveIntervalEnd, liveToponymCount._1, liveToponymCount._2, liveToponymCount._3, liveActivity) 
     }
     
     val scores = EditHistory.listHighscores(10)

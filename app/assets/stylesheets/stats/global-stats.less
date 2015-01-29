@@ -48,29 +48,25 @@
 } /* #home-button */
 
 
-#activity-timeline {
-
-  svg {
-    margin-right:-2px;
-     
-    path.path {
-      fill:steelblue;
-    }
-    
-  }
-  
+#activity-timeline, #progress-history {
+  width:880px;
+  height:200px;
 }
 
-#progress-history-container {
-  position:relative;
+#progress-history {
+  .xchart circle { stroke-width:1.5; }
+      
+  .unverified.color0 .line { stroke: #c7c7c7; }
+  .unverified.color0 circle { fill: #c7c7c7; }
+  .unverified.color0 .fill { fill: rgba(169, 169, 169, 0.1); }
 
-  #y-axis {
-	  position: absolute;
-	  top: 0;
-	  bottom: 0;
-	  width: 40px;
-  }
-  
+  .unidentifiable.color1 .line { stroke: #e7ba52; }
+  .unidentifiable.color1 circle { fill: #e7ba52; }
+  .unidentifiable.color1 .fill { fill: rgba(231, 186, 82, 0.2); }
+      
+  .verified.color2 .line { stroke: #2ca02c; }
+  .verified.color2 circle { fill: #2ca02c; }
+  .verified.color2 .fill { fill: rgba(44, 160, 44, 0.2); }
 }
 
 #content.wide {

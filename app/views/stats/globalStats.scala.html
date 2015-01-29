@@ -1,15 +1,14 @@
-@(activityTimeline: Seq[StatsHistoryRecord], scores: Seq[(User, Int)], editHistory: Seq[(EditEvent, Option[GeoDocument])])
+@(activity: Seq[StatsHistoryRecord], scores: Seq[(User, Int)], editHistory: Seq[(EditEvent, Option[GeoDocument])])
 <html>
   <head>
     <title>RECOGITO User Stats</title>
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/stats/global-stats.css")" />
-    <link rel="stylesheet" href="http://code.shutterstock.com/rickshaw/rickshaw.min.css">
+    <link rel="stylesheet" href="@routes.Assets.at("javascripts/lib/xcharts/xcharts.min.css")" />
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-1.11.1.min.js")"></script>   
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/numeral/numeral.min.js")"></script>   
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/timeago/jquery.timeago.js")"></script>  
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/d3/d3.min.js")"></script>
-    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/d3/d3.min.js")"></script>
-    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/d3/rickshaw.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/xcharts/xcharts.min.js")"></script>    
   </head>
   
   <body>
@@ -27,10 +26,7 @@
         
         <div class="box">
           <h2>Annotation Progress</h2>
-          <div id="progress-history-container">
-	          <div id="y-axis"></div>
-	          <div id="progress-history"></div>
-          </div>
+         <div id="progress-history"></div>
         </div> <!-- .box -->
         
         <div class="box">
@@ -65,82 +61,68 @@
     <script>
       $(document).ready(function() {
         // Activity line chart
-        var editHistory = 
-          [@{ activityTimeline.map(record => "{ x:" + (record.timestamp.getTime / 1000 - 86400) + ", y:" + record.totalEdits + " }").mkString(",") }];
-          
-        var progressHistory = [
-          {
-            data: [@{ activityTimeline.init.map(record => "{ x:" + (record.timestamp.getTime / 1000 - 86400) + ", y:" + record.verifiedToponyms + " }").mkString(",") }],
-            name: 'Verified',
-            color: 'green'
-          },{
-            data: [@{ activityTimeline.init.map(record => "{ x:" + (record.timestamp.getTime / 1000 - 86400) + ", y:" + record.unidentifiableToponyms + " }").mkString(",") }],
-            name: 'Not Identifiable',
-            color: 'yellow'           
-          },{
-            data: [@{ activityTimeline.init.map(record => "{ x:" + (record.timestamp.getTime / 1000 - 86400) + ", y:" + record.unverifiedToponyms + " }").mkString(",") }],
-            name: 'Not Verified',
-            color: '#ccc'           
+        @defining(activity.zipWithIndex) { a =>
+          @defining(new java.text.SimpleDateFormat("dd-MM-yyyy", java.util.Locale.ENGLISH)) { df =>
+            var editsOverTime = 
+              [ @Html({ a.map(t => "{ x:\"" + df.format(t._1.timestamp.getTime - 86400000) + "\", y:" + (t._1.totalEdits + 1) + ", idx: " + t._2 + " }").mkString(",") }) ];
+                      
+            var verifiedOverTime =
+              [ @Html({ a.map(t => "{ x:\"" + df.format(t._1.timestamp.getTime - 86400000) + "\", y:" + t._1.verifiedToponyms + ", idx: " + t._2 + " }").mkString(",") })];
+              
+            var verifiedAndYellowOverTime =
+              [ @Html({ a.map(t => "{ x:\"" + df.format(t._1.timestamp.getTime - 86400000) + "\", y:" + (t._1.verifiedToponyms + t._1.unidentifiableToponyms) + ", idx: " + t._2 + " }").mkString(",") })];
+              
+            var totalOverTime  =
+              [ @Html({ a.map(t => "{ x:\"" + df.format(t._1.timestamp.getTime - 86400000) + "\", y:" + t._1.totalToponyms + ", idx: " + t._2 + " }").mkString(",") })];
           }
-        ];
+        }
+        
+        // TODO move into script file
+        var editsOverTimeChart = new xChart('bar', {
+            xScale: 'ordinal',
+            yScale: 'linear',
+            main: [{
+              className: '.edits-over-time',
+              data: editsOverTime
+            }]
+          }, '#activity-timeline', {
+            sortX: function (a, b) { return a.idx - b.idx; },
+            paddingTop: 20,
+            mouseover: function(data, i) {
+              console.log(data, i);
+            },
+            dataFormatX: function (x) { return d3.time.format('%d-%m-%Y').parse(x); },
+            tickFormatX: function (x) { return d3.time.format('%d %b')(x); },
+            tickHintY: 4
+          });
           
-        var editHistoryGaph = new Rickshaw.Graph({
-          element: document.querySelector("#activity-timeline"),
-          width: 900,
-          height: 140,
-          series: [{
-            data: editHistory,
-            name: 'Contributions'
-          }]
-        });
-        
-        var progressHistoryGaph = new Rickshaw.Graph({
-          element: document.querySelector("#progress-history"),
-          width: 900,
-          height: 140,
-          series: progressHistory
-        });
-        
-        var hoverDetailEditHistory = new Rickshaw.Graph.HoverDetail( {
-          graph: editHistoryGaph,
-          xFormatter: function(t) {
-            var date = new Date(t * 1000);
-            return date.getUTCDate() + "." + (date.getUTCMonth() + 1) + "." + date.getUTCFullYear();
-          },
-          yFormatter: function(n) { return n; }
-        } );
-        
-        var hoverDetailProgressHistory = new Rickshaw.Graph.HoverDetail( {
-          graph: progressHistoryGaph,
-          xFormatter: function(t) {
-            var date = new Date(t * 1000);
-            return date.getUTCDate() + "." + (date.getUTCMonth() + 1) + "." + date.getUTCFullYear();
-          },
-          yFormatter: function(n) { return n; }
-        } );
-        
-        var xAxisEditHistory = new Rickshaw.Graph.Axis.Time({
-          graph: editHistoryGaph,
-          timeUnit: new Rickshaw.Fixtures.Time().unit('month')
-        });
-        
-        var xAxisProgressHistory = new Rickshaw.Graph.Axis.Time({
-          graph: progressHistoryGaph,
-          timeUnit: new Rickshaw.Fixtures.Time().unit('month')
-        });
-        
-        /*
-        var yAxisProgressHistory = new Rickshaw.Graph.Axis.Y( {
-	        graph: progressHistoryGaph,
-	        orientation: 'left',
-	        element: document.getElementById('y-axis'),
-          tickFormat: function(y){return y.toPrecision(3)}
-        });
-        */
-     
-        editHistoryGaph.render();
-        progressHistoryGaph.render();
-         
+        var toponymStatsOverTimeChart = new xChart('line-dotted', {
+            xScale: 'ordinal',
+            yScale: 'linear',
+            main: [{
+              className: ".unverified",
+              data: totalOverTime
+            },{
+              className: ".unidentifiable",
+              data: verifiedAndYellowOverTime            
+            },{
+              className: ".verified",
+              data: verifiedOverTime
+            }]
+          }, '#progress-history', {
+            sortX: function (a, b) { return a.idx - b.idx; },
+            paddingTop: 20,
+            mouseover: function(data, i) {
+              console.log(data, i);
+            },
+            dataFormatX: function (x) { return d3.time.format('%d-%m-%Y').parse(x); },
+            tickFormatX: function (x) { return d3.time.format('%d %b')(x); },
+            tickHintY: 6
+          });
+          
+        // Make xCharts circles smaller
+        $('svg circle').attr('r', 4);
+
         // Format numbers
         $.each($('.number'), function(idx, el) {
           var formatted = numeral($(el).text()).format('0,0');
