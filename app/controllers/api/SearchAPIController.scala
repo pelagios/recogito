@@ -1,4 +1,4 @@
-package controllers
+package controllers.api
 
 import global.Global
 import play.api.db.slick._
@@ -13,7 +13,7 @@ import net.sf.junidecode.Junidecode
   *
   * @author Rainer Simon <rainer.simon@ait.ac.at>
   */
-object SearchController extends Controller {
+object SearchAPIController extends Controller {
   
   private val DARE_PREFIX = "http://www.imperium.ahlfeldt.se/"
   private val PLEIADES_PREFIX = "http://pleiades.stoa.org"

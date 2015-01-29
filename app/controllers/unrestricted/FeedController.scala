@@ -1,4 +1,4 @@
-package controllers
+package controllers.unrestricted
 
 import com.sun.syndication.io.WireFeedOutput
 import com.sun.syndication.feed.atom.{ Content, Entry, Feed, Person }

@@ -1,6 +1,6 @@
 package controllers.admin
 
-import controllers.Secured
+import controllers.common.auth.Secured
 import models.{ Annotations, CollectionMemberships }
 import play.api.db.slick._
 import play.api.db.slick.Config.driver.simple._

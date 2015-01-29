@@ -1,4 +1,4 @@
-@(documents: Seq[(Option[String], Seq[DocumentIndexRow])], collections: Seq[(String, Int)], scores: Seq[(User, Int)], currentCollection: String)(implicit request: RequestHeader)
+@(documents: Seq[(Option[String], Seq[frontpage.DocumentIndexRow])], collections: Seq[(String, Int)], scores: Seq[(User, Int)], currentCollection: String)(implicit request: RequestHeader)
 
 <html>
   <head>
@@ -30,10 +30,10 @@
         <div id="title">
           <h1>Recogito</h1>
           <div id="login">
-            <a class="title-link" href="@routes.ApplicationController.showDocumentation">Read the Tutorial</a>
+            <a class="title-link" href="@controllers.unrestricted.InfoPagesController.showDocumentation">Read the Tutorial</a>
             <span class="title-link-separator"></span>
-            <a class="title-link" href="@routes.ApplicationController.showAbout">About</a>            
-            <a class="button blue" href="@routes.AuthController.login(None)">Log In <span class="icon">&#xf090;</span></a>
+            <a class="title-link" href="@controllers.unrestricted.InfoPagesController.showAbout">About</a>            
+            <a class="button blue" href="@controllers.common.auth.routes.AuthController.login(None)">Log In <span class="icon">&#xf090;</span></a>
           </div>
         </div>
       </div>
@@ -58,7 +58,7 @@
         <ul>
           @for(collection <- collections) {
           	@if(currentCollection.equalsIgnoreCase(collection._1)) { <li> } else { <li class="disabled"> }
-              <a href="@routes.ApplicationController.index(Some(collection._1.toLowerCase))">
+              <a href="@controllers.frontpage.routes.FrontPageController.index(Some(collection._1.toLowerCase))">
                 <span class="collection-name">@collection._1</span>
                 <span class="collection-count">@collection._2</span>
               </a>
@@ -78,17 +78,17 @@
                     </div>
                   </td>
           	      <td class="username">
-                    <a href="@routes.StatsController.showUserStats(user.username)"">@user.username</a>
+                    <a href="@controllers.user.routes.UserController.showPublicProfile(user.username)"">@user.username</a>
                   </td>
           	    <tr>
               }
             }
           </table>
-          <a class="stats-link" href="@routes.StatsController.showStats()">See all</a>
+          <a class="stats-link" href="@controllers.unrestricted.routes.StatsController.showGlobalStats()">See all</a>
         </div>
       </div>
       
-      @singleDoc(entry: DocumentIndexRow, langGroup: Option[Int] = None) = {
+      @singleDoc(entry: frontpage.DocumentIndexRow, langGroup: Option[Int] = None) = {
         @if(langGroup.isDefined) { <tr class="lang-group lang-group-@langGroup.get"> } else { <tr> }
           <td class="title"> <!-- document title (and # of versions) -->
             <div@if(entry.doc.description.isDefined) { title="@entry.doc.description" }> <!-- We need this DIV for the CSS ellipsis truncation to work! -->
@@ -113,13 +113,13 @@
           
           <!-- icons -->
           <td>
-            <a class="button small" href="@routes.ApplicationController.showMap(entry.doc.id.get)" title="View on Map">
+            <a class="button small" href="@controllers.unrestricted.routes.DocumentController.showMap(entry.doc.id.get)" title="View on Map">
               Map
             </a>
-            <a class="button small" href="@routes.StatsController.showDocumentStats(entry.doc.id.get)" title="View Annotation Statistics">
+            <a class="button small" href="@controllers.unrestricted.routes.DocumentController.showStats(entry.doc.id.get)" title="View Annotation Statistics">
               Stats
             </a>
-            <a class="button small" href="@routes.DocumentController.get(entry.doc.id.get + ".csv")" title="Download Data as CSV">
+            <a class="button small" href="@controllers.unrestricted.routes.DownloadController.downloadCSV(entry.doc.id.get + ".csv")" title="Download Data as CSV">
               <span class="icon">&#xf019;</span>
             </a>
             @if(entry.firstSource.isDefined) {
@@ -135,7 +135,7 @@
         </tr>      	
       }
       
-      @languageGroup(entries: Seq[DocumentIndexRow]) = {
+      @languageGroup(entries: Seq[frontpage.DocumentIndexRow]) = {
         <tr class="lang-group-header lang-group-@entries.head.doc.id.get" onclick="toggleVersions(@entries.head.doc.id.get); return false;">
           <td class="title"> <!-- document title -->
             <div> <!-- We need this DIV for the CSS ellipsis truncation to work! -->

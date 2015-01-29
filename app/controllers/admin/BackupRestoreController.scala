@@ -1,6 +1,6 @@
 package controllers.admin
 
-import controllers.Secured
+import controllers.common.auth.Secured
 import controllers.common.io.{ CSVSerializer, CSVParser, ZipExporter }
 import models._
 import play.api.mvc.{ Action, Controller }

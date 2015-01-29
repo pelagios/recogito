@@ -1,14 +1,13 @@
-package controllers.annotation
+package controllers.api.writer
 
 import java.sql.Timestamp
 import java.util.{ Date, UUID }
 import models._
 import play.api.db.slick._
-import play.api.Play.current
 import play.api.libs.json.{ Json, JsArray, JsObject }
 import scala.util.{ Try, Success, Failure }
 
-trait ImageAnnotationController extends AbstractAnnotationController {
+private[api] trait ImageAnnotationWriter extends BaseAnnotationWriter {
   
   protected def createOneImageAnnotation(json: JsObject, username: String)(implicit s: Session): Try[Annotation] = {
     val jsonGdocId = (json \ "gdoc_id").asOpt[Int] 

@@ -1,94 +1,145 @@
-# Routes
-# ~~~~
-
-
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Static resources
-GET     /recogito/static/*file                     controllers.Assets.at(path="/public", file)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Authentication
-GET     /recogito/login                            controllers.AuthController.login(destination: Option[String])
-POST    /recogito/login                            controllers.AuthController.authenticate
-GET     /recogito/logout                           controllers.AuthController.logout
-GET     /recogito/settings                         controllers.UserController.changePassword
-POST    /recogito/settings                         controllers.UserController.processChangePassword
+GET     /recogito/static/*file                      controllers.Assets.at(path="/public", file)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# General info pages
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET     /recogito/about                             controllers.unrestricted.InfoPagesController.showAbout
+GET     /recogito/documentation                     controllers.unrestricted.InfoPagesController.showDocumentation
 
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Public document views
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET     /recogito/documents/:gdocId/map             controllers.unrestricted.DocumentController.showMap(gdocId: Int)
+GET     /recogito/documents/:gdocId/stats           controllers.unrestricted.DocumentController.showStats(gdocId: Int)
+GET     /recogito/documents/:gdocId/texts           controllers.unrestricted.DocumentController.redirectToFirstText(gdocId: Int)
+GET     /recogito/documents/:gdocId/images          controllers.unrestricted.DocumentController.redirectToFirstImages(gdocId: Int)
+
+GET     /recogito/texts/:textId                     controllers.unrestricted.DocumentController.showText(textId: Int)
+
+GET     /recogito/images/:imageId                   controllers.unrestricted.DocumentController.showImage(imageId: Int)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Annotation lookup shorthand
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET     /recogito/annotations/:id                   controllers.unrestricted.DocumentController.showAnnotation(id: String)
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Global stats
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET     /recogito/stats                             controllers.unrestricted.StatsController.showGlobalStats
+GET     /recogito/stats/contributions               controllers.unrestricted.StatsController.showContributionDetails(from: String, to: String)
+GET     /recogito/stats/places/:uri                 controllers.unrestricted.StatsController.showPlaceStats(uri: String)
+GET     /recogito/stats/toponyms/:toponym           controllers.unrestricted.StatsController.showToponymStats(toponym: String)
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Downloads and feeds
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET     /recogito/downloads/void.ttl                controllers.unrestricted.DownloadController.getVoID
+GET     /recogito/downloads/documents/:gdocId       controllers.unrestricted.DownloadController.downloadCSV(gdocId: String)
+
+GET     /recogito/feeds/recent                      controllers.unrestricted.FeedController.recentVerifications
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Authentication & user-related
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET     /recogito/login                             controllers.common.auth.AuthController.login(destination: Option[String])
+POST    /recogito/login                             controllers.common.auth.AuthController.authenticate
+GET     /recogito/logout                            controllers.common.auth.AuthController.logout
+
+GET     /recogito/users/:user                       controllers.user.UserController.showPublicProfile(user: String)
+GET     /recogito/my                                controllers.user.UserController.showMySettings
+POST    /recogito/my                                controllers.user.UserController.changePassword
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Restricted document views
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET     /recogito/documents/:id/georesolution       controllers.tools.GeoResolutionController.showGeoResolutionUI(id: Int)
+
+GET     /recogito/texts/:textId/edit                controllers.tools.TextAnnotationController.showTextAnnotationUI(textId: Int)
+GET     /recogito/cts/:ctsURI/edit                  controllers.tools.TextAnnotationController.showCTSTextAnnotationUI(ctsURI: String)
+
+GET     /recogito/images/:imageId/edit              controllers.tools.ImageAnnotationController.showImageAnnotationUI(imageId: Int)
+
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # JSON API
-# ~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Documents
-GET     /recogito/api/documents/:id                controllers.DocumentController.get(id: String)
-POST    /recogito/api/documents/signoff            controllers.DocumentController.signOff(textId: Option[Int], imageId: Option[Int])
-GET     /recogito/api/documents                    controllers.DocumentController.listAll
-GET     /recogito/void.ttl                         controllers.DocumentController.getVoID
+GET     /recogito/api/annotations/:id               controllers.api.AnnotationAPIController.get(id: java.util.UUID)
+PUT     /recogito/api/annotations/:id               controllers.api.AnnotationAPIController.update(id: java.util.UUID)
+DELETE  /recogito/api/annotations/:id               controllers.api.AnnotationAPIController.delete(id: java.util.UUID)
+GET     /recogito/api/annotations                   controllers.api.AnnotationAPIController.listAnnotations
+POST    /recogito/api/annotations                   controllers.api.AnnotationAPIController.create
+PUT     /recogito/api/annotations                   controllers.api.AnnotationAPIController.updateAll
 
-# Annotations
-GET     /recogito/api/annotations/:id              controllers.AnnotationController.get(id: java.util.UUID)
-PUT     /recogito/api/annotations/:id              controllers.AnnotationController.updateSingle(id: java.util.UUID)
-DELETE  /recogito/api/annotations/:id              controllers.AnnotationController.delete(id: java.util.UUID)
-GET     /recogito/api/annotations                  controllers.AnnotationController.listAnnotations
-POST    /recogito/api/annotations                  controllers.AnnotationController.create
-PUT     /recogito/api/annotations/                 controllers.AnnotationController.updateBatch
+GET     /recogito/api/documents/:id                 controllers.api.DocumentAPIController.get(id: String)
 
-# Search
-GET     /recogito/api/search/place                 controllers.SearchController.placeSearch(query: String)
+POST    /recogito/api/signoff                       controllers.api.DocumentAPIController.signOff(textId: Option[Int], imageId: Option[Int])
+
+GET     /recogito/api/search                        controllers.api.SearchAPIController.placeSearch(query: String)
 
 
-# ATOM Feed
-# ~~~~
-GET     /recogito/feeds/recent                     controllers.FeedController.recentVerifications
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Admin area
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+GET     /recogito/admin/backup                      controllers.admin.BackupRestoreController.index
+GET     /recogito/admin/history/download            controllers.admin.BackupRestoreController.downloadEditHistory
+POST    /recogito/admin/history                     controllers.admin.BackupRestoreController.uploadEditHistory
+GET     /recogito/admin/timeline/download           controllers.admin.BackupRestoreController.downloadStatsTimeline
+POST    /recogito/admin/timeline                    controllers.admin.BackupRestoreController.uploadStatsTimeline
+GET     /recogito/admin/documents/download          controllers.admin.BackupRestoreController.downloadAllDocuments
+GET     /recogito/admin/users/download              controllers.admin.BackupRestoreController.downloadAllUsers
+POST    /recogito/admin/users                       controllers.admin.BackupRestoreController.uploadUsers
+
+POST    /recogito/admin/documents/upload            controllers.admin.DocumentAdminController.uploadDocuments
+GET     /recogito/admin/documents/:id/download      controllers.admin.DocumentAdminController.downloadDocument(id: Int)
+DELETE  /recogito/admin/documents/:id               controllers.admin.DocumentAdminController.deleteDocument(id: Int)
+GET     /recogito/admin/documents/:id               controllers.admin.DocumentAdminController.editDocument(id: Int)
+POST    /recogito/admin/documents/:id               controllers.admin.DocumentAdminController.updateDocument(id: Int)       
+POST    /recogito/admin/documents/:id/annotations   controllers.admin.DocumentAdminController.uploadAnnotations(id: Int)
+DELETE  /recogito/admin/documents/:id/annotations   controllers.admin.DocumentAdminController.deleteAnnotations(id: Int)
+GET     /recogito/admin/documents                   controllers.admin.DocumentAdminController.listAll
+
+GET     /recogito/admin/parts/:id                   controllers.admin.DocumentPartAdminController.editDocumentPart(id: Int)
+POST    /recogito/admin/parts/:id                   controllers.admin.DocumentPartAdminController.updateDocumentPart(id: Int)
+
+GET     /recogito/admin/users/signup                controllers.admin.UserAdminController.signup
+POST    /recogito/admin/users/signup                controllers.admin.UserAdminController.processSignup
+DELETE  /recogito/admin/users/:username             controllers.admin.UserAdminController.deleteUser(username: String)
+GET     /recogito/admin/users                       controllers.admin.UserAdminController.listAll
+
+GET     /recogito/admin/dumps                       controllers.admin.DataDumpsController.index
+GET     /recogito/admin/dumps/places                controllers.admin.DataDumpsController.annotatedPlaces(collection: String)
 
 
-# Application views
-# ~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# !!! LEGACY ROUTES !!!
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Public views
-GET     /recogito/map                              controllers.ApplicationController.showMap(doc: Int)
-GET     /recogito/image/:imageId                   controllers.ApplicationController.showImage(imageId: Int)
-GET     /recogito/docs                             controllers.ApplicationController.showDocumentation
-GET     /recogito/about                            controllers.ApplicationController.showAbout
+GET     /recogito/annotation/text                   controllers.tools.TextAnnotationController.showCTSTextAnnotationUI(ctsURI: String)
+GET     /recogito/docs                              controllers.unrestricted.InfoPagesController.showDocumentation
 
-GET     /recogito/stats/users/:user                controllers.StatsController.showUserStats(user: String)
-GET     /recogito/stats/documents/:id              controllers.StatsController.showDocumentStats(id: Int)
-GET     /recogito/stats/toponyms/:toponym          controllers.StatsController.showToponymStats(toponym: String)
-GET     /recogito/stats                            controllers.StatsController.showStats
 
-# Private views - TODO needs a little cleanup
-GET     /recogito/annotation/text                  controllers.ApplicationController.showTextAnnotationUI(text: Option[Int], ctsURI: Option[String])
-GET     /recogito/annotation/image/:id             controllers.ApplicationController.showImageAnnotationUI(id: Int)
-GET     /recogito/annotation/:id                   controllers.ApplicationController.showAnnotationInContext(id: String)
-GET     /recogito/georesolution                    controllers.ApplicationController.showGeoResolutionUI(doc: Int)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Frontpage
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-# Admin
-GET     /recogito/admin/backup                     controllers.admin.BackupRestoreController.index
-GET     /recogito/admin/history/download           controllers.admin.BackupRestoreController.downloadEditHistory
-POST    /recogito/admin/history                    controllers.admin.BackupRestoreController.uploadEditHistory
-GET     /recogito/admin/timeline/download          controllers.admin.BackupRestoreController.downloadStatsTimeline
-POST    /recogito/admin/timeline                   controllers.admin.BackupRestoreController.uploadStatsTimeline
-GET     /recogito/admin/documents/download         controllers.admin.BackupRestoreController.downloadAllDocuments
-GET     /recogito/admin/users/download             controllers.admin.BackupRestoreController.downloadAllUsers
-POST    /recogito/admin/users                      controllers.admin.BackupRestoreController.uploadUsers
-
-POST    /recogito/admin/documents/upload           controllers.admin.DocumentAdminController.uploadDocuments
-GET     /recogito/admin/documents/:id/download     controllers.admin.DocumentAdminController.downloadDocument(id: Int)
-DELETE  /recogito/admin/documents/:id              controllers.admin.DocumentAdminController.deleteDocument(id: Int)
-GET     /recogito/admin/documents/:id              controllers.admin.DocumentAdminController.editDocument(id: Int)
-POST    /recogito/admin/documents/:id              controllers.admin.DocumentAdminController.updateDocument(id: Int)       
-POST    /recogito/admin/documents/:id/annotations  controllers.admin.DocumentAdminController.uploadAnnotations(id: Int)
-DELETE  /recogito/admin/documents/:id/annotations  controllers.admin.DocumentAdminController.deleteAnnotations(id: Int)
-GET     /recogito/admin/documents                  controllers.admin.DocumentAdminController.listAll
-
-GET     /recogito/admin/parts/:id                  controllers.admin.DocumentPartAdminController.editDocumentPart(id: Int)
-POST    /recogito/admin/parts/:id                  controllers.admin.DocumentPartAdminController.updateDocumentPart(id: Int)
-
-GET     /recogito/admin/users/signup               controllers.admin.UserAdminController.signup
-POST    /recogito/admin/users/signup               controllers.admin.UserAdminController.processSignup
-DELETE  /recogito/admin/users/:username            controllers.admin.UserAdminController.deleteUser(username: String)
-GET     /recogito/admin/users                      controllers.admin.UserAdminController.listAll
-
-GET     /recogito/admin/dumps                      controllers.admin.DataDumpsController.index
-GET     /recogito/admin/dumps/places               controllers.admin.DataDumpsController.annotatedPlaces(collection: String)
-
-# Index page (available in public and private version)
-GET     /recogito/                                 controllers.ApplicationController.index(collection: Option[String])
-GET     /recogito                                  controllers.ApplicationController.index(collection: Option[String])
+GET     /recogito/                                  controllers.frontpage.FrontPageController.index(collection: Option[String])
+GET     /recogito                                   controllers.frontpage.FrontPageController.index(collection: Option[String])

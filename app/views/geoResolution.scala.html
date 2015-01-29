@@ -4,7 +4,7 @@
   <head>
     <title>RECOGITO Geo-Resolution</title>
     <link rel="stylesheet" href="@routes.Assets.at("javascripts/lib/slickgrid/slick.grid.css")" />
-    <link rel="related" type="application/json" href="@routes.DocumentController.get(doc.id.get.toString)" />
+    <link rel="related" type="application/json" href="@controllers.api.routes.DocumentAPIController.get(doc.id.get.toString)" />
     <link rel="stylesheet" href="@routes.Assets.at("javascripts/lib/leaflet/leaflet.css")" />
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/georesolution/main.css")" />
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
@@ -21,14 +21,14 @@
     @if(content.size > 1) { 
       @tags.js_text_menu() 
     }
-    <base href="@routes.ApplicationController.index(None)">
+    <base href="@controllers.frontpage.routes.FrontPageController.index(None)">
   </head>
   
   <body>
     <div id="header">
       <div id="title">
         @doc.author.map(_ + ": ").getOrElse("") @doc.title @doc.dateComment.map("(" + _ + ")").getOrElse("")
-        <div id="home-button"><a href="@routes.ApplicationController.index(None)" class="icon">&#xf015;</a></div>
+        <div id="home-button"><a href="@controllers.frontpage.routes.FrontPageController.index(None)" class="icon">&#xf015;</a></div>
       </div>
       
       <div id="menu">
@@ -38,8 +38,8 @@
           } else {
             @if(content.size == 1) {
               @content(0)._1 match {
-              	case image: models.content.GeoDocumentImage => { <li><a href="@routes.ApplicationController.showImageAnnotationUI(content(0)._1.id.get)">Image</a></li> } 
-              	case _ => { <li><a href="@routes.ApplicationController.showTextAnnotationUI(content(0)._1.id, None)">Text</a></li> }
+              	case image: models.content.GeoDocumentImage => { <li><a href="@controllers.tools.routes.ImageAnnotationController.showImageAnnotationUI(content(0)._1.id.get)">Image</a></li> } 
+              	case _ => { <li><a href="@controllers.tools.routes.TextAnnotationController.showTextAnnotationUI(content(0)._1.id.get)">Text</a></li> }
               }
             } else {
               <li>
@@ -54,7 +54,7 @@
             }          
           }
           <li class="active"><a href="#" onclick="return false;">Geo-Resolution</a></li>
-          <li><a href="@routes.StatsController.showDocumentStats(doc.id.get)">Document Stats</a></li>
+          <li><a href="@controllers.unrestricted.routes.DocumentController.showStats(doc.id.get)">Document Stats</a></li>
         </ul>
       </div>
       
@@ -63,8 +63,8 @@
           <ul>
             @for((content, title) <- content) {
               @content match {
-                case image: models.content.GeoDocumentImage => { <li><a href="@routes.ApplicationController.showImageAnnotationUI(content.id.get)">@title.getOrElse("[untitled]")</a></li> }
-                case _ => { <li><a href="@routes.ApplicationController.showTextAnnotationUI(content.id, None)">@title.getOrElse("[untitled]")</a></li> }
+                case image: models.content.GeoDocumentImage => { <li><a href="@controllers.tools.routes.ImageAnnotationController.showImageAnnotationUI(content.id.get)">@title.getOrElse("[untitled]")</a></li> }
+                case _ => { <li><a href="@controllers.tools.routes.TextAnnotationController.showTextAnnotationUI(content.id.get)">@title.getOrElse("[untitled]")</a></li> }
               }
             }
           </ul>
@@ -80,7 +80,7 @@
     <div id="footer">
       <div id="footer-info"></div>
       <div id="user">
-        You are logged in as <span id="username">@username</span> <a href="@routes.AuthController.logout" class="icon">&#xf011;</a>
+        You are logged in as <span id="username">@username</span> <a href="@controllers.common.auth.routes.AuthController.logout" class="icon">&#xf011;</a>
       </div>
     </div>
   </body>

@@ -1,6 +1,6 @@
 package controllers.admin
 
-import controllers.{ Secure, Secured }
+import controllers.common.auth.{ Secure, Secured }
 import java.sql.Timestamp
 import models.{ User, Users }
 import play.api.data._
@@ -49,7 +49,6 @@ object UserAdminController extends Controller with Secured {
     Users.delete(user)
     Status(200)
   }
-  
     
   def signup = adminAction { username => implicit session =>
     Ok(views.html.admin.signup(signupForm))

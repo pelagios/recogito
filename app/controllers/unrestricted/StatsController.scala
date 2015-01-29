@@ -1,4 +1,4 @@
-package controllers
+package controllers.unrestricted
 
 import global.Global
 import java.sql.Timestamp
@@ -9,74 +9,11 @@ import play.api.db.slick._
 import play.api.Logger
 import java.util.Calendar
 
-object StatsController extends Controller with Secured {
+object StatsController extends Controller {
   
   private val DAY_IN_MILLIS = 24 * 60 * 60 * 1000
   
-  def showUserStats(username: String) = DBAction { implicit request =>
-    val user = Users.findByUsername(username)
-    if (user.isDefined) {
-      val numberOfEdits = EditHistory.countForUser(username)
-      val numberOfEditsPerDocument = EditHistory.countForUserPerDocument(username)
-      Ok(views.html.stats.userStats(user.get, numberOfEdits, numberOfEditsPerDocument))
-    } else {
-      NotFound
-    } 
-  }
-  
-  /** Shows detailed stats for a specific document **/
-  def showDocumentStats(docId: Int) = DBAction { implicit session =>
-    val doc = GeoDocuments.findById(docId)
-    if (doc.isDefined) {        
-      val id = doc.get.id.get
-      val (completionStats, untranscribed) = Annotations.getCompletionStats(id).getOrElse((CompletionStats.empty, 0))
-      val autoAnnotationStats = Annotations.getAutoAnnotationStats(id)
-      val unidentifiedToponyms = Annotations.getUnidentifiableToponyms(id)
-      val placeStats = Annotations.getPlaceStats(id)
-      val userStats = Annotations.getContributorStats(id)
-      Ok(views.html.stats.documentStats(doc.get, GeoDocumentContent.findByGeoDocument(docId), completionStats, untranscribed, autoAnnotationStats, userStats, unidentifiedToponyms, placeStats, currentUser.map(_.username)))
-    } else {
-      NotFound
-    }
-  }
-
-  /** Shows detailed stats for a specific toponym **/  
-  def showToponymStats(toponym: String) = DBAction { implicit session =>
-    // TODO grab all Gazetteer IDs for this toponym from the Annotations table
-    // TODO grab all documents where the toponym appears from the Annotations table
-    // TODO grab statuses
-    // TODO grab all other toponyms linked to the gazetteer IDs?
-    val annotations = Annotations.findByToponym(toponym)
-    val byGDocIdAndPlaceURI = 
-      annotations.groupBy(a => if (a.correctedGazetteerURI.isDefined) 
-                                  (a.gdocId.get, a.correctedGazetteerURI)
-                                else
-                                  (a.gdocId.get, a.gazetteerURI))
-                 .map(tuple => (tuple._1, tuple._2.size)).toSeq
-             
-    val documents = GeoDocuments.findByIds(byGDocIdAndPlaceURI.map(_._1._1)).map(gdoc => (gdoc.id.get, gdoc)).toMap  
-    val places = byGDocIdAndPlaceURI.map(_._1._2)
-      .filter(_.isDefined)
-      .map(uri => Global.index.findByURI(uri.get))
-      .filter(_.isDefined)
-      .map(place => (place.get.uri, place.get))
-      .toMap
-        
-    val byGDocAndPlace = byGDocIdAndPlaceURI.map(tuple =>
-	  ((documents.get(tuple._1._1).get, tuple._1._2), tuple._2))
-        
-    Ok(views.html.stats.toponymStats(toponym, byGDocAndPlace, places))
-  }
-  
-  /** Shows detailed stats for a specific place (= gazetteer URI) **/    
-  def showPlaceStats(uri: String) = DBAction { implicit session =>
-    // TODO grab all toponyms for this place
-    // TODO grab all documents for this place
-    // val variants: Seq[(String, Int) =  Annotations.getToponymsForPlace(uri)
-    Ok("")
-  }
-  
-  def showStats() = DBAction { implicit request =>
+  def showContributionDetails(from: String, to: String) = DBAction { implicit request =>
     /* WARNING: hacked analytics code for Heidelberg workshop
     val cal = Calendar.getInstance()
     cal.set(Calendar.MONTH, Calendar.DECEMBER)
@@ -116,6 +53,10 @@ object StatsController extends Controller with Secured {
     }}
     */
     
+    Ok("Not yet implemented")
+  }
+  
+  def showGlobalStats() = DBAction { implicit request =>    
     // Get activity timeline from DB and append today's live stats
     val activityTimeline = {
       val history = GlobalStatsHistory.listRecent(60)
@@ -149,6 +90,42 @@ object StatsController extends Controller with Secured {
       editHistory.map { case (event, gdocId) => (event, gdocId.flatMap(id => gdocs.find(_.id.get == id))) }
     
     Ok(views.html.stats.globalStats(activityTimeline, scores, eventsWithDocuments))
+  }
+
+  /** Shows detailed stats for a specific toponym **/  
+  def showToponymStats(toponym: String) = DBAction { implicit session =>
+    // TODO grab all Gazetteer IDs for this toponym from the Annotations table
+    // TODO grab all documents where the toponym appears from the Annotations table
+    // TODO grab statuses
+    // TODO grab all other toponyms linked to the gazetteer IDs?
+    val annotations = Annotations.findByToponym(toponym)
+    val byGDocIdAndPlaceURI = 
+      annotations.groupBy(a => if (a.correctedGazetteerURI.isDefined) 
+                                  (a.gdocId.get, a.correctedGazetteerURI)
+                                else
+                                  (a.gdocId.get, a.gazetteerURI))
+                 .map(tuple => (tuple._1, tuple._2.size)).toSeq
+             
+    val documents = GeoDocuments.findByIds(byGDocIdAndPlaceURI.map(_._1._1)).map(gdoc => (gdoc.id.get, gdoc)).toMap  
+    val places = byGDocIdAndPlaceURI.map(_._1._2)
+      .filter(_.isDefined)
+      .map(uri => Global.index.findByURI(uri.get))
+      .filter(_.isDefined)
+      .map(place => (place.get.uri, place.get))
+      .toMap
+        
+    val byGDocAndPlace = byGDocIdAndPlaceURI.map(tuple =>
+	  ((documents.get(tuple._1._1).get, tuple._1._2), tuple._2))
+        
+    Ok(views.html.stats.toponymStats(toponym, byGDocAndPlace, places))
+  }
+  
+  /** Shows detailed stats for a specific place (= gazetteer URI) **/    
+  def showPlaceStats(uri: String) = DBAction { implicit session =>
+    // TODO grab all toponyms for this place
+    // TODO grab all documents for this place
+    // val variants: Seq[(String, Int) =  Annotations.getToponymsForPlace(uri)
+    Ok("")
   }
 
 }

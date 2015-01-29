@@ -1,26 +1,24 @@
-package controllers.annotation
+package controllers.api
 
-import controllers.{ Secure, Secured }
+import controllers.api.writer.{ ImageAnnotationWriter, TextAnnotationWriter }
+import controllers.common.auth.{ Secure, Secured }
 import controllers.common.io.JSONSerializer
 import java.sql.Timestamp
 import java.util.{ Date, UUID }
 import models._
 import play.api.Logger
 import play.api.db.slick._
-import play.api.mvc.{ AnyContent, Controller }
 import play.api.libs.json.{ Json, JsArray, JsObject }
+import play.api.mvc.{ AnyContent, Controller, EssentialAction, RequestHeader, SimpleResult }
 import scala.util.{ Try, Success, Failure }
 
-/** Annotation CRUD controller.
-  *
-  * @author Rainer Simon <rainer.simon@ait.ac.at> 
-  */
-trait AbstractAnnotationController extends Controller with Secured {
-
-  /** Creates a new annotation with (corrected) toponym and offset values.
-    *
-    * The annotation to create is delivered as JSON in the body of the request.
-    */
+object AnnotationAPIController extends Controller with ImageAnnotationWriter with TextAnnotationWriter with Secured {
+  
+  private def getParam(request: RequestHeader, name: String): Option[String] =
+    request.queryString
+      .filter(_._1.toLowerCase.equals(name.toLowerCase))
+      .headOption.flatMap(_._2.headOption)
+ 
   def create = protectedDBAction(Secure.REJECT) { username => implicit requestWithSession =>
     val user = Users.findByUsername(username)    
     val body = requestWithSession.request.body.asJson    
@@ -66,14 +64,16 @@ trait AbstractAnnotationController extends Controller with Secured {
     }  
   }
   
-  /** Create one annotation in the DB.
-    *
-    * The implementation of this method depends on whether we are dealing
-    * with a text or image document 
-    */
-  protected def createOne(json: JsObject, username: String)(implicit s: Session): Try[Annotation]
+  private def createOne(json: JsObject, username: String)(implicit s: Session): Try[Annotation] = {
+    // For the time being, we simply distinguish between text- & image-annotation based on the fact 
+    // that the latter includes an 'shapes' property in the JSON
+    val jsonShapes = (json \ "shapes").asOpt[JsArray]
+    if (jsonShapes.isDefined)
+      createOneImageAnnotation(json, username)
+    else    
+      createOneTextAnnotation(json, username)
+  }
   
-  /** Get a specific annotation **/
   def get(uuid: UUID) = DBAction { implicit session =>
     val annotation = Annotations.findByUUID(uuid)
     if (annotation.isDefined) {          
@@ -83,16 +83,15 @@ trait AbstractAnnotationController extends Controller with Secured {
     }
   }
   
-  def updateSingle(uuid: UUID) = protectedDBAction(Secure.REJECT) { username => implicit requestWithSession =>
+  def update(uuid: UUID): EssentialAction = protectedDBAction(Secure.REJECT) { username => implicit requestWithSession =>
     update(Some(uuid), username)
   }
   
-  def updateBatch() = protectedDBAction(Secure.REJECT) { username => implicit requestWithSession =>
+  def updateAll() = protectedDBAction(Secure.REJECT) { username => implicit requestWithSession =>
     update(None, username)
   }
-    
-  /** Updates the annotation with the specified ID **/
-  private def update(uuid: Option[UUID], username: String)(implicit requestWithSession: DBSessionRequest[AnyContent]) = {
+  
+  private def update(uuid: Option[UUID], username: String)(implicit requestWithSession: DBSessionRequest[AnyContent]): SimpleResult = {
     val body = requestWithSession.request.body.asJson    
     if (!body.isDefined) {    
       // No JSON body - bad request
@@ -131,20 +130,17 @@ trait AbstractAnnotationController extends Controller with Secured {
       }
     } 
   }
-
-  /** Update one annotation in the DB.
-    *
-    * The implementation of this method depends on whether we are dealing
-    * with a text or image document 
-    */
-  protected def updateOne(json: JsObject, uuid: Option[UUID], username: String)(implicit s: Session): Try[Annotation]
   
-  /** Deletes an annotation.
-    *  
-    * Note: we don't actually delete annotations, but just set their status to 'FALSE DETECTION'.
-    * 
-    * @param id the annotation ID 
-    */
+  private def updateOne(json: JsObject, uuid: Option[UUID], username: String)(implicit s: Session): Try[Annotation] = {
+    // For the time being, we simply distinguish between text- & image-annotation based on the fact 
+    // that the latter includes a 'shapes' property in the JSON
+    val jsonShapes = (json \ "shapes").asOpt[JsArray]
+    if (jsonShapes.isDefined)
+      updateOneImageAnnotation(json, uuid, username)
+    else
+      updateOneTextAnnotation(json, uuid, username)
+  }
+  
   def delete(uuid: UUID) = protectedDBAction(Secure.REJECT) { username => implicit requestWithSession =>
     val annotation = Annotations.findByUUID(uuid)
     if (!annotation.isDefined) {
@@ -163,46 +159,23 @@ trait AbstractAnnotationController extends Controller with Secured {
     } 
   }
   
-  /** Deletes an annotation.
-    *  
-    * Note that an annotation deletion is a bit of complex issue. If we're dealing with a manually created annotation, 
-    * we just delete it. Period. BUT: if we deal with an annotation that was created automatically, we still want to keep
-    * it in the DB for the purposes of precision/recall estimation. In this case, we therefore don't delete the
-    * annotation, but just mark it as a 'false detection'. If the annotation was manually modified, we also remove those
-    * manual modifications to restore the original NER state. 
-    * @param a the annotation
-    */
-  protected def deleteAnnotation(a: Annotation)(implicit s: Session): Option[Annotation] = {
-    if (a.toponym.isEmpty) {
-      Annotations.delete(a.uuid)
-      None
+  def listAnnotations() = DBAction { implicit session =>
+    val gdocPartId = getParam(session.request, "gdocPart")
+    val gdocId = getParam(session.request, "gdoc")
+    val ctsURI = getParam(session.request, "ctsURI")
+    
+    if (ctsURI.isDefined) {
+      // Bit of a hack - we only support this for text annotations
+      Ok(forCtsURI(ctsURI.get)).withHeaders(CONTENT_TYPE -> "application/rdf+xml", CONTENT_DISPOSITION -> ("attachment; filename=pelagios-egd.rdf"))
+    } else if (gdocPartId.isDefined) {
+      val annotations = Annotations.findByGeoDocumentPart(gdocPartId.get.toInt)
+      Ok(Json.toJson(new JSONSerializer().toJson(annotations)))
+    } else if (gdocId.isDefined) {
+      val annotations = Annotations.findByGeoDocument(gdocId.get.toInt)
+      Ok(Json.toJson(new JSONSerializer().toJson(annotations)))
     } else {
-      val updated = Annotation(a.uuid, a.gdocId, a.gdocPartId,
-                               AnnotationStatus.FALSE_DETECTION, 
-                               a.toponym, a.offset, a.anchor, a.gazetteerURI,
-                               None, None, None, None, None, None, None, None)
-                                 
-      Annotations.update(updated)    
-      Some(updated)
+      BadRequest
     }
   }
   
-  /** Private helper method that creates an update diff event by comparing original and updated annotation.
-    * 
-    * @param before the original annotation
-    * @param after the updated annotation
-    * @param userId the user who made the update
-    */
-  protected def createDiffEvent(before: Annotation, after: Annotation, username: String)(implicit s: Session): EditEvent = {    
-    val updatedStatus = if (before.status.equals(after.status)) None else Some(after.status)
-    val updatedToponym = if (before.correctedToponym.equals(after.correctedToponym)) None else after.correctedToponym
-    val updatedOffset = if (before.correctedOffset.equals(after.correctedOffset)) None else after.correctedOffset
-    val updatedURI = if (before.correctedGazetteerURI.equals(after.correctedGazetteerURI)) None else after.correctedGazetteerURI
-    val updatedTags = if (before.tags.equals(after.tags)) None else after.tags
-    val updateComment = if (before.comment.equals(after.comment)) None else after.comment
-    
-    EditEvent(None, before.uuid, username, new Timestamp(new Date().getTime), Some(new JSONSerializer().toJson(before, false, false, false).toString),
-              updatedToponym, updatedStatus, updatedURI, updatedTags, updateComment)
-  }
-
 }

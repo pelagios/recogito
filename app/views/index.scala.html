@@ -1,4 +1,4 @@
-@(documents: Seq[(Option[String], Seq[DocumentIndexRow])], collections: Seq[(String, Int)], currentCollection: String, scores: Seq[(User, Int)], user: models.User)(implicit request: RequestHeader)
+@(documents: Seq[(Option[String], Seq[frontpage.DocumentIndexRow])], collections: Seq[(String, Int)], currentCollection: String, scores: Seq[(User, Int)], user: models.User)(implicit request: RequestHeader)
 
 <html>
   <head>
@@ -34,14 +34,14 @@
               logged in as: <strong>@user.username</strong>
               <p id="user-links">
                 @if(user.isAdmin) { <a href="@controllers.admin.routes.DocumentAdminController.listAll" title="Administration Access to Recogito">Administration</a> }
-                <a href="@routes.UserController.changePassword" title="Edit User Settings">My Settings</a>
-                <a href="@routes.ApplicationController.showDocumentation">Tutorial</a>
-                <a href="@routes.ApplicationController.showAbout">About</a>
+                <a href="@controllers.user.routes.UserController.showMySettings" title="Edit User Settings">My Settings</a>
+                <a href="@controllers.unrestricted.routes.InfoPagesController.showDocumentation">Tutorial</a>
+                <a href="@controllers.unrestricted.routes.InfoPagesController..showAbout">About</a>
               </p>
             </div> 
             
             <div id="logout"> 
-              <a href="@routes.AuthController.logout" title="Logout"><span class="icon">&#xf011;</span></a>
+              <a href="@controllers.common.auth.routes.AuthController.logout" title="Logout"><span class="icon">&#xf011;</span></a>
             </div>
           </div>
         </div>
@@ -67,7 +67,7 @@
         <ul>
           @for(collection <- collections) {
           	@if(currentCollection.equalsIgnoreCase(collection._1)) { <li> } else { <li class="disabled"> }
-              <a href="@routes.ApplicationController.index(Some(collection._1.toLowerCase))">
+              <a href="@controllers.frontpage.routes.FrontPageController.index(Some(collection._1.toLowerCase))">
                 <span class="collection-name">@collection._1</span>
                 <span class="collection-count">@collection._2</span>
               </a>
@@ -87,17 +87,17 @@
                     </div>
                   </td>
           	      <td class="username">
-                    <a href="@routes.StatsController.showUserStats(user.username)"">@user.username</a>
+                    <a href="@controllers.user.routes.UserController.showPublicProfile(user.username)"">@user.username</a>
                   </td>
           	    <tr>
               }
             }
           </table>
-          <a class="stats-link" href="@routes.StatsController.showStats()">See all</a>
+          <a class="stats-link" href="@controllers.unrestricted.routes.StatsController.showGlobalStats()">See all</a>
         </div>
       </div>
       
-      @singleDoc(entry: DocumentIndexRow, langGroup: Option[Int] = None) = {
+      @singleDoc(entry: frontpage.DocumentIndexRow, langGroup: Option[Int] = None) = {
         @if(langGroup.isDefined) { <tr class="lang-group lang-group-@langGroup.get"> } else { <tr> }
           <td class="title"> <!-- document title -->
             <div@if(entry.doc.description.isDefined) { title="@entry.doc.description" }> <!-- We need this DIV for the CSS ellipsis truncation to work! -->
@@ -132,21 +132,21 @@
           <td>
             <!-- text shortcut -->
             @if(entry.firstText.isDefined) {
-              <a class="icon" href="@routes.ApplicationController.showTextAnnotationUI(Some(entry.firstText.get), None)" title="Text Annotation">&#xf0f6;</a>
+              <a class="icon" href="@controllers.tools.routes.TextAnnotationController.showTextAnnotationUI(entry.firstText.get)" title="Text Annotation">&#xf0f6;</a>
             } else { @if(entry.firstImage.isDefined) {
-              <a class="icon" href="@routes.ApplicationController.showImageAnnotationUI(entry.firstImage.get)" title="Image Annotation">&#xf1c5;</a>
+              <a class="icon" href="@controllers.tools.routes.ImageAnnotationController.showImageAnnotationUI(entry.firstImage.get)" title="Image Annotation">&#xf1c5;</a>
             } else {
               <span class="icon disabled">&#xf016;</span>
             }}
             
             <!-- georesolution shortcut -->
-            <a class="icon" href="@routes.ApplicationController.showGeoResolutionUI(entry.doc.id.get)" title="Geo-Resolution">&#xf0ac;</a>
+            <a class="icon" href="@controllers.tools.routes.GeoResolutionController.showGeoResolutionUI(entry.doc.id.get)" title="Geo-Resolution">&#xf0ac;</a>
             
             <!-- document stats shortcut -->
-            <a href="@routes.StatsController.showDocumentStats(entry.doc.id.get)" class="icon" title="Document Stats">&#xf080;</a>
+            <a href="@controllers.unrestricted.routes.DocumentController.showStats(entry.doc.id.get)" class="icon" title="Document Stats">&#xf080;</a>
             
             <!-- CSV download shortcut -->
-            <a class="icon" href="@routes.DocumentController.get(entry.doc.id.get + ".csv")" title="Download CSV">&#xf0ce;</a>
+            <a class="icon" href="@controllers.unrestricted.routes.DownloadController.downloadCSV(entry.doc.id.get + ".csv")" title="Download CSV">&#xf0ce;</a>
             
             <!-- Source link --->
             @if(entry.firstSource.isDefined) {
@@ -158,7 +158,7 @@
         </tr>      	
       }
       
-      @languageGroup(entries: Seq[DocumentIndexRow]) = {
+      @languageGroup(entries: Seq[frontpage.DocumentIndexRow]) = {
         <tr class="lang-group-header lang-group-@entries.head.doc.id.get" onclick="toggleVersions(@entries.head.doc.id.get); return false;">
           <td class="title"> <!-- document title -->
             <div> <!-- We need this DIV for the CSS ellipsis truncation to work! -->

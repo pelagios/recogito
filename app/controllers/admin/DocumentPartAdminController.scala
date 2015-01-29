@@ -1,6 +1,6 @@
 package controllers.admin
 
-import controllers.Secured
+import controllers.common.auth.Secured
 import models.{ GeoDocumentPart, GeoDocumentParts }
 import play.api.mvc.Controller
 import play.api.db.slick._

@@ -1,4 +1,4 @@
-package controllers
+package controllers.common.auth
 
 import global.Global
 import models.Users
@@ -61,7 +61,7 @@ object AuthController extends Controller {
         if (destination.isDefined) {
           Redirect(destination.get).withSession(Security.username -> user._1)
         } else {
-          Redirect(routes.ApplicationController.index(None)).withSession(Security.username -> user._1)
+          Redirect(controllers.frontpage.routes.FrontPageController.index(None)).withSession(Security.username -> user._1)
         }
       }
     )
@@ -69,7 +69,7 @@ object AuthController extends Controller {
 
   /** Logout handler **/
   def logout = Action {
-    Redirect(routes.ApplicationController.index(None)).withNewSession
+    Redirect(controllers.frontpage.routes.FrontPageController.index(None)).withNewSession
   }
 
 }

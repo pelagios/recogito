@@ -1,4 +1,4 @@
-package controllers.annotation
+package controllers.api.writer
 
 import global.Global
 import java.io.ByteArrayOutputStream
@@ -17,7 +17,7 @@ import org.pelagios.api.annotation.{ Annotation => OAnnotation, AnnotatedThing, 
 import org.pelagios.api.annotation.selector.TextOffsetSelector
 import scala.util.{ Try, Success, Failure }
 
-trait TextAnnotationController extends AbstractAnnotationController {
+private[api] trait TextAnnotationWriter extends BaseAnnotationWriter {
   
   private val DARE_PREFIX = "http://www.imperium.ahlfeldt.se/"
     
@@ -138,7 +138,7 @@ trait TextAnnotationController extends AbstractAnnotationController {
   
   protected def forCtsURI(source: String)(implicit s: DBSessionRequest[_]): String = { 
     // Convert Recogito annotations to OA
-    val basePath = controllers.routes.ApplicationController.index(None).absoluteURL(false)
+    val basePath = controllers.frontpage.routes.FrontPageController.index(None).absoluteURL(false)
     val thing = AnnotatedThing(basePath + "egd", source)
     
     Annotations.findBySource(source).foreach(a => {

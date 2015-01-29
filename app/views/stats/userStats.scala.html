@@ -25,7 +25,7 @@
               @defining(100 * numberOfEdits.toDouble / numberOfEditsPerDocument(0)._2) { percentage =>
       	        <tr>
       	          <td class="compact">
-      	            <a href="@routes.StatsController.showDocumentStats(doc.id.get)">
+      	            <a href="@controllers.unrestricted.routes.DocumentController.showStats(doc.id.get)">
                       @doc.author.map(_ + ": ")
                       @doc.title
                     </a>

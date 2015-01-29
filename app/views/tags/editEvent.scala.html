@@ -1,6 +1,6 @@
 @(event: EditEvent, gdoc: Option[GeoDocument])
 <tr>
-  <td><a href="@routes.StatsController.showUserStats(event.username)">@event.username</a></td>
+  <td><a href="@controllers.user.routes.UserController.showPublicProfile(event.username)">@event.username</a></td>
   <td>
     @if(event.uriChange.isDefined) {
       @event.uriChange.get._1 match {
@@ -21,7 +21,7 @@
   </td>
   <td>
     @if(gdoc.isDefined) {
-      <a href="@routes.StatsController.showDocumentStats(gdoc.get.id.get)">
+      <a href="@controllers.unrestricted.routes.DocumentController.showStats(gdoc.get.id.get)">
         @gdoc.get.author.map(_ + ": ")
         @gdoc.get.title
       </a>

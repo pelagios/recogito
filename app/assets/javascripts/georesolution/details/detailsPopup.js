@@ -218,7 +218,7 @@ define(['georesolution/common',
           context.fetchContentPreview(function(preview) {
             quotePreview.html('...' + preview.pre + '<em>' + preview.toponym + '</em>' + preview.post + '...');
           });
-          quoteLink.attr('href', '/recogito/annotation/' + annotation.id);
+          quoteLink.attr('href', '/recogito/annotations/' + annotation.id);
           
           // Tag list
           tagList.show(annotation.tags);

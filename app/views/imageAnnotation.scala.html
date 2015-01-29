@@ -48,7 +48,7 @@
         @gdoc.author.map(_ + ": ").getOrElse("") @gdoc.title
         @gdoc.dateComment.map("(" + _ + ")").getOrElse("")
         @gdocPart.map(" - " + _.title).getOrElse("")
-        <div id="home-button"><a href="@routes.ApplicationController.index(None)" class="icon">&#xf015;</a></div>
+        <div id="home-button"><a href="@controllers.frontpage.routes.FrontPageController.index(None)" class="icon">&#xf015;</a></div>
       </div>
       
       <div id="menu">
@@ -59,8 +59,8 @@
             } else {
               <li><a href="#" id="dropdown-text-trigger" onclick="return false;">Image <span class="icon">&#xf0d7;</span></a></li>
             }
-          <li><a href="@routes.ApplicationController.showGeoResolutionUI(gdoc.id.get)">Geo-Resolution</a></li>
-          <li><a href="@routes.StatsController.showDocumentStats(gdoc.id.get)">Document Stats</a></li>
+          <li><a href="@controllers.tools.routes.GeoResolutionController.showGeoResolutionUI(gdoc.id.get)">Geo-Resolution</a></li>
+          <li><a href="@controllers.unrestricted.routes.DocumentController.showStats(gdoc.id.get)">Document Stats</a></li>
         </ul>
       </div>
       
@@ -68,7 +68,7 @@
         <div id="dropdown-text-menu">
           <ul>
             @for((image, title) <- allImages) {
-              <li><a href="@routes.ApplicationController.showImageAnnotationUI(image.id.get)">@title.getOrElse("[untitled]")</a></li>
+              <li><a href="@controllers.tools.routes.ImageAnnotationController.showImageAnnotationUI(image.id.get)">@title.getOrElse("[untitled]")</a></li>
             }
           </ul>
         </div>
@@ -106,7 +106,7 @@
       
     <div id="footer">
       <div id="user">
-        You are logged in as <span id="username">@username</span> <a href="@routes.AuthController.logout" class="icon">&#xf011;</a>
+        You are logged in as <span id="username">@username</span> <a href="@controllers.common.auth.routes.AuthController.logout" class="icon">&#xf011;</a>
       </div>
     </div>
   </body>

@@ -1,5 +1,6 @@
-package controllers
+package controllers.api
 
+import controllers.common.auth.{ Secure, Secured }
 import controllers.common.io.{ CSVSerializer, JSONSerializer }
 import models._
 import play.api.db.slick._
@@ -18,45 +19,11 @@ import play.api.mvc.AnyContent
   *
   * @author Rainer Simon <rainer.simon@ait.ac.at>  
   */
-object DocumentController extends Controller with Secured {
+object DocumentAPIController extends Controller with Secured {
   
   private val CSV = "csv"
   private val RDF_XML = "rdfxml"
   private val UTF8 = "UTF-8"
-  
-  private val voidTemplate =
-    Source.fromFile("conf/void-template.ttl").getLines().takeWhile(!_.trim.startsWith(".")).mkString("\n") + "\n"
-  
-  /** Returns the list of all geo documents in the database as JSON **/
-  def listAll = DBAction { implicit session =>
-    val documents = GeoDocuments.listAll().map(doc => Json.obj(
-      "id" -> doc.id,
-      "title" -> doc.title
-    ))
-    Ok(Json.toJson(documents))
-  }
-  
-  def getVoID() = DBAction { implicit session =>
-    val collections = CollectionMemberships.listCollections()
-    
-    val voidHeader =
-      voidTemplate + 
-      Seq.fill[String](collections.size)("  void:subset :collection")
-        .zipWithIndex
-        .map(t => t._1 + (t._2 + 1) + ";")
-        .mkString("\n") +
-      "\n  .\n\n"
-        
-    val subsets = collections.zipWithIndex.map { case (collection, index) => {
-      ":collection" + (index + 1) + " a void:dataset;\n" +
-      "  dcterms:title \"" + collection + "\";\n" + 
-      CollectionMemberships.getGeoDocumentsInCollection(collection).map(id => {
-        "  void:dataDump <"  + routes.DocumentController.get(id + ".csv").absoluteURL(false) + "?nocoords=true>;"
-      }).mkString("\n")
-    }}.mkString("\n  .\n\n") + "\n  ."
-      
-    Ok(voidHeader + subsets)  
-  }
 
   /** Returns the data for a specific document in the specified format.
     *
@@ -76,37 +43,15 @@ object DocumentController extends Controller with Secured {
     val doc = GeoDocuments.findById(idInt)
     if (doc.isDefined) {
       if (format.equalsIgnoreCase(CSV))
-        get_CSV(doc.get)
+        Redirect(controllers.unrestricted.routes.DownloadController.downloadCSV(doc.get.id.get.toString))
       else if (format.equalsIgnoreCase(RDF_XML))
-        get_RDF(doc.get, Scalagios.RDFXML, routes.ApplicationController.index(None).absoluteURL(false))
+        get_RDF(doc.get, Scalagios.RDFXML, controllers.frontpage.routes.FrontPageController.index(None).absoluteURL(false))
       else
         get_JSON(doc.get)
     } else {
       val msg = "No document with ID " + id
       NotFound(Json.obj("error" -> msg))            
     }
-  }
-  
-  private def get_CSV(doc: GeoDocument)(implicit session: DBSessionRequest[_]) = {
-    val id = doc.id.get
-    val annotations = Annotations.findByGeoDocumentAndStatus(id, 
-      AnnotationStatus.VERIFIED, 
-      AnnotationStatus.AMBIGUOUS,
-      AnnotationStatus.NO_SUITABLE_MATCH,
-      AnnotationStatus.MULTIPLE,
-      AnnotationStatus.NOT_IDENTIFYABLE)
-      
-    val excludeCoordinates = session.request.queryString
-      .filter(_._1.toLowerCase.equals("nocoords"))
-      .headOption.flatMap(_._2.headOption.map(_.toBoolean)).getOrElse(false)
-      
-    val serializer = new CSVSerializer()
-    
-    def escapeTitle(title: String) = 
-      title.replace(" ", "_").replace(",", "_")
-    
-    Ok(serializer.serializeAnnotationsConsolidated(doc, annotations, !excludeCoordinates))
-      .withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=" + escapeTitle(doc.title) + doc.language.map("_" + _).getOrElse("") + ".csv"))
   }
   
   private def get_RDF(doc: GeoDocument, format: String, basePath: String)(implicit session: Session) = {

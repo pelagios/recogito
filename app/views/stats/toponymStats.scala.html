@@ -11,7 +11,7 @@
 	  <table>
 	    @for((gdoc, count) <- stats.groupBy(_._1._1).toSeq.map(t => (t._1, t._2.foldLeft(0)(_ + _._2))).sortBy(- _._2))  {
 	      <tr>
-		      <td><a href="@routes.StatsController.showDocumentStats(gdoc.id.get)">@gdoc.title</a></td>
+		      <td><a href="@controllers.unrestricted.routes.DocumentController.showStats(gdoc.id.get)">@gdoc.title</a></td>
 		      <td>@count</td>
 		    </tr>
 	    }
