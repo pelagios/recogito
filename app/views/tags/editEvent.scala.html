@@ -21,7 +21,7 @@
   </td>
   <td>
     @if(gdoc.isDefined) {
-      <a href="@controllers.unrestricted.routes.DocumentController.showStats(gdoc.get.id.get)">
+      <a href="@controllers.unrestricted.routes.DocumentController.showMap(gdoc.get.id.get)">
         @gdoc.get.author.map(_ + ": ")
         @gdoc.get.title
       </a>
