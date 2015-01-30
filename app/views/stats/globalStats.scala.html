@@ -20,17 +20,17 @@
       
       <div id="content" class="wide">
         <div class="box">
-          <h2>Contribution Activity</h2>
+          <h2>Contribution Activity <span>Number of edits per day</span></h2>
           <div id="activity-timeline"></div>
         </div>
         
         <div class="box">
-          <h2>Annotation Progress</h2>
+          <h2>Annotation Progress <span>Number of total toponyms over time</span></h2>
          <div id="progress-history"></div>
         </div> <!-- .box -->
         
         <div class="box">
-          <h2>Top Contributors</h2>
+          <h2>Top 10 Contributors</h2>
       
           <table>
             @for((user, score) <- scores) {
@@ -60,6 +60,13 @@
     </div> <!-- .column -->
     <script>
       $(document).ready(function() {
+        var chartTooltip = $('<div class="chart-tooltip"></div>').appendTo(document.body);
+        chartTooltip.hide();
+        
+        $('#activity-timeline, #progress-history').mousemove(function(e) {
+          chartTooltip.offset({ left: e.pageX, top: e.pageY - chartTooltip.outerHeight() });
+        });
+        
         // Activity line chart
         @defining(activity.zipWithIndex) { a =>
           @defining(new java.text.SimpleDateFormat("dd-MM-yyyy", java.util.Locale.ENGLISH)) { df =>
@@ -67,13 +74,13 @@
               [ @Html({ a.map(t => "{ x:\"" + df.format(t._1.timestamp.getTime - 86400000) + "\", y:" + (t._1.totalEdits + 1) + ", idx: " + t._2 + " }").mkString(",") }) ];
                       
             var verifiedOverTime =
-              [ @Html({ a.map(t => "{ x:\"" + df.format(t._1.timestamp.getTime - 86400000) + "\", y:" + t._1.verifiedToponyms + ", idx: " + t._2 + " }").mkString(",") })];
+              [ @Html({ a.map(t => "{ x:\"" + df.format(t._1.timestamp.getTime - 86400000) + "\", y:" + t._1.verifiedToponyms + ", idx: " + t._2 + ", class:\"verified\" }").mkString(",") })];
               
             var verifiedAndYellowOverTime =
-              [ @Html({ a.map(t => "{ x:\"" + df.format(t._1.timestamp.getTime - 86400000) + "\", y:" + (t._1.verifiedToponyms + t._1.unidentifiableToponyms) + ", idx: " + t._2 + " }").mkString(",") })];
+              [ @Html({ a.map(t => "{ x:\"" + df.format(t._1.timestamp.getTime - 86400000) + "\", y:" + (t._1.verifiedToponyms + t._1.unidentifiableToponyms) + ", idx: " + t._2 + ", class:\"unidentifiable\" }").mkString(",") })];
               
             var totalOverTime  =
-              [ @Html({ a.map(t => "{ x:\"" + df.format(t._1.timestamp.getTime - 86400000) + "\", y:" + t._1.totalToponyms + ", idx: " + t._2 + " }").mkString(",") })];
+              [ @Html({ a.map(t => "{ x:\"" + df.format(t._1.timestamp.getTime - 86400000) + "\", y:" + t._1.totalToponyms + ", idx: " + t._2 + ", class:\"total\" }").mkString(",") })];
           }
         }
         
@@ -88,7 +95,11 @@
           }, '#activity-timeline', {
             sortX: function (a, b) { return a.idx - b.idx; },
             paddingTop: 20,
-            mouseover: function(data, i) { /* TODO */ },
+            mouseover: function(data, i) { 
+              chartTooltip.html('<p class="date">' + d3.time.format('%A, %d %B %Y')(data.x) + '</p><p class="edits">' + data.y + ' Edits</p>');
+              chartTooltip.show();
+            },
+            mouseout: function() { chartTooltip.hide(); },
             dataFormatX: function (x) { return d3.time.format('%d-%m-%Y').parse(x); },
             tickFormatX: function (x) { return d3.time.format('%d %b')(x); },
             tickFormatY: function (y) { return numeral(y).format('0,0'); },
@@ -111,7 +122,12 @@
           }, '#progress-history', {
             sortX: function (a, b) { return a.idx - b.idx; },
             paddingTop: 20,
-            mouseover: function(data, i) { /* TODO */ },
+            mouseover: function(data, i) { 
+              var count = (data.class === 'unidentifiable') ? (data.y - $.grep(verifiedOverTime, function(e) { return e.idx === i})[0].y) : data.y;
+              chartTooltip.html('<p class="date">' + d3.time.format('%A, %d %B %Y')(data.x) + '</p><p class="edits ' + data.class + '">' + numeral(count).format('0,0') + ' toponyms ' + data.class + '</p>');
+              chartTooltip.show();
+            },
+            mouseout: function() { chartTooltip.hide(); },
             dataFormatX: function (x) { return d3.time.format('%d-%m-%Y').parse(x); },
             tickFormatX: function (x) { return d3.time.format('%d %b')(x); },
             tickFormatY: function (y) { return numeral(y).format('0,0'); },

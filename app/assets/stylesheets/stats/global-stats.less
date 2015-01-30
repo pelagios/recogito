@@ -53,6 +53,12 @@
   height:200px;
 }
 
+#activity-timeline {
+
+  .xchart .color0 rect { fill: #f19400; }
+
+}
+
 #progress-history {
   .xchart circle { stroke-width:1.5; }
       
@@ -67,6 +73,25 @@
   .verified.color2 .line { stroke: #2ca02c; }
   .verified.color2 circle { fill: #2ca02c; }
   .verified.color2 .fill { fill: rgba(44, 160, 44, 0.2); }
+}
+
+.chart-tooltip {
+  position:absolute;
+  padding:6px 10px;
+  background-color:rgba(0,0,0,0.65);
+  .rounded-corners(5px);
+  border:1px solid #323232;
+  color: #e2e2e2;
+  
+  p {
+    margin:2px 0;
+    padding:0;
+  }
+  
+  .edits { color:#f19400; }
+  .edits.verified { color:#48b516; }
+  .edits.unidentifiable { color:#e8e002; }
+  .edits.total { color:#c7c7c7; }
 }
 
 #content.wide {
@@ -114,6 +139,13 @@
       margin:0;
       padding:8px;
       display:block;
+      
+      span {
+        color:#828282;
+        padding-left:8px;
+        font-weight:normal;
+      }
+      
     } /* h2 */
     
     table {
