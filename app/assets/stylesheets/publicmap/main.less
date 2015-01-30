@@ -1,9 +1,59 @@
+@import "../globals.less";
+
 html, body, #map {
+  font-family:Arial, Sans, Verdana;
   width:100%;
   height:100%;
   margin:0;
   padding:0;
 }
+
+#side-overlay {
+  position:absolute;
+  top:0;
+  left:0;
+  width:20%;
+  min-width:400px;
+  height:100%;
+  background-color:rgba(0,0,0,0.65);
+  color:#fff;
+  padding:10px 20px 10px 14px;
+  box-sizing:border-box;
+  
+  h1 {
+    font-size:17px;
+    padding:2px 0;
+    margin:0;
+  }
+  
+  h2 {
+    font-size:16px;
+    padding:0 0 15px 0;
+    margin:0;
+    font-weight:normal;
+  }
+  
+  p {
+    margin:0;
+    padding:5px 0;
+    font-size:14px;
+    line-height:140%;
+  }
+  
+  a { color: #fff; }
+  
+}
+
+#btn-slide-toggle {
+  position:absolute;
+  top:20px;
+  left:100%;
+  background-color:rgba(0,0,0,0.65);
+  .rounded-corners-right(5px);
+  padding:10px 5px 10px 2px;
+  cursor:pointer;
+}
+
 
 .overlay {
   position:absolute;
@@ -72,15 +122,16 @@ html, body, #map {
 
 .publicmap-infobox {
   position:absolute;
-  top:20px;
-  right:20px;
+  top:10px;
+  right:55px;
   padding:0;
   margin:0;
   background-color:#fff;  
-  -moz-box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
-  -webkit-box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
-  box-shadow:1px 1px 20px 8px rgba(0, 0, 0, 0.4);
-  border:1px solid #595959;
+  .rounded-corners(3px);
+  -moz-box-shadow:1px 1px 4px 1px rgba(0, 0, 0, 0.2);
+  -webkit-box-shadow:1px 1px 4px 1px rgba(0, 0, 0, 0.2);
+  box-shadow:1px 1px 4px 1px rgba(0, 0, 0, 0.2);
+  border:1px solid #a2a2a2;
   z-index:999; /* Needed for IE */
 }
 

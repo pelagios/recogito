@@ -29,6 +29,17 @@
   border-bottom-left-radius: @radius;
 }
 
+.rounded-corners-right (@radius) {
+  -moz-border-radius-topright: @radius;
+  -moz-border-radius-bottomright: @radius;
+  -webkit-border-top-right-radius: @radius;
+  -webkit-border-bottom-right-radius: @radius;
+  -khtml-border-radius-topright: @radius;
+  -khtml-border-radius-bottomright: @radius;
+  border-top-right-radius: @radius;
+  border-bottom-right-radius: @radius;
+}
+
 .box-shadow (@h, @v, @blur, @spread, @color) {
   -moz-box-shadow:@h @v @blur @spread @color;
   -webkit-box-shadow:@h @v @blur @spread @color;

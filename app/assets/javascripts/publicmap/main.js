@@ -3,6 +3,8 @@ var recogito = (window.recogito) ? window.recogito : { };
 
 recogito.PublicMap = function(mapDiv, dataURL) {
   var self = this,
+      sideoverlay = $('#side-overlay'),
+      btnSlideSideoverlay = $('#btn-slide-toggle'),
       dareLayer = L.tileLayer('http://pelagios.org/tilesets/imperium/{z}/{x}/{y}.png', {
     	  attribution: 'Tiles: <a href="http://imperium.ahlfeldt.se/">DARE 2014</a>',
         maxZoom:11
@@ -45,7 +47,8 @@ recogito.PublicMap = function(mapDiv, dataURL) {
     center: new L.LatLng(41.893588, 12.488022),
     zoom: 5,
     layers: [awmcLayer],
-    minZoom: 3
+    minZoom: 3,
+    zoomControl: false
   });
   
   var self = this;
@@ -58,11 +61,24 @@ recogito.PublicMap = function(mapDiv, dataURL) {
                      'OSM': osmLayer,
                      'Empty Base Map (<a href="http://awmc.unc.edu/wordpress/tiles/map-tile-information" target="_blank">AWMC</a>)': awmcLayer, 
                      'Roman Empire Base Map (<a href="http://imperium.ahlfeldt.se/" target="_blank">DARE</a>)': dareLayer };
-  this._map.addControl(new L.Control.Layers(baseLayers, null, { position: 'topleft' }));
+                     
+  this._map.addControl(new L.Control.Zoom({ position: 'topright' }));
+  this._map.addControl(new L.Control.Layers(baseLayers, null, { position: 'topright' }));
   
   // Fetch JSON data
   var loadIndicator = new recogito.LoadIndicator();
   loadIndicator.show();
+  
+  // Sidebar slide toggle
+  btnSlideSideoverlay.click(function() {
+    var right = sideoverlay.offset().left + sideoverlay.outerWidth();
+    console.log(right);
+    if (right > 0) {
+      sideoverlay.animate({ left: -right }, 300);
+    } else {
+      sideoverlay.animate({ left: 0 }, 300);
+    }
+  });
   
   $.getJSON(dataURL, function(data) {
     if (data.annotations) {

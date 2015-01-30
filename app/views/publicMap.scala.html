@@ -17,13 +17,25 @@
   
   <body>
     <div id="map"></div>
-    <div id="meta" class="overlay">
-      <h1>@doc.author.map(_ + ": ").getOrElse("") @doc.title @doc.dateComment.map("(" + _ + ")").getOrElse("")</h1>
-      @Html(doc.description.map("<p>" + _ + "</p>").getOrElse(""))
+    <div id="side-overlay">
+      <div id="btn-slide-toggle" class="icon">&#xf053;</div>
+      
+      <h1>@doc.author.map(_ + ": ").getOrElse("") @doc.title</h1>  
+      <h2>@doc.dateComment.getOrElse("")</h2>
+      @if(doc.description.isDefined) {
+        <p class="description">@doc.description</p>
+      }
       @if(source.isDefined) {
-        <a href="@source" target="_blank">Visit Source</a>
+        @defining(if (source.get.startsWith("http")) source.get.substring(source.get.indexOf(":") + 3) else source.get) { sourceWithoutProtocol =>
+          <p class="source">Source:
+            <a href="@source" target="_blank">@if(sourceWithoutProtocol.indexOf("/") > -1) {
+              @sourceWithoutProtocol.substring(0, sourceWithoutProtocol.indexOf("/"))
+            }</a>
+          </p>
+        }
       }
     </div>
-    <div id="beta-badge" class="overlay">BETA!</div>
+    
+
   </body>
 </html>
