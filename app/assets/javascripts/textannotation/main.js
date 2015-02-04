@@ -450,7 +450,7 @@ recogito.TextAnnotationUI.REST.createAnnotation = function(toponym, span, offset
   }  
   
   $.ajax({
-    url: '../api/annotations',
+    url: '../../api/annotations',
     type: 'POST',
     data: data,
     contentType : 'application/json',
@@ -472,7 +472,7 @@ recogito.TextAnnotationUI.REST.updateAnnotation = function(id, toponym, offset, 
     data.source = source;
     
   $.ajax({
-    url: '../api/annotations/' + id,
+    url: '../../api/annotations/' + id,
     type: 'PUT',
     data: data,
     contentType : 'application/json',
@@ -484,7 +484,7 @@ recogito.TextAnnotationUI.REST.updateAnnotation = function(id, toponym, offset, 
 
 recogito.TextAnnotationUI.REST.deleteAnnotation = function(id, opt_callback) {
   $.ajax({
-    url: '../api/annotations/' + id,
+    url: '../../api/annotations/' + id,
     type: 'DELETE',
     error: function(result) {
       console.log('ERROR deleting annotation!');
@@ -494,7 +494,7 @@ recogito.TextAnnotationUI.REST.deleteAnnotation = function(id, opt_callback) {
 
 recogito.TextAnnotationUI.REST.signOff = function(textId, success_callback) {
   $.ajax({
-    url: '../api/documents/signoff?textId=' + textId,
+    url: '../../api/documents/signoff?textId=' + textId,
     type: 'POST',
     success: success_callback,
     error: function(result) {
