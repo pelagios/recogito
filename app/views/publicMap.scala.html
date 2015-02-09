@@ -4,20 +4,17 @@
     <title>PELAGIOS Geo-Resolution Correction Tool</title>
     <link rel="stylesheet" href="@routes.Assets.at("javascripts/lib/leaflet/leaflet.css")" />
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/publicmap/main.css")" />
+    <link rel="related" type="application/json" href="@controllers.api.routes.DocumentAPIController.get(doc.id.get.toString)" />
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-1.11.1.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/leaflet/leaflet.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/leaflet/leaflet.bing.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/publicmap/main.js")"></script>   
-    <script>
-      $(function() {
-        var map = new recogito.PublicMap(document.getElementById('map'), '@controllers.api.routes.DocumentAPIController.get(doc.id.get.toString)');
-      });
-    </script>
+    @helper.requireJs(core = routes.Assets.at("javascripts/require.js").url, module = routes.Assets.at("javascripts/publicmap").url)
   </head>
   
   <body>
     <div id="map"></div>
-    <div id="side-overlay">
+    <div id="side-panel">
       <div id="btn-slide-toggle" class="icon">&#xf053;</div>
       
       <h1>@doc.author.map(_ + ": ").getOrElse("") @doc.title</h1>  
@@ -35,7 +32,5 @@
         }
       }
     </div>
-    
-
   </body>
 </html>

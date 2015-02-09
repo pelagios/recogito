@@ -16,7 +16,7 @@ define([], function() {
     } else {
       textPreviewHandlers.push(callback);
       if (textPreviewHandlers.length == 1) {
-        jQuery.getJSON('api/annotations/' + annotation.id, function(a) {
+        jQuery.getJSON('/recogito/api/annotations/' + annotation.id, function(a) {
           var startIdx, endIdx, pre, post;
 
           if (a.context) {

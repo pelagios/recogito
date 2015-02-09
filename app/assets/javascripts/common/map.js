@@ -158,7 +158,7 @@ define(['common/hasEvents'], function(HasEvents) {
   
     /** Adds an annotation to the map **/
     this.addAnnotation = function(annotation, opt_context) {    
-      var place, style, annotationsForPlace, marker, a,
+      var self = this, place, style, annotationsForPlace, marker, a,
     
           /** Helper function to create the marker **/
           createMarker = function(place, baseStyle) {
@@ -166,6 +166,7 @@ define(['common/hasEvents'], function(HasEvents) {
                 marker = L.circleMarker(place.coordinate, style);
                 
             marker.on('click', function(e) {
+              self.showPopup(annotation);
               self.fireEvent('select', jQuery.map(annotations[place.uri].annotations, function(tuple) { 
                 return tuple[0];
               }));
