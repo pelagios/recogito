@@ -25,8 +25,9 @@ object DocumentController extends Controller with Secured {
       val verified = Annotations.countForGeoDocumentAndStatus(doc, AnnotationStatus.VERIFIED)
       val places = Annotations.countUniquePlaces(doc) 
       val contributors = Annotations.getContributorStats(doc)
+      val inCollection = CollectionMemberships.findForGeoDocument(doc).headOption
       
-      Ok(views.html.publicMap(document.get, source, verified, places, contributors.map(_._1)))
+      Ok(views.html.publicMap(document.get, source, verified, places, contributors.map(_._1), inCollection))
     } else {
       NotFound
     }
@@ -35,12 +36,12 @@ object DocumentController extends Controller with Secured {
   def showStats(docId: Int) = DBAction { implicit session =>
     val doc = GeoDocuments.findById(docId)
     if (doc.isDefined) {        
-      val id = doc.get.id.get
-      val (completionStats, untranscribed) = Annotations.getCompletionStats(id).getOrElse((CompletionStats.empty, 0))
-      val autoAnnotationStats = Annotations.getAutoAnnotationStats(id)
-      val unidentifiedToponyms = Annotations.getUnidentifiableToponyms(id)
-      val placeStats = Annotations.getPlaceStats(id)
-      val userStats = Annotations.getContributorStats(id)
+      val (completionStats, untranscribed) = Annotations.getCompletionStats(docId).getOrElse((CompletionStats.empty, 0))
+      val autoAnnotationStats = Annotations.getAutoAnnotationStats(docId)
+      val unidentifiedToponyms = Annotations.getUnidentifiableToponyms(docId)
+      val placeStats = Annotations.getPlaceStats(docId)
+      val userStats = Annotations.getContributorStats(docId)
+  
       Ok(views.html.stats.documentStats(doc.get, GeoDocumentContent.findByGeoDocument(docId), completionStats, untranscribed, autoAnnotationStats, userStats, unidentifiedToponyms, placeStats, currentUser.map(_.username)))
     } else {
       NotFound

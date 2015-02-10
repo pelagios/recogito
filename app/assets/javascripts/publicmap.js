@@ -57,12 +57,12 @@ require(['common/map', 'publicmap/sidePanel', 'publicmap/loadIndicator', 'common
                         
         // Init 'progress indicator' and display first quote in list
         updateProgress();
-        displayQuote(annotationsWithContext[currentQuote]);
+        displayQuote(annotationsWithContext[currentQuote], html);
              
         btnPrevQuote.click(function() {
           if (currentQuote > 0) {
             currentQuote -= 1;
-            displayQuote(annotationsWithContext[currentQuote]);
+            displayQuote(annotationsWithContext[currentQuote], html);
             updateProgress();
           }
         });
@@ -70,7 +70,7 @@ require(['common/map', 'publicmap/sidePanel', 'publicmap/loadIndicator', 'common
         btnNextQuote.click(function() {
           if (currentQuote < annotationsWithContext.length - 1) {
             currentQuote += 1;
-            displayQuote(annotationsWithContext[currentQuote]);
+            displayQuote(annotationsWithContext[currentQuote], html);
             updateProgress();
           }
         });
@@ -78,7 +78,7 @@ require(['common/map', 'publicmap/sidePanel', 'publicmap/loadIndicator', 'common
         return html[0];
       },
       
-      displayQuote  = function(annotationWithContext) {   
+      displayQuote  = function(annotationWithContext, el) {   
         var context = annotationWithContext[1];
             
         if (!context) {
@@ -87,7 +87,7 @@ require(['common/map', 'publicmap/sidePanel', 'publicmap/loadIndicator', 'common
         }
                            
         context.fetchContentPreview(function(snippet) {
-          jQuery('.map-popup .content-preview .quote').html('... ' + snippet.pre + '<em>' + snippet.toponym + '</em>' + snippet.post + ' ...');
+          el.find('.quote').html('... ' + snippet.pre + '<em>' + snippet.toponym + '</em>' + snippet.post + ' ...');
         });
       },
       

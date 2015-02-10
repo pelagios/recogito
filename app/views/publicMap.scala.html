@@ -1,4 +1,4 @@
-@(doc: models.GeoDocument, source: Option[String], annotations: Int, places: Int, contributors: Seq[String])
+@(doc: models.GeoDocument, source: Option[String], annotations: Int, places: Int, contributors: Seq[String], inCollection: Option[String])
 <html>
   <head>
     <title>PELAGIOS Geo-Resolution Correction Tool</title>
@@ -42,7 +42,25 @@
           <li><span class="number">@places</span> unique places</li>
           <li><span class="number">@contributors.size</span> contributing users</li>
         </ul>
-        <p><a href="@controllers.unrestricted.routes.DocumentController.showStats(doc.id.get)">All Stats...</a></p>
+      </div>
+      
+      <div class="icon-bar">
+        <ul>
+          <li>
+            <a class="icon" href="@controllers.unrestricted.routes.DocumentController.showStats(doc.id.get)">&#xf080;</a>
+            <a class="caption" href="@controllers.unrestricted.routes.DocumentController.showStats(doc.id.get)">All Stats</a>
+          </li>
+          
+          <li>
+            <a class="icon" href="@controllers.unrestricted.routes.DownloadController.downloadCSV(doc.id.get + ".csv")">&#xf019;</a>
+            <a class="caption" href="@controllers.unrestricted.routes.DownloadController.downloadCSV(doc.id.get + ".csv")">Download Data</a>
+          </li>
+          
+          <li>
+            <a class="recogito-logo" href="@controllers.frontpage.routes.FrontPageController.index(inCollection)">RECOGITO</a>
+            <a  class="caption" href="@controllers.frontpage.routes.FrontPageController.index(inCollection)">Document Index</a>
+          </li>
+        </ul>
       </div>
 
     </div>
