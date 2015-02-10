@@ -1,4 +1,4 @@
-@(doc: models.GeoDocument, source: Option[String])
+@(doc: models.GeoDocument, source: Option[String], annotations: Int, places: Int, contributors: Seq[String])
 <html>
   <head>
     <title>PELAGIOS Geo-Resolution Correction Tool</title>
@@ -17,20 +17,34 @@
     <div id="side-panel">
       <div id="btn-slide-toggle" class="icon">&#xf053;</div>
       
-      <h1>@doc.author.map(_ + ": ").getOrElse("") @doc.title</h1>  
-      <h2>@doc.dateComment.getOrElse("")</h2>
-      @if(doc.description.isDefined) {
-        <p class="description">@doc.description</p>
-      }
-      @if(source.isDefined) {
-        @defining(if (source.get.startsWith("http")) source.get.substring(source.get.indexOf(":") + 3) else source.get) { sourceWithoutProtocol =>
-          <p class="source">Source:
-            <a href="@source" target="_blank">@if(sourceWithoutProtocol.indexOf("/") > -1) {
-              @sourceWithoutProtocol.substring(0, sourceWithoutProtocol.indexOf("/"))
-            }</a>
-          </p>
+      <div class="row">
+        <h1>@doc.author.map(_ + ": ").getOrElse("") @doc.title</h1>  
+        <h2>@doc.dateComment.getOrElse("")</h2>
+      
+        @if(doc.description.isDefined) {
+          <p class="description">@doc.description</p>
         }
-      }
+        
+        @if(source.isDefined) {
+          @defining(if (source.get.startsWith("http")) source.get.substring(source.get.indexOf(":") + 3) else source.get) { sourceWithoutProtocol =>
+            <p class="source">Source:
+              <a href="@source" target="_blank">@if(sourceWithoutProtocol.indexOf("/") > -1) {
+                @sourceWithoutProtocol.substring(0, sourceWithoutProtocol.indexOf("/"))
+              }</a>
+            </p>
+          }
+        }
+      </div>
+      
+      <div class="row base-stats">
+        <ul>
+          <li><span class="number">@annotations</span> verified place references</li>
+          <li><span class="number">@places</span> unique places</li>
+          <li><span class="number">@contributors.size</span> contributing users</li>
+        </ul>
+        <p><a href="@controllers.unrestricted.routes.DocumentController.showStats(doc.id.get)">All Stats...</a></p>
+      </div>
+
     </div>
   </body>
 </html>

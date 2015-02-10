@@ -275,6 +275,15 @@ object Annotations extends HasStatusColumn {
     PlaceStats(places.filter(_._1.isDefined).map(t => (t._1.get, t._2, t._3)))
   }
   
+  /** A simpler place stats query that just counts the number of unique places for a doc **/ 
+  def countUniquePlaces(gdocId: Int)(implicit s: Session): Int = {
+    val q = query.where(_.gdocId === gdocId)
+                 .filter(_.status === AnnotationStatus.VERIFIED)
+                 .map(t => t.correctedGazetteerURI.ifNull(t.gazetteerURI))
+
+    Query(q.countDistinct).first
+  }
+  
   /** Get contributor stats (based on annotations and associated edit events) for a GeoDocument **/
   def getContributorStats(gdocId: Int)(implicit s: Session): Seq[(String, Int)] =
     query.where(_.gdocId === gdocId)

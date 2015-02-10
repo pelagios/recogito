@@ -2,7 +2,7 @@ package controllers.unrestricted
 
 import controllers.common.auth.{ Secure, Secured }
 import java.util.UUID
-import models.{ GeoDocuments, GeoDocumentContent, GeoDocumentParts, Annotations }
+import models._
 import models.content._
 import models.stats.CompletionStats
 import play.api.db.slick._
@@ -13,13 +13,20 @@ object DocumentController extends Controller with Secured {
   def showMap(doc: Int) = DBAction { implicit rs =>
     val document = GeoDocuments.findById(doc)
     if (document.isDefined) {
+      // Source URL of the document or it's first part
       val source = {
         if (document.get.source.isDefined)
           document.get.source
         else
           GeoDocumentParts.findByGeoDocument(doc).flatMap(_.source).headOption
       }
-      Ok(views.html.publicMap(document.get, source))
+      
+      // Base stats
+      val verified = Annotations.countForGeoDocumentAndStatus(doc, AnnotationStatus.VERIFIED)
+      val places = Annotations.countUniquePlaces(doc) 
+      val contributors = Annotations.getContributorStats(doc)
+      
+      Ok(views.html.publicMap(document.get, source, verified, places, contributors.map(_._1)))
     } else {
       NotFound
     }

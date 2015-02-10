@@ -17,8 +17,13 @@ html, body, #map {
   height:100%;
   background-color:rgba(0,0,0,0.65);
   color:#fff;
-  padding:10px 20px 10px 14px;
+  padding:0;
   box-sizing:border-box;
+  
+  .row {
+    padding:10px 20px 10px 14px;
+    border-bottom:1px solid rgba(255,255,255,0.15);
+  }
   
   h1 {
     font-size:17px;
@@ -41,6 +46,27 @@ html, body, #map {
   }
   
   a { color: #fff; }
+  
+  .base-stats {
+  
+    ul {
+      list-style-type:none; 
+      padding-left:0;
+      padding-bottom:3px;
+      margin-bottom:0;
+    }
+    
+    li {
+      padding-bottom:3px;
+    }
+    
+    .number {
+      font-size:18px;
+      font-weight:bold;
+      text-shadow:1px 1px rgba(0, 0, 0, 0.4);
+    }
+      
+  } /* .base-stats */
   
 }
 
@@ -82,29 +108,27 @@ html, body, #map {
   
   .title {
     padding:5px 10px 2px 10px;
-    background-color:rgba(0,0,0,0.75);
+    background-color:rgba(0,0,0,0.65);
     font-size:16px;
     font-weight:bold;
   }
   
-  .names, .description, .footer {
-    background-color:rgba(0,0,0,0.75);
+  .names, .footer {
+    background-color:rgba(0,0,0,0.65);
+    position:relative;
   }
   
   .names {
-    padding:0px 10px 1px 10px;
+    padding:0px 10px 8px 10px;
     font-style:italic;
-  }
-  
-  .description {
-    padding:1px 10px 8px 10px;
   }
   
   .content-preview {
     padding:8px 10px;
-    background-color:rgba(0, 0, 0, 0.7);
+    background-color:rgba(48,48,48,0.7);
     
     .quote {
+      text-align:center;
       display:block;
       font-family:"Times New Roman", Times, serif;
       font-size:16px;
@@ -122,11 +146,31 @@ html, body, #map {
   }
   
   .footer {
+    display:table;
+    box-sizing:border-box;
+    width:100%;
     padding:3px 9px;
     font-size:18px;
     
+    .progress {
+      display:table-cell;
+      text-align:center;
+      font-size:14px;
+    }
+    
+    .prev, .next { display:table-cell; }
+    
+    .prev-quote, .next-quote {
+      cursor:pointer;
+    }    
+    
     .next {
-      float:right;
+      text-align:right;
+    }
+    
+    .disabled {
+      color:#828282;
+      cursor:default;
     }
   }
   
@@ -145,11 +189,11 @@ html, body, #map {
 .leaflet-popup-content {
   margin:0 !important;
   padding:0 !important;
-  min-width:320px;
+  min-width:360px;
 }
 
 .leaflet-popup-tip {
-  background-color:rgba(0,0,0,0.65);
+  background-color:rgba(0,0,0,0.53);
 }
 
 .leaflet-popup-close-button {

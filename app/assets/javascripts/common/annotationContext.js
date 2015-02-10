@@ -1,22 +1,20 @@
 define([], function() {
-  
-  var annotation,
-      textPreviewHandlers,
-      cachedTextPreview;
-  
+    
   var AnnotationContext = function(_annotation) {
-    annotation = _annotation;
-    textPreviewHandlers = [];
-    cachedTextPreview = false;
+    this.annotation = _annotation;
+    this.textPreviewHandlers = [];
+    this.cachedTextPreview = false;
   };
   
-  AnnotationContext.prototype.fetchContentPreview = function(callback) {    
-    if (cachedTextPreview) {
-      callback(cachedTextPreview);
+  AnnotationContext.prototype.fetchContentPreview = function(callback) {   
+    var self = this;
+     
+    if (this.cachedTextPreview) {
+      callback(this.cachedTextPreview);
     } else {
-      textPreviewHandlers.push(callback);
-      if (textPreviewHandlers.length == 1) {
-        jQuery.getJSON('/recogito/api/annotations/' + annotation.id, function(a) {
+      this.textPreviewHandlers.push(callback);
+      if (this.textPreviewHandlers.length == 1) {
+        jQuery.getJSON('/recogito/api/annotations/' + this.annotation.id, function(a) {
           var startIdx, endIdx, pre, post;
 
           if (a.context) {
@@ -27,9 +25,9 @@ define([], function() {
               pre = a.context.substring(0, startIdx);
               post = a.context.substring(endIdx);
               
-              cachedTextPreview = { pre: pre, toponym: annotation.toponym, post: post };
-              jQuery.each(textPreviewHandlers, function(idx, handler) {
-                handler(cachedTextPreview);
+              self.cachedTextPreview = { pre: pre, toponym: self.annotation.toponym, post: post };
+              jQuery.each(self.textPreviewHandlers, function(idx, handler) {
+                handler(self.cachedTextPreview);
               });
             }
           }

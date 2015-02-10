@@ -1,7 +1,7 @@
 define(['georesolution/common',
         'georesolution/details/detailsMap',
         'georesolution/details/searchControl',
-        'georesolution/annotationContext',
+        'common/annotationContext',
         'georesolution/tagList'], function(common, Map, SearchControl, AnnotationContext, TagList) {
   
   var DetailsPopup = function(eventBroker) {

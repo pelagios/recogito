@@ -5,7 +5,7 @@
  * @param {String} dataURL the URL from where to retrieve the JSON data
  * @constructor
  */
-require(['georesolution/overviewMap', 'georesolution/table/table', 'georesolution/footer', 'common/eventbroker', 'georesolution/events'], function(Map, Table, Footer, EventBroker, events) {
+require(['georesolution/overviewMap', 'georesolution/table/table', 'georesolution/footer', 'common/eventBroker', 'georesolution/events'], function(Map, Table, Footer, EventBroker, events) {
    
   var self = this,
       eventBroker = new EventBroker(events),

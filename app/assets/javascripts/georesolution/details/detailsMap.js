@@ -1,4 +1,4 @@
-define(['georesolution/common', 'common/map', 'georesolution/annotationContext'], function(common, MapBase, AnnotationContext) {
+define(['georesolution/common', 'common/map', 'common/annotationContext'], function(common, MapBase, AnnotationContext) {
   
   var parentEl,
       locatedResults = {},
