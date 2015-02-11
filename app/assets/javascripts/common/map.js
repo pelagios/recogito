@@ -34,7 +34,9 @@ define(['common/hasEvents'], function(HasEvents) {
                      '<a href="http://creativecommons.org/licenses/by-nc/3.0/deed.en_US" target="_blank">CC-BY-NC 3.0</a>'
                  }), 
                  
-          Bing : new L.BingLayer("Au8CjXRugayFe-1kgv1kR1TiKwUhu7aIqQ31AjzzOQz0DwVMjkF34q5eVgsLU5Jn"), 
+          BingSatellite : new L.BingLayer("Au8CjXRugayFe-1kgv1kR1TiKwUhu7aIqQ31AjzzOQz0DwVMjkF34q5eVgsLU5Jn"), 
+          
+          BingRoad : new L.BingLayer("Au8CjXRugayFe-1kgv1kR1TiKwUhu7aIqQ31AjzzOQz0DwVMjkF34q5eVgsLU5Jn", { type: 'Road' }), 
           
           OSM  : L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 	                 attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
@@ -44,8 +46,9 @@ define(['common/hasEvents'], function(HasEvents) {
         
         /** Base Layer dictionary **/
         baseLayers = 
-          { 'Satellite': Layers.Bing, 
-            'OSM': Layers.OSM,
+          { 'Bing Satellite': Layers.BingSatellite, 
+            'Bing Road': Layers.BingRoad,
+            'OpenStreetMap': Layers.OSM,
             'Empty Base Map (<a href="http://awmc.unc.edu/wordpress/tiles/map-tile-information" target="_blank">AWMC</a>)': Layers.AWMC, 
             'Roman Empire Base Map (<a href="http://imperium.ahlfeldt.se/" target="_blank">DARE</a>)': Layers.DARE },
             
