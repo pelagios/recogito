@@ -24,13 +24,15 @@ define([], function() {
             if (startIdx > -1 && endIdx <= a.context.length) {
               pre = a.context.substring(0, startIdx);
               post = a.context.substring(endIdx);
-              
               self.cachedTextPreview = { pre: pre, toponym: self.annotation.toponym, post: post };
-              jQuery.each(self.textPreviewHandlers, function(idx, handler) {
-                handler(self.cachedTextPreview);
-              });
             }
+          } else {
+            self.cachedTextPreview = { toponym: self.annotation.toponym };
           }
+          
+          jQuery.each(self.textPreviewHandlers, function(idx, handler) {
+            handler(self.cachedTextPreview);
+          });
         });  
       }
     }

@@ -85,14 +85,28 @@ require(['common/annotationContext',
       
       displayQuote  = function(annotationWithContext, el) {   
         var context = annotationWithContext[1];
-            
+        
         if (!context) {
           context = new AnnotationContext(annotationWithContext[0]);
           annotationWithContext[1] = context;
         }
                            
         context.fetchContentPreview(function(snippet) {
-          el.find('.quote').html('... ' + snippet.pre + '<em>' + snippet.toponym + '</em>' + snippet.post + ' ...');
+          var html;
+          
+          if (snippet.pre) 
+            html = '... '  + snippet.pre + '<em>';
+          else
+            html = '&raquo;';
+            
+          html += snippet.toponym;
+          
+          if (snippet.post)
+            html += '</em>' + snippet.post + ' ...';
+          else
+            html += '&laquo;';
+          
+          el.find('.quote').html(html);
         });
       },
       
