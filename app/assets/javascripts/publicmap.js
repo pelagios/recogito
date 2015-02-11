@@ -1,4 +1,8 @@
-require(['common/map', 'publicmap/sidePanel', 'publicmap/loadIndicator', 'common/annotationContext'], function(Map, SidePanel, LoadIndicator, AnnotationContext) {
+require(['common/annotationContext',
+         'common/formatting', 
+         'common/map', 
+         'publicmap/sidePanel',
+         'publicmap/loadIndicator'], function(AnnotationContext, Formatting, Map, SidePanel, LoadIndicator) {
   
   var mapEl = jQuery('#map'),
   
@@ -13,8 +17,9 @@ require(['common/map', 'publicmap/sidePanel', 'publicmap/loadIndicator', 'common
       /** Handler function that gets fired when user clicks a marker **/
       popupFn = function(place, annotationsWithContext) {
         var html = jQuery('<div class="map-popup">' +
-                          '  <div class="title">' + place.title + '</div>' +
-                          '  <div class="names">' + place.names.join(', ') + '</div>' +
+                          '  <div class="title">' + place.title + ' ' + Formatting.categoryTag(place.category) + '</div>' +
+                          '  <div class="names">' + place.names.slice(0, 8).join(', ') + '</div>' + 
+                          '  <div class="gazetteer-link"><a href="' + place.uri + '" target="_blank">' + Formatting.formatGazetteerURI(place.uri) +'</a></div>' +
                           '  <div class="content-preview">' +
                           '    <span class="quote"></span>' +
                           '  </div>' +
