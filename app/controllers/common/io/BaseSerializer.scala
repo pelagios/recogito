@@ -1,11 +1,10 @@
 package controllers.common.io
 
+import global.CrossGazetteerUtils
 import models._
+import org.pelagios.api.gazetteer.{ Location, Place }
 import play.api.db.slick._
 import scala.collection.mutable.HashMap
-import org.pelagios.api.gazetteer.Place
-import com.vividsolutions.jts.geom.Coordinate
-import global.CrossGazetteerUtils
 
 /** A base trait with functionality commonly used across data serializers **/
 trait BaseSerializer {
@@ -22,7 +21,7 @@ trait BaseSerializer {
   private val partCache = HashMap.empty[Int, Option[GeoDocumentPart]]
   
   /** Poor-man's cache for buffering index lookups **/
-  private val placeCache = HashMap.empty[String, Option[(Place, Option[Coordinate])]]
+  private val placeCache = HashMap.empty[String, Option[(Place, Option[Location])]]
 
   /** Helper method that returns the GeoDocument with the specified ID.
     *
@@ -79,7 +78,7 @@ trait BaseSerializer {
     }    
   }
   
-  protected def getPlace(uri: String): Option[(Place, Option[Coordinate])] = {
+  protected def getPlace(uri: String): Option[(Place, Option[Location])] = {
     val cachedPlace = placeCache.get(uri)
     if (cachedPlace.isDefined) {
       cachedPlace.get

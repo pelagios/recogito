@@ -9,6 +9,7 @@ import org.pelagios.api.gazetteer.Place
 import com.vividsolutions.jts.geom.Coordinate
 import controllers.common.ImageAnnotationSorter
 import play.api.Logger
+import com.vividsolutions.jts.geom.Point
 
 /** Utility object to serialize Annotation data to JSON.
   * 
@@ -141,17 +142,26 @@ class JSONSerializer extends BaseSerializer {
   
   /** Renders a JSON object for the place with the specified gazetteer URI **/
   private def placeUriToJson(uri: String): Option[JsObject] = {
-    val place = getPlace(uri)
+    val p = getPlace(uri)
     
-    if (place.isDefined) {
-      val p = place.get._1
+    if (p.isDefined) {
+      val (place, location) = p.get
       Some(Json.obj(
-        "uri" -> p.uri,
-        "title" -> p.label,
-        "description" -> p.descriptions.map(_.chars).mkString(", "),
-        "names" -> Json.toJson(p.names.map(_.chars)),
-        "category" -> p.category.map(_.toString),
-        "coordinate" -> place.get._2.map(coords => Json.toJson(Seq(coords.y, coords.x)))
+        "uri" -> place.uri,
+        "title" -> place.label,
+        "description" -> place.descriptions.map(_.chars).mkString(", "),
+        "names" -> Json.toJson(place.names.map(_.chars)),
+        "category" -> place.category.map(_.toString),
+        "coordinate" -> location.map(l => { 
+          val coord = l.geometry.getCentroid.getCoordinate
+          Json.toJson(Seq(coord.y, coord.x)) 
+         }),
+        "geometry" -> location.flatMap(l => { 
+          l.geometry match {
+            case g: Point => None
+            case _ => Some(Json.parse(l.geoJSON))
+          }
+        })        
       ))      
     } else {
       None

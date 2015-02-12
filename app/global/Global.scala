@@ -53,7 +53,7 @@ object Global extends GlobalSettings {
         
       patches.foreach(patch => {
         Logger.info("Applying gazetteer patch file " + patch)
-        idx.applyPatch(new File(GAZETTEER_DIR, patch).getAbsolutePath, true)
+        idx.applyPatch(new File(GAZETTEER_DIR, patch).getAbsolutePath, true, true)
         Logger.info("Done.")
       })
     }

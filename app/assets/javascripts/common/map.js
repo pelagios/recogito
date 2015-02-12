@@ -87,8 +87,7 @@ define(['common/hasEvents'], function(HasEvents) {
     this.Styles = {
       VERIFIED: { color: '#118128', fillColor: '#1bcc3f', opacity: 1, fillOpacity: 1, radius: 4 },
       NOT_VERIFIED: { color: '#808080', fillColor:'#aaa', opacity: 1, fillOpacity: 1, radius: 4 },
-      SEQUENCE: { opacity: 1, weight: 2 },
-      REGION: { opacity: 0.5, fillOpacity: 0.2, radius: 20 }
+      SEQUENCE: { opacity: 1, weight: 2 }
     };
   
     /** We make the map public so that subclasses can access it **/
@@ -164,9 +163,13 @@ define(['common/hasEvents'], function(HasEvents) {
       var self = this, place, style, annotationsForPlace, marker, a,
     
           /** Helper function to create the marker **/
-          createMarker = function(place, baseStyle) {
-            var style = (place.category === 'REGION') ? jQuery.extend(true, {}, baseStyle, self.Styles.REGION) : baseStyle,
-                marker = L.circleMarker(place.coordinate, style);
+          createMarker = function(place, style) {
+            var marker; 
+
+            if (place.geometry)
+              marker = L.geoJson(place.geometry, style); // TODO adapt style for shapes
+            else
+              marker = L.circleMarker(place.coordinate, style);
                 
             marker.on('click', function(e) {
               self.showPopup(annotation);

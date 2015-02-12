@@ -9,7 +9,9 @@ define(['georesolution/common', 'common/map'], function(common, MapBase) {
         setMarkerSize = function(annotation, size) {
           var marker = self.getMarkerForAnnotation(annotation);
           if (marker) {
-            marker.setRadius(size);
+            if (marker.setRadius)
+              marker.setRadius(size);
+              
             marker.bringToFront();
             return marker;
           }
@@ -26,7 +28,8 @@ define(['georesolution/common', 'common/map'], function(common, MapBase) {
       
       // Clear all other markers that may still be emphasized
       jQuery.each(emphasizedMarkers, function(idx, marker) {
-        marker.setRadius(self.Styles.VERIFIED.radius);
+        if (marker.setRadius)
+          marker.setRadius(self.Styles.VERIFIED.radius);
       });
       emphasizedMarkers = [];
       
