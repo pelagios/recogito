@@ -5,8 +5,10 @@ define(['georesolution/common', 'common/map'], function(common, MapBase) {
     var self = this,
     
         emphasizedMarkers = [],
+        
+        MARKER_SIZE = 5;
     
-        setMarkerSize = function(annotation, size) {
+        resizeMarker = function(annotation, size) {
           var marker = self.getMarkerForAnnotation(annotation);
           if (marker) {
             if (marker.setRadius)
@@ -24,12 +26,12 @@ define(['georesolution/common', 'common/map'], function(common, MapBase) {
     /****                ****/
     
     this.emphasizePlace = function(annotation) {
-      var marker = setMarkerSize(annotation, self.Styles.VERIFIED.radius * 2);
+      var marker = resizeMarker(annotation, MARKER_SIZE * 2);
       
       // Clear all other markers that may still be emphasized
       jQuery.each(emphasizedMarkers, function(idx, marker) {
         if (marker.setRadius)
-          marker.setRadius(self.Styles.VERIFIED.radius);
+          marker.setRadius(MARKER_SIZE);
       });
       emphasizedMarkers = [];
       
@@ -38,7 +40,7 @@ define(['georesolution/common', 'common/map'], function(common, MapBase) {
     }
 
     this.deemphasizePlace = function(annotation) {
-      setMarkerSize(annotation, self.Styles.VERIFIED.radius);
+      resizeMarker(annotation, MARKER_SIZE);
     }
     
     MapBase.apply(this, [ mapDiv ]);

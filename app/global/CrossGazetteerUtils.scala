@@ -2,6 +2,7 @@ package global
 
 import org.pelagios.gazetteer.GazetteerUtils
 import org.pelagios.api.gazetteer.{ Location, Place }
+import com.vividsolutions.jts.geom.Polygon
 
 /**
  * A temporary work around until cross-gazetteer search is fully integrated with
@@ -35,8 +36,15 @@ object CrossGazetteerUtils {
           }
         }
       })
-    
-      Some((place.get, location))
+      
+      // Horrible hack to get rid of Barrington gridsquares:
+      // whenever there's a rectangle, collapse it to centroid
+      val patchedLocation = location.map(l => l.geometry match {
+        case p: Polygon if (p.getCoordinates.size == 5) => Location(p.getCentroid)
+        case g => l
+      })
+      
+      Some((place.get, patchedLocation))
     }
   }
 

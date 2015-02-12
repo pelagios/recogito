@@ -54,7 +54,9 @@ class CSVSerializer extends BaseSerializer {
       val (category, coord) = {
         if (includeCoordinates) {
           val queryResult = uri.flatMap(CrossGazetteerUtils.getPlace(_))
-          (queryResult.flatMap(_._1.category), queryResult.flatMap(_._2))
+          val category = queryResult.flatMap(_._1.category)
+          val coord = queryResult.flatMap(_._2).map(_.geometry.getCentroid.getCoordinate)    
+          (category, coord)
         } else {
           (None, None)
         }

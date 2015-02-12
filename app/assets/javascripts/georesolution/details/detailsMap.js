@@ -84,11 +84,7 @@ define(['georesolution/common', 'common/map', 'common/annotationContext'], funct
     
     parentEl = jQuery(mapDiv);
     
-    MapBase.apply(this, [ mapDiv, createPopup, false, 'topright' ]);
-    
-    // Override styles
-    this.Styles.VERIFIED = { color: '#118128', fillColor: '#1bcc3f', opacity: 1, fillOpacity: 1, radius: 7 };
-    this.Styles.NOT_VERIFIED = { color: '#808080', fillColor:'#aaa', opacity: 1, fillOpacity: 1, radius: 7 };
+    MapBase.apply(this, [ mapDiv, createPopup, false, false, 'topright' ]);
   }
   DetailsMap.prototype = Object.create(MapBase.prototype);
   

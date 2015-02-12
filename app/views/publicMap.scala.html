@@ -4,7 +4,7 @@
     <title>PELAGIOS Geo-Resolution Correction Tool</title>
     <link rel="stylesheet" href="@routes.Assets.at("javascripts/lib/leaflet/leaflet.css")" />
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/publicmap/main.css")" />
-    <link rel="related" type="application/json" href="@controllers.api.routes.DocumentAPIController.get(doc.id.get.toString)" />
+    <link rel="related" type="application/json" href="@controllers.api.routes.DocumentAPIController.get(doc.id.get.toString)?verified_only=true" />
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-1.11.1.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/leaflet/leaflet.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/leaflet/leaflet.bing.js")"></script>

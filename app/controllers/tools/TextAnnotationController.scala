@@ -27,12 +27,6 @@ object TextAnnotationController extends Controller with Secured {
       val gdocPart = gdocText.get.gdocPartId.flatMap(id => GeoDocumentParts.findById(id))
       val allTexts = gdoc.map(doc => GeoDocumentContent.findByGeoDocument(doc.id.get)).getOrElse(Seq.empty[(GeoDocumentText, Option[String])])
       val signOffs = SignOffs.findForGeoDocumentText(gdocText.get.id.get).map(_._1)
-      val source = // Part source if available, doc source otherwise 
-        if (gdocPart.flatMap(_.source).isDefined)
-          gdocPart.flatMap(_.source)
-        else
-          gdoc.flatMap(_.source)
-      
       val html = buildHTML(plaintext, annotations)
       
       Ok(views.html.textAnnotation(
@@ -42,7 +36,7 @@ object TextAnnotationController extends Controller with Secured {
         allTexts, 
         username, 
         html, 
-        source,
+        None,
         signOffs.contains(username),
         signOffs))
     } else {

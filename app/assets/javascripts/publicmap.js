@@ -6,6 +6,15 @@ require(['common/annotationContext',
   
   var mapEl = jQuery('#map'),
   
+      colorScale = ['#edf8e9', '#c7e9c0', '#a1d99b', '#74c476', '#31a354', '#006d2c'], // Green
+      // colorScale = ['fee5d9', '#fcbba1', '#fc9272', '#fb6a4a', '#de2d26', '#a50f15'], // Red
+      
+      maxMarkerWeight = false,
+      
+      minDotSize = 3,
+      
+      maxDotSize = 10,
+  
       relatedLinks = jQuery.grep(jQuery('link'), function(el) { return jQuery(el).attr('rel') == 'related'; }),
   
       dataURL = jQuery(relatedLinks[0]).attr('href'),
@@ -83,6 +92,29 @@ require(['common/annotationContext',
         return html[0];
       },
       
+      /** Function for styling map overlays **/
+      styleFn = function(annotations) {
+        var colIdx = colorScale.length - 1,
+            strokeColor = colorScale[colIdx];
+            fillColor = colorScale[colIdx - 1];
+            radius = 5,
+            place = (annotations[0].place_fixed) ? annotations[0].place_fixed : annotations[0].place;
+        
+        if (maxMarkerWeight) {
+          // Adapt color and radius according to weight
+          // colIdx = Math.ceil((colorScale.length - 2) * annotations.length / maxMarkerWeight) + 1;
+          // strokeColor = colorScale[colIdx];
+          // fillColor = colorScale[colIdx - 1];
+          radius = (maxDotSize - minDotSize) * annotations.length / maxMarkerWeight + minDotSize;
+        }
+        
+        if (place.geometry) {
+          return { color: strokeColor, fillColor: fillColor, opacity: 1, weight: 1.5, fillOpacity: 0.5, radius: radius };
+        } else {
+          return { color: strokeColor, fillColor: fillColor, opacity: 1, weight: 1.5, fillOpacity: 1, radius: radius };
+        }
+      },
+      
       displayQuote  = function(annotationWithContext, el) {   
         var context = annotationWithContext[1];
         
@@ -110,7 +142,7 @@ require(['common/annotationContext',
         });
       },
       
-      map = new Map(document.getElementById('map'), popupFn, undefined, 'topright'),
+      map = new Map(document.getElementById('map'), popupFn, styleFn, false, 'topright'),
       
       loadData = function() {
         loadIndicator.show();
@@ -128,6 +160,8 @@ require(['common/annotationContext',
           }
     
           map.fitToAnnotations();
+          maxMarkerWeight = map.getMaxMarkerWeight();
+          map.refreshStyles();
           loadIndicator.hide();
         });
       };

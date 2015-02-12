@@ -79,8 +79,13 @@ object DocumentAPIController extends Controller with Secured {
     Ok(new String(out.toString(UTF8))).withHeaders(CONTENT_TYPE -> "application/rdf+xml", CONTENT_DISPOSITION -> ("attachment; filename=pelagios-egd.rdf"))      
   }
       
-  private def get_JSON(doc: GeoDocument)(implicit s: Session) =
-    Ok(new JSONSerializer().toJson(doc, true))
+  private def get_JSON(doc: GeoDocument)(implicit s: DBSessionRequest[_]) = {
+    val verifiedOnly = s.request.queryString
+          .filter(_._1.toLowerCase.equals("verified_only"))
+          .headOption.flatMap(_._2.headOption.map(_.toBoolean)).getOrElse(false)
+          
+    Ok(new JSONSerializer().toJson(doc, true, verifiedOnly))
+  }
     
   def signOff(textId: Option[Int], imageId: Option[Int]) = protectedDBAction(Secure.REJECT) { username => implicit request =>
     if (textId.isDefined) {

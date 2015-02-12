@@ -1,7 +1,7 @@
 /** A generic base map component **/
 define(['common/hasEvents'], function(HasEvents) {
   
-  var Map = function(div, popup_fn, opt_basemap, opt_controlposition) {  
+  var Map = function(div, opt_popup_fn, opt_style_fn, opt_basemap, opt_controlposition) {  
     var self = this,
         
         popupTimer = false,
@@ -9,13 +9,33 @@ define(['common/hasEvents'], function(HasEvents) {
         annotations = {},
         placesByAnnotations = {},
         
-        annotationsLayer = L.featureGroup(),
+        maxAnnotationsPerPlace = 1,
+        shapeMarkerLayer = L.featureGroup(),
+        pointMarkerLayer = L.featureGroup(),
         sequenceLayer = L.featureGroup(),
         
         /** Use provided popup function, or init a basic default **/
-        createPopup = (popup_fn) ? popup_fn : function(place, annotationsWithContext) {
+        createPopup = (opt_popup_fn) ? opt_popup_fn : function(place, annotationsWithContext) {
           return '<strong>' + place.title + '</strong><br/>' +
                  '<small>' + place.names.slice(0, 8).join(', ') + '</small>';
+        },
+
+        createStyle = (opt_style_fn) ? opt_style_fn : function(annotations) {
+          var place = (annotations[0].place_fixed) ? annotations[0].place_fixed : annotations[0].place,
+              color = '#118128', fillColor = '#1bcc3f';
+          
+          jQuery.each(annotations, function(idx, a) {
+            if (a.status === 'NOT_VERIFIED') {
+              color = '#808080';
+              fillColor = '#aaa';
+            }
+          });
+          
+          if (place.geometry) {
+            return { color: color, fillColor: fillColor, opacity: 1, weight: 1.5, fillOpacity: 0.4 };
+          } else {
+            return { color: color, fillColor: fillColor, opacity: 1, weight: 1.5, fillOpacity: 1, radius: 5 };
+          }
         },
         
         /** Map layers **/
@@ -82,17 +102,11 @@ define(['common/hasEvents'], function(HasEvents) {
           
           return map;
         };
-        
-    /** Marker styles are public so subclasses can override them **/
-    this.Styles = {
-      VERIFIED: { color: '#118128', fillColor: '#1bcc3f', opacity: 1, fillOpacity: 1, radius: 4 },
-      NOT_VERIFIED: { color: '#808080', fillColor:'#aaa', opacity: 1, fillOpacity: 1, radius: 4 },
-      SEQUENCE: { opacity: 1, weight: 2 }
-    };
   
     /** We make the map public so that subclasses can access it **/
     this.map = initMap();
-    annotationsLayer.addTo(this.map);
+    shapeMarkerLayer.addTo(this.map);
+    pointMarkerLayer.addTo(this.map);
     sequenceLayer.addTo(this.map);
     
     // Close popups on Escape key
@@ -109,13 +123,17 @@ define(['common/hasEvents'], function(HasEvents) {
      
     /** Returns the bounds of all annotations currently on the map **/
     this.getAnnotationBounds = function() {
-      var annotationBounds = annotationsLayer.getBounds(),
+      var pointMarkerBounds = pointMarkerLayer.getBounds(),
+          shapeMarkerBounds = shapeMarkerLayer.getBounds(),
           sequenceBounds = sequenceLayer.getBounds();
         
+      if (shapeMarkerBounds.isValid())
+        pointMarkerBounds.extend(shapeMarkerBounds);
+        
       if (sequenceBounds.isValid())
-        annotationBounds.extend(sequenceBounds);
+        pointMarkerBounds.extend(sequenceBounds);
     
-      return annotationBounds;
+      return pointMarkerBounds;
     };
   
     /** Returns the minimum zoom level of the currently active base layer **/
@@ -163,13 +181,16 @@ define(['common/hasEvents'], function(HasEvents) {
       var self = this, place, style, annotationsForPlace, marker, a,
     
           /** Helper function to create the marker **/
-          createMarker = function(place, style) {
+          createMarker = function(place, annotationsForPlace) {
             var marker; 
 
-            if (place.geometry)
-              marker = L.geoJson(place.geometry, style); // TODO adapt style for shapes
-            else
-              marker = L.circleMarker(place.coordinate, style);
+            if (place.geometry) {
+              marker = L.geoJson(place.geometry, createStyle(annotationsForPlace)); // TODO adapt style for shapes
+              shapeMarkerLayer.addLayer(marker); 
+            } else {
+              marker = L.circleMarker(place.coordinate, createStyle(annotationsForPlace));
+              pointMarkerLayer.addLayer(marker); 
+            }
                 
             marker.on('click', function(e) {
               self.showPopup(annotation);
@@ -177,7 +198,7 @@ define(['common/hasEvents'], function(HasEvents) {
                 return tuple[0];
               }));
             });
-            annotationsLayer.addLayer(marker); 
+              
             return marker;
           };
     
@@ -185,17 +206,18 @@ define(['common/hasEvents'], function(HasEvents) {
         place = (annotation.place_fixed) ? annotation.place_fixed : annotation.place;    
     
         if (place && place.coordinate) {
-          style = (self.Styles[annotation.status]) ? self.Styles[annotation.status] : self.Styles.NOT_VERIFIED;
-              
           annotationsForPlace = annotations[place.uri],
           marker = (annotationsForPlace) ? annotationsForPlace.marker : false,
           a = (annotationsForPlace) ? annotationsForPlace.annotations : false;
           
           if (annotationsForPlace) {
             a.push([ annotation, opt_context ]);
+            if (a.length > maxAnnotationsPerPlace)
+              maxAnnotationsPerPlace = a.length;
           } else { 
+            // New marker
             annotationsForPlace = {
-              marker: createMarker(place, style),
+              marker: createMarker(place, [ annotation ]),
               annotations: [[ annotation, opt_context ]]
             };
             annotations[place.uri] = annotationsForPlace;
@@ -204,7 +226,26 @@ define(['common/hasEvents'], function(HasEvents) {
           placesByAnnotations[annotation.id] = place.uri;
         }
       }
+      
+      pointMarkerLayer.bringToFront();
     };
+    
+    /** Returns the maximum marker weight, i.e. number of annotations on a single marker **/
+    this.getMaxMarkerWeight = function() {
+      return maxAnnotationsPerPlace;
+    }
+    
+    /** Helper function that updates all marker styles **/
+    this.refreshStyles = function() {
+      jQuery.each(annotations, function(uri, annotationsForPlace) {
+        var marker = annotationsForPlace.marker,
+            annotations = jQuery.map(annotationsForPlace.annotations, function(tuple) {
+              return tuple[0];
+            });
+            
+        marker.setStyle(createStyle(annotations));
+      });
+    },
     
     /** Redraws an annotation **/
     this.updateAnnotation = function(annotation) {
@@ -233,7 +274,8 @@ define(['common/hasEvents'], function(HasEvents) {
           
             // Check if empty - if so, remove the whole thing
             if (annotationsForPlace.length === 0) {
-              annotationsLayer.removeLayer(markerForThisPlace);
+              shapeMarkerLayer.removeLayer(markerForThisPlace);
+              pointMarkerLayer.removeLayer(markerForThisPlace);
               delete annotations[placeURI];
             }
           }
@@ -265,8 +307,8 @@ define(['common/hasEvents'], function(HasEvents) {
       for (var i = 0; i < next.length; i++)
         pushLatLon(next[i]);
     
-      style = jQuery.extend(true, {}, self.Styles.SEQUENCE);
-      style.color = (self.Styles[annotation.status]) ? self.Styles[annotation.status].color : self.Styles.NOT_VERIFIED.color;
+      style = { opacity: 1, weight: 2 };
+      style.color = (annotation.status === 'VERIFIED') ? '#118128' : '#808080';
       line = L.polyline(coords, style);
       line.setText('►', { repeat: true, offset: 5, attributes: { fill: style.color, 'font-size':17 }});    
       sequenceLayer.addLayer(line);
@@ -316,7 +358,8 @@ define(['common/hasEvents'], function(HasEvents) {
     /** Removes all annotations from the map **/
     this.clearAnnotations = function() {
       annotations = {};
-      annotationsLayer.clearLayers();
+      shapeMarkerLayer.clearLayers();
+      pointMarkerLayer.clearLayers();
       sequenceLayer.clearLayers();
     };
     

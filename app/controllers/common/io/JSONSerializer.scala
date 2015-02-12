@@ -93,10 +93,15 @@ class JSONSerializer extends BaseSerializer {
     * @param doc the GeoDocument
     * @param includeAnnotations whether to include the annotations in the JSON
     */  
-  def toJson(doc: GeoDocument, includeAnnotations: Boolean)(implicit session: Session): JsObject = {
+  def toJson(doc: GeoDocument, includeAnnotations: Boolean, verifiedOnly: Boolean)(implicit session: Session): JsObject = {
     val startTime = System.currentTimeMillis
     val annotations = if (includeAnnotations) {
-      val all = Annotations.findByGeoDocument(doc.id.get)
+      val all = 
+        if (verifiedOnly) {
+          Annotations.findByGeoDocumentAndStatus(doc.id.get, AnnotationStatus.VERIFIED)
+        } else {
+          Annotations.findByGeoDocument(doc.id.get)
+        }
       
       // Check if these are image annotations - per convention, we assume either ALL or NONE of the annotations are image annotations
       val imageAnnotations = all.filter(a => a.anchor.isDefined || a.correctedAnchor.isDefined)
