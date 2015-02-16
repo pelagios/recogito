@@ -15,7 +15,7 @@ define(['common/hasEvents'], function(HasEvents) {
         sequenceLayer = L.featureGroup(),
         
         /** Use provided popup function, or init a basic default **/
-        createPopup = (opt_popup_fn) ? opt_popup_fn : function(place, annotationsWithContext) {
+        createPopup = (opt_popup_fn) ? opt_popup_fn : function(place, annotationsWithContext, opt_idx) {
           return '<strong>' + place.title + '</strong><br/>' +
                  '<small>' + place.names.slice(0, 8).join(', ') + '</small>';
         },
@@ -224,7 +224,16 @@ define(['common/hasEvents'], function(HasEvents) {
           }
           
           placesByAnnotations[annotation.id] = place.uri;
+          
+          // Place was added to map
+          return true;
+        } else {
+          // Place did not have geometry - not added
+          return false;
         }
+      } else {
+        // Annotation was neither VERIFIED nor NOT_VERIFIED - not added
+        return false;
       }
       
       pointMarkerLayer.bringToFront();
@@ -331,7 +340,17 @@ define(['common/hasEvents'], function(HasEvents) {
           
           popupTimer = window.setTimeout(function() {
             if (markerAndAnnotations.marker) { // The marker may have been detached in the meantime
-              markerAndAnnotations.marker.bindPopup(createPopup(place, markerAndAnnotations.annotations)).openPopup();          
+              var index = -1;
+              markerAndAnnotations.annotations.some(function(annotationWithContext, idx) {
+                if (annotationWithContext[0] === annotation) {
+                  index = idx;
+                  return true;
+                } else {
+                  return false;
+                }
+              });
+              
+              markerAndAnnotations.marker.bindPopup(createPopup(place, markerAndAnnotations.annotations, index)).openPopup();          
             }
           }, 100);
         } else {
