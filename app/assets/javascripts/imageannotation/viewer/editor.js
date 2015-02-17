@@ -23,26 +23,33 @@ define(['imageannotation/config', 'imageannotation/events', 'imageannotation/vie
             '  <input id="transcription" type="text">' +
             '  <span class="label">Comment:</span>' +
             '  <input id="comment" type="text">' +
+            '  <input id="uri" type="hidden">' +
             '  <div class="buttons">' +
             '    <button class="button ok"><span class="icon">&#xf00c;</span> OK</button>' +
             '    <button class="button cancel"><span class="icon">&#xf05e;</span> Cancel</button>' +
             '    <button class="button red delete"><span class="icon">&#xf00d;</span> Delete Annotation</button>' +
             '  </div>' +
-            '  <div class="autosuggest"></div>' +
             '</div>'),
+            
+        autoSuggestContainer = $('<div class="autosuggest"></div>'),
+        
         transcriptionInput = controls.find('#transcription'),
         commentInput = controls.find('#comment'),
+        uriInput = controls.find('#uri'),
         
-        autoSuggest = new EditorAutoSuggest(controls.find('.autosuggest'), transcriptionInput),
+        autoSuggest = new EditorAutoSuggest(autoSuggestContainer, transcriptionInput, uriInput),
         
         /** Saves the annotation to the server **/
         updateAnnotation = function() {
           var transcription = transcriptionInput.val(),
-              comment = commentInput.val();
+              comment = commentInput.val(),
+              uri = uriInput.val();
 
           currentAnnotation.corrected_toponym = transcription;   
           currentAnnotation.comment = comment;
           currentAnnotation.status = 'NOT_VERIFIED';  
+          if (uri)
+            currentAnnotation.corrected_uri = uri;
           
           eventBroker.fireEvent(Events.ANNOTATION_UPDATED, currentAnnotation);
           hide();
@@ -120,7 +127,12 @@ define(['imageannotation/config', 'imageannotation/events', 'imageannotation/vie
             left: (bounds.left + 1) + 'px',
             top: (bounds.top + bounds.height) + 'px',
             minWidth: bounds.width + 'px'
-          });          
+          });   
+          
+          autoSuggestContainer.css({
+            left: (bounds.left + bounds.width) + 'px',
+            top: bounds.top
+          });       
         },
         
         /** Opens the editor controls panel **/
@@ -189,6 +201,7 @@ define(['imageannotation/config', 'imageannotation/events', 'imageannotation/vie
 
     parent.append(mask);
     parent.append(controls);
+    parent.append(autoSuggestContainer);
   };
   
   return Editor;

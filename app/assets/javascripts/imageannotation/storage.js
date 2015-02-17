@@ -31,9 +31,10 @@ define(['imageannotation/config', 'imageannotation/events'], function(Config, Ev
         
         /** Updates an annotation via HTTP PUT **/
         updateAnnotation = function(a)  {
+          console.log('foo');
           var data = (Config.gdoc_part_id) ? 
-                '{ "gdoc_part_d": ' + Config.gdoc_part_id + ', "corrected_toponym": "' + a.corrected_toponym  + '", "comment": "' + a.comment + '" }' :
-                '{ "gdoc_id": ' + Config.gdoc_id + ', "corrected_toponym": "' + a.corrected_toponym + '", "comment": "' + a.comment + '" }';
+                '{ "gdoc_part_d": ' + Config.gdoc_part_id + ', "corrected_toponym": "' + a.corrected_toponym  + '", "comment": "' + a.comment + '", "corrected_uri": "' + a.corrected_uri + '" }' :
+                '{ "gdoc_id": ' + Config.gdoc_id + ', "corrected_toponym": "' + a.corrected_toponym + '", "comment": "' + a.comment + '", "corrected_uri": "' + a.corrected_uri + '" }';
                 
           $.ajax({
             url: STORE_URI + '/' + a.id,

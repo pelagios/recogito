@@ -64,12 +64,12 @@ private[api] trait ImageAnnotationWriter extends BaseAnnotationWriter {
     } else { 
       val updatedStatus = (json \ "status").asOpt[String].map(AnnotationStatus.withName(_))
       val updatedToponym = { 
-          val jsonText = (json \ "text").asOpt[String]
-          if (jsonText.isDefined)
-            jsonText
-          else
-            annotation.get.correctedToponym
-        }
+        val jsonText = (json \ "text").asOpt[String]
+        if (jsonText.isDefined)
+          jsonText
+        else
+          annotation.get.correctedToponym
+      }
       
       val updated = 
         Annotation(annotation.get.uuid,
