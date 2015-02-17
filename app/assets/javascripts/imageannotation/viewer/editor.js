@@ -160,6 +160,7 @@ define(['imageannotation/config', 'imageannotation/events', 'imageannotation/vie
           currentAnnotation = annotation;
           showMask(bounds);
           showControls(bounds, annotation);
+          autoSuggest.show();
         },
         
         /** Updates the position of the editor (mask and controls) **/
@@ -174,6 +175,7 @@ define(['imageannotation/config', 'imageannotation/events', 'imageannotation/vie
           currentAnnotation = false;
           mask.hide();
           controls.hide();
+          autoSuggest.hide();
           eventBroker.fireEvent(Events.ANNOTATION_EDIT_CANCELED);
         };
     

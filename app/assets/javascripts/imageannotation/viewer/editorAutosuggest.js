@@ -24,6 +24,15 @@ define([], function() {
               parentEl.html(html);
             });
           }
+        },
+        
+        show = function() {
+          parentEl.show();
+        },
+        
+        hide = function() {
+          parentEl.html('');
+          parentEl.hide();
         };
     
     parentEl.on('click', 'li', function(el) {
@@ -46,9 +55,9 @@ define([], function() {
       pendingQuery = window.setTimeout(function() {
         getSuggestion(chars);
       }, 200);
-    });   
+    }); 
     
-     
+    this.hide = hide;  
   };
   
   return EditorAutoSuggest;
