@@ -1,4 +1,4 @@
-require(['common/eventbroker', 
+require(['common/eventBroker', 
          'imageannotation/events',
          'imageannotation/viewer/viewer', 
          'imageannotation/storage'], function(EventBroker, Events, Viewer, Storage) {
