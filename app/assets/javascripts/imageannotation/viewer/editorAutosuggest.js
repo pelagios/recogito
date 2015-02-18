@@ -1,7 +1,7 @@
 define([], function() {
   
   var EditorAutoSuggest = function(parentEl, textInput, uriInput) {
-    var ENDPOINT_URL = '../../api/search?query=',
+    var ENDPOINT_URL = '../../api/search?prefix='+ encodeURIComponent('http://www.maphistory.info/') + '&query=',
     
         pendingQuery = false,
     
@@ -35,13 +35,18 @@ define([], function() {
           parentEl.hide();
         };
     
-    parentEl.on('click', 'li', function(el) {
-      var t = jQuery(el.target),
-          name = t.html(),
-          uri = t.data('uri');
-          
-      textInput.val(name);
-      uriInput.val(uri);
+    // Double click selects the place AND transfers the title to the text field
+    parentEl.on('dblclick', 'li', function(e) {
+      var t = jQuery(e.target);
+      
+      textInput.val(t.html());
+      uriInput.val(t.data('uri'));
+    });
+    
+    // Single click only selects the place
+    parentEl.on('click', 'li', function(e) {
+      var t = jQuery(e.target);
+      uriInput.val(t.data('uri'));
     });
     
     textInput.keyup(function(e) {

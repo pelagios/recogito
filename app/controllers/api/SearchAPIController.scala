@@ -18,15 +18,19 @@ object SearchAPIController extends Controller {
   private val DARE_PREFIX = "http://www.imperium.ahlfeldt.se/"
   private val PLEIADES_PREFIX = "http://pleiades.stoa.org"
     
-  def placeSearch(query: String) = Action {
-    val networks = Global.index.query(query).map(Global.index.getNetwork(_))
+  def placeSearch(query: String) = Action { implicit request =>
+    val gazetteerPrefixes = request.queryString
+          .filter(_._1.toLowerCase.equals("prefix"))
+          .headOption.flatMap(_._2.headOption)
+          .map(_.split(",").toSeq.map(_.trim))
+    
+    val networks = Global.index.query(query, false, 100, gazetteerPrefixes).map(Global.index.getNetwork(_))
     val results = Network.conflateNetworks(networks.toSeq, 
         Some(PLEIADES_PREFIX), // prefer Pleiades URIs
         Some(DARE_PREFIX),     // prefer DARE for coordinates
         Some(PLEIADES_PREFIX)) // prefer Pleiades for descriptions
             
     Ok(Json.obj("query" -> query, "results" -> results.map(place => {
-      
         val namesEnDeFrEsIt = {
           place.names.filter(_.lang == Some("eng")) ++
           place.names.filter(_.lang == Some("deu")) ++

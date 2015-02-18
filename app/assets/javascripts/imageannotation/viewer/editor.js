@@ -122,15 +122,15 @@ define(['imageannotation/config', 'imageannotation/events', 'imageannotation/vie
         },
         
         /** Shorthand function, sets the position of the controls **/
-        setControlsPosition = function(bounds) {
+        setControlsPosition = function(bounds) {          
           controls.css({
             left: (bounds.left + 1) + 'px',
             top: (bounds.top + bounds.height) + 'px',
             minWidth: bounds.width + 'px'
-          });   
+          });             
           
           autoSuggestContainer.css({
-            left: (bounds.left + bounds.width) + 'px',
+            left: (bounds.left + controls.outerWidth()) + 'px',
             top: bounds.top
           });       
         },
