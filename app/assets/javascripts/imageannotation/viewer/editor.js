@@ -49,7 +49,7 @@ define(['imageannotation/config', 'imageannotation/events', 'imageannotation/vie
           currentAnnotation.comment = comment;
           currentAnnotation.status = 'NOT_VERIFIED';  
           if (uri)
-            currentAnnotation.corrected_uri = uri;
+            currentAnnotation.gazetteer_uri = uri;
           
           eventBroker.fireEvent(Events.ANNOTATION_UPDATED, currentAnnotation);
           hide();

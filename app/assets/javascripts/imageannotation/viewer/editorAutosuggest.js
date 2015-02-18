@@ -5,6 +5,7 @@ define([], function() {
     
         pendingQuery = false,
     
+        /** Fetches search results from the server and displays them inside the parentEl **/
         getSuggestion = function(chars) {
           if (chars.length > 1) { // Start fetching proposals from 2 chars onwards
             jQuery.getJSON(ENDPOINT_URL + encodeURIComponent(chars).replace('%20', '+AND+') + '*', function(data) {
@@ -26,10 +27,29 @@ define([], function() {
           }
         },
         
+        /** Handler function to select a suggestion from the list **/
+        toggleSelect = function(li) {
+          var selected = li.hasClass('selected');
+          if (selected) {
+            // User cleared selection
+            li.removeClass('selected');
+            uriInput.val();
+          } else {
+            // User set a new selection
+            jQuery.each(li.siblings(), function(idx, li) {
+              jQuery(li).removeClass('selected');
+            });
+            li.addClass('selected');
+            uriInput.val(li.data('uri'));
+          }
+        },
+        
+        /** Shows the autosuggest widget **/
         show = function() {
           parentEl.show();
         },
         
+        /** Hides the auto-suggest widget **/
         hide = function() {
           parentEl.html('');
           parentEl.hide();
@@ -38,15 +58,14 @@ define([], function() {
     // Double click selects the place AND transfers the title to the text field
     parentEl.on('dblclick', 'li', function(e) {
       var t = jQuery(e.target);
-      
+      toggleSelect(t);
       textInput.val(t.html());
-      uriInput.val(t.data('uri'));
     });
     
     // Single click only selects the place
     parentEl.on('click', 'li', function(e) {
       var t = jQuery(e.target);
-      uriInput.val(t.data('uri'));
+      toggleSelect(t);
     });
     
     textInput.keyup(function(e) {

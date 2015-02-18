@@ -50,7 +50,7 @@ private[api] trait ImageAnnotationWriter extends BaseAnnotationWriter {
     }
   }
   
-  protected def updateOneImageAnnotation(json: JsObject, uuid: Option[UUID], username: String)(implicit s: Session): Try[Annotation] = {
+  protected def updateOneImageAnnotation(json: JsObject, uuid: Option[UUID], username: String)(implicit s: Session): Try[Annotation] = {    
     val annotation = if (uuid.isDefined) {
         Annotations.findByUUID(uuid.get)        
       } else {
@@ -62,30 +62,45 @@ private[api] trait ImageAnnotationWriter extends BaseAnnotationWriter {
       Failure(new RuntimeException("Annotation not found"))
       
     } else { 
-      val updatedStatus = (json \ "status").asOpt[String].map(AnnotationStatus.withName(_))
       val updatedToponym = { 
-        val jsonText = (json \ "text").asOpt[String]
-        if (jsonText.isDefined)
-          jsonText
+        val jsonToponym = (json \ "corrected_toponym").asOpt[String]
+        if (jsonToponym.isDefined)
+          jsonToponym
         else
           annotation.get.correctedToponym
+      }
+      
+      val updatedComment = {
+        val jsonComment = (json \ "comment").asOpt[String]
+        if (jsonComment.isDefined)
+          jsonComment
+        else
+          annotation.get.comment
+      }
+      
+      val updatedGazetteerURI = {
+        val jsonURI = (json \ "gazetteer_uri").asOpt[String]
+        if (jsonURI.isDefined)
+          jsonURI
+        else
+          annotation.get.gazetteerURI
       }
       
       val updated = 
         Annotation(annotation.get.uuid,
                    annotation.get.gdocId,
                    annotation.get.gdocPartId,
-                   updatedStatus.getOrElse(annotation.get.status), 
+                   annotation.get.status, 
                    annotation.get.toponym,
                    annotation.get.offset,
                    annotation.get.anchor,
-                   annotation.get.gazetteerURI,  
+                   updatedGazetteerURI,  
                    updatedToponym,
                    annotation.get.correctedOffset,
                    annotation.get.correctedAnchor,
                    annotation.get.correctedGazetteerURI,
                    annotation.get.tags,
-                   annotation.get.comment,
+                   updatedComment,
                    annotation.get.source,
                    { if (annotation.get.seeAlso.size > 0) Some(annotation.get.seeAlso.mkString(",")) else None })
                    
