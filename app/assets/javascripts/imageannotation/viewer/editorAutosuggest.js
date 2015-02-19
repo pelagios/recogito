@@ -3,32 +3,45 @@ define([], function() {
   var EditorAutoSuggest = function(parentEl, textInput, uriInput) {
     var ENDPOINT_URL = '../../api/search?prefix='+ encodeURIComponent('http://www.maphistory.info/') + '&query=',
     
+        MAX_LIST_SIZE = 10,
+    
         pendingQuery = false,
         
         /** List element **/
         ul = jQuery('<ul></ul>'),
+        
+        /** Updates the list of suggestions with new search results **/
+        showSearchResults = function(results) {
+          // Remove old results from list - except selected one (if any)
+          ul.find('li').not('.selected').remove();
+
+          // Add results to list
+          jQuery.each(results, function(idx, result) {
+            var title = result.names.slice(0,5).join(', ');                
+            if (result.description)
+              title += ' (' + result.description + ')';
+                  
+            ul.append('<li title="' + title + '" data-uri="' + result.uri + '">' + result.title + '</li>');
+          });
+        },
     
         /** Fetches search results from the server and displays them inside the parentEl **/
-        getSuggestion = function(chars) {
+        getSuggestions = function(chars) {
           if (chars.length > 1) { // Start fetching proposals from 2 chars onwards
             jQuery.getJSON(ENDPOINT_URL + encodeURIComponent(chars).replace('%20', '+AND+') + '*', function(data) {
-              var results = data.results.slice(0, 10);
-              
-              // Remove old results from list - except selected one (if any)
-              ul.find('li').not('.selected').remove();
-
-              // Add results to list
-              jQuery.each(results, function(idx, result) {
-                var title = result.names.slice(0,5).join(', ');                
-                if (result.description)
-                  title += ' (' + result.description + ')';
-                  
-                ul.append('<li title="' + title + '" data-uri="' + result.uri + '">' + result.title + '</li>');
-              });              
+              var results = data.results.slice(0, MAX_LIST_SIZE);
+              if (results.length == 0) {
+                // Include fuzzy matches
+                jQuery.getJSON(ENDPOINT_URL + encodeURIComponent(chars) + '~', function(data) {
+                  showSearchResults(data.results.slice(0, MAX_LIST_SIZE));
+                });
+              } else {
+                showSearchResults(results);
+              }
             });
           }
         },
-        
+                
         /** Handler function to select a suggestion from the list **/
         toggleSelect = function(li) {
           var selected = li.hasClass('selected');
@@ -81,7 +94,7 @@ define([], function() {
        
       var chars = textInput.val();
       pendingQuery = window.setTimeout(function() {
-        getSuggestion(chars);
+        getSuggestions(chars);
       }, 200);
     }); 
     
