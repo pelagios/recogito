@@ -4,25 +4,27 @@ define([], function() {
     var ENDPOINT_URL = '../../api/search?prefix='+ encodeURIComponent('http://www.maphistory.info/') + '&query=',
     
         pendingQuery = false,
+        
+        /** List element **/
+        ul = jQuery('<ul></ul>'),
     
         /** Fetches search results from the server and displays them inside the parentEl **/
         getSuggestion = function(chars) {
           if (chars.length > 1) { // Start fetching proposals from 2 chars onwards
             jQuery.getJSON(ENDPOINT_URL + encodeURIComponent(chars).replace('%20', '+AND+') + '*', function(data) {
-              var results = data.results.slice(0,10),
-                  html = '<ul>';
+              var results = data.results.slice(0, 10);
               
+              // Remove old results from list - except selected one (if any)
+              ul.find('li').not('.selected').remove();
+
+              // Add results to list
               jQuery.each(results, function(idx, result) {
-                var title = result.names.slice(0,5).join(', ');
-                
+                var title = result.names.slice(0,5).join(', ');                
                 if (result.description)
                   title += ' (' + result.description + ')';
                   
-                html += '<li title="' + title + '" data-uri="' + result.uri + '">' + result.title + '</li>';
-              });
-              
-              html += '</ul>';
-              parentEl.html(html);
+                ul.append('<li title="' + title + '" data-uri="' + result.uri + '">' + result.title + '</li>');
+              });              
             });
           }
         },
@@ -54,16 +56,18 @@ define([], function() {
           parentEl.html('');
           parentEl.hide();
         };
+        
+    parentEl.append(ul);
     
     // Double click selects the place AND transfers the title to the text field
-    parentEl.on('dblclick', 'li', function(e) {
+    ul.on('dblclick', 'li', function(e) {
       var t = jQuery(e.target);
       toggleSelect(t);
       textInput.val(t.html());
     });
     
     // Single click only selects the place
-    parentEl.on('click', 'li', function(e) {
+    ul.on('click', 'li', function(e) {
       var t = jQuery(e.target);
       toggleSelect(t);
     });
@@ -81,6 +85,7 @@ define([], function() {
       }, 200);
     }); 
     
+    /** Privileged methods **/
     this.show = show;
     this.hide = hide;  
   };
