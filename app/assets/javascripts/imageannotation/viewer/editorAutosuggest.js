@@ -66,7 +66,7 @@ define([], function() {
         
         /** Hides the auto-suggest widget **/
         hide = function() {
-          parentEl.html('');
+          ul.html('');
           parentEl.hide();
         };
         
