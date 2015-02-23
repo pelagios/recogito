@@ -52,6 +52,7 @@ object DownloadController extends Controller {
       if (doc.isDefined) {    
         val annotations = Annotations.findByGeoDocumentAndStatus(id.get, 
           AnnotationStatus.VERIFIED, 
+          AnnotationStatus.NOT_VERIFIED,
           AnnotationStatus.AMBIGUOUS,
           AnnotationStatus.NO_SUITABLE_MATCH,
           AnnotationStatus.MULTIPLE,
