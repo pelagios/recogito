@@ -26,11 +26,18 @@ object SearchAPIController extends Controller {
               
     val networks = Global.index.search(query, 100, 0, gazetteerPrefixes)
     val conflatedPlaces = networks.map(network => {
-      val preferredPlace =
-        network.places.filter(_.uri.startsWith(PLEIADES_PREFIX))
-               .headOption
-               .getOrElse(network.places.head)
-               
+      val places = 
+        if (gazetteerPrefixes.isDefined) {
+          network.places.filter(place => gazetteerPrefixes.get.contains(place.uri))
+        } else {
+          network.places
+        }
+      
+      val preferredPlace = // Hard-wired hack :-( Pleiades preferred by convention
+        places.filter(_.uri.startsWith(PLEIADES_PREFIX))
+              .headOption
+              .getOrElse(network.places.head)
+      
       val preferredGeometry =
         CrossGazetteerUtils.getPreferredGeometry(preferredPlace, network)
         
