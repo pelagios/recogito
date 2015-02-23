@@ -110,7 +110,7 @@ object StatsController extends Controller {
     val documents = GeoDocuments.findByIds(byGDocIdAndPlaceURI.map(_._1._1)).map(gdoc => (gdoc.id.get, gdoc)).toMap  
     val places = byGDocIdAndPlaceURI.map(_._1._2)
       .filter(_.isDefined)
-      .map(uri => Global.index.findByURI(uri.get))
+      .map(uri => Global.index.findPlaceByURI(uri.get))
       .filter(_.isDefined)
       .map(place => (place.get.uri, place.get))
       .toMap
@@ -118,7 +118,8 @@ object StatsController extends Controller {
     val byGDocAndPlace = byGDocIdAndPlaceURI.map(tuple =>
 	  ((documents.get(tuple._1._1).get, tuple._1._2), tuple._2))
         
-    Ok(views.html.stats.toponymStats(toponym, byGDocAndPlace, places))
+    // Ok(views.html.stats.toponymStats(toponym, byGDocAndPlace, places))
+    Ok(views.html.stats.toponymStats(toponym, byGDocAndPlace, Map.empty[String, String]))
   }
   
   /** Shows detailed stats for a specific place (= gazetteer URI) **/    

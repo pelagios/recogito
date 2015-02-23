@@ -10,6 +10,7 @@ import com.vividsolutions.jts.geom.Coordinate
 import controllers.common.ImageAnnotationSorter
 import play.api.Logger
 import com.vividsolutions.jts.geom.Point
+import index.IndexedPlace
 
 /** Utility object to serialize Annotation data to JSON.
   * 
@@ -150,23 +151,21 @@ class JSONSerializer extends BaseSerializer {
     val p = getPlace(uri)
     
     if (p.isDefined) {
-      val (place, location) = p.get
+      val (place, geometry) = p.get
       Some(Json.obj(
         "uri" -> place.uri,
         "title" -> place.label,
-        "description" -> place.descriptions.map(_.chars).mkString(", "),
+        "description" -> place.description,
         "names" -> Json.toJson(place.names.map(_.chars)),
         "category" -> place.category.map(_.toString),
-        "coordinate" -> location.map(l => { 
-          val coord = l.geometry.getCentroid.getCoordinate
+        "coordinate" -> geometry.map(g => { 
+          val coord = g.getCentroid.getCoordinate
           Json.toJson(Seq(coord.y, coord.x)) 
          }),
-        "geometry" -> location.flatMap(l => { 
-          l.geometry match {
-            case g: Point => None
-            case _ => Some(Json.parse(l.geoJSON))
-          }
-        })        
+        "geometry" -> geometry.flatMap(_ match {
+            case p: Point => None
+            case g => Some(IndexedPlace.geometry2geoJSON(g))
+          })        
       ))      
     } else {
       None

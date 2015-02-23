@@ -268,7 +268,7 @@ object Annotations extends HasStatusColumn {
     val places = q.list.groupBy(_._1).map { case (uri, results) =>
       val total = results.foldLeft(0)(_ + _._3)
       val toponymStats = results.filter(_._2.isDefined).map(t => (t._2.get, t._3))
-      val place = uri.flatMap(Global.index.findByURI(_))
+      val place = uri.flatMap(Global.index.findPlaceByURI(_))
       (place, total, toponymStats)
     }.toSeq.sortBy(t => - t._2)
     

@@ -1,23 +1,22 @@
 package global
 
 import akka.actor.Cancellable
-import models._
-import models.content._
+import index.PlaceIndex
 import java.io.{ File, FileInputStream }
 import java.sql.Timestamp
 import java.util.zip.GZIPInputStream
+import models._
+import models.content._
 import org.openrdf.rio.RDFFormat
 import org.pelagios.Scalagios
-import org.pelagios.gazetteer.PlaceIndex
-import play.api.Play
-import play.api.Play.current
-import play.api.{ Application, GlobalSettings, Logger }
-import play.api.db.slick._
-import scala.slick.jdbc.meta.MTable
-import play.api.mvc.RequestHeader
-import models.GlobalStatsHistory
 import org.pelagios.api.gazetteer.Place
-import scala.collection.mutable.ListBuffer
+import org.pelagios.api.gazetteer.patch.PatchConfig
+import play.api.{ Application, GlobalSettings, Logger, Play }
+import play.api.mvc.RequestHeader
+import play.api.db.slick._
+import play.api.Play.current
+import scala.slick.jdbc.meta.MTable
+import org.pelagios.api.gazetteer.patch.PatchStrategy
 
 /** Play Global object **/
 object Global extends GlobalSettings {
@@ -43,17 +42,25 @@ object Global extends GlobalSettings {
           else
             (new FileInputStream(new File(GAZETTEER_DIR, f)), f)
          
-        idx.addPlaceStream(is, filename, true)
+        idx.addPlaceStream(is, filename)
+        idx.refresh()
       })
       
       Logger.info("Index complete")
       
       val patches = Play.current.configuration.getString("recogito.gazetteer.patches")
         .map(_.split(",").toSeq).getOrElse(Seq.empty[String]).map(_.trim)
-        
+       
+      // Patching strategy is to REPLACE geometries, but APPEND names
+      val patchConfig = PatchConfig()
+        .geometry(PatchStrategy.REPLACE)
+        .names(PatchStrategy.APPEND)
+        .propagate(true) // Patches should propagate to linke places, too
+      
       patches.foreach(patch => {
         Logger.info("Applying gazetteer patch file " + patch)
-        idx.applyPatch(new File(GAZETTEER_DIR, patch).getAbsolutePath, true, true)
+        idx.applyPatch(new File(GAZETTEER_DIR, patch), patchConfig)
+        idx.refresh()
         Logger.info("Done.")
       })
     }
@@ -161,6 +168,8 @@ object Global extends GlobalSettings {
   }  
   
   override def onStop(app: Application): Unit = {
+    index.close()
+    
     if (statsDemon.isDefined) {
       Logger.info("Shutting down stats logging background actor")
       statsDemon.get.cancel

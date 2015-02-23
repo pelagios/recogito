@@ -6,7 +6,6 @@ import java.sql.Timestamp
 import java.util.{ Date, UUID }
 import models._
 import models.content._
-import org.pelagios.gazetteer.Network
 import play.api.Logger
 import play.api.db.slick._
 import play.api.Play.current
@@ -18,8 +17,6 @@ import org.pelagios.api.annotation.selector.TextOffsetSelector
 import scala.util.{ Try, Success, Failure }
 
 private[api] trait TextAnnotationWriter extends BaseAnnotationWriter {
-  
-  private val DARE_PREFIX = "http://www.imperium.ahlfeldt.se/"
     
   private val PLEIADES_PREFIX = "http://pleiades.stoa.org"
   
@@ -46,16 +43,15 @@ private[api] trait TextAnnotationWriter extends BaseAnnotationWriter {
         val correctedOffset = (json \ "corrected_offset").as[Int]   
         
         val automatch = { 
-          val networks = Global.index.query(correctedToponym, true).map(Global.index.getNetwork(_))
-          val matches = Network.conflateNetworks(networks.toSeq, 
-            Some(PLEIADES_PREFIX), // prefer Pleiades URIs
-            Some(DARE_PREFIX),     // prefer DARE for coordinates
-            Some(PLEIADES_PREFIX)) // prefer Pleiades for descriptions
-            
-          if (matches.size > 0)
-            Some(matches.head)
-          else
+          val matches = Global.index.search(correctedToponym + "~", 1, 0).flatMap(_.places)
+          
+          if (matches.isEmpty) {
             None
+          } else {
+            Some(matches.filter(_.uri.startsWith(PLEIADES_PREFIX))
+                   .headOption
+                   .getOrElse(matches.head))
+          }
         }
         
         val annotation = 

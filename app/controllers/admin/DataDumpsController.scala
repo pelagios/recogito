@@ -20,7 +20,7 @@ object DataDumpsController extends Controller with Secured {
     
     val header = Seq("uri", "lon", "lat", "name_in_gazetteer", "number_of_annotations").mkString(SEPARATOR) + "\n"
     val csv = placeStats.uniquePlaces.map { case (place, count, _) =>
-      val coord = place.getCentroid
+      val coord = place.centroid
       Seq(
         place.uri,
         coord.map(_.x.toString).getOrElse(""),

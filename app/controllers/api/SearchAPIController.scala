@@ -5,9 +5,10 @@ import play.api.db.slick._
 import play.api.mvc.{ Action, Controller }
 import play.api.libs.json.Json
 import play.api.Play.current
-import org.pelagios.gazetteer.Network
 import play.api.Logger
 import net.sf.junidecode.Junidecode
+import global.CrossGazetteerUtils
+import index.IndexedPlace
 
 /** Toponym search API controller.
   *
@@ -15,7 +16,6 @@ import net.sf.junidecode.Junidecode
   */
 object SearchAPIController extends Controller {
   
-  private val DARE_PREFIX = "http://www.imperium.ahlfeldt.se/"
   private val PLEIADES_PREFIX = "http://pleiades.stoa.org"
     
   def placeSearch(query: String) = Action { implicit request =>
@@ -23,14 +23,21 @@ object SearchAPIController extends Controller {
           .filter(_._1.toLowerCase.equals("prefix"))
           .headOption.flatMap(_._2.headOption)
           .map(_.split(",").toSeq.map(_.trim))
-    
-    val networks = Global.index.query(query, false, 100, gazetteerPrefixes).map(Global.index.getNetwork(_))
-    val results = Network.conflateNetworks(networks.toSeq, 
-        Some(PLEIADES_PREFIX), // prefer Pleiades URIs
-        Some(DARE_PREFIX),     // prefer DARE for coordinates
-        Some(PLEIADES_PREFIX)) // prefer Pleiades for descriptions
-            
-    Ok(Json.obj("query" -> query, "results" -> results.map(place => {
+              
+    val networks = Global.index.search(query, 100, 0, gazetteerPrefixes)
+    val conflatedPlaces = networks.map(network => {
+      val preferredPlace =
+        network.places.filter(_.uri.startsWith(PLEIADES_PREFIX))
+               .headOption
+               .getOrElse(network.places.head)
+               
+      val preferredGeometry =
+        CrossGazetteerUtils.getPreferredGeometry(preferredPlace, network)
+        
+      (preferredPlace, preferredGeometry)
+    })
+
+    Ok(Json.obj("query" -> query, "results" -> conflatedPlaces.map { case (place, geometry) => {
         val namesEnDeFrEsIt = {
           place.names.filter(_.lang == Some("eng")) ++
           place.names.filter(_.lang == Some("deu")) ++
@@ -45,10 +52,15 @@ object SearchAPIController extends Controller {
           "uri" -> place.uri,
           "title" -> place.label,
           "names" -> Json.toJson(namesEnDeFrEsIt ++ otherNames), // place.names.map(_.chars)),
-          "description" -> place.descriptions.map(_.chars).mkString(", "),
+          "description" -> place.description,
           "category" -> place.category.map(_.toString),
-          "geometry" -> place.locations.headOption.map(location => Json.parse(location.geoJSON)),
-          "coordinate" -> place.getCentroid.map(coords => Json.toJson(Seq(coords.y, coords.x)))) })))
+          "geometry" -> geometry.map(IndexedPlace.geometry2geoJSON(_)),
+          "coordinate" -> geometry.map(g => { 
+            val coords = g.getCentroid.getCoordinate
+            Json.toJson(Seq(coords.y, coords.x)) 
+          })
+        ) 
+    }}))
   }
 
 }

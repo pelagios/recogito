@@ -1,8 +1,9 @@
 package controllers.common.io
 
+import com.vividsolutions.jts.geom.Geometry
 import global.CrossGazetteerUtils
+import index.IndexedPlace
 import models._
-import org.pelagios.api.gazetteer.{ Location, Place }
 import play.api.db.slick._
 import scala.collection.mutable.HashMap
 
@@ -21,7 +22,7 @@ trait BaseSerializer {
   private val partCache = HashMap.empty[Int, Option[GeoDocumentPart]]
   
   /** Poor-man's cache for buffering index lookups **/
-  private val placeCache = HashMap.empty[String, Option[(Place, Option[Location])]]
+  private val placeCache = HashMap.empty[String, Option[(IndexedPlace, Option[Geometry])]]
 
   /** Helper method that returns the GeoDocument with the specified ID.
     *
@@ -78,12 +79,12 @@ trait BaseSerializer {
     }    
   }
   
-  protected def getPlace(uri: String): Option[(Place, Option[Location])] = {
+  protected def getPlace(uri: String): Option[(IndexedPlace, Option[Geometry])] = {
     val cachedPlace = placeCache.get(uri)
     if (cachedPlace.isDefined) {
       cachedPlace.get
     } else {
-      val place = CrossGazetteerUtils.getPlace(uri)
+      val place = CrossGazetteerUtils.getConflatedPlace(uri)
       placeCache.put(uri, place)
       place
     }

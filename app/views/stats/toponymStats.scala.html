@@ -1,4 +1,4 @@
-@(toponym: String, stats: Seq[((GeoDocument, Option[String]), Int)], places: Map[String, org.pelagios.api.gazetteer.Place])
+@(toponym: String, stats: Seq[((GeoDocument, Option[String]), Int)], places: Map[String, String])
 <html>
   <head>
     <title>RECOGITO Toponym Stats &raquo;</title>
@@ -23,7 +23,7 @@
 	                           .map(t => (t._1, t._2.foldLeft(0)(_ + _._2)))
 	                               .sortBy(- _._2)) {
 		  <tr>
-		    <td>@uri.flatMap(places.get(_)).map(_.label).getOrElse("-- unmapped --")</td>
+		    <td>@uri.flatMap(places.get(_)).getOrElse("-- unmapped --")</td>
 		    <td>@count</td>
 		  </tr>
 		}

@@ -1,8 +1,8 @@
 package controllers.common.io
 
 import global.{ Global, CrossGazetteerUtils }
+import index.PlaceIndex
 import models._
-import org.pelagios.gazetteer.GazetteerUtils
 import play.api.db.slick._
 import models.StatsHistoryRecord
 import controllers.common.ImageAnchor
@@ -53,9 +53,9 @@ class CSVSerializer extends BaseSerializer {
       
       val (category, coord) = {
         if (includeCoordinates) {
-          val queryResult = uri.flatMap(CrossGazetteerUtils.getPlace(_))
+          val queryResult = uri.flatMap(CrossGazetteerUtils.getConflatedPlace(_))
           val category = queryResult.flatMap(_._1.category)
-          val coord = queryResult.flatMap(_._2).map(_.geometry.getCentroid.getCoordinate)    
+          val coord = queryResult.flatMap(_._2).map(_.getCentroid.getCoordinate)    
           (category, coord)
         } else {
           (None, None)
@@ -74,7 +74,7 @@ class CSVSerializer extends BaseSerializer {
       
       csv + 
       esc(toponym.getOrElse("")) + SEPARATOR + 
-      uri.map(uri => GazetteerUtils.normalizeURI(uri)).getOrElse("") + SEPARATOR + 
+      uri.map(uri => PlaceIndex.normalizeURI(uri)).getOrElse("") + SEPARATOR + 
       coord.map(_.y).getOrElse("") + SEPARATOR +
       coord.map(_.x).getOrElse("") + SEPARATOR +
       category.map(_.toString).getOrElse("") + SEPARATOR +
@@ -107,11 +107,11 @@ class CSVSerializer extends BaseSerializer {
       esc(annotation.toponym.getOrElse("")) + SEPARATOR +
       annotation.offset.getOrElse("") + SEPARATOR +
       annotation.anchor.getOrElse("") + SEPARATOR +
-      annotation.gazetteerURI.map(GazetteerUtils.normalizeURI(_)).getOrElse("") + SEPARATOR +
+      annotation.gazetteerURI.map(PlaceIndex.normalizeURI(_)).getOrElse("") + SEPARATOR +
       esc(annotation.correctedToponym.getOrElse("")) + SEPARATOR +
       annotation.correctedOffset.getOrElse("") + SEPARATOR +
       annotation.correctedAnchor.getOrElse("") + SEPARATOR +
-      annotation.correctedGazetteerURI.map(GazetteerUtils.normalizeURI(_)).getOrElse("") + SEPARATOR +
+      annotation.correctedGazetteerURI.map(PlaceIndex.normalizeURI(_)).getOrElse("") + SEPARATOR +
       esc(annotation.tags.getOrElse("")) + SEPARATOR +
       esc(annotation.comment.getOrElse("")) + SEPARATOR +
       annotation.source.getOrElse("") + SEPARATOR +
