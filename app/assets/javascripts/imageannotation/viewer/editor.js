@@ -160,7 +160,7 @@ define(['imageannotation/config', 'imageannotation/events', 'imageannotation/vie
           currentAnnotation = annotation;
           showMask(bounds);
           showControls(bounds, annotation);
-          autoSuggest.show();
+          autoSuggest.show(annotation);
         },
         
         /** Updates the position of the editor (mask and controls) **/

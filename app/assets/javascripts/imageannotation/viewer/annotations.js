@@ -43,6 +43,21 @@ define([], function() {
     }
   };
   
+  /** Helper function to fetch full annotation details from the server **/
+  Annotations.fetchDetails = function(annotation, callback) {
+    $.ajax({
+      url: '/recogito/api/annotations/' + annotation.id,
+      type: 'GET',
+      success: function(response) {
+        jQuery.extend(annotation, response);
+        callback(annotation);
+      },
+      error: function(response) {
+        eventBroker.fireEvent(Events.STORE_CREATE_ERROR, response);
+	    }
+    });
+  };
+  
   /** Tests if the given coordinate intersects the rectangle **/
   var _intersects = function(x, y, rect) {
     var inside = false,

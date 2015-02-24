@@ -1,4 +1,4 @@
-define([], function() {
+define(['imageannotation/viewer/annotations'], function(Annotations) {
   
   var EditorAutoSuggest = function(parentEl, textInput, uriInput) {
     var ENDPOINT_URL = '../../api/search?prefix='+ encodeURIComponent('http://www.maphistory.info/') + '&query=',
@@ -12,17 +12,33 @@ define([], function() {
         
         /** Updates the list of suggestions with new search results **/
         showSearchResults = function(results) {
+          var selectedLi = ul.find('li.selected'),
+              selectedURI = (selectedLi.length > 0) ? selectedLi.data('uri') : false;
+          
           // Remove old results from list - except selected one (if any)
           ul.find('li').not('.selected').remove();
-
+          
           // Add results to list
           jQuery.each(results, function(idx, result) {
-            var title = result.names.slice(0,5).join(', ');                
-            if (result.description)
-              title += ' (' + result.description + ')';
-                  
-            ul.append('<li title="' + title + '" data-uri="' + result.uri + '">' + result.title + '</li>');
+            if (selectedURI !== result.uri)
+              appendSuggestion(result, false);
           });
+        },
+        
+        /** Displays a single suggestion **/
+        appendSuggestion = function(place, selected) {
+          var title = place.names.slice(0,5).join(', '),
+              li;
+              
+          if (place.description)
+            title += ' (' + place.description + ')';
+                
+          li = jQuery('<li title="' + title + '" data-uri="' + place.uri + '">' + place.title + '</li>');
+          
+          if (selected)
+            li.addClass('selected');
+          
+          ul.append(li);
         },
     
         /** Fetches search results from the server and displays them inside the parentEl **/
@@ -60,7 +76,17 @@ define([], function() {
         },
         
         /** Shows the autosuggest widget **/
-        show = function() {
+        show = function(annotation) {
+          var place = (annotation.place_fixed) ? annotation.place_fixed : annotation.place;
+          if (place) {
+            appendSuggestion(place, true);
+          } else {
+            Annotations.fetchDetails(annotation, function(annotation) {
+              var place = (annotation.place_fixed) ? annotation.place_fixed : annotation.place;  
+              if (place)
+                appendSuggestion(place, true);
+            });
+          }
           parentEl.show();
         },
         
