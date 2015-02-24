@@ -68,7 +68,7 @@ trait PlaceReader extends PlaceIndexBase {
     val q = 
       if (allowedPrefixes.isDefined) {
         val outerQuery = new BooleanQuery()
-        outerQuery.add(new MultiFieldQueryParser(Version.LUCENE_4_9, fields, analyzer).parse(query), BooleanClause.Occur.MUST)
+        outerQuery.add(new MultiFieldQueryParser(Version.LUCENE_4_9, fields, analyzer).parse(expandedQuery), BooleanClause.Occur.MUST)
         
         if (allowedPrefixes.get.size == 1) {
           outerQuery.add(new PrefixQuery(new Term(Fields.URI, allowedPrefixes.get.head)), BooleanClause.Occur.MUST)    
@@ -82,14 +82,14 @@ trait PlaceReader extends PlaceIndexBase {
         outerQuery
       } else {
         // Just a plain text query
-        new MultiFieldQueryParser(Version.LUCENE_4_9, fields, analyzer).parse(query)
+        new MultiFieldQueryParser(Version.LUCENE_4_9, fields, analyzer).parse(expandedQuery)
       }
     
     val searcher = placeSearcherManager.acquire()
     val collector = TopScoreDocCollector.create(offset + limit, true)
     try {
       searcher.search(q, collector)
-      collector.topDocs.scoreDocs.map(scoreDoc => new IndexedPlaceNetwork(searcher.doc(scoreDoc.doc)))
+      collector.topDocs.scoreDocs.map(scoreDoc => new IndexedPlaceNetwork(searcher.doc(scoreDoc.doc))).toSeq
     } finally {
       placeSearcherManager.release(searcher)
     }  

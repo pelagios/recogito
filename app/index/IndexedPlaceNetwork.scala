@@ -19,7 +19,7 @@ case class NetworkEdge(source: Int, target: Int, isInnerEdge: Boolean)
   * @author Rainer Simon <rainer.simon@ait.ac.at>
   */
 class IndexedPlaceNetwork private[index] (private[index] val doc: Document) {
-   
+  
   /** The first place URI added to the network **/
   val seedURI: String = doc.get(Fields.URI)
 
