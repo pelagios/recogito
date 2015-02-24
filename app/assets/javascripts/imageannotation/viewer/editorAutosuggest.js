@@ -67,6 +67,7 @@ define([], function() {
         /** Hides the auto-suggest widget **/
         hide = function() {
           ul.html('');
+          // uriInput.val('');
           parentEl.hide();
         };
         
