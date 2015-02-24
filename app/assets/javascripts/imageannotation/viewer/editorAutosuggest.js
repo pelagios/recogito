@@ -78,6 +78,11 @@ define(['imageannotation/viewer/annotations'], function(Annotations) {
         /** Shows the autosuggest widget **/
         show = function(annotation) {
           var place = (annotation.place_fixed) ? annotation.place_fixed : annotation.place;
+          
+          // Reset suggestion list and form field
+          ul.html('');
+          uriInput.val('');
+          
           if (place) {
             appendSuggestion(place, true);
           } else {
@@ -92,8 +97,6 @@ define(['imageannotation/viewer/annotations'], function(Annotations) {
         
         /** Hides the auto-suggest widget **/
         hide = function() {
-          ul.html('');
-          uriInput.val('');
           parentEl.hide();
         };
         
