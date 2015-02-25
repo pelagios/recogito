@@ -92,7 +92,7 @@ define(['imageannotation/viewer/annotations'], function(Annotations) {
             if (nearestPlace) {
               coord = nearestPlace.coordinate;
               jQuery.getJSON(NEARBY_PLACES_URL + '&lat=' + coord[0] + '&lon=' + coord[1], function(results) {
-                jQuery.each(results, function(idx, place) { appendSuggestion(place, false); });
+                jQuery.each(results.slice(0, 12), function(idx, place) { appendSuggestion(place, false); });
               }); 
             }
           });
