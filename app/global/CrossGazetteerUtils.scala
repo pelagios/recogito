@@ -3,6 +3,7 @@ package global
 import com.vividsolutions.jts.geom.{ Geometry, Polygon }
 import index.{ IndexedPlace, IndexedPlaceNetwork, PlaceIndex }
 
+// TODO refactor - this can now go into the PlaceIndex class
 object CrossGazetteerUtils {
   
   private val DARE_PREFIX = "http://www.imperium.ahlfeldt.se/"

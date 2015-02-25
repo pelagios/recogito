@@ -133,7 +133,9 @@ object IndexedPlaceNetwork {
     // Index shape geometry
     if (place.geometry.isDefined)
       try {
-        spatialStrategy.createIndexableFields(spatialCtx.makeShape(place.geometry.get)).foreach(doc.add(_))
+        val shape = spatialCtx.makeShape(place.geometry.get)
+        spatialStrategy.createIndexableFields(shape).foreach(doc.add(_))
+        doc.add(new StoredField(spatialStrategy.getFieldName, spatialCtx.toString(shape)))
       } catch {
         case _: Throwable => Logger.info("Cannot index geometry: " + place.geometry.get)
       }

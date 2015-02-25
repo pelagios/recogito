@@ -1,9 +1,17 @@
 define(['imageannotation/viewer/annotations'], function(Annotations) {
   
   var EditorAutoSuggest = function(parentEl, textInput, uriInput) {
-    var ENDPOINT_URL = '../../api/search?prefix='+ encodeURIComponent('http://www.maphistory.info/') + '&query=',
+    var PREFIX = encodeURIComponent('http://www.maphistory.info/'),
     
-        MAX_LIST_SIZE = 10,
+        SEARCH_URL = '../../api/search?prefix=' + PREFIX + '&query=',
+    
+        NEARBY_PLACES_URL = '../../api/nearby?prefix=' + PREFIX,
+    
+        /** Maximum number of transcription search results to display **/
+        MAX_TRANSCRIPTION_SEARCH_RESULTS = 10,
+        
+        /** Maximum number of neighbour annotations to consider for proximity suggestions **/
+        MAX_PROXIMITY_NEIGHBOURS = 30,
     
         pendingQuery = false,
         
@@ -26,7 +34,7 @@ define(['imageannotation/viewer/annotations'], function(Annotations) {
         },
         
         /** Displays a single suggestion **/
-        appendSuggestion = function(place, selected) {
+        appendSuggestion = function(place, selected) {          
           var title = place.names.slice(0,5).join(', '),
               li;
               
@@ -41,21 +49,53 @@ define(['imageannotation/viewer/annotations'], function(Annotations) {
           ul.append(li);
         },
     
-        /** Fetches search results from the server and displays them inside the parentEl **/
-        getSuggestions = function(chars) {
+        /** Fetches text search results from the server and displays them inside the parentEl **/
+        getSuggestionsByTranscription = function(chars) {
           if (chars.length > 1) { // Start fetching proposals from 2 chars onwards
-            jQuery.getJSON(ENDPOINT_URL + encodeURIComponent(chars).replace('%20', '+AND+') + '*', function(data) {
-              var results = data.results.slice(0, MAX_LIST_SIZE);
+            jQuery.getJSON(SEARCH_URL + encodeURIComponent(chars).replace('%20', '+AND+') + '*', function(data) {
+              var results = data.results.slice(0, MAX_TRANSCRIPTION_SEARCH_RESULTS);
               if (results.length == 0) {
                 // Include fuzzy matches
-                jQuery.getJSON(ENDPOINT_URL + encodeURIComponent(chars) + '~', function(data) {
-                  showSearchResults(data.results.slice(0, MAX_LIST_SIZE));
+                jQuery.getJSON(SEARCH_URL + encodeURIComponent(chars) + '~', function(data) {
+                  showSearchResults(data.results.slice(0, MAX_TRANSCRIPTION_SEARCH_RESULTS));
                 });
               } else {
                 showSearchResults(results);
               }
             });
           }
+        },
+        
+        /** Fetches suggestions based on the nearest geo-resolved annotation **/
+        getSuggestionsByProximity = function(annotation) {
+          var nearbyAnnotations = Annotations.findNearby(annotation, MAX_PROXIMITY_NEIGHBOURS),
+              
+              nearbyAnnotationWithoutPlace = jQuery.grep(nearbyAnnotations, function(a) {
+                var place = (a.place_fixed) ? a.place_fixed : a.place;
+                return !place;
+              });
+              
+          // The API may have more info about annotations without a place
+          Annotations.fetchDetails(nearbyAnnotationWithoutPlace, function(annotations) {
+            var coord, 
+            
+                nearbyAnnotationsWithPlace = jQuery.grep(nearbyAnnotations, function(a) {
+                  var place = (a.place_fixed) ? a.place_fixed : a.place;
+                  return place;
+                }),
+                
+                // Do we have a nearest place within MAX_PROXIMITY_NEIGHBOURS? If so, fetch geographically proximate places
+                nearestPlace = (nearbyAnnotationsWithPlace.length > 0) ?
+                  ((nearbyAnnotationsWithPlace[0].place_fixed) ? nearbyAnnotationsWithPlace[0].place_fixed : nearbyAnnotationsWithPlace[0].place) :
+                  false;
+            
+            if (nearestPlace) {
+              coord = nearestPlace.coordinate;
+              jQuery.getJSON(NEARBY_PLACES_URL + '&lat=' + coord[0] + '&lon=' + coord[1], function(results) {
+                jQuery.each(results, function(idx, place) { appendSuggestion(place, false); });
+              }); 
+            }
+          });
         },
                 
         /** Handler function to select a suggestion from the list **/
@@ -78,11 +118,12 @@ define(['imageannotation/viewer/annotations'], function(Annotations) {
         /** Shows the autosuggest widget **/
         show = function(annotation) {
           var place = (annotation.place_fixed) ? annotation.place_fixed : annotation.place;
-          
+                        
           // Reset suggestion list and form field
           ul.html('');
           uriInput.val('');
           
+          // If this annotation is mapped to a place, add it to the suggestion list & set as selected
           if (place) {
             appendSuggestion(place, true);
           } else {
@@ -92,6 +133,10 @@ define(['imageannotation/viewer/annotations'], function(Annotations) {
                 appendSuggestion(place, true);
             });
           }
+                              
+          // Suggestions based on nearby places
+          getSuggestionsByProximity(annotation);
+
           parentEl.show();
         },
         
@@ -124,7 +169,7 @@ define(['imageannotation/viewer/annotations'], function(Annotations) {
        
       var chars = textInput.val();
       pendingQuery = window.setTimeout(function() {
-        getSuggestions(chars);
+        getSuggestionsByTranscription(chars);
       }, 200);
     }); 
     

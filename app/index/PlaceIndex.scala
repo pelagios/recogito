@@ -12,16 +12,16 @@ import org.apache.lucene.util.Version
 import play.api.Logger
 
 private[index] class PlaceIndexBase(indexDir: File) {
-  
-  private val spatialCtx = JtsSpatialContext.GEO
-  
+    
   private val maxLevels = 11 //results in sub-meter precision for geohash
   
-  private val spatialStrategy =
-    new RecursivePrefixTreeStrategy(new GeohashPrefixTree(spatialCtx, maxLevels), Fields.GEOMETRY)
+  protected val index = FSDirectory.open(indexDir)
   
-  private val index = FSDirectory.open(indexDir)
-    
+  protected val spatialCtx = JtsSpatialContext.GEO
+
+  protected val spatialStrategy =
+    new RecursivePrefixTreeStrategy(new GeohashPrefixTree(spatialCtx, maxLevels), Fields.GEOMETRY)
+ 
   protected val analyzer = new StandardAnalyzer(Version.LUCENE_4_9)
   
   protected val placeSearcherManager = new SearcherManager(index, new SearcherFactory())

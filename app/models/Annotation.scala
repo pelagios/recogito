@@ -151,6 +151,9 @@ object Annotations extends HasStatusColumn {
   
   def findByUUID(uuid: UUID)(implicit s: Session): Option[Annotation] =
     query.where(_.uuid === uuid.bind).firstOption
+    
+  def findByUUIDs(uuids: Seq[UUID])(implicit s: Session): Seq[Annotation] =
+    query.where(_.uuid inSet uuids).list
 
   def delete(uuid: UUID)(implicit s: Session) = 
     query.where(_.uuid === uuid.bind).delete

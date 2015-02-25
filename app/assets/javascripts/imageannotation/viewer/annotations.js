@@ -45,17 +45,60 @@ define([], function() {
   
   /** Helper function to fetch full annotation details from the server **/
   Annotations.fetchDetails = function(annotation, callback) {
-    $.ajax({
-      url: '/recogito/api/annotations/' + annotation.id,
-      type: 'GET',
-      success: function(response) {
-        jQuery.extend(annotation, response);
-        callback(annotation);
-      },
-      error: function(response) {
-        eventBroker.fireEvent(Events.STORE_CREATE_ERROR, response);
-	    }
+    if (jQuery.isArray(annotation)) {
+      // TODO it's possibly better to support this scenario on the server side
+      // and do things with a single request
+      var ajaxCallsRemaining = annotation.length;
+      
+      jQuery.each(annotation, function(idx, a) {
+        jQuery.ajax({
+          url: '/recogito/api/annotations/' + a.id,
+          type: 'GET',
+          success: function(response) {
+            jQuery.extend(a, response);
+            ajaxCallsRemaining -= 1;
+            
+            if (ajaxCallsRemaining <= 0)
+              callback(annotation);
+          }
+        });        
+      });
+    } else {
+      jQuery.ajax({
+        url: '/recogito/api/annotations/' + annotation.id,
+        type: 'GET',
+        success: function(response) {
+          jQuery.extend(annotation, response);
+          callback(annotation);
+        }
+      });
+    }    
+  };
+  
+  /** Returns a list of nearby annotations, sorted by distance **/
+  Annotations.findNearby = function(annotation, opt_limit) {
+    var limit = (opt_limit) ? opt_limit : _annotations.length,
+        thisGeom = annotation.shapes[0].geometry,
+        annotationsAndDistance = [];
+    
+    // TODO optimize with a quadtree
+    jQuery.each(_annotations, function(idx, a) {
+      var otherGeom = a.shapes[0].geometry,
+          dx = thisGeom.x - otherGeom.x,
+          dy = thisGeom.y - otherGeom.y,
+          distanceSq = Math.pow(dx, 2) + Math.pow(dy, 2);
+
+      if (a.id !== annotation.id)
+        annotationsAndDistance.push({ annotation: a, distance: distanceSq });
     });
+    
+    annotationsAndDistance.sort(function(a,b) {
+      return a.distance - b.distance;
+    });
+    
+    return jQuery.map(annotationsAndDistance, function(obj) {
+      return obj.annotation;
+    }).slice(0, limit);
   };
   
   /** Tests if the given coordinate intersects the rectangle **/

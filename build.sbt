@@ -12,7 +12,7 @@ libraryDependencies ++= Seq(jdbc, cache)
 libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-slick" % "0.6.1",
   "commons-codec" % "commons-codec" % "1.9",
-  "org.apache.lucene" % "lucene-spatial" % "4.9.0",
+  "org.apache.lucene" % "lucene-spatial" % "4.10.3",
   "org.xerial" % "sqlite-jdbc" % "3.7.2",
   "org.zeroturnaround" % "zt-zip" % "1.8",
   "postgresql" % "postgresql" % "9.1-901.jdbc4",
