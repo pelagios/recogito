@@ -103,7 +103,7 @@ trait PlaceReader extends PlaceIndexBase {
     val searcher = placeSearcherManager.acquire()
     
     val point = spatialCtx.makePoint(lat, lon)
-    val args = new SpatialArgs(SpatialOperation.IsWithin, spatialCtx.makeCircle(lon, lat, DistanceUtils.dist2Degrees(30, DistanceUtils.EARTH_MEAN_RADIUS_KM)))
+    val args = new SpatialArgs(SpatialOperation.IsWithin, spatialCtx.makeCircle(lon, lat, DistanceUtils.dist2Degrees(100, DistanceUtils.EARTH_MEAN_RADIUS_KM)))
     val filter = spatialStrategy.makeFilter(args)
     
     val valueSource = spatialStrategy.makeDistanceValueSource(point)

@@ -93,7 +93,7 @@ GET     /recogito/api/documents/:id                 controllers.api.DocumentAPIC
 POST    /recogito/api/signoff                       controllers.api.DocumentAPIController.signOff(textId: Option[Int], imageId: Option[Int])
 
 GET     /recogito/api/search                        controllers.api.SearchAPIController.placeSearch(query: String)
-GET     /recogito/api/nearby                        controllers.api.SearchAPIController.findNearby(lat: Double, lon: Double, limit: Int ?= 10)
+GET     /recogito/api/nearby                        controllers.api.SearchAPIController.findNearby(lat: Double, lon: Double, limit: Int ?= 20)
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
