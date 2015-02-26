@@ -78,18 +78,21 @@ define(['imageannotation/viewer/annotations'], function(Annotations) {
               showSuggestions = function(annotations) {
                 var coord, 
             
-                    nearbyAnnotationsWithPlace = jQuery.grep(nearbyAnnotations, function(a) {
+                    nearbyAnnotationsWithCoord = jQuery.grep(nearbyAnnotations, function(a) {
                       var place = (a.place_fixed) ? a.place_fixed : a.place;
-                      return place;
+                      if (place)
+                        return place.coordinate;
+                      else
+                        return false;
                     }),
                 
                     // Do we have a nearest place within MAX_PROXIMITY_NEIGHBOURS? If so, fetch geographically proximate places
-                    nearestPlace = (nearbyAnnotationsWithPlace.length > 0) ?
-                      ((nearbyAnnotationsWithPlace[0].place_fixed) ? nearbyAnnotationsWithPlace[0].place_fixed : nearbyAnnotationsWithPlace[0].place) :
+                    nearestPlaceWithCoord = (nearbyAnnotationsWithCoord.length > 0) ?
+                      ((nearbyAnnotationsWithCoord[0].place_fixed) ? nearbyAnnotationsWithCoord[0].place_fixed : nearbyAnnotationsWithCoord[0].place) :
                       false;
                       
-                if (nearestPlace) {
-                  coord = nearestPlace.coordinate;
+                if (nearestPlaceWithCoord) {
+                  coord = nearestPlaceWithCoord.coordinate;
                   jQuery.getJSON(NEARBY_PLACES_URL + '&lat=' + coord[0] + '&lon=' + coord[1], function(results) {
                     jQuery.each(results, function(idx, place) { appendSuggestion(place, false); });
                   }); 
