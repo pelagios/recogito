@@ -309,7 +309,7 @@ object Annotations extends HasStatusColumn {
     q.list.groupBy(_._2)
           .map { case (toponym, stats) => (toponym, stats.map(t => (t._1, t._3))) }
           .toSeq
-          .sortBy(t => - t._2.foldLeft(0)(_ + _._2))
+          .sortBy(t => (- t._2.foldLeft(0)(_ + _._2), t._1))
   }
        
   /** Get stats on the performance of automated annotation (wrapper around three sub-queries!) **/
