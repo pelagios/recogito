@@ -3,7 +3,11 @@ define(['imageannotation/config', 'imageannotation/viewer/annotationLayer'], fun
   var _map;
   
   var Viewer = function(divId, eventBroker) {      
-    var projection = new ol.proj.Projection({
+    var div = jQuery('#' + divId),
+    
+        divSize = [ div.outerWidth(), div.outerHeight() ],
+    
+        projection = new ol.proj.Projection({
           code: 'ZOOMIFY',
           units: 'pixels',
           extent: [0, 0, Config.width, Config.height]
@@ -26,18 +30,8 @@ define(['imageannotation/config', 'imageannotation/viewer/annotationLayer'], fun
         }),
         
         annotationLayer = new AnnotationLayer($('#' + divId).parent(), map, eventBroker);    
-       
-    /** DEBUG **/
-    var mapSize = map.getSize();
-    console.log(mapSize);
-    console.log('width', Config.width);
-    console.log('height', Config.height);
     
-    var view = map.getView();
-    console.log(view);
-    /** DEBUG **/
-    
-    map.getView().fitExtent([0, - Config.height, Config.width, 0], map.getSize());
+    map.getView().fitExtent([0, - Config.height, Config.width, 0], divSize);
     
     // Slightly ugly - but we need to wrap getCoordinateFromPixel so that the drawing canvas can use it
     _map = map;
