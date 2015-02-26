@@ -20,7 +20,6 @@
     @if(allImages.size > 1) { 
       @tags.js_text_menu() 
     }
-    @helper.requireJs(core = routes.Assets.at("javascripts/require.js").url, module = routes.Assets.at("javascripts/imageannotation").url)
     <script>
       window.config = {
         'width': @image.width,
@@ -110,5 +109,6 @@
         You are logged in as <span id="username">@username</span> <a href="@controllers.common.auth.routes.AuthController.logout" class="icon">&#xf011;</a>
       </div>
     </div>
+    @helper.requireJs(core = routes.Assets.at("javascripts/require.js").url, module = routes.Assets.at("javascripts/imageannotation").url)
   </body>
 </html>
