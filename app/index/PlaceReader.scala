@@ -9,10 +9,15 @@ import org.apache.lucene.util.Version
 import com.spatial4j.core.distance.DistanceUtils
 import org.apache.lucene.search.MatchAllDocsQuery
 import play.api.Logger
+import com.spatial4j.core.shape.Point
 
 trait PlaceReader extends PlaceIndexBase {
   
+  // Characters to remove from search queries
   private val INVALID_QUERY_CHARS = Seq("(", ")", "[", "]")
+  
+  // Maximum radius for spatial proximity search
+  private val PROXIMITY_SEARCH_RADIUS_KM = 500
   
   def isEmpty: Boolean = (numPlaceNetworks == 0)
   
@@ -72,7 +77,7 @@ trait PlaceReader extends PlaceIndexBase {
     val q = 
       if (allowedPrefixes.isDefined) {
         val outerQuery = new BooleanQuery()
-        outerQuery.add(new MultiFieldQueryParser(Version.LUCENE_4_9, fields, analyzer).parse(expandedQuery), BooleanClause.Occur.MUST)
+        outerQuery.add(new MultiFieldQueryParser(Version.LATEST, fields, analyzer).parse(expandedQuery), BooleanClause.Occur.MUST)
         
         if (allowedPrefixes.get.size == 1) {
           outerQuery.add(new PrefixQuery(new Term(Fields.URI, allowedPrefixes.get.head)), BooleanClause.Occur.MUST)    
@@ -86,7 +91,7 @@ trait PlaceReader extends PlaceIndexBase {
         outerQuery
       } else {
         // Just a plain text query
-        new MultiFieldQueryParser(Version.LUCENE_4_9, fields, analyzer).parse(expandedQuery)
+        new MultiFieldQueryParser(Version.LATEST, fields, analyzer).parse(expandedQuery)
       }
     
     val searcher = placeSearcherManager.acquire()
@@ -102,13 +107,13 @@ trait PlaceReader extends PlaceIndexBase {
   def findNearby(lat: Double, lon: Double, limit: Int, allowedPrefixes: Option[Seq[String]] = None): Seq[IndexedPlaceNetwork] = {
     val searcher = placeSearcherManager.acquire()
     
-    val point = spatialCtx.makePoint(lat, lon)
-    val args = new SpatialArgs(SpatialOperation.IsWithin, spatialCtx.makeCircle(lon, lat, DistanceUtils.dist2Degrees(100, DistanceUtils.EARTH_MEAN_RADIUS_KM)))
-    val filter = spatialStrategy.makeFilter(args)
+    val point = PlaceIndex.ctx.makePoint(lon, lat)
+    val args = new SpatialArgs(SpatialOperation.IsWithin, 
+        PlaceIndex.ctx.makeCircle(point, DistanceUtils.dist2Degrees(PROXIMITY_SEARCH_RADIUS_KM, DistanceUtils.EARTH_MEAN_RADIUS_KM)))
+    val filter = PlaceIndex.strategy.makeFilter(args)
     
-    val valueSource = spatialStrategy.makeDistanceValueSource(point)
-    val sortField = valueSource.getSortField(false)    
-    val distanceSort = new Sort(sortField).rewrite(searcher)
+    val valueSource = PlaceIndex.strategy.makeDistanceValueSource(point)
+    val distanceSort = new Sort(valueSource.getSortField(false)).rewrite(searcher)
     
     val query =
       if (allowedPrefixes.isDefined) {
@@ -118,7 +123,6 @@ trait PlaceReader extends PlaceIndexBase {
           val q = new BooleanQuery()
           allowedPrefixes.get.foreach(prefix => 
             q.add(new PrefixQuery(new Term(Fields.URI, prefix)), BooleanClause.Occur.SHOULD))
-          
           q
         }
       } else {
@@ -128,17 +132,6 @@ trait PlaceReader extends PlaceIndexBase {
     try {  
       val topDocs = searcher.search(query, filter, limit, distanceSort) 
       val scoreDocs = topDocs.scoreDocs  
-      
-      /*
-      scoreDocs.foreach(scoreDoc => {
-        val doc = searcher.doc(scoreDoc.doc)
-        val docPoint = spatialCtx.readShape(doc.get(spatialStrategy.getFieldName())).asInstanceOf[Point]
-        val distance = spatialCtx.getDistCalc().distance(args.getShape.getCenter, docPoint)
-        val distanceKM = DistanceUtils.degrees2Dist(distance, DistanceUtils.EARTH_EQUATORIAL_RADIUS_KM)
-        Logger.info("distance: " + distanceKM)
-      })
-      */
-      
       scoreDocs.map(scoreDoc => new IndexedPlaceNetwork(searcher.doc(scoreDoc.doc))).toSeq
     } finally {
       placeSearcherManager.release(searcher)

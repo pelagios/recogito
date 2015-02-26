@@ -12,22 +12,15 @@ import org.apache.lucene.util.Version
 import play.api.Logger
 
 private[index] class PlaceIndexBase(indexDir: File) {
-    
-  private val maxLevels = 11 //results in sub-meter precision for geohash
   
   protected val index = FSDirectory.open(indexDir)
-  
-  protected val spatialCtx = JtsSpatialContext.GEO
-
-  protected val spatialStrategy =
-    new RecursivePrefixTreeStrategy(new GeohashPrefixTree(spatialCtx, maxLevels), Fields.GEOMETRY)
  
-  protected val analyzer = new StandardAnalyzer(Version.LUCENE_4_9)
+  protected val analyzer = new StandardAnalyzer(Version.LATEST)
   
   protected val placeSearcherManager = new SearcherManager(index, new SearcherFactory())
       
   protected lazy val placeWriter: IndexWriter = 
-    new IndexWriter(index, new IndexWriterConfig(Version.LUCENE_4_9, analyzer))
+    new IndexWriter(index, new IndexWriterConfig(Version.LATEST, analyzer))
   
   def refresh() = {
     Logger.info("Refreshing index readers")
@@ -48,12 +41,17 @@ class PlaceIndex private(indexDir: File) extends PlaceIndexBase(indexDir) with P
   
 object PlaceIndex {
   
+  private[index] val ctx = JtsSpatialContext.GEO
+  
+  private[index] val strategy =
+    new RecursivePrefixTreeStrategy(new GeohashPrefixTree(ctx, 11), Fields.GEOMETRY)
+  
   def open(indexDir: String) = new PlaceIndex(createIfNotExists(new File(indexDir)))
   
   private def createIfNotExists(dir: File): File = {
     if (!dir.exists) {
       dir.mkdirs()  
-      val initConfig = new IndexWriterConfig(Version.LUCENE_4_9, new StandardAnalyzer(Version.LUCENE_4_9))
+      val initConfig = new IndexWriterConfig(Version.LATEST, new StandardAnalyzer(Version.LATEST))
       val initializer = new IndexWriter(FSDirectory.open(dir), initConfig)
       initializer.close()      
     }
