@@ -5,7 +5,7 @@ define(['imageannotation/viewer/annotations'], function(Annotations) {
     
         SEARCH_URL = '../../api/search?prefix=' + PREFIX + '&query=',
     
-        NEARBY_PLACES_URL = '../../api/nearby?prefix=' + PREFIX,
+        NEARBY_PLACES_URL = '../../api/nearby?limit=12&prefix=' + PREFIX,
     
         /** Maximum number of transcription search results to display **/
         MAX_TRANSCRIPTION_SEARCH_RESULTS = 10,
@@ -70,32 +70,40 @@ define(['imageannotation/viewer/annotations'], function(Annotations) {
         getSuggestionsByProximity = function(annotation) {
           var nearbyAnnotations = Annotations.findNearby(annotation, MAX_PROXIMITY_NEIGHBOURS),
               
-              nearbyAnnotationWithoutPlace = jQuery.grep(nearbyAnnotations, function(a) {
+              nearbyAnnotationsWithoutPlace = jQuery.grep(nearbyAnnotations, function(a) {
                 var place = (a.place_fixed) ? a.place_fixed : a.place;
                 return !place;
-              });
+              }),
               
-          // The API may have more info about annotations without a place
-          Annotations.fetchDetails(nearbyAnnotationWithoutPlace, function(annotations) {
-            var coord, 
+              showSuggestions = function(annotations) {
+                var coord, 
             
-                nearbyAnnotationsWithPlace = jQuery.grep(nearbyAnnotations, function(a) {
-                  var place = (a.place_fixed) ? a.place_fixed : a.place;
-                  return place;
-                }),
+                    nearbyAnnotationsWithPlace = jQuery.grep(nearbyAnnotations, function(a) {
+                      var place = (a.place_fixed) ? a.place_fixed : a.place;
+                      return place;
+                    }),
                 
-                // Do we have a nearest place within MAX_PROXIMITY_NEIGHBOURS? If so, fetch geographically proximate places
-                nearestPlace = (nearbyAnnotationsWithPlace.length > 0) ?
-                  ((nearbyAnnotationsWithPlace[0].place_fixed) ? nearbyAnnotationsWithPlace[0].place_fixed : nearbyAnnotationsWithPlace[0].place) :
-                  false;
-            
-            if (nearestPlace) {
-              coord = nearestPlace.coordinate;
-              jQuery.getJSON(NEARBY_PLACES_URL + '&lat=' + coord[0] + '&lon=' + coord[1], function(results) {
-                jQuery.each(results.slice(0, 12), function(idx, place) { appendSuggestion(place, false); });
-              }); 
-            }
-          });
+                    // Do we have a nearest place within MAX_PROXIMITY_NEIGHBOURS? If so, fetch geographically proximate places
+                    nearestPlace = (nearbyAnnotationsWithPlace.length > 0) ?
+                      ((nearbyAnnotationsWithPlace[0].place_fixed) ? nearbyAnnotationsWithPlace[0].place_fixed : nearbyAnnotationsWithPlace[0].place) :
+                      false;
+                      
+                if (nearestPlace) {
+                  coord = nearestPlace.coordinate;
+                  jQuery.getJSON(NEARBY_PLACES_URL + '&lat=' + coord[0] + '&lon=' + coord[1], function(results) {
+                    jQuery.each(results, function(idx, place) { appendSuggestion(place, false); });
+                  }); 
+                }
+              };
+          
+          if (nearbyAnnotationsWithoutPlace.length > 0) {
+            // The API may have more info about annotations without a place
+            Annotations.fetchDetails(nearbyAnnotationsWithoutPlace, function(annotations) {
+              showSuggestions(annotations);
+            });
+          } else {
+            showSuggestions(nearbyAnnotations);
+          }
         },
                 
         /** Handler function to select a suggestion from the list **/
@@ -136,7 +144,7 @@ define(['imageannotation/viewer/annotations'], function(Annotations) {
                               
           // Suggestions based on nearby places
           getSuggestionsByProximity(annotation);
-
+          
           parentEl.show();
         },
         

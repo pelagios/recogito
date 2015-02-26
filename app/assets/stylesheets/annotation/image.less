@@ -173,6 +173,12 @@ html, body {
     cursor:pointer;
     float:left;
     clear:left;
+    
+    -webkit-user-select: none; /* Chrome/Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+ */
+    -o-user-select: none;
+    user-select: none;
   }
   
   li.selected::after {
