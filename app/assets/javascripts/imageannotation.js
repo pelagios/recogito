@@ -23,9 +23,21 @@ require(['common/eventBroker',
         /** Toolbar component shorthands **/
         btnNavigate   = $('.navigate'),
         btnAnnotate   = $('.annotate'),
+        btnBrightness = $('.brightness'),
+        btnContrast   = $('.contrast'),
         btnSignOff    = $('.signoff'),
         btnHelp       = $('.help'),
-    
+        
+        brightness = $('.tool.brightness input'),
+        brightnessConfig = { vertical: true, hideRange: true, min: -100, max: 100, start: 0 },
+        brightnessSlider = new Powerange(brightness[0], brightnessConfig);
+        brightnessPanel = $('.tool.brightness .panel'),
+
+        contrast = $('.tool.contrast input'),
+        contrastConfig = { vertical: true, hideRange: true, min: 0, max: 500, start: 100 },
+        contrastSlider = new Powerange(contrast[0], contrastConfig),
+        contrastPanel = $('.tool.contrast .panel'),
+                    
         /** Switches the GUI to navigation mode **/
         switchToNavigate = function() {
           eventBroker.fireEvent(Events.SWITCH_TO_NAVIGATE);
@@ -40,6 +52,7 @@ require(['common/eventBroker',
           btnAnnotate.addClass('selected');
         },
       
+        /** Shows hides the help popup **/
         toggleHelp = function() {
           if (helpWindow.isVisible()) {
             helpWindow.hide();
@@ -47,10 +60,34 @@ require(['common/eventBroker',
             helpWindow.show();
           }
         };
-  
+    
+    brightnessPanel.hide();
+    // Unfortnately, Powerange requires the input to be displayed on init
+    // Therefore we're setting the panel to opacity 0 to prevent it from showing on load
+    // We're changing this back now
+    brightnessPanel.css({ opacity: 1 });
+    brightness.change(function(e) {
+      var value = jQuery(e.target).val();
+      eventBroker.fireEvent(Events.SET_BRIGHTNESS, value);
+    });
+ 
+    contrastPanel.hide();
+    contrastPanel.css({ opacity: 1 });
+    contrast.change(function(e) {
+      var value = jQuery(e.target).val();
+      eventBroker.fireEvent(Events.SET_CONTRAST, value);
+    });
+        
     // Set up toolbar events
     btnNavigate.click(switchToNavigate);
     btnAnnotate.click(switchToAnnotate);
+    
+    btnBrightness.mouseover(function() { brightnessPanel.show(); });
+    btnBrightness.mouseout(function() { brightnessPanel.hide(); });
+    
+    btnContrast.mouseover(function() { contrastPanel.show(); });
+    btnContrast.mouseout(function() { contrastPanel.hide(); });    
+    
     btnSignOff.click(function(e) { eventBroker.fireEvent(Events.TOGGLE_SIGNOFF); });  
     btnHelp.click(toggleHelp);
   

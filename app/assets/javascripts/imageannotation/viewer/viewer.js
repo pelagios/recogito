@@ -1,4 +1,4 @@
-define(['imageannotation/config', 'imageannotation/viewer/annotationLayer'], function(Config, AnnotationLayer) {
+define(['imageannotation/config', 'imageannotation/events', 'imageannotation/viewer/annotationLayer'], function(Config, Events, AnnotationLayer) {
   
   var _map;
   
@@ -18,9 +18,12 @@ define(['imageannotation/config', 'imageannotation/viewer/annotationLayer'], fun
           size: [ Config.width, Config.height ]
         }),
         
+        tileLayer = new ol.layer.Tile({ source: tileSource }),
+        
         map = new ol.Map({
           target: divId,
-          layers: [ new ol.layer.Tile({ source: tileSource }) ],
+          layers: [ tileLayer ],
+          renderer: 'webgl',
           view: new ol.View({
             projection: projection,
             center: [Config.width / 2, - Config.height / 2],
@@ -32,6 +35,15 @@ define(['imageannotation/config', 'imageannotation/viewer/annotationLayer'], fun
         annotationLayer = new AnnotationLayer($('#' + divId).parent(), map, eventBroker);    
     
     map.getView().fitExtent([0, - Config.height, Config.width, 0], divSize);
+    
+    // Handlers for brightness/contrast user settings
+    eventBroker.addHandler(Events.SET_BRIGHTNESS, function(value) {
+      tileLayer.setBrightness(value / 100);
+    });
+    
+    eventBroker.addHandler(Events.SET_CONTRAST, function(value) {
+      tileLayer.setContrast(value / 100);
+    });
     
     // Slightly ugly - but we need to wrap getCoordinateFromPixel so that the drawing canvas can use it
     _map = map;

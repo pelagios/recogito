@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="@routes.Assets.at("javascripts/lib/ol3/ol.css")">
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-ui-1.10.3.custom.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/powerange/powerange.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/timeago/jquery.timeago.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/ol3/ol.js")"></script>
     @if(allImages.size > 1) { 
@@ -81,7 +82,21 @@
         
         <div class="tool annotate" title="Annotate Image">
           <span class="icon">&#xf040;</span>
-        </div>   
+        </div>
+        
+        <div class="tool brightness" title="Brightness">
+          <span class="icon icomoon">&#xe9d4;</span>
+          <div class="panel">
+            <input type="text" class="slider" />            
+          </div>
+        </div>
+        
+        <div class="tool contrast" title="Contrast">
+          <span class="icon icomoon">&#xe9d5;</span>
+          <div class="panel">
+            <input type="text" class="slider" />
+          </div>
+        </div>
         
         <div class="tool signoff">
           @if(signedOff) {
@@ -91,7 +106,7 @@
             <span class="icon" title="Are you done transcribing toponyms on this image? Click to sign it off!">&#xf164;</span>
             <span class="signoff-count@{ if (signedBy.size > 0)  " signed"}" title="@signedBy.size people have signed off this image">@signedBy.size</span>
           }
-        </div>  
+        </div>
         
         <div class="tool help" title="Help">
           <span class="icon">&#xf059;</span>

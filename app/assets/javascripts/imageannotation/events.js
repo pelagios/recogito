@@ -14,6 +14,12 @@ define([], function() {
     /** Toolbar: the users activated annotation mode **/
     SWITCH_TO_ANNOTATE : 'switchToAnnotate',
     
+    /** Toolbar: set the map image brightness to a different value **/
+    SET_BRIGHTNESS : 'setBrightness',
+    
+    /** Toolbar: set the map contrast brightness to a different value **/
+    SET_CONTRAST : 'setContrast',
+    
     /** Toolbar: the users toggled the signoff status **/
     TOGGLE_SIGNOFF: 'toggleSignOff',
     
