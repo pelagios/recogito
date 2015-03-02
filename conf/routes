@@ -126,8 +126,8 @@ POST    /recogito/admin/users/signup                controllers.admin.UserAdminC
 DELETE  /recogito/admin/users/:username             controllers.admin.UserAdminController.deleteUser(username: String)
 GET     /recogito/admin/users                       controllers.admin.UserAdminController.listAll
 
-GET     /recogito/admin/dumps                       controllers.admin.DataDumpsController.index
-GET     /recogito/admin/dumps/places                controllers.admin.DataDumpsController.annotatedPlaces(collection: String)
+GET     /recogito/admin/exports                     controllers.admin.ExportsController.index
+GET     /recogito/admin/exports/places              controllers.admin.ExportsController.placeStats(collection: String)
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

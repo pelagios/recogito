@@ -145,7 +145,7 @@
               </tr>
             </thead>
             <tbody>
-              @for((place, count, toponymStats) <- placeStats.uniquePlaces) {
+              @for((place, _, count, toponymStats) <- placeStats.uniquePlaces) {
                 <tr class="place">
                   <td><a href="@place.uri" title="@place.description" target="_blank">@place.label</a></td>
                   <td>

@@ -1,11 +1,11 @@
 package controllers.common.io
 
+import controllers.common.ImageAnchor
 import global.{ Global, CrossGazetteerUtils }
 import index.PlaceIndex
 import models._
+import models.stats.PlaceStats
 import play.api.db.slick._
-import models.StatsHistoryRecord
-import controllers.common.ImageAnchor
 
 /** Utility object to serialize Annotation data to CSV.
   * 
@@ -14,6 +14,9 @@ import controllers.common.ImageAnchor
 class CSVSerializer extends BaseSerializer {
   
   private val SEPARATOR = ";"
+  
+  private def esc(field: String) = 
+    field.replace(SEPARATOR, "\\" + SEPARATOR).replace(System.lineSeparator(), "\\n")
     
   /** Generates 'consolidated output' for public consumption.
     *
@@ -165,7 +168,7 @@ class CSVSerializer extends BaseSerializer {
    *
    * @param stats the list of stats records to serialize to CSV  
    */
-  def serializeStats(stats: Seq[StatsHistoryRecord]): String = {
+  def serializeAnnotationProgressStats(stats: Seq[StatsHistoryRecord]): String = {
     val header = Seq("timestamp","timestamp_formatted","verified_toponyms","unidentifiable_toponyms","total_toponyms","total_edits")
       .mkString(SEPARATOR) + SEPARATOR + "\n"
       
@@ -180,7 +183,22 @@ class CSVSerializer extends BaseSerializer {
     })
   }
   
-  private def esc(field: String) = 
-    field.replace(SEPARATOR, "\\" + SEPARATOR).replace(System.lineSeparator(), "\\n")
+  def serializePlaceStats(stats: PlaceStats): String = {
+    val header = Seq("uri", "lon", "lat", "name_in_gazetteer", "number_of_annotations").mkString(SEPARATOR) + "\n"
+    
+    stats.uniquePlaces.foldLeft(header){ case (csv, (place, network, count, names)) => {
+      val geometry = CrossGazetteerUtils.getPreferredGeometry(place, network)
+      val coord = geometry.map(_.getCentroid.getCoordinate)
+      
+      csv +
+      place.uri + SEPARATOR +
+      coord.map(_.x.toString).getOrElse("") + SEPARATOR +
+      coord.map(_.y.toString).getOrElse("") + SEPARATOR +
+      place.label + SEPARATOR +
+      count.toString + SEPARATOR + "\n"
+    }}
+  }
+  
+
 
 }

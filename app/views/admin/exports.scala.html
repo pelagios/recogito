@@ -17,7 +17,7 @@
           <li><a href="@controllers.admin.routes.DocumentAdminController.listAll()">Documents</a></li>
           <li><a href="@controllers.admin.routes.UserAdminController.listAll()">Users</a></li>
           <li><a href="@controllers.admin.routes.BackupRestoreController.index()" >Backup &amp; Restore</a></li>
-          <li class="active"><a href="#" onclick="return false;">Data Dumps</a></li>
+          <li class="active"><a href="#" onclick="return false;">Exports</a></li>
         </ul>
       </div>      
     </div>  
@@ -27,7 +27,7 @@
       <table>
         @for(collection <- collections) {
           <tr>
-            <td><button class="icon" onclick="location.href='@controllers.admin.routes.DataDumpsController.annotatedPlaces(collection)'">&#xf019;</button></td>
+            <td><button class="icon" onclick="location.href='@controllers.admin.routes.ExportsController.placeStats(collection)'">&#xf019;</button></td>
             <td>@collection</td>
           </tr>
         }

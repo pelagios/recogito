@@ -101,7 +101,7 @@ object BackupRestoreController extends Controller with Secured {
   
   /** Download the stats timeline data as CSV **/
   def downloadStatsTimeline = adminAction { username => implicit session =>
-    val csv = new CSVSerializer().serializeStats(GlobalStatsHistory.listAll)
+    val csv = new CSVSerializer().serializeAnnotationProgressStats(GlobalStatsHistory.listAll)
     Ok(csv).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> "attachment; filename=recogito-stats-timeline.csv")
   }
   

@@ -271,11 +271,12 @@ object Annotations extends HasStatusColumn {
     val places = q.list.groupBy(_._1).map { case (uri, results) =>
       val total = results.foldLeft(0)(_ + _._3)
       val toponymStats = results.filter(_._2.isDefined).map(t => (t._2.get, t._3))
-      val place = uri.flatMap(Global.index.findPlaceByURI(_))
-      (place, total, toponymStats)
-    }.toSeq.sortBy(t => - t._2)
+      val network = uri.flatMap(Global.index.findNetworkByPlaceURI(_))
+      val place = uri.flatMap(uri => network.map(_.getPlace(uri))).flatten
+      (place, network, total, toponymStats)
+    }.toSeq.sortBy(t => - t._3)
     
-    PlaceStats(places.filter(_._1.isDefined).map(t => (t._1.get, t._2, t._3)))
+    PlaceStats(places.filter(_._1.isDefined).map(t => (t._1.get, t._2.get, t._3, t._4)))
   }
   
   /** A simpler place stats query that just counts the number of unique places for a doc **/ 
