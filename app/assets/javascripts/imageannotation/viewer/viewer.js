@@ -28,7 +28,7 @@ define(['imageannotation/config', 'imageannotation/events', 'imageannotation/vie
             projection: projection,
             center: [Config.width / 2, - Config.height / 2],
             zoom: 0,
-            minResolution: 0.5
+            minResolution: 0.125
           })
         }),
         
