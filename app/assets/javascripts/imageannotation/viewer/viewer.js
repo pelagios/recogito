@@ -38,11 +38,13 @@ define(['imageannotation/config', 'imageannotation/events', 'imageannotation/vie
     
     // Handlers for brightness/contrast user settings
     eventBroker.addHandler(Events.SET_BRIGHTNESS, function(value) {
-      tileLayer.setBrightness(value / 100);
+      if(!isNaN(value) && (Math.abs(value) < Number.POSITIVE_INFINITY))
+        tileLayer.setBrightness(value / 100);
     });
     
     eventBroker.addHandler(Events.SET_CONTRAST, function(value) {
-      tileLayer.setContrast(value / 100);
+      if(!isNaN(value) && (Math.abs(value) < Number.POSITIVE_INFINITY))
+        tileLayer.setContrast(value / 100);
     });
     
     // Slightly ugly - but we need to wrap getCoordinateFromPixel so that the drawing canvas can use it
