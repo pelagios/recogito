@@ -47,9 +47,12 @@ define(['imageannotation/config', 'imageannotation/events', 'imageannotation/vie
 
           currentAnnotation.corrected_toponym = transcription;   
           currentAnnotation.comment = comment;
-          currentAnnotation.status = 'NOT_VERIFIED';  
-          if (uri)
+          if (uri) {
             currentAnnotation.gazetteer_uri = uri;
+            currentAnnotation.status = 'VERIFIED';  
+          } else {
+            currentAnnotation.status = 'NOT_VERIFIED';  
+          }
           
           eventBroker.fireEvent(Events.ANNOTATION_UPDATED, currentAnnotation);
           hide();

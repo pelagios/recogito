@@ -62,6 +62,8 @@ private[api] trait ImageAnnotationWriter extends BaseAnnotationWriter {
       Failure(new RuntimeException("Annotation not found"))
       
     } else { 
+      val status = AnnotationStatus.withName((json \ "status").as[String])
+      
       val updatedToponym = { 
         val jsonToponym = (json \ "corrected_toponym").asOpt[String]
         if (jsonToponym.isDefined)
@@ -90,7 +92,7 @@ private[api] trait ImageAnnotationWriter extends BaseAnnotationWriter {
         Annotation(annotation.get.uuid,
                    annotation.get.gdocId,
                    annotation.get.gdocPartId,
-                   annotation.get.status, 
+                   status, 
                    annotation.get.toponym,
                    annotation.get.offset,
                    annotation.get.anchor,
