@@ -4,6 +4,18 @@
  * the host page.
  */
 define([], function() { 
+  
+  var testWebGLSupport = function() {
+    if (window.WebGLRenderingContext) {
+      // Browser claims to support WebGL, but this check alone is not reliable
+      var canvas = document.createElement('canvas');
+      var context = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      return context;
+    } else {
+      // No luck
+      return false;
+    }
+  }
 
   /** Annotation marker colours **/
   window.config.MARKER_RED = '#aa0000';
@@ -22,6 +34,9 @@ define([], function() {
     
   /** Annotation baseline width **/
   window.config.MARKER_LINE_WIDTH = 2;
+  
+  /** Shorthand for a (reasonably comprehensive) WebGL support check **/
+  window.config.WEBGL_ENABLED = testWebGLSupport();
     
   return window.config;
     
