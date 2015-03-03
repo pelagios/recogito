@@ -1,4 +1,4 @@
-@(gdocText: Option[models.content.GeoDocumentText],
+@(gdocText: models.content.GeoDocumentText,
   gdoc: GeoDocument, 
   username: String,
   textHTML: String, 
@@ -39,7 +39,7 @@
       
       <div id="toolbar">
         <div class="tool download" title="Download Table as CSV">
-          <span class="icon">&#xf019;</span>
+          <a href="@controllers.unrestricted.routes.DownloadController.downloadAnnotatedText(gdocText.id.get)" class="icon">&#xf019;</a>
         </div>   
       </div>
     </div>   

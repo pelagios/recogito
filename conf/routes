@@ -47,7 +47,8 @@ GET     /recogito/stats/toponyms/:toponym           controllers.unrestricted.Sta
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 GET     /recogito/downloads/void.ttl                controllers.unrestricted.DownloadController.getVoID
-GET     /recogito/downloads/documents/:gdocId       controllers.unrestricted.DownloadController.downloadCSV(gdocId: String)
+GET     /recogito/downloads/annotations/:gdocId     controllers.unrestricted.DownloadController.downloadAnnotationsCSV(gdocId: String)
+GET     /recogito/downloads/texts/:textId           controllers.unrestricted.DownloadController.downloadAnnotatedText(textId: Int)
 
 GET     /recogito/feeds/recent                      controllers.unrestricted.FeedController.recentVerifications
 

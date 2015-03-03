@@ -43,7 +43,7 @@ object DocumentAPIController extends Controller with Secured {
     val doc = GeoDocuments.findById(idInt)
     if (doc.isDefined) {
       if (format.equalsIgnoreCase(CSV))
-        Redirect(controllers.unrestricted.routes.DownloadController.downloadCSV(doc.get.id.get.toString))
+        Redirect(controllers.unrestricted.routes.DownloadController.downloadAnnotationsCSV(doc.get.id.get.toString))
       else if (format.equalsIgnoreCase(RDF_XML))
         get_RDF(doc.get, Scalagios.RDFXML, controllers.frontpage.routes.FrontPageController.index(None).absoluteURL(false))
       else

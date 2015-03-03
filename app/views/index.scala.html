@@ -146,7 +146,7 @@
             <a href="@controllers.unrestricted.routes.DocumentController.showStats(entry.doc.id.get)" class="icon" title="Document Stats">&#xf080;</a>
             
             <!-- CSV download shortcut -->
-            <a class="icon" href="@controllers.unrestricted.routes.DownloadController.downloadCSV(entry.doc.id.get + ".csv")" title="Download CSV">&#xf0ce;</a>
+            <a class="icon" href="@controllers.unrestricted.routes.DownloadController.downloadAnnotationsCSV(entry.doc.id.get + ".csv")" title="Download CSV">&#xf0ce;</a>
             
             <!-- Source link --->
             @if(entry.firstSource.isDefined) {

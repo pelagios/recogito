@@ -32,7 +32,7 @@ object TextAnnotationController extends Controller with Secured {
 
       if (gdocText.get.renderAsTable) {
         val html = buildTableAnnotationHTML(plaintext, annotations)
-        Ok(views.html.tableAnnotation(gdocText, gdoc.get, username, html, signOffs.contains(username), signOffs))
+        Ok(views.html.tableAnnotation(gdocText.get, gdoc.get, username, html, signOffs.contains(username), signOffs))
       } else {      
         val gdocPart = gdocText.get.gdocPartId.flatMap(id => GeoDocumentParts.findById(id))
         val allTexts = gdoc.map(doc => GeoDocumentContent.findByGeoDocument(doc.id.get)).getOrElse(Seq.empty[(GeoDocumentText, Option[String])])
