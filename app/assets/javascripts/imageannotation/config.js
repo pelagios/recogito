@@ -6,14 +6,30 @@
 define([], function() { 
   
   var testWebGLSupport = function() {
-    if (window.WebGLRenderingContext) {
-      // Browser claims to support WebGL, but this check alone is not reliable
-      var canvas = document.createElement('canvas');
-      var context = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-      return context;
-    } else {
-      // No luck
+    var canvas, gl, experimental;
+    
+    try { 
+      canvas = document.createElement('canvas'),
+      gl = canvas.getContext("webgl");
+    } catch (x) { 
+      gl = null; 
+    }
+
+    if (gl == null) {
+      try { 
+        gl = canvas.getContext("experimental-webgl"); 
+        experimental = true; 
+      } catch (x) { 
+        gl = null; 
+      }
+    }    
+    
+    if (gl === null) {
+      console.log('No WebGL support detected');
       return false;
+    } else {
+      console.log('WebGL support detected');
+      return true;
     }
   }
 

@@ -23,7 +23,7 @@ define(['imageannotation/config', 'imageannotation/events', 'imageannotation/vie
         map = new ol.Map({
           target: divId,
           layers: [ tileLayer ],
-          // renderer: (Config.WEBGL_ENABLED) ? 'webgl' : undefined,
+          renderer: (Config.WEBGL_ENABLED) ? 'webgl' : 'canvas',
           view: new ol.View({
             projection: projection,
             center: [Config.width / 2, - Config.height / 2],
