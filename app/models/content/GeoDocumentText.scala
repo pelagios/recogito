@@ -10,7 +10,7 @@ import scala.slick.lifted.Tag
   *
   * @author Rainer Simon <rainer.simon@ait.ac.at>
   */
-case class GeoDocumentText(id: Option[Int] = None, gdocId: Int, gdocPartId: Option[Int], text: Array[Byte])
+case class GeoDocumentText(id: Option[Int] = None, gdocId: Int, gdocPartId: Option[Int], text: Array[Byte], renderAsTable: Boolean = false)
   extends GeoDocumentContent
 
 /** GeoDocumentText database table **/
@@ -24,7 +24,9 @@ class GeoDocumentTexts(tag: Tag) extends Table[GeoDocumentText](tag, "gdocument_
   
   def text = column[Array[Byte]]("text")
   
-  def * = (id.?, gdocId, gdocPartId.?, text) <> (GeoDocumentText.tupled, GeoDocumentText.unapply)
+  def renderAsTable = column[Boolean]("render_as_table", O.NotNull)
+  
+  def * = (id.?, gdocId, gdocPartId.?, text, renderAsTable) <> (GeoDocumentText.tupled, GeoDocumentText.unapply)
   
   /** Foreign key constraints **/
   def gdocFk = foreignKey("gdoc_fk", gdocId, TableQuery[GeoDocuments])(_.id)

@@ -1,0 +1,59 @@
+@(gdocText: Option[models.content.GeoDocumentText],
+  gdoc: GeoDocument, 
+  username: String,
+  textHTML: String, 
+  signedOff: Boolean, signedBy: Seq[String])
+  
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>RECOGITO Table Annotation</title>
+    <link rel="stylesheet" href="@routes.Assets.at("stylesheets/annotation/table.css")">
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
+    <script>
+      $(document).ready(function() {
+        var footer = $('#footer'),
+            contentArea = $('#content');
+            
+        contentArea.css({ 'bottom': footer.height() + 10 });
+      })
+    </script>
+  </head>
+  
+  <body>
+    <div id="header">
+      <div id="title">
+        @gdoc.author.map(_ + ": ").getOrElse("") @gdoc.title
+        @gdoc.dateComment.map("(" + _ + ")").getOrElse("")
+        <div id="home-button"><a href="@controllers.frontpage.routes.FrontPageController.index(None)" class="icon">&#xf015;</a></div>
+      </div>
+      
+      <div id="menu">
+        <ul>
+          <li class="disabled"><a href="#" title="There is no text available for this document" onclick="return false;">Text</a></li>
+          <li><a href="@controllers.tools.routes.GeoResolutionController.showGeoResolutionUI(gdoc.id.get)">Geo-Resolution</a></li>
+          <li><a href="@controllers.unrestricted.routes.DocumentController.showStats(gdoc.id.get)">Document Stats</a></li>
+        </ul>
+      </div>
+      
+      <div id="toolbar">
+        <div class="tool download" title="Download Table as CSV">
+          <span class="icon">&#xf019;</span>
+        </div>   
+      </div>
+    </div>   
+    
+    <div id="content">
+      <table>
+@Html(textHTML)
+      </table>
+    </div>
+    
+    <div id="footer">
+      <div id="user">
+        You are logged in as <span id="username">@username</span> <a href="@controllers.common.auth.routes.AuthController.logout" class="icon">&#xf011;</a>
+      </div>
+    </div>
+  </body>
+</html>

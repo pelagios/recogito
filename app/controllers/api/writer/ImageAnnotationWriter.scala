@@ -50,7 +50,7 @@ private[api] trait ImageAnnotationWriter extends BaseAnnotationWriter {
     }
   }
   
-  protected def updateOneImageAnnotation(json: JsObject, uuid: Option[UUID], username: String)(implicit s: Session): Try[Annotation] = {    
+  protected def updateOneImageAnnotation(json: JsObject, uuid: Option[UUID], username: String)(implicit s: Session): Try[Annotation] = {   
     val annotation = if (uuid.isDefined) {
         Annotations.findByUUID(uuid.get)        
       } else {

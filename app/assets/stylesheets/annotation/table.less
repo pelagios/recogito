@@ -1,0 +1,46 @@
+@import "../globals.less";
+@import "../header.less";
+@import "../footer.less";
+
+#content {
+  position:absolute;
+  top:140px;
+  bottom:0;
+  overflow:scroll;
+  width:100%;
+
+  table {
+    border-collapse:collapse;
+    overflow:scroll;
+    
+    td, th {
+      padding:4px 6px;
+      border-color:#e2e2e2;
+      border-style:solid;
+      border-width:1px 1px 0 0;
+      white-space: nowrap;
+    }
+    
+    th {
+      padding:6px;
+      text-align:left;
+      font-weight:bold;
+      background-color:#f2f2f2; 
+    }
+    
+    th.alignment { background-color:#e2e2e2; }
+    
+    tr.VERIFIED td.alignment { background-color:#6fbd6f; }
+    
+    tr.NO_SUITABLE_MATCH td.alignment,
+    tr.AMBIGUOUS td.alignment,
+    tr.MULTIPLE td.alignment,
+    tr.NOT_IDENTIFYABLE td.alignment { background-color:#fefd68 ;}
+    
+    tr.IGNORE td, tr.FALSE_DETECTION td { color:#c2c2c2; }
+
+    td { padding:4px 6px; }
+    
+  } /* table */
+
+} /* #content */

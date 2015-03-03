@@ -28,6 +28,8 @@ object ZipImporter {
   private val UTF8 = "UTF-8"
     
   private val RX_HTML_ENTITY = """&[^\s]*;""".r
+  
+  private val CSV_SEPARATOR = ";"
     
   /** Import a Zip file into Recogito 
     *
@@ -63,6 +65,7 @@ object ZipImporter {
       
       val docText = (json \ "text").asOpt[String]
       val docImage = (json \ "image").asOpt[String]
+      val docCSV = ((json \ "table") \ "csv").asOpt[String]
       val docAnnotations = (json \ "annotations").asOpt[String]
       val docParts = (json \ "parts").asOpt[List[JsObject]]
       
@@ -77,19 +80,20 @@ object ZipImporter {
       if (docCollections.isDefined)
         CollectionMemberships.insertAll(docCollections.get.map(CollectionMembership(None, gdocId, _)))
       
-      // Insert text (if any)
       if (docText.isDefined) {
+        // Insert text (if any)
         Logger.info("... text")
         importText(zipFile, docText.get, gdocId, None)
-      }
-      
-      // Insert image (if any)
-      if (docImage.isDefined) {
+      } else if (docCSV.isDefined) {
+        // Insert CSV (if any)
+        Logger.info("... table")
+        importTable(zipFile, docCSV.get, gdocId, ((json \ "table") \ "toponym_column").asOpt[String]) 
+      } else if (docImage.isDefined) {
+        // Insert image (if any)
         Logger.info("... image")
-        val entry = zipFile.getEntry(docImage.get)
         importImage(file, docImage.get, gdocId, None)
       }
-      
+            
       // Insert parts
       if (docParts.isDefined) {
         docParts.get.zipWithIndex.foreach { case (docPart, idx) => {
@@ -148,6 +152,7 @@ object ZipImporter {
 
       val docText = (json \ "text").asOpt[String]
       val docImage = (json \ "image").asOpt[String]
+      val docCSV = ((json \ "table") \ "csv").asOpt[String]
       val docAnnotations = (json \ "annotations").asOpt[String]
       val docParts = (json \ "parts").asOpt[List[JsObject]].getOrElse(List.empty[JsObject]).toSeq
 
@@ -156,6 +161,7 @@ object ZipImporter {
         docText.flatMap(validateText(_)),
         // Note: we allow upload of images without data for the time being
         // docImage.flatMap(img => if (entryExists(img, zipFile)) None else Some(name + ": referenced image file" + img + " is missing from ZIP")),
+        docCSV.flatMap(table => if (entryExists(table, zipFile)) None else Some(name + ": referenced CSV Table " + table + " is missing from ZIP")),
         docAnnotations.flatMap(csv => if (entryExists(csv, zipFile)) None else Some(name + ": referenced annotations file " + csv + " is missing from ZIP pacakge"))
       ) ++ docParts.flatMap(part => {
         val partText = (part \ "text").asOpt[String]
@@ -180,6 +186,64 @@ object ZipImporter {
     val text = getEntry(zipFile, entryName).get    
     val plainText = text.getLines.mkString("\n")
     GeoDocumentTexts.insert(GeoDocumentText(None, gdocId, gdocPartId, plainText.getBytes(UTF8)))
+  }
+
+  /** Imports UTF-8 CSV.
+    *
+    * @param zipFile the ZIP file
+    * @param entryName the name of the text file within the ZIP
+    * @param gdocId the ID of the GeoDocument the text is associated with
+    */
+  private def importTable(zipFile: ZipFile, entryName: String, gdocId: Int, toponymColumn: Option[String])(implicit s: Session) = {
+    val table = getEntry(zipFile, entryName).get    
+    val csv = table.getLines.map(_.trim).filter(!_.startsWith("#")).toSeq    
+    GeoDocumentTexts.insert(GeoDocumentText(None, gdocId, None, csv.mkString("\n").getBytes(UTF8), true))
+    
+    // Special procedure for tabular documents: create one annotation per row
+    Logger.info("Generating annotations for CSV document")
+    
+    val (header, rows) = (csv.head, csv.tail)
+    val toponymIdx = toponymColumn.map(columnName => {
+      val idx = header.split(CSV_SEPARATOR).map(_.trim.toLowerCase).toSeq.indexOf(columnName.toLowerCase)
+      if (idx < 0) 0 else idx
+    }).getOrElse(0) // Just default to the first column in case we don't have a match
+    
+    if (toponymColumn.isDefined)
+      Logger.info("Using " + toponymColumn.get + " (index " + toponymIdx + ") as toponym column")
+    else
+      Logger.info("No toponym column specified - defaulting to first column")
+    
+    val annotations = rows.foldLeft(Seq.empty[Annotation])((annotations, line) => {
+      val offset = annotations.map(_.toponym.get.size).sum
+      val fields = line.split(CSV_SEPARATOR).map(_.trim).toSeq
+      val toponym = fields(toponymIdx)
+      val autoMatch =
+        if (toponym.isEmpty)
+          None
+        else
+          Global.index.search(toponym, 1, 0).headOption
+      
+      Annotation(
+        Annotations.newUUID,
+        Some(gdocId),
+        None, // We currently don't support tabular documents with parts 
+        AnnotationStatus.NOT_VERIFIED,
+        Some(toponym),
+        Some(offset),
+        None, // anchor
+        autoMatch.map(_.seedURI), // gazetteer URI
+        None, // corrected toponym - not used
+        None, // corrected offset - not used
+        None, // corrected anchor - not used
+        None, // corrected gazetteer URI
+        None, // tags
+        None, // comment
+        None, // source
+        None) +: annotations  
+    })
+    
+    Logger.info("Created " + annotations.size + " annotations")
+    Annotations.insertAll(annotations.reverse)
   }
 
   /** Imports an image file.
@@ -218,10 +282,6 @@ object ZipImporter {
     }
   }
   
-  private def importTileset(zipFile: ZipFile, entry: ZipEntry, gdocId: Int, gdocPartId: Option[Int])(implicit s: Session) = {
-    Logger.info("Hurrah!");
-  }
-  
   /** Imports annotations from a CSV.
     *
     * @param zipFile the ZIP file
@@ -241,7 +301,7 @@ object ZipImporter {
       val parser = new CSVParser()
       val all = parser.parseAnnotations(csv.get, gdocId)
       
-      // Apply a few checks and discard those
+      // Apply a few checks and discard those that are invalid
       val safe = all.filter(isValid(_))
       if (safe.size > 0)
         // Log warnings in case we have invalid annotations

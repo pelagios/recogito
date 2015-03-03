@@ -12,7 +12,11 @@ import play.api.mvc.Controller
 object TextAnnotationController extends Controller with Secured {
   
   private val UTF8 = "UTF-8"
-
+  
+  private val NEWLINE = "\n"
+  
+  private val SEPARATOR = ";"
+  
   def showTextAnnotationUI(textId: Int) = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit session =>
     val gdocText = GeoDocumentTexts.findById(textId)
     if (gdocText.isDefined) {
@@ -24,27 +28,68 @@ object TextAnnotationController extends Controller with Secured {
         }
       
       val gdoc = GeoDocuments.findById(gdocText.get.gdocId)
-      val gdocPart = gdocText.get.gdocPartId.flatMap(id => GeoDocumentParts.findById(id))
-      val allTexts = gdoc.map(doc => GeoDocumentContent.findByGeoDocument(doc.id.get)).getOrElse(Seq.empty[(GeoDocumentText, Option[String])])
       val signOffs = SignOffs.findForGeoDocumentText(gdocText.get.id.get).map(_._1)
-      val html = buildHTML(plaintext, annotations)
-      
-      Ok(views.html.textAnnotation(
-        gdocText,
-        gdoc,
-        gdocPart,
-        allTexts, 
-        username, 
-        html, 
-        None,
-        signOffs.contains(username),
-        signOffs))
+
+      if (gdocText.get.renderAsTable) {
+        val html = buildTableAnnotationHTML(plaintext, annotations)
+        Ok(views.html.tableAnnotation(gdocText, gdoc.get, username, html, signOffs.contains(username), signOffs))
+      } else {      
+        val gdocPart = gdocText.get.gdocPartId.flatMap(id => GeoDocumentParts.findById(id))
+        val allTexts = gdoc.map(doc => GeoDocumentContent.findByGeoDocument(doc.id.get)).getOrElse(Seq.empty[(GeoDocumentText, Option[String])])
+        val html = buildTextAnnotationHTML(plaintext, annotations)
+        
+        Ok(views.html.textAnnotation(
+          gdocText,
+          gdoc,
+          gdocPart,
+          allTexts, 
+          username, 
+          html, 
+          None,
+          signOffs.contains(username),
+          signOffs))
+      }
     } else {
       NotFound(Json.parse("{ \"success\": false, \"message\": \"Text not found\" }")) 
     }  
   }
+  
+  private def buildTableAnnotationHTML(plaintext: String, annotations: Seq[Annotation]): String = {
+    // Split to lines, trim and remove comments
+    val lines = plaintext.split(NEWLINE).map(_.trim).filter(!_.startsWith("#"))
+    
+    val headerCells =
+      "<th class=\"alignment\">close_match</th>" +: lines.head.split(SEPARATOR).map(heading => "<th>" + heading.trim + "</th>")
+      
+    lines.tail.zip(annotations).foldLeft("<tr>" + headerCells.mkString(" ") + "</tr>\n"){case (html, (nextLine, annotation)) => {
+      val fields = nextLine.split(SEPARATOR).map(_.trim)
+      val gazetteerURI =
+        if (annotation.correctedGazetteerURI.isDefined)
+          annotation.correctedGazetteerURI
+        else
+          annotation.gazetteerURI
+          
+      html + 
+      "<tr class=\"" + annotation.status + "\">" +
+      "<td class=\"alignment\">" + gazetteerURI.map(formatGazetteerURI(_)).getOrElse("") + "</td>" + 
+      fields.map("<td>" + _ + "</td>").mkString(" ") + 
+      "</tr>\n"
+    }}
+  }
+  
+  private def formatGazetteerURI(uri: String): String = uri match {
+    case s if s.startsWith("http://pleiades.stoa.org/places/") => "pleiades:" + s.substring(32)
+      
+    case s if s.startsWith("http://www.imperium.ahlfeldt.se/places/") => "dare:" + s.substring(39)
+    
+    case s if s.startsWith("http://data.pastplace.org/") => "pastplace:" + s.substring(35)
+      
+    case s if s.startsWith("http://www.maphistory.info/portolans") => "maphistory:" + s.substring(44)
+      
+    case s => s
+  }
 
-  private def buildHTML(plaintext: String, annotations: Seq[Annotation])(implicit session: Session): String = {
+  private def buildTextAnnotationHTML(plaintext: String, annotations: Seq[Annotation])(implicit session: Session): String = {
     val ranges = annotations.foldLeft(("", 0)) { case ((markup, beginIndex), annotation) => {
       if (annotation.status == AnnotationStatus.FALSE_DETECTION) {
         (markup, beginIndex)
@@ -121,7 +166,7 @@ object TextAnnotationController extends Controller with Secured {
     }
 
     val annotations = Annotations.findBySource(ctsURI)
-    val html = buildHTML(plaintext, annotations)
+    val html = buildTextAnnotationHTML(plaintext, annotations)
     
     Ok(views.html.textAnnotation(None, None, None, Seq.empty[(GeoDocumentText, Option[String])], username, html, Some(ctsURI), false, Seq.empty[String]))
   }
