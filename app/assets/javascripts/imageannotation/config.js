@@ -6,7 +6,7 @@
 define([], function() { 
   
   var testWebGLSupport = function() {
-    var canvas, gl, experimental;
+    var canvas, gl;
     
     try { 
       canvas = document.createElement('canvas'),
@@ -18,7 +18,6 @@ define([], function() {
     if (gl == null) {
       try { 
         gl = canvas.getContext("experimental-webgl"); 
-        experimental = true; 
       } catch (x) { 
         gl = null; 
       }
