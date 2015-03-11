@@ -43,9 +43,14 @@ object ImageAnnotationSorter {
     } else {
       if (sorted.isEmpty) {
         // We don't have any sorted annotations yet, so we pick (by convention) the top/left-most one as a start
-        val (start, rest) = selectStart(toSort)
-        val (nearestNeighbour, unvisited) = getNearest(start, rest)
-        sortByNearestNeighbour(unvisited, Seq(start, nearestNeighbour))
+        if (toSort.size > 1) {
+          val (start, rest) = selectStart(toSort)
+          val (nearestNeighbour, unvisited) = getNearest(start, rest)
+          sortByNearestNeighbour(unvisited, Seq(start, nearestNeighbour))
+        } else {
+          // Trivial case - there is only one annotation
+          toSort
+        }
       } else {
         // We pick the last sorted annotation and continue from there
         val (nearestNeighbour, remainder) = getNearest(sorted.last, toSort)
