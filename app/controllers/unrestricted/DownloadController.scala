@@ -4,10 +4,11 @@ import controllers.common.io.{ CSVSerializer, TextSerializer }
 import models.{ Annotations, AnnotationStatus, CollectionMemberships, GeoDocuments }
 import models.content.GeoDocumentTexts
 import play.api.db.slick._
-import play.api.mvc.Controller
+import play.api.mvc.{ Controller, RequestHeader }
 import scala.io.Source
+import controllers.common.auth.Secured
 
-object DownloadController extends Controller {
+object DownloadController extends Controller with Secured {
   
   private val DOT_CSV = ".csv"
   
@@ -16,6 +17,11 @@ object DownloadController extends Controller {
 
   private def escapeTitle(title: String) = 
     title.replace(" ", "_").replace(",", "_")
+    
+  private def getQueryParam(key: String, request: RequestHeader): Option[String] = 
+    request.queryString
+      .filter(_._1.equalsIgnoreCase(key))
+      .headOption.flatMap(_._2.headOption)
     
   /** Produces an RDF VoID dataset description **/
   def getVoID() = DBAction { implicit session =>
@@ -63,13 +69,15 @@ object DownloadController extends Controller {
           AnnotationStatus.MULTIPLE,
           AnnotationStatus.NOT_IDENTIFYABLE)
       
-        val excludeCoordinates = session.request.queryString
-          .filter(_._1.toLowerCase.equals("nocoords"))
-          .headOption.flatMap(_._2.headOption.map(_.toBoolean)).getOrElse(false)
+        val excludeCoordinates = 
+          getQueryParam("nocoords", session.request).map(_.toBoolean).getOrElse(false)
+          
+        val includeFulltext =
+          getQueryParam("fulltext", session.request).map(_.toBoolean).getOrElse(false)
       
         val serializer = new CSVSerializer()
     
-        Ok(serializer.serializeAnnotationsConsolidated(doc.get, annotations, !excludeCoordinates))
+        Ok(serializer.serializeAnnotationsConsolidated(doc.get, annotations, !excludeCoordinates, includeFulltext))
           .withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> ("attachment; filename=" + escapeTitle(doc.get.title) + doc.get.language.map("_" + _).getOrElse("") + ".csv"))
       } else {
         NotFound

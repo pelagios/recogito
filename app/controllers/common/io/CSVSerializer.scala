@@ -4,6 +4,7 @@ import controllers.common.ImageAnchor
 import global.{ Global, CrossGazetteerUtils }
 import index.PlaceIndex
 import models._
+import models.content.GeoDocumentTexts
 import models.stats.PlaceStats
 import play.api.db.slick._
 
@@ -14,6 +15,8 @@ import play.api.db.slick._
 class CSVSerializer extends BaseSerializer {
   
   private val SEPARATOR = ";"
+  
+  private val UTF8 = "UTF-8"
   
   private def esc(field: String) = 
     field.replace(SEPARATOR, "\\" + SEPARATOR).replace(System.lineSeparator(), "\\n")
@@ -28,7 +31,7 @@ class CSVSerializer extends BaseSerializer {
     * @param annotations the annotations
     * @return the CSV
     */
-  def serializeAnnotationsConsolidated(gdoc: GeoDocument, annotations: Seq[Annotation], includeCoordinates: Boolean = true)(implicit s: Session): String = {
+  def serializeAnnotationsConsolidated(gdoc: GeoDocument, annotations: Seq[Annotation], includeCoordinates: Boolean = true, includeFulltext: Boolean = false)(implicit s: Session): String = {
     val meta = {
         Seq("title" -> gdoc.title) ++
         Seq("author" -> gdoc.author,
@@ -38,56 +41,132 @@ class CSVSerializer extends BaseSerializer {
             "description" -> gdoc.description,
             "external ID" -> gdoc.externalWorkID).filter(_._2.isDefined).map(tuple => (tuple._1, tuple._2.get))
       }.map(tuple => "# " + tuple._1 + ": " + tuple._2).mkString("\n")
-      
-    val header = Seq("toponym","gazetteer_uri","lat","lng", "place_category", "document_part", "status", "tags", "source", "img_x", "img_y").mkString(SEPARATOR) + SEPARATOR + "\n"
     
-    annotations.foldLeft(meta + "\n" + header)((csv, annotation) => {
-      val uri = 
-        if (annotation.status == AnnotationStatus.VERIFIED) {
-		      if (annotation.correctedGazetteerURI.isDefined && !annotation.correctedGazetteerURI.get.isEmpty)
-		        annotation.correctedGazetteerURI
-		      else
-		        annotation.gazetteerURI
-	      } else {
-		      None // We remove any existing URI in case the status is not VERIFIED
-		  }
-      
-      val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
-      
-      val (category, coord) = {
-        if (includeCoordinates) {
-          val queryResult = uri.flatMap(CrossGazetteerUtils.getConflatedPlace(_))
-          val category = queryResult.flatMap(_._1.category)
-          val coord = queryResult.flatMap(_._2).map(_.getCentroid.getCoordinate)    
-          (category, coord)
-        } else {
-          (None, None)
-        }
+    val fulltexts: Map[Option[Int], String] = 
+      if (includeFulltext) {
+        val gdocTexts = GeoDocumentTexts.findByGeoDocument(gdoc.id.get)
+        if (gdocTexts.isEmpty)
+          Map.empty[Option[Int], String]
+        else
+          gdocTexts.map(t => (t.gdocPartId, new String(t.text, UTF8))).toMap
+      } else {
+        Map.empty[Option[Int], String]
       }
       
-      val imgCoord = {
-        val anchorJson = if (annotation.correctedAnchor.isDefined) annotation.correctedAnchor else annotation.anchor
-        if (anchorJson.isDefined) {
-          val anchor = new ImageAnchor(anchorJson.get)
-          Some((anchor.x, anchor.y))
-        } else {
+    val header = 
+      {
+        Seq("toponym","gazetteer_uri","lat","lng", "place_category", "document_part", "status", "tags", "source", "img_x", "img_y") ++ {
+         if (includeFulltext) {
+           Seq("fulltext_prefix", "fulltext_suffix")
+         } else {
+           Seq.empty[String]
+         }
+        }
+      }.mkString(SEPARATOR) + SEPARATOR + "\n"
+      
+    // To construct proper fulltext context, we need previous and next annotation offsets along with each annotation
+    val annotationsPadded = annotations.map(Some(_)) :+ None // We add an empty field to make the sliding window go through all annotations
+    annotationsPadded.iterator.sliding(2).withPartial(false).foldLeft((meta + "\n" + header, Option.empty[Annotation])){ case ((csv, previousAnnotation), nextTwoAnnotations) => {
+      val currentAnnotation = nextTwoAnnotations.head.get // Must be defined
+
+      val previousOffset: Option[Int] =
+        if (currentAnnotation.gdocPartId == previousAnnotation.flatMap(_.gdocPartId))
+          previousAnnotation.map(a => a.correctedOffset.getOrElse(a.offset.getOrElse(0)))
+        else
           None
-        }
+     
+      val nextAnnotation = nextTwoAnnotations.last // Could be our last, padded element
+      val nextOffset: Option[Int] =
+        if (currentAnnotation.gdocPartId == nextAnnotation.flatMap(_.gdocPartId))
+          nextAnnotation.map(a => a.correctedOffset.getOrElse(a.offset.getOrElse(0)))
+        else
+          None
+      
+      val row = 
+        if (includeFulltext)
+          annotationToCSVRow(currentAnnotation, includeCoordinates, previousOffset, nextOffset, fulltexts)
+        else
+          annotationToCSVRow(currentAnnotation, includeCoordinates)
+          
+      val toponymLength = currentAnnotation.correctedToponym.getOrElse(currentAnnotation.toponym.getOrElse("")).size
+      (csv + row, Some(currentAnnotation))
+    }}._1
+  }
+  
+  /** Helper function that generates a consolidated CSV row for one annotation with appropriate fulltext snippet, if required **/
+  private def annotationToCSVRow(annotation: Annotation, includeCoordinates: Boolean,
+      fromOffset: Option[Int] = None, toOffset: Option[Int] = None,
+      fulltexts:  Map[Option[Int], String] = Map.empty[Option[Int], String])(implicit s: Session): String = {
+    
+    val uri = 
+      if (annotation.status == AnnotationStatus.VERIFIED) {
+        if (annotation.correctedGazetteerURI.isDefined && !annotation.correctedGazetteerURI.get.isEmpty)
+          annotation.correctedGazetteerURI
+        else
+          annotation.gazetteerURI
+      } else {
+        None // We remove any existing URI in case the status is not VERIFIED
+    }
+      
+    val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
+      
+    val (category, coord) = {
+      if (includeCoordinates) {
+        val queryResult = uri.flatMap(CrossGazetteerUtils.getConflatedPlace(_))
+        val category = queryResult.flatMap(_._1.category)
+        val coord = queryResult.flatMap(_._2).map(_.getCentroid.getCoordinate)    
+        (category, coord)
+      } else {
+        (None, None)
+      }
+    }
+      
+    val imgCoord = {
+      val anchorJson = if (annotation.correctedAnchor.isDefined) annotation.correctedAnchor else annotation.anchor
+      if (anchorJson.isDefined) {
+        val anchor = new ImageAnchor(anchorJson.get)
+        Some((anchor.x, anchor.y))
+      } else {
+        None
+      }
+    }
+      
+    // Get the fulltext for this annotation...
+    val fulltext = fulltexts.get(annotation.gdocPartId)
+      
+    // ...and clip the corresponding part
+    val (fulltextPrefix, fulltextSuffix): (Option[String], Option[String]) = 
+      if (fulltext.isDefined) {
+        val annotationOffset = 
+          { if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset }
+          .getOrElse(0)
+        val prefix = fulltext.get.substring(fromOffset.getOrElse(0), annotationOffset)
+        
+        val suffixStartOffset = annotationOffset + toponym.map(_.size).getOrElse(0)
+        val suffix = 
+          if (toOffset.isDefined)
+            fulltext.get.substring(suffixStartOffset, toOffset.get)
+          else
+            fulltext.get.substring(suffixStartOffset)
+                
+        (Some(prefix), Some(suffix))
+      } else {
+        (None, None)
       }
       
-      csv + 
-      esc(toponym.getOrElse("")) + SEPARATOR + 
-      uri.map(uri => PlaceIndex.normalizeURI(uri)).getOrElse("") + SEPARATOR + 
-      coord.map(_.y).getOrElse("") + SEPARATOR +
-      coord.map(_.x).getOrElse("") + SEPARATOR +
-      category.map(_.toString).getOrElse("") + SEPARATOR +
-      annotation.gdocPartId.map(getPart(_).map(_.title)).flatten.getOrElse("") + SEPARATOR +
-      annotation.status.toString + SEPARATOR + 
-      { if (annotation.tags.size > 0) "\"" + annotation.tags.mkString(",") + "\"" else "" } + SEPARATOR + 
-      getSourceForAnnotation(annotation).getOrElse("") + SEPARATOR +
-      imgCoord.map(_._1).getOrElse("") + SEPARATOR +
-      imgCoord.map(_._2).getOrElse("") + SEPARATOR + "\n"
-    })
+    esc(toponym.getOrElse("")) + SEPARATOR + 
+    uri.map(uri => PlaceIndex.normalizeURI(uri)).getOrElse("") + SEPARATOR + 
+    coord.map(_.y).getOrElse("") + SEPARATOR +
+    coord.map(_.x).getOrElse("") + SEPARATOR +
+    category.map(_.toString).getOrElse("") + SEPARATOR +
+    annotation.gdocPartId.map(getPart(_).map(_.title)).flatten.getOrElse("") + SEPARATOR +
+    annotation.status.toString + SEPARATOR + 
+    { if (annotation.tags.size > 0) "\"" + annotation.tags.mkString(",") + "\"" else "" } + SEPARATOR + 
+    getSourceForAnnotation(annotation).getOrElse("") + SEPARATOR +
+    imgCoord.map(_._1).getOrElse("") + SEPARATOR +
+    imgCoord.map(_._2).getOrElse("") + SEPARATOR +
+    fulltextPrefix.map(t => esc(t) + SEPARATOR).getOrElse("") +
+    fulltextSuffix.map(t => esc(t) + SEPARATOR).getOrElse("") + "\n"        
   }
   
   /** Generates a full backup of annotations, compatible with Recogito's upload mechanism.
