@@ -63,38 +63,50 @@ class CSVSerializer extends BaseSerializer {
          }
         }
       }.mkString(SEPARATOR) + SEPARATOR + "\n"
-      
-    // To construct proper fulltext context, we need previous and next annotation offsets along with each annotation
-    val annotationsPadded = annotations.map(Some(_)) :+ None // We add an empty field to make the sliding window go through all annotations
-    annotationsPadded.iterator.sliding(2).withPartial(false).foldLeft((meta + "\n" + header, Option.empty[Annotation])){ case ((csv, previousAnnotation), nextTwoAnnotations) => {
+            
+    // To obtain the proper fulltext context around an annotation, we need
+    // to know the offset of the previous and next annotation as well, so we 
+    // (i) add an 'empty' slot at the end of our annotation list and
+    // (ii) run a sliding window (currentAnnotation, nextAnnotation) across the list 
+    // (iii) fold that to process each 'currentAnnotation' (and pass the the current
+    // annotation to the next fold step as the previous annotation)
+    val annotationsPadded = annotations.map(Some(_)) :+ None // Here we add the empty at the end
+    
+    // The (current, next) pairs obtained through sliding
+    val currentNextPairs = annotationsPadded.iterator.sliding(2)
+    
+    // Fold it!
+    currentNextPairs.foldLeft((meta + "\n" + header, Option.empty[Annotation])){ case ((csv, previousAnnotation), nextTwoAnnotations) => {
       val currentAnnotation = nextTwoAnnotations.head.get // Must be defined
-
-      val previousOffset: Option[Int] =
+      val nextAnnotation = nextTwoAnnotations.last
+      
+      val previousOffset = 
         if (currentAnnotation.gdocPartId == previousAnnotation.flatMap(_.gdocPartId))
-          previousAnnotation.map(a => a.correctedOffset.getOrElse(a.offset.getOrElse(0)))
+          previousAnnotation.map(a => 
+            a.correctedOffset.getOrElse(a.offset.getOrElse(0)) + 
+            a.correctedToponym.getOrElse(a.toponym.getOrElse("")).size)
         else
           None
-     
-      val nextAnnotation = nextTwoAnnotations.last // Could be our last, padded element
-      val nextOffset: Option[Int] =
+          
+      val nextOffset =
         if (currentAnnotation.gdocPartId == nextAnnotation.flatMap(_.gdocPartId))
           nextAnnotation.map(a => a.correctedOffset.getOrElse(a.offset.getOrElse(0)))
         else
-          None
+          None        
+    
       
       val row = 
         if (includeFulltext)
-          annotationToCSVRow(currentAnnotation, includeCoordinates, previousOffset, nextOffset, fulltexts)
+          oneAnnotationToCSV(currentAnnotation, includeCoordinates, previousOffset, nextOffset, fulltexts)
         else
-          annotationToCSVRow(currentAnnotation, includeCoordinates)
-          
-      val toponymLength = currentAnnotation.correctedToponym.getOrElse(currentAnnotation.toponym.getOrElse("")).size
+          oneAnnotationToCSV(currentAnnotation, includeCoordinates)
+
       (csv + row, Some(currentAnnotation))
-    }}._1
+    }}._1 // We only need the string as end result
   }
   
   /** Helper function that generates a consolidated CSV row for one annotation with appropriate fulltext snippet, if required **/
-  private def annotationToCSVRow(annotation: Annotation, includeCoordinates: Boolean,
+  private def oneAnnotationToCSV(annotation: Annotation, includeCoordinates: Boolean,
       fromOffset: Option[Int] = None, toOffset: Option[Int] = None,
       fulltexts:  Map[Option[Int], String] = Map.empty[Option[Int], String])(implicit s: Session): String = {
     
@@ -132,14 +144,12 @@ class CSVSerializer extends BaseSerializer {
     }
       
     // Get the fulltext for this annotation...
-    val fulltext = fulltexts.get(annotation.gdocPartId)
-      
+    val fulltext = fulltexts.get(annotation.gdocPartId)      
+    
     // ...and clip the corresponding part
     val (fulltextPrefix, fulltextSuffix): (Option[String], Option[String]) = 
       if (fulltext.isDefined) {
-        val annotationOffset = 
-          { if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset }
-          .getOrElse(0)
+        val annotationOffset = annotation.correctedOffset.getOrElse(annotation.offset.getOrElse(0))
         val prefix = fulltext.get.substring(fromOffset.getOrElse(0), annotationOffset)
         
         val suffixStartOffset = annotationOffset + toponym.map(_.size).getOrElse(0)
@@ -149,7 +159,7 @@ class CSVSerializer extends BaseSerializer {
           else
             fulltext.get.substring(suffixStartOffset)
                 
-        (Some(prefix), Some(suffix))
+        (Some(esc(prefix.replace("\n", " ").trim)), Some(esc(suffix.replace("\n", " ").trim)))
       } else {
         (None, None)
       }
@@ -165,8 +175,8 @@ class CSVSerializer extends BaseSerializer {
     getSourceForAnnotation(annotation).getOrElse("") + SEPARATOR +
     imgCoord.map(_._1).getOrElse("") + SEPARATOR +
     imgCoord.map(_._2).getOrElse("") + SEPARATOR +
-    fulltextPrefix.map(t => esc(t) + SEPARATOR).getOrElse("") +
-    fulltextSuffix.map(t => esc(t) + SEPARATOR).getOrElse("") + "\n"        
+    fulltextPrefix.map(_ + SEPARATOR).getOrElse("") +
+    fulltextSuffix.map(_ + SEPARATOR).getOrElse("") + "\n"        
   }
   
   /** Generates a full backup of annotations, compatible with Recogito's upload mechanism.

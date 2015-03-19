@@ -73,7 +73,7 @@ object DownloadController extends Controller with Secured {
           getQueryParam("nocoords", session.request).map(_.toBoolean).getOrElse(false)
           
         val includeFulltext =
-          getQueryParam("fulltext", session.request).map(_.toBoolean).getOrElse(false)
+          getQueryParam("fulltext", session.request).map(_.toBoolean).getOrElse(false) && currentUser.isDefined
       
         val serializer = new CSVSerializer()
     
