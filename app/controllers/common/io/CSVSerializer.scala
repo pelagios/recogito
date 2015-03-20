@@ -175,8 +175,8 @@ class CSVSerializer extends BaseSerializer {
     getSourceForAnnotation(annotation).getOrElse("") + SEPARATOR +
     imgCoord.map(_._1).getOrElse("") + SEPARATOR +
     imgCoord.map(_._2).getOrElse("") + SEPARATOR +
-    fulltextPrefix.map(_ + SEPARATOR).getOrElse("") +
-    fulltextSuffix.map(_ + SEPARATOR).getOrElse("") + "\n"        
+    { if (includeFulltext) fulltextPrefix.getOrElse("") + SEPARATOR else "" } + 
+    { if (includeFulltext) fulltextSuffix.getOrElse("") + SEPARATOR else "" } + "\n"        
   }
   
   /** Generates a full backup of annotations, compatible with Recogito's upload mechanism.
