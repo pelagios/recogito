@@ -150,16 +150,16 @@ class CSVSerializer extends BaseSerializer {
     val (fulltextPrefix, fulltextSuffix): (Option[String], Option[String]) = 
       if (includeFulltext) {
         val annotationOffset = annotation.correctedOffset.getOrElse(annotation.offset.getOrElse(0))
-        val prefix = fulltext.get.substring(fromOffset.getOrElse(0), annotationOffset)
+        val prefix = fulltext.map(_.substring(fromOffset.getOrElse(0), annotationOffset))
         
         val suffixStartOffset = annotationOffset + toponym.map(_.size).getOrElse(0)
         val suffix = 
           if (toOffset.isDefined)
-            fulltext.get.substring(suffixStartOffset, toOffset.get)
+            fulltext.map(_.substring(suffixStartOffset, toOffset.get))
           else
-            fulltext.get.substring(suffixStartOffset)
+            fulltext.map(_.substring(suffixStartOffset))
                 
-        (Some(esc(prefix.replace("\n", " ").trim)), Some(esc(suffix.replace("\n", " ").trim)))
+        (prefix.map(p => esc(p.replace("\n", " ").trim)), suffix.map(s => esc(s.replace("\n", " ").trim)))
       } else {
         (None, None)
       }
