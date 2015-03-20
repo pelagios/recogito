@@ -97,16 +97,16 @@ class CSVSerializer extends BaseSerializer {
       
       val row = 
         if (includeFulltext)
-          oneAnnotationToCSV(currentAnnotation, includeCoordinates, previousOffset, nextOffset, fulltexts)
+          oneAnnotationToCSV(currentAnnotation, includeCoordinates, includeFulltext, previousOffset, nextOffset, fulltexts)
         else
-          oneAnnotationToCSV(currentAnnotation, includeCoordinates)
+          oneAnnotationToCSV(currentAnnotation, includeCoordinates, includeFulltext)
 
       (csv + row, Some(currentAnnotation))
     }}._1 // We only need the string as end result
   }
   
   /** Helper function that generates a consolidated CSV row for one annotation with appropriate fulltext snippet, if required **/
-  private def oneAnnotationToCSV(annotation: Annotation, includeCoordinates: Boolean,
+  private def oneAnnotationToCSV(annotation: Annotation, includeCoordinates: Boolean, includeFulltext: Boolean,
       fromOffset: Option[Int] = None, toOffset: Option[Int] = None,
       fulltexts:  Map[Option[Int], String] = Map.empty[Option[Int], String])(implicit s: Session): String = {
     
@@ -148,7 +148,7 @@ class CSVSerializer extends BaseSerializer {
     
     // ...and clip the corresponding part
     val (fulltextPrefix, fulltextSuffix): (Option[String], Option[String]) = 
-      if (fulltext.isDefined) {
+      if (includeFulltext) {
         val annotationOffset = annotation.correctedOffset.getOrElse(annotation.offset.getOrElse(0))
         val prefix = fulltext.get.substring(fromOffset.getOrElse(0), annotationOffset)
         
