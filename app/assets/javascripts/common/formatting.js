@@ -21,12 +21,14 @@ define(function() {
         return prefix + ':' + id;        
       };
     
-      if (uri.indexOf('http://pleiades.stoa.org') == 0)
+      if (uri.indexOf('http://pleiades.stoa.org') === 0)
         return format(uri, 'pleiades', 32);
-      else if (uri.indexOf('http://data.pastplace.org/') == 0)
+      else if (uri.indexOf('http://data.pastplace.org/') === 0)
         return format(uri, 'pastplace', 35);
-      else if (uri.indexOf('http://www.imperium.ahlfeldt.se') == 0)
+      else if (uri.indexOf('http://www.imperium.ahlfeldt.se') === 0)
         return format(uri, 'dare', 39);
+      else if (uri.indexOf('http://chgis.hmdc.harvard.edu/placename') === 0)
+        return format(uri, 'chgis', 44); 
       else
         return uri;
     },

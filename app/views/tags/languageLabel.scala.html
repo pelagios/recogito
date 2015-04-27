@@ -7,6 +7,9 @@
       case l: String if l == "la" => <span title="Latin" class="lang la">{ l.toLowerCase }</span>
       case l: String if l == "es" => <span title="Spanish" class="lang es">{ l.toLowerCase }</span>
       case l: String if l == "gr" => <span title="Greek" class="lang gr">{ l.toLowerCase }</span>
+      case l: String if l == "fr" => <span title="French" class="lang fr">{ l.toLowerCase }</span>
+      case l: String if l == "ar" => <span title="Arabic" class="lang ar">{ l.toLowerCase }</span>
+      case l: String if l == "zh" => <span title="Chinese" class="lang zh">{ l.toLowerCase }</span>
       case l => <span class="lang">{ l.toLowerCase }</span>
     }
   } else {

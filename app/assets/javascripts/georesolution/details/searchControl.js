@@ -32,7 +32,8 @@ define(['georesolution/common'], function(common) {
       KnownGazetteers = {
         'http://pleiades.stoa.org' : 'Pleiades',
         'http://data.pastplace.org' : 'PastPlace',
-        'http://www.imperium.ahlfeldt.se': 'DARE'
+        'http://www.imperium.ahlfeldt.se': 'DARE',
+        'http://chgis.hmdc.harvard.edu' : 'CHGIS'
       },
       
       /** Helper function that groups search results by gazetteers **/
