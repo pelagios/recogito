@@ -117,14 +117,16 @@ define(['georesolution/common', 'common/map', 'common/annotationContext'], funct
     
       // Now add the result markers
       jQuery.each(results, function(idx, result) {
-        var marker;
+        var marker,
+            tempBounds = result.temporal_bounds,
+            timespan = (tempBounds) ? ' (' + tempBounds.start + ' - ' + tempBounds.end + ')' : '';
       
         if (result.coordinate) {
           marker = L.marker(result.coordinate);            
           // marker = L.geoJson({ 'type': 'Feature', 'geometry': result.geometry });
           marker.bindPopup(
             '<div class="search-result-popup">' + 
-            '  <strong>' + result.title + '</strong>' + common.Utils.categoryTag(result.category) +
+            '  <strong>' + result.title + timespan + '</strong>' + common.Utils.categoryTag(result.category) +
             '  <br/><small>' + result.names.slice(0, 8).join(', ') + '</small><br/>' +
             '  <p>' +
             '    <strong>Correct?</strong><br/>Assign to ' + 
