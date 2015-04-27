@@ -162,11 +162,17 @@ define(['georesolution/common'], function(common) {
           html += '<span class="icon no-coords" title="No coordinates for this place">&#xf041;</span>';
         }
         
-        if (result.uri.indexOf('pastplace') > 0) {
-          html += '    <strong title="' + common.Utils.formatGazetteerURI(result.uri) + '">' + result.names[0] + '</strong>';
-        } else {
-          html += '    <strong title="' + common.Utils.formatGazetteerURI(result.uri) + '">' + result.title + '</strong>';
-        }
+        html += '    <strong title="' + common.Utils.formatGazetteerURI(result.uri) + '">';
+
+        if (result.uri.indexOf('pastplace') > 0)
+          html += result.names[0]; // PastPlace titles are a mess - names are sorted by language
+        else
+          html += result.title;
+          
+        if (result.temporal_bounds)
+          html += ' (' + result.temporal_bounds.start + ' - ' + result.temporal_bounds.end + ')';
+    
+        html += '</strong>';
         
         html += common.Utils.categoryTag(result.category) + '<br/>' +
                 '    <small>' + result.names.slice(0, 8).join(', ') + '<br/>' + result.description + '</small>' +

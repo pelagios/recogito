@@ -157,6 +157,10 @@ class JSONSerializer extends BaseSerializer {
         "title" -> place.label,
         "description" -> place.description,
         "names" -> Json.toJson(place.names.map(_.chars)),
+        "temporal_bounds" -> place.temporalBoundsStart.map(start => {
+          val end = place.temporalBoundsEnd.getOrElse(start)
+          Json.obj("start" -> start, "end" -> end)
+        }),
         "category" -> place.category.map(_.toString),
         "coordinate" -> geometry.map(g => { 
           val coord = g.getCentroid.getCoordinate

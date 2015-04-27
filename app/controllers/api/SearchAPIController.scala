@@ -61,6 +61,10 @@ object SearchAPIController extends Controller {
       "uri" -> place.uri,
       "title" -> place.label,
       "names" -> Json.toJson(namesEnDeFrEsIt ++ otherNames),
+      "temporal_bounds" -> place.temporalBoundsStart.map(start => {
+        val end = place.temporalBoundsEnd.getOrElse(start)
+        Json.obj("start" -> start, "end" -> end)
+      }),
       "description" -> place.description,
       "category" -> place.category.map(_.toString),
       "geometry" -> geometry.map(IndexedPlace.geometry2geoJSON(_)),
