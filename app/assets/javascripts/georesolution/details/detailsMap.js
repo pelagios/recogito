@@ -181,6 +181,10 @@ define(['georesolution/common', 'common/map', 'common/annotationContext'], funct
     });
   };
   
+  DetailsMap.prototype.invalidateSize = function(animate) {
+    this.map.invalidateSize(animate);
+  };
+  
   DetailsMap.prototype.destroy = function() {
     this.clearSearchresults();
     

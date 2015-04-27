@@ -24,6 +24,7 @@ define(['georesolution/common',
           
           '      <div class="body">' +
           '        <div class="controls">' +
+          '          <div id="controls-slide-toggle" class="icon">&#xf101;</div>' +
           '          <p class="mapping-info auto"></p>' +
           '          <p class="mapping-info corrected"></p>' +
           '          <div class="statusbar">' +
@@ -84,6 +85,9 @@ define(['georesolution/common',
         btnNext = element.find('.header-icons .next'),
         btnExit = element.find('.header-icons .exit'),
 
+        controlsPanel = element.find('.controls'),
+        btnSlideToggle = element.find('#controls-slide-toggle'),
+
         mappingInfoAuto = element.find('.mapping-info.auto'),
         mappingInfoCorrected = element.find('.mapping-info.corrected'),
 
@@ -118,6 +122,35 @@ define(['georesolution/common',
         
         /** Shorthand **/
         stopPropagation = function(e) { e.stopPropagation() },
+        
+        /** Slides the right-hand controls panel in or out **/
+        toggleControls = function() {
+          var width = controlsPanel.outerWidth(),
+              left = controlsPanel.position().left,
+          
+              // Maximum 'left' value for the panel is the width of the parent (plus 1 for border)
+              maxLeft = controlsPanel.parent().width();
+
+          if (left < maxLeft) { // Close
+            btnSlideToggle.html('&#xf100;');
+            
+            // Fade out contents, then slide
+            controlsPanel.children().not('#controls-slide-toggle').fadeOut(100, function() {
+              controlsPanel.animate({ 'margin-right': - width + 'px' }, { duration: 200, step: function() { map.invalidateSize(); } });
+            });
+          } else { // Open
+            btnSlideToggle.html('&#xf101;');
+            
+            // Slide, then fade in contents
+            controlsPanel.animate({ 'margin-right': '0' }, { 
+              duration: 200,
+              step: function() { map.invalidateSize(); },
+              complete: function() {
+                controlsPanel.children().not('#controls-slide-toggle').fadeIn(100);
+              }
+            });
+          }
+        }, 
         
         /** Helper to populate the 'mapping info paragraphs **/
         setMappingInfo = function(place, paragraph) {
@@ -328,6 +361,8 @@ define(['georesolution/common',
     btnPrevious.click(function() { eventBroker.fireEvent('skipPrevious'); });
     btnNext.click(function() { eventBroker.fireEvent('skipNext'); });
     btnExit.click(hide);
+    
+    btnSlideToggle.click(toggleControls);
     
     /** Map events **/
     map.on('selectSearchresult', correctGazetteerMapping);
