@@ -1,15 +1,12 @@
 package index
 
+import com.spatial4j.core.distance.DistanceUtils
 import net.sf.junidecode.Junidecode
 import org.apache.lucene.index.Term
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser
-import org.apache.lucene.search.{ BooleanClause, BooleanQuery, PrefixQuery, ScoreDoc, Sort, TermQuery, TopScoreDocCollector }
+import org.apache.lucene.search.{ BooleanClause, BooleanQuery, MatchAllDocsQuery, PrefixQuery, ScoreDoc, Sort, TermQuery, TopScoreDocCollector }
 import org.apache.lucene.spatial.query.{ SpatialArgs, SpatialOperation }
 import org.apache.lucene.util.Version
-import com.spatial4j.core.distance.DistanceUtils
-import org.apache.lucene.search.MatchAllDocsQuery
-import play.api.Logger
-import com.spatial4j.core.shape.Point
 
 trait PlaceReader extends PlaceIndexBase {
   
@@ -64,20 +61,35 @@ trait PlaceReader extends PlaceIndexBase {
     // We only support keyword queries, and remove all special characters that may mess it up
     val normalizedQuery = INVALID_QUERY_CHARS
       .foldLeft(query)((normalized, invalidChar) => normalized.replace(invalidChar, ""))
-      
-    val transliteratedQuery = Junidecode.unidecode(normalizedQuery)    
+     
+    // In general, we want to transliterate - but NOT for Chinese! It would turn the query '張掖郡' 
+    // to '張掖郡 OR Zhang Yi Jun' - and that will lead to lots of false matches 
+    val expandedQuery = {
+      val cjk = "\\p{script=Han}".r
+      cjk.findFirstIn(query) match {
+        
+        // CJK character - don't transliterate
+        case Some(_) =>  normalizedQuery
+        
+        // Non-CJK query - transliterate
+        case None => {
+          val transliteratedQuery = Junidecode.unidecode(normalizedQuery)    
+          if (normalizedQuery == transliteratedQuery) 
+            normalizedQuery
+          else
+           normalizedQuery + " OR " + transliteratedQuery
+        }
+      }      
+    }
     
-    val expandedQuery =
-      if (normalizedQuery == transliteratedQuery) 
-        normalizedQuery
-      else
-        normalizedQuery + " OR " + transliteratedQuery
+    val fields = Seq(Fields.TITLE, Fields.DESCRIPTION, Fields.PLACE_NAME).toArray     
+    val queryParser = new MultiFieldQueryParser(Version.LATEST, fields, analyzer)
+    queryParser.setAutoGeneratePhraseQueries(true)
     
-    val fields = Seq(Fields.TITLE, Fields.DESCRIPTION, Fields.PLACE_NAME).toArray       
     val q = 
       if (allowedPrefixes.isDefined) {
         val outerQuery = new BooleanQuery()
-        outerQuery.add(new MultiFieldQueryParser(Version.LATEST, fields, analyzer).parse(expandedQuery), BooleanClause.Occur.MUST)
+        outerQuery.add(queryParser.parse(expandedQuery), BooleanClause.Occur.MUST)
         
         if (allowedPrefixes.get.size == 1) {
           outerQuery.add(new PrefixQuery(new Term(Fields.URI, allowedPrefixes.get.head)), BooleanClause.Occur.MUST)    
@@ -91,7 +103,7 @@ trait PlaceReader extends PlaceIndexBase {
         outerQuery
       } else {
         // Just a plain text query
-        new MultiFieldQueryParser(Version.LATEST, fields, analyzer).parse(expandedQuery)
+        queryParser.parse(expandedQuery)
       }
     
     val searcher = placeSearcherManager.acquire()
