@@ -68,7 +68,7 @@ logger.application=DEBUG
 
 # A comma-separated list of gazetteer dumps (located in the /gazetteer folder) to build the index from
 # Note: Recogito will load the gazetteer dumps in the same order as the list
-recogito.gazetteers="pleiades-201207-migrated.ttl.gz, dare-20131210.ttl.gz"
+recogito.gazetteers="pleiades-201207-migrated.ttl.gz, dare-2013-1210.ttl.gz"
 
 # A comma-separated list of gazetteer patch files
 # recogito.gazetteer.patches="pelagios_geojson.ttl"
