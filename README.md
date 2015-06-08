@@ -13,9 +13,9 @@ If you want to set up your own copy of Recogito, here's what you need to do:
 * Install the [Play Framework v2.2.2](http://www.playframework.com/download). This should normally be a matter of downloading and unzipping the
   _classic_ distribution. (No need to use the version packaged with the _Typesafe Activator_.) Be sure, __not__ to use a new version of Play,
   since the framework introduced some breaking changes in v2.3.
-* Recogito depends on the _scalagios-core_ and _scalagios-gazetteer_ utility libraries from the [Scalagios](http://github.com/pelagios/scalagios)
-  project. These are not yet available through a Maven repository. You need to add them manually to a `lib` folder in the `recogito` root folder.
-  Build them from source using these [instructions](http://github.com/pelagios/scalagios), or drop us a line via 
+* Recogito depends on the _scalagios-core_ utility library from the [Scalagios](http://github.com/pelagios/scalagios)
+  project. This is not yet available through a Maven repository. You need to add it manually to a `lib` folder in the `recogito` root folder.
+  Build it from source using these [instructions](http://github.com/pelagios/scalagios), or drop us a line via 
   [@Pelagiosproject](https://twitter.com/pelagiosproject).
 * Create a copy of the file `conf/application.conf.template` named `conf/application.conf`, and adapt the settings according to your environment.
   For the most part, the default settings should be fine. Per default, Recogito will create an empty SQLite database. If you want to set up
