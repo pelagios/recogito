@@ -11,3 +11,4 @@
 /logs
 /db
 /public/uploads
+.cache-*
