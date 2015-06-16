@@ -275,13 +275,13 @@ define(['georesolution/common',
           if (autofit)
             map.fitToAnnotations();
             
-          map.showPopup(annotation);
+          if (!map.isPinned())
+            map.showPopup(annotation);
                     
           searchControl.setMaxHeight(map.height());
           
-          if (suggestions && suggestions.length > 0) {
-            showSuggestionDialog(annotation.toponym, suggestions);
-          }
+          if (suggestions && suggestions.length > 0)
+            showSuggestionDialog(annotation.toponym, suggestions);            
         },
         
         /** Close the details view **/

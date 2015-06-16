@@ -1,4 +1,4 @@
-define(['georesolution/common', 'common/map', 'common/annotationContext'], function(common, MapBase, AnnotationContext) {
+define(['georesolution/common', 'common/map', 'common/annotationContext', 'georesolution/details/pinControl'], function(common, MapBase, AnnotationContext, PinControl) {
   
   var parentEl,
       locatedResults = {},
@@ -7,7 +7,7 @@ define(['georesolution/common', 'common/map', 'common/annotationContext'], funct
   
   var DetailsMap = function(mapDiv, overlayDiv) {
     var self = this,
-        
+    
         /** HTML template for the annotation popup **/
         popupTemplate = '<div>' +
                         '  <p class="quote">' +
@@ -74,8 +74,18 @@ define(['georesolution/common', 'common/map', 'common/annotationContext'], funct
 
             return element[0];
           }
+        },
+        
+        /** A control that blocks popups, to force the map from moving **/
+        pinControl, // To be initialized after the map
+        
+        isPinned = function() {
+          if (pinControl)
+            return pinControl.isEnabled();
+          else
+            false;
         };
-    
+            
     $(mapDiv).on('click', '.gazetteer-id', function(e) {
       e.stopPropagation();
       self.fireEvent('selectSearchresult', locatedResults[e.target.href].result);
@@ -85,6 +95,14 @@ define(['georesolution/common', 'common/map', 'common/annotationContext'], funct
     parentEl = jQuery(mapDiv);
     
     MapBase.apply(this, [ mapDiv, createPopup, false, false, 'topright' ]);
+    
+    // Initialize the pin control
+    pinControl = new PinControl(this.map, { position: 'topright' });
+    this.isPinned = isPinned;
+    
+    // Just disable the keyboard - we don't need it, and instead want arrow
+    // keys to skip through the toponym list, not move the map 
+    this.map.keyboard.disable();
   }
   DetailsMap.prototype = Object.create(MapBase.prototype);
   
@@ -172,7 +190,7 @@ define(['georesolution/common', 'common/map', 'common/annotationContext'], funct
     if (searchBounds.isValid()) {
       if (annotationBounds.isValid())
         searchBounds.extend(annotationBounds);
-      
+        
       this.map.fitBounds(searchBounds, { minZoom: self.getCurrentMinZoom() });
     }
   };
