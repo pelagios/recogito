@@ -39,9 +39,11 @@ class CSVSerializer extends BaseSerializer {
             "date (numeric)" -> gdoc.date, 
             "date" -> gdoc.dateComment,
             "description" -> gdoc.description,
-            "external ID" -> gdoc.externalWorkID).filter(_._2.isDefined).map(tuple => (tuple._1, tuple._2.get))
+            "external ID" -> gdoc.externalWorkID,
+            "collections" -> gdoc.id.map(id => CollectionMemberships.findForGeoDocument(id).mkString(", ")))
+        .filter(_._2.isDefined).map(tuple => (tuple._1, tuple._2.get))
       }.map(tuple => "# " + tuple._1 + ": " + tuple._2).mkString("\n")
-    
+      
     val fulltexts: Map[Option[Int], String] = 
       if (includeFulltext) {
         val gdocTexts = GeoDocumentTexts.findByGeoDocument(gdoc.id.get)
@@ -55,7 +57,7 @@ class CSVSerializer extends BaseSerializer {
       
     val header = 
       {
-        Seq("toponym","gazetteer_uri","lat","lng", "place_category", "document_part", "status", "tags", "source", "img_x", "img_y") ++ {
+        Seq("toponym", "gazetteer_uri", "gazetteer_label", "lat", "lng", "place_category", "document_part", "status", "tags", "source", "img_x", "img_y") ++ {
          if (includeFulltext) {
            Seq("fulltext_prefix", "fulltext_suffix")
          } else {
@@ -110,6 +112,8 @@ class CSVSerializer extends BaseSerializer {
       fromOffset: Option[Int] = None, toOffset: Option[Int] = None,
       fulltexts:  Map[Option[Int], String] = Map.empty[Option[Int], String])(implicit s: Session): String = {
     
+    val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
+    
     val uri = 
       if (annotation.status == AnnotationStatus.VERIFIED) {
         if (annotation.correctedGazetteerURI.isDefined && !annotation.correctedGazetteerURI.get.isEmpty)
@@ -119,17 +123,16 @@ class CSVSerializer extends BaseSerializer {
       } else {
         None // We remove any existing URI in case the status is not VERIFIED
     }
-      
-    val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym
-      
-    val (category, coord) = {
+    
+    val (label, category, coord) = {
       if (includeCoordinates) {
         val queryResult = uri.flatMap(CrossGazetteerUtils.getConflatedPlace(_))
+        val label = queryResult.map(_._1.label)
         val category = queryResult.flatMap(_._1.category)
         val coord = queryResult.flatMap(_._2).map(_.getCentroid.getCoordinate)    
-        (category, coord)
+        (label, category, coord)
       } else {
-        (None, None)
+        (None, None, None)
       }
     }
       
@@ -166,6 +169,7 @@ class CSVSerializer extends BaseSerializer {
       
     esc(toponym.getOrElse("")) + SEPARATOR + 
     uri.map(uri => PlaceIndex.normalizeURI(uri)).getOrElse("") + SEPARATOR + 
+    label.getOrElse("") + SEPARATOR +
     coord.map(_.y).getOrElse("") + SEPARATOR +
     coord.map(_.x).getOrElse("") + SEPARATOR +
     category.map(_.toString).getOrElse("") + SEPARATOR +
