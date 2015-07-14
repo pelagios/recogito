@@ -3,9 +3,37 @@
 <html>
   <head>
     <title>PELAGIOS Geo-Resolution Correction Tool</title>
+    <style>
+      body {
+        font-family:Arial, Helvetica, sans-serif;
+        line-height:150%;
+        font-size:14px;
+      }
+      
+      #disclaimer {
+        max-width: 600px;
+        margin-left:230px;
+      }      
+      
+      div, form, h1 {
+        margin:0;
+        padding:0;
+      }
+      
+      form {
+        max-width:220px;
+        padding-right:30px;
+        float:left;
+      }
+      
+      h1 {
+        font-size:18px;
+        padding-bottom:4px;
+      }
+    </style>
   </head>
   
-  <body>      
+  <body>          
     @helper.form(controllers.common.auth.routes.AuthController.authenticate) {          
       <h1>Sign in</h1>
             
@@ -34,6 +62,37 @@
         <input type="hidden" name="destination" value="@destination.get">   
       }
     }       
+    
+    <div id="disclaimer">
+      <h1>TERMS AND CONDITIONS OF USE</h1>
+      <p>The Pelagios project has sought to ensure that the content of the materials hosted on 
+        the Recogito website (the &quot;Website&quot;) comply with UK copyright law. All third-party 
+        Recogito Website content, except where otherwise noted, is to be used expressly on a fair use basis,
+        and explicitly for the purpose of annotating place references in historical sources. Annotations 
+        created by each Recogito contributor are released under a Creative Commons Attribution Zero license,
+        for public use without requiring attribution. All other materials should be assumed to fall under 
+        copyright unless otherwise stated.</p>
+        
+      <p>By logging in to the Recogito Website, you confirm that you accept <strong>these Terms of Use</strong>
+        and that you agree to comply with them:</p>
+      
+      <ul>  
+        <li>You will view and use the documents hosted and licensed to the Recogito Website solely 
+          for the purpose of annotating the content;</li>
+
+        <li>You consent to have any annotations created by you released immediately into the public
+          domain under the Creative Commons CC0 ('CC Zero') 1.0 Universal license;</li>
+          
+        <li>You understand that the Recogito Website does not own the right to the materials nor the 
+          right to license to third parties and you will not use any copyright materials from this 
+          Website for purposes of your own that go beyond 'fair use' without first obtaining permission 
+          from the respective copyright owner(s).</li>
+          
+        <li>You will only upload content, documents and materials of which you own the entire copyright,
+          save that you may link to third party copyrighted materials. That you have read, and accept 
+          the <a href="#">General Provisions and Disclaimer</a>.</li>
+      </ul>
+    </div>
   </body>
 </html>
     
