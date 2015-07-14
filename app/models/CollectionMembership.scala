@@ -51,6 +51,13 @@ object CollectionMemberships {
   /** Get the collections the specified gdoc is part of **/
   def findForGeoDocument(gdocId: Int)(implicit s: Session): Seq[String] =
     query.where(_.gdocId === gdocId).map(_.collection).list
+    
+  def findForGeoDocuments(gdocIds: Seq[Int])(implicit s: Session): Map[Int, Seq[String]] = {
+    val memberships = 
+      query.where(_.gdocId inSet gdocIds).map(t => (t.gdocId, t.collection)).list
+      
+    memberships.groupBy(_._1).mapValues(_.map(_._2))
+  }
    
   /** Delete all collection memberships for a specific document **/
   def deleteForGeoDocument(gdocId: Int)(implicit s: Session) =

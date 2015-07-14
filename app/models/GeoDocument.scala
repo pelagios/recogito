@@ -134,7 +134,7 @@ object GeoDocuments {
        allValues.filter(_._2.isDefined).map(_._2.get).sorted,
        allValues.filter(_._3.isDefined).map(_._3.get).sorted) } toSeq
   }
-    
+  
   def delete(id: Int)(implicit s: Session) =
     query.where(_.id === id).delete
   

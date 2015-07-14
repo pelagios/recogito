@@ -89,4 +89,5 @@ trait BaseSerializer {
       place
     }
   }
+  
 }

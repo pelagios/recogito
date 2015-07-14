@@ -74,7 +74,7 @@ object BackupRestoreController extends Controller with Secured {
       DB.withSession { implicit s: Session =>
         // This is a long-running operation
         val future = Future {
-          new CSVSerializer().serializeEditHistory(EditHistory.listAll)
+          new CSVSerializer().serializeEditHistoryWithDocMeta(EditHistory.listAllWithGDocIDs())
         }
         
         future.map(csv => Ok(csv).withHeaders(CONTENT_TYPE -> "text/csv", CONTENT_DISPOSITION -> "attachment; filename=recogito-history.csv"))

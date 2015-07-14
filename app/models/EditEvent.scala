@@ -147,6 +147,14 @@ object EditHistory {
   def listAll()(implicit s: Session): Seq[EditEvent] =
     query.sortBy(_.timestamp.desc).list
     
+  def listAllWithGDocIDs()(implicit s: Session): Seq[(EditEvent, Option[Int])] = {
+    val q = for {
+      (e, a) <- query leftJoin Annotations.query on (_.annotationId === _.uuid)
+    } yield (e, a.gdocId.?)
+    
+    q.sortBy(_._1.timestamp.desc).list     
+  }
+    
   def listFromTo(from: Long, to: Long)(implicit s: Session): Seq[EditEvent] =
     query.where(_.timestamp >= new Timestamp(from)).where(_.timestamp <= new Timestamp(to)).sortBy(_.timestamp.desc).list
     

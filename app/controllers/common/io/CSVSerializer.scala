@@ -238,10 +238,10 @@ class CSVSerializer extends BaseSerializer {
    * @param history the list of edit events to serialize to CSV  
    */
   def serializeEditHistory(history: Seq[EditEvent]): String = {
-    val header = 
-      Seq("annotation_id","username","timestamp","timestamp_formatted","annotation_before","updated_toponym", "updated_status","updated_uri","updated_tags","updated_comment")
-      .mkString(SEPARATOR) + SEPARATOR + "\n"
-   
+    val header =
+      Seq("annotation_id","username","timestamp","timestamp_formatted","annotation_before","updated_toponym", "updated_status","updated_uri",
+            "updated_tags","updated_comment").mkString(SEPARATOR) + SEPARATOR + "\n"
+    
     history.foldLeft(header)((csv, event) => {
       csv +
       event.annotationId + SEPARATOR + 
@@ -255,6 +255,37 @@ class CSVSerializer extends BaseSerializer {
       esc(event.updatedTags.getOrElse("")) + SEPARATOR +
       esc(event.updatedComment.getOrElse("")) + SEPARATOR + "\n"
     })
+  }
+  
+  def serializeEditHistoryWithDocMeta(history: Seq[(EditEvent, Option[Int])])(implicit s: Session): String = {
+    val gdocs = GeoDocuments.findByIds(history.flatMap(_._2).distinct).map(gdoc => (gdoc.id.get, gdoc)).toMap
+    val collections = CollectionMemberships.findForGeoDocuments(gdocs.map(_._1).toSeq)
+    
+    val header = 
+      Seq("annotation_id","username","timestamp","timestamp_formatted","annotation_before","updated_toponym", "updated_status","updated_uri",
+          "updated_tags","updated_comment", "doc_id", "doc_author", "doc_title", "doc_language", "collections").mkString(SEPARATOR) + SEPARATOR + "\n"
+    
+    history.foldLeft(header){ case (csv, (event, gdocId)) => {
+      val gdoc = gdocId.flatMap(id => gdocs.get(id))
+      val coll = gdoc.flatMap(g => collections.get(g.id.get))
+      
+      csv +
+      event.annotationId + SEPARATOR + 
+      esc(event.username) + SEPARATOR +
+      event.timestamp.getTime + SEPARATOR + 
+      event.timestamp.toString + SEPARATOR +
+      event.annotationBefore.getOrElse("") + SEPARATOR + 
+      esc(event.updatedToponym.getOrElse("")) + SEPARATOR + 
+      event.updatedStatus.getOrElse("") + SEPARATOR + 
+      event.updatedURI.getOrElse("") + SEPARATOR +
+      esc(event.updatedTags.getOrElse("")) + SEPARATOR +
+      esc(event.updatedComment.getOrElse("")) + SEPARATOR +
+      gdoc.map(_.id.get.toString).getOrElse("") + SEPARATOR +
+      esc(gdoc.flatMap(_.author).getOrElse("")) + SEPARATOR +
+      gdoc.map(_.title).getOrElse("") + SEPARATOR +
+      gdoc.map(_.language).getOrElse("") + SEPARATOR +
+      coll.map(_.mkString(",")).getOrElse("") + SEPARATOR + "\n"
+    }}
   }
   
   /** Serializes the daily stats history for backup purposes.
@@ -292,7 +323,5 @@ class CSVSerializer extends BaseSerializer {
       toponyms.map(_._1).mkString(",") + "\n"
     }}
   }
-  
-
 
 }
