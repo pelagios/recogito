@@ -274,7 +274,7 @@ class CSVSerializer extends BaseSerializer {
       esc(event.username) + SEPARATOR +
       event.timestamp.getTime + SEPARATOR + 
       event.timestamp.toString + SEPARATOR +
-      event.annotationBefore.getOrElse("") + SEPARATOR + 
+      esc(event.annotationBefore.getOrElse("")) + SEPARATOR + 
       esc(event.updatedToponym.getOrElse("")) + SEPARATOR + 
       event.updatedStatus.getOrElse("") + SEPARATOR + 
       event.updatedURI.getOrElse("") + SEPARATOR +
