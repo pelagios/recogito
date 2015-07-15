@@ -282,7 +282,7 @@ class CSVSerializer extends BaseSerializer {
       esc(event.updatedComment.getOrElse("")) + SEPARATOR +
       gdoc.map(_.id.get.toString).getOrElse("") + SEPARATOR +
       esc(gdoc.flatMap(_.author).getOrElse("")) + SEPARATOR +
-      gdoc.map(_.title).getOrElse("") + SEPARATOR +
+      esc(gdoc.map(_.title).getOrElse("")) + SEPARATOR +
       gdoc.flatMap(_.language).getOrElse("") + SEPARATOR +
       coll.map(_.mkString(",")).getOrElse("") + SEPARATOR + "\n"
     }}
