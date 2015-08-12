@@ -218,10 +218,15 @@ object ZipImporter {
       val fields = line.split(CSV_SEPARATOR).map(_.trim).toSeq
       val toponym = fields(toponymIdx)
       val autoMatch =
-        if (toponym.isEmpty)
+        if (toponym.isEmpty) {
           None
-        else
-          Global.index.search(toponym, 1, 0).headOption
+        } else {
+          try {
+            Global.index.search(toponym, 1, 0).headOption
+          } catch {
+            case t: Throwable => None
+          }
+        }
       
       Annotation(
         Annotations.newUUID,
