@@ -23,6 +23,9 @@
     </div>  
     
     <div id="content">
+      <h2>Full Consolidated Dump</h2>
+      <button class="icon" onclick="location.href='@controllers.admin.routes.ExportsController.fullExport'">&#xf019;</button>&nbsp; All document metadata, annotations and text in a ZIP 
+      
       <h2>Annotated Places</h2>
       <table>
         @for(collection <- collections) {

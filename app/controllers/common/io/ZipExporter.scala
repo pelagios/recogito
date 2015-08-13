@@ -20,20 +20,20 @@ class ZipExporter {
     *
     * @param gdoc the GeoDocument
     */
-  def exportGDoc(gdoc: GeoDocument)(implicit session: Session): TemporaryFile = {
-    exportGDocs(Seq(gdoc))
+  def exportGDoc(gdoc: GeoDocument, consolidated: Boolean = false)(implicit session: Session): TemporaryFile = {
+    exportGDocs(Seq(gdoc), consolidated)
   } 
 
   /** Exports a list of GeoDocuments (with text and annotations) to ZIP 
     *
     * @param gdocs a Seq of GeoDocuments
     */
-  def exportGDocs(gdocs: Seq[GeoDocument])(implicit session: Session): TemporaryFile = {
+  def exportGDocs(gdocs: Seq[GeoDocument], consolidated: Boolean = false)(implicit session: Session): TemporaryFile = {
     val zipFile = new TemporaryFile(new File(TMP_DIR, UUID.randomUUID().toString + ".zip"))
     val zipStream = new ZipOutputStream(new FileOutputStream(zipFile.file, false))
     gdocs.foreach(doc => {
       Logger.info("Building ZIP package: " + doc.title + doc.language.map(" (" + _ + ")").getOrElse(""))
-      exportOne(doc, zipStream) 
+      exportOne(doc, zipStream, consolidated) 
     })
     zipStream.close()
     Logger.info("Export complete")
@@ -45,7 +45,7 @@ class ZipExporter {
     * @param gdoc the GeoDocument
     * @param zipStream the ZIP output stream
     */
-  private def exportOne(gdoc: GeoDocument, zipStream: ZipOutputStream)(implicit session: Session) = {   
+  private def exportOne(gdoc: GeoDocument, zipStream: ZipOutputStream, consolidated: Boolean)(implicit session: Session) = {   
     val gdocNamePrefix = gdoc.author.map(escapeTitle(_) + "_").getOrElse("") + escapeTitle(gdoc.title) + gdoc.language.map("_" + _).getOrElse("")
     
     // Get GeoDocument parts & texts from the DB
@@ -80,9 +80,15 @@ class ZipExporter {
     // Add annotations
     val annotations = Annotations.findByGeoDocument(gdoc.id.get)
     if (annotations.size > 0) {
-      val annotationsFile = new TemporaryFile(new File(TMP_DIR, "annotations_" + gdoc.id.get + ".csv"))
+      val filePrefix = if (consolidated) "annotations_c_" else "annotations_"
+      val annotationsFile = new TemporaryFile(new File(TMP_DIR, filePrefix + gdoc.id.get + ".csv"))
       val annotationsFileWriter = new PrintWriter(annotationsFile.file)
-      annotationsFileWriter.write(new CSVSerializer().serializeAnnotationsAsDBBackup(annotations))
+      
+      if (consolidated)
+        annotationsFileWriter.write(new CSVSerializer().serializeAnnotationsConsolidated(gdoc, annotations, true, false))
+      else
+        annotationsFileWriter.write(new CSVSerializer().serializeAnnotationsAsDBBackup(annotations))
+        
       annotationsFileWriter.flush()
       annotationsFileWriter.close()
       addToZip(annotationsFile.file, gdocNamePrefix + ".csv", zipStream)
