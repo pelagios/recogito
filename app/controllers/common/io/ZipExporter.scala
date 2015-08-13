@@ -78,14 +78,25 @@ class ZipExporter {
     })
     
     // Add annotations
-    val annotations = Annotations.findByGeoDocument(gdoc.id.get)
+    val annotations = 
+      if (consolidated) // No false matches and ignores in consolidated mode
+        Annotations.findByGeoDocumentAndStatus(gdoc.id.get, 
+          AnnotationStatus.VERIFIED, 
+          AnnotationStatus.NOT_VERIFIED,
+          AnnotationStatus.AMBIGUOUS,
+          AnnotationStatus.NO_SUITABLE_MATCH,
+          AnnotationStatus.MULTIPLE,
+          AnnotationStatus.NOT_IDENTIFYABLE)
+      else
+        Annotations.findByGeoDocument(gdoc.id.get)
+    
     if (annotations.size > 0) {
       val filePrefix = if (consolidated) "annotations_c_" else "annotations_"
       val annotationsFile = new TemporaryFile(new File(TMP_DIR, filePrefix + gdoc.id.get + ".csv"))
       val annotationsFileWriter = new PrintWriter(annotationsFile.file)
       
       if (consolidated)
-        annotationsFileWriter.write(new CSVSerializer().serializeAnnotationsConsolidated(gdoc, annotations, true, false))
+        annotationsFileWriter.write(new CSVSerializer().serializeAnnotationsConsolidated(gdoc, annotations))
       else
         annotationsFileWriter.write(new CSVSerializer().serializeAnnotationsAsDBBackup(annotations))
         

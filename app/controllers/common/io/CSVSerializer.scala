@@ -7,6 +7,7 @@ import models._
 import models.content.GeoDocumentTexts
 import models.stats.PlaceStats
 import play.api.db.slick._
+import play.api.Logger
 
 /** Utility object to serialize Annotation data to CSV.
   * 
@@ -139,6 +140,7 @@ class CSVSerializer extends BaseSerializer {
     val imgCoord = {
       val anchorJson = if (annotation.correctedAnchor.isDefined) annotation.correctedAnchor else annotation.anchor
       if (anchorJson.isDefined) {
+        Logger.info(annotation.toString)
         val anchor = new ImageAnchor(anchorJson.get)
         Some((anchor.x, anchor.y))
       } else {
