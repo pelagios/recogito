@@ -204,7 +204,7 @@ object ZipImporter {
     
     val (header, rows) = (csv.head, csv.tail)
     val toponymIdx = toponymColumn.map(columnName => {
-      val idx = header.split(CSV_SEPARATOR).map(_.trim.toLowerCase).toSeq.indexOf(columnName.toLowerCase)
+      val idx = header.split(CSV_SEPARATOR, -1).map(_.trim.toLowerCase).toSeq.indexOf(columnName.toLowerCase)
       if (idx < 0) 0 else idx
     }).getOrElse(0) // Just default to the first column in case we don't have a match
     
@@ -215,7 +215,7 @@ object ZipImporter {
     
     val annotations = rows.foldLeft(Seq.empty[Annotation])((annotations, line) => {
       val offset = annotations.map(_.toponym.get.size).sum
-      val fields = line.split(CSV_SEPARATOR).map(_.trim).toSeq
+      val fields = line.split(CSV_SEPARATOR, -1).map(_.trim).toSeq
       val toponym = fields(toponymIdx)
       val autoMatch =
         if (toponym.isEmpty) {
