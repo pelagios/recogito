@@ -11,7 +11,7 @@ define(['georesolution/common',
         
         element = jQuery(
           '<div id="annotation-details">' +
-          '  <div id="clicktrap">' +
+          '  <div class="clicktrap">' +
           '    <div id="details-popup">' +
           '      <div class="header">' +
           '        »<span class="toponym"></span>«' +

@@ -181,6 +181,7 @@ private[api] trait TextAnnotationWriter extends BaseAnnotationWriter {
       val updatedOffset = if (correctedOffset.isDefined) correctedOffset else annotation.get.correctedOffset
       val updatedURI = if (correctedURI.isDefined) correctedURI else annotation.get.correctedGazetteerURI
       val updatedTags = if (correctedTags.isDefined) correctedTags else annotation.get.tags
+      
       val updatedComment = if (correctedComment.isDefined) correctedComment else annotation.get.comment
    
       val toponym = if (updatedToponym.isDefined) updatedToponym else annotation.get.toponym
@@ -199,7 +200,7 @@ private[api] trait TextAnnotationWriter extends BaseAnnotationWriter {
                    updatedOffset,
                    annotation.get.correctedAnchor, 
                    updatedURI,
-                   updatedTags,
+                   updatedTags.filter(_.trim.nonEmpty),
                    updatedComment,
                    annotation.get.source,
                    { if (annotation.get.seeAlso.size > 0) Some(annotation.get.seeAlso.mkString(",")) else None })

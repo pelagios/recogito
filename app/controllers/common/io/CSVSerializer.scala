@@ -7,7 +7,6 @@ import models._
 import models.content.GeoDocumentTexts
 import models.stats.PlaceStats
 import play.api.db.slick._
-import play.api.Logger
 
 /** Utility object to serialize Annotation data to CSV.
   * 
@@ -82,7 +81,7 @@ class CSVSerializer extends BaseSerializer {
     currentNextPairs.foldLeft((meta + "\n" + header, Option.empty[Annotation])){ case ((csv, previousAnnotation), nextTwoAnnotations) => {
       val currentAnnotation = nextTwoAnnotations.head.get // Must be defined
       val nextAnnotation = nextTwoAnnotations.last
-      
+      import play.api.Logger
       val previousOffset = 
         if (currentAnnotation.gdocPartId == previousAnnotation.flatMap(_.gdocPartId))
           previousAnnotation.map(a => 
@@ -140,7 +139,6 @@ class CSVSerializer extends BaseSerializer {
     val imgCoord = {
       val anchorJson = if (annotation.correctedAnchor.isDefined) annotation.correctedAnchor else annotation.anchor
       if (anchorJson.isDefined) {
-        Logger.info(annotation.toString)
         val anchor = new ImageAnchor(anchorJson.get)
         Some((anchor.x, anchor.y))
       } else {

@@ -230,12 +230,7 @@ define(['georesolution/common', 'georesolution/details/detailsPopup', 'georesolu
   TableView.prototype._openBatchPopup = function(indexes) {
     var self = this,
         annotations = $.map(indexes, function(idx) { return self._grid.getDataItem(idx); }),  
-        popup = new BatchPopup(annotations);
-      
-    eventBroker.on('updateAnnotation', function(annotations) {
-      self._grid.invalidate();
-      self.fireEvent('updateAnnotation', annotations);
-    });
+        popup = new BatchPopup(eventBroker, annotations);
   };
 
   /**

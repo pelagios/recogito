@@ -1,4 +1,4 @@
-define(['georesolution/common'], function(common) {
+define(['georesolution/common', 'georesolution/tagList'], function(common, TagList) {
   
   /**
    * A popup containing 'batch processing' features that affect a list of annotations 
@@ -9,27 +9,27 @@ define(['georesolution/common'], function(common) {
    * 
    * @param {Object} annotations the annotations
    */
-  var BatchPopup = function(annotations) {
+  var BatchPopup = function(eventBroker, annotations) {
+    
     // Inheritance - not the nicest pattern but works for our case
     common.HasEvents.call(this);
   
     var self = this,
         template =
-          '<div class="clicktrap">' +
-          '  <div class="popup">' +
-          '    <div class="popup-header">' +
-          '      <span id="batch-header-title"></span>' +
-          '      <span class="popup-header-icons">' + 
-          '        <a class="popup-exit">&#xf00d;</a>' +
-          '      </span>' +
-          '    </div>' +
-          '    <div class="popup-content">' +
-          '      <div class="popup-content-inner">' +
+          '<div id="batch-tagging">' +
+          '  <div class="clicktrap">' +
+          '    <div id="batch-tagging-popup">' +
+          '      <div class="header">' +
+          '        <span id="batch-header-title"></span>' +
+          '        <span class="header-icons">' + 
+          '          <a class="exit icon">&#xf00d;</a>' +
+          '        </span>' +
+          '      </div>' +
+          '      <div class="body">' +
           '        <p><strong>Unique toponyms:</strong> <span id="batch-unique-toponyms"></span></p>' + 
           '        <p><strong>Unique gazetteer IDs:</strong> <span id="batch-unique-uris"></span></p>' + 
           '        <p><strong>Tags in Common:</strong></p>' + 
-          '        <div class="tag-list">' +
-          '        </div>' +      
+          '        <div class="tags"></div>' +      
           '      </div>' +
           '    </div>' +
           '  </div>' +
@@ -38,17 +38,18 @@ define(['georesolution/common'], function(common) {
     // Details Popup DOM element
     this.element = $(template);
     this.element.appendTo(document.body);
-    $('.popup-exit').click(function() { self.destroy(); });
+    $('.exit.icon').click(function() { self.destroy(); });
   
     // Populate the template
     $('#batch-header-title').html(annotations.length + ' Annotations Selected');
     $('#batch-unique-toponyms').html(uniqueToponyms(annotations).join(', '));
     $('#batch-unique-uris').html(uniqueGazetteerURIs(annotations).join(', '));
-    // $('#batch-unique-tags').html(uniqueTags(annotations).join(', '));
   
     // Tags
     var originalTags = commonTags(annotations);
-    var tagList = new common.TagList($('.tag-list'), commonTags(annotations));  
+    
+    var tagList = new TagList($('.tags'));
+    tagList.show(commonTags(annotations));  
     
     tagList.on('update', function(updatedTags) {
       var diff = diffTags(originalTags, updatedTags);
@@ -67,10 +68,11 @@ define(['georesolution/common'], function(common) {
         $.each(diff.remove, function(idx, toRemove) {
           annotation.tags.splice(annotation.tags.indexOf(toRemove), 1);
         });
+
+        eventBroker.fireEvent('updateAnnotation', annotation);
       });
       
       originalTags = updatedTags.slice();
-      self.fireEvent('update', annotations);
     });
   }
 
