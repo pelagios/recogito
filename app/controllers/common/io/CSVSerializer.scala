@@ -308,7 +308,7 @@ class CSVSerializer extends BaseSerializer {
   }
   
   def serializePlaceStats(stats: PlaceStats): String = {
-    val header = Seq("uri", "lon", "lat", "name_in_gazetteer", "number_of_annotations", "toponym_variants").mkString(SEPARATOR) + "\n"
+    val header = Seq("uri", "lon", "lat", "name_in_gazetteer", "gazetter_category", "number_of_annotations", "toponym_variants").mkString(SEPARATOR) + "\n"
     
     stats.uniquePlaces.foldLeft(header){ case (csv, (place, network, count, toponyms)) => {
       val geometry = CrossGazetteerUtils.getPreferredGeometry(place, network)
@@ -319,6 +319,7 @@ class CSVSerializer extends BaseSerializer {
       coord.map(_.x.toString).getOrElse("") + SEPARATOR +
       coord.map(_.y.toString).getOrElse("") + SEPARATOR +
       place.label + SEPARATOR +
+      place.category.map(_.toString).getOrElse("") + SEPARATOR +
       count.toString + SEPARATOR + 
       toponyms.map(_._1).mkString(",") + "\n"
     }}
