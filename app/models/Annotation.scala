@@ -26,8 +26,14 @@ case class Annotation(
     /** Status of this annotation **/
     status: AnnotationStatus.Value,
     
+    // @Stu: we'd need a field for the annotation type. Something like
+    
+    // entityType: EntityType.Value, 
+    
+    // where we'd define EntityType as an enum, exactly like the Annotation.Status class
+    
     /** Toponym identified by the geoparser **/
-    toponym: Option[String],
+    toponym: Option[String], // @Stu: hm - we'd want to change that from 'toponym' to something generic
     
     /** Character offset of the toponym in the text **/
     offset: Option[Int],
@@ -36,7 +42,7 @@ case class Annotation(
     anchor: Option[String],
     
     /** Gazetteer URI identified by the georesolver **/
-    gazetteerURI: Option[String], 
+    gazetteerURI: Option[String], // @Stu: likewise - change this to something non-geo-centric (same for other fields below)
     
     /** Toponym/correction identified by human expert **/
     correctedToponym: Option[String],
@@ -94,6 +100,9 @@ class Annotations(tag: Tag) extends Table[Annotation](tag, "annotations") with H
   
   def status = column[AnnotationStatus.Value]("status")
   
+  // @Stu: this will define the mapping between object property and DB column
+  // def entityType = column[EntityType.Value]("entity_type")
+    
   def toponym = column[String]("toponym", O.Nullable)
 
   def offset = column[Int]("offset", O.Nullable)
@@ -118,7 +127,7 @@ class Annotations(tag: Tag) extends Table[Annotation](tag, "annotations") with H
   
   def _seeAlso = column[String]("see_also", O.Nullable)
   
-  def * = (uuid, gdocId.?, gdocPartId.?, status, toponym.?, offset.?, anchor.?, gazetteerURI.?, correctedToponym.?, 
+  def * = (uuid, gdocId.?, gdocPartId.?, status, /*entityType,*/ toponym.?, offset.?, anchor.?, gazetteerURI.?, correctedToponym.?, 
     correctedOffset.?, correctedAnchor.?, correctedGazetteerURI.?, tags.?, comment.?, source.?, _seeAlso.?) <> (Annotation.tupled, Annotation.unapply)
   
   /** Foreign key constraints **/
