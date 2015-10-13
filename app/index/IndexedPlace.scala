@@ -55,7 +55,7 @@ class IndexedPlace(json: String) {
     patchGeometry(patch, config.geometryStrategy).patchNames(patch, config.namesStrategy)
     
   private def patchGeometry(patch: PlacePatch, strategy: PatchStrategy.Value): IndexedPlace = {
-    val geometry = patch.locations.headOption.map(location => Json.parse(location.geoJSON))
+    val geometry = patch.location.map(location => Json.parse(location.asGeoJSON))
     if (geometry.isDefined)
       strategy match {
         case PatchStrategy.REPLACE => {
@@ -117,8 +117,8 @@ object IndexedPlace {
       p.descriptions.headOption.map(_.chars),
       p.category.map(_.toString),
       p.names,
-      p.temporal.map(t => Json.obj("from" -> t.start, "to" -> t.end.getOrElse(t.start).toInt)),
-      p.locations.headOption.map(location => Json.parse(location.geoJSON)),
+      p.temporalCoverage.map(t => Json.obj("from" -> t.start.getTime, "to" -> t.end.getOrElse(t.start).getTime)),
+      p.location.map(location => Json.parse(location.asGeoJSON)),
       p.closeMatches.map(PlaceIndex.normalizeURI(_)),
       p.exactMatches.map(PlaceIndex.normalizeURI(_))))
   
