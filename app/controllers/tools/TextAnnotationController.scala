@@ -142,6 +142,11 @@ object TextAnnotationController extends Controller with Secured {
       .replace(">", "&gt;")
   }
   
+  private def buildTEIXML(plaintext: String, annotations: Seq[Annotation])(implicit session: Session): String = {
+    // TODO implement - Q: should we build this as string? or XML (probably faster as string!)
+    null
+  }
+  
   /** Helper method that generates detailed debug output for overlapping annotations.
     * 
     * @param annotation the offending annotation
