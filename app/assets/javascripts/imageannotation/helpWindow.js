@@ -19,8 +19,8 @@ define([], function() {
             '    </table>' +
             '    <h2>Other</h2>' +
             '    <table>' +
-            '      <tr><td class="keys">SHIFT+G</td><td>Toggle Grid (Experimental - Behaim Grid only)</td></tr>'
-            '    </table>'
+            '      <tr><td class="keys">SHIFT+G</td><td>Toggle Grid (Experimental - Behaim Grid only)</td></tr>' +
+            '    </table>' +
             '  </div>' +
             '</div>'),
 
