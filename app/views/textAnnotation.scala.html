@@ -74,6 +74,12 @@
           <span class="icon">&#xf135;</span>
         </div> 
         
+        @if(gdoc.isDefined) {
+          <div class="tool download" title="Download Text as TEI">
+            <a href="@controllers.tools.routes.TextAnnotationController.showTEI(gdoc.get.id.get)" class="icon">&#xf019;</a>
+          </div>     
+        }
+        
         <div class="tool signoff">
           @if(signedOff) {
             <span class="icon signed" title="You signed off this text">&#xf164;</span>
@@ -82,7 +88,7 @@
             <span class="icon" title="Are you done marking toponyms in this text? Click to sign it off!">&#xf164;</span>
             <span class="signoff-count@{ if (signedBy.size > 0)  " signed"}" title="@signedBy.size people have signed off this text">@signedBy.size</span>
           }
-        </div>  
+        </div>
       </div>
     </div>   
     
