@@ -72,6 +72,7 @@ POST    /recogito/my                                controllers.user.UserControl
 
 GET     /recogito/documents/:id/georesolution       controllers.tools.GeoResolutionController.showGeoResolutionUI(id: Int)
 
+GET     /recogito/documents/:id/tei.xml             controllers.tools.TextAnnotationController.showTEI(id: Int)
 GET     /recogito/texts/:textId/edit                controllers.tools.TextAnnotationController.showTextAnnotationUI(textId: Int)
 GET     /recogito/cts/:ctsURI/edit                  controllers.tools.TextAnnotationController.showCTSTextAnnotationUI(ctsURI: String)
 

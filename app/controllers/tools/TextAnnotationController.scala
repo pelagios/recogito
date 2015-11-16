@@ -8,6 +8,7 @@ import play.api.db.slick._
 import play.api.Logger
 import play.api.libs.json.Json
 import play.api.mvc.Controller
+import controllers.common.io.TEISerializer
 
 object TextAnnotationController extends Controller with Secured {
   
@@ -142,9 +143,11 @@ object TextAnnotationController extends Controller with Secured {
       .replace(">", "&gt;")
   }
   
-  private def buildTEIXML(plaintext: String, annotations: Seq[Annotation])(implicit session: Session): String = {
-    // TODO implement - Q: should we build this as string? or XML (probably faster as string!)
-    null
+  def showTEI(gdocId: Int) = protectedDBAction(Secure.REDIRECT_TO_LOGIN) { username => implicit session =>
+    GeoDocuments.findById(gdocId) match {
+      case Some(gdoc) => Ok(TEISerializer.serialize(gdoc))
+      case _ => NotFound
+    }
   }
   
   /** Helper method that generates detailed debug output for overlapping annotations.
