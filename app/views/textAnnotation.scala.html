@@ -1,12 +1,12 @@
 @(gdocText: Option[models.content.GeoDocumentText],
-  gdoc: Option[GeoDocument], 
+  gdoc: Option[GeoDocument],
   gdocPart: Option[GeoDocumentPart],
-  allGdocTexts: Seq[(GeoDocumentContent, Option[String])], 
-  username: String,  
-  textHTML: String, 
-  source: Option[String], 
+  allGdocTexts: Seq[(GeoDocumentContent, Option[String])],
+  username: String,
+  textHTML: String,
+  source: Option[String],
   signedOff: Boolean, signedBy: Seq[String])
-  
+
 <!DOCTYPE html>
 <html>
   <head>
@@ -14,20 +14,20 @@
     <title>RECOGITO Text Annotation</title>
     <link rel="stylesheet" href="@routes.Assets.at("stylesheets/annotation/text.css")">
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-2.0.0.min.js")"></script>
-    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-ui-1.10.3.custom.min.js")"></script>
+    <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/jquery/jquery-ui.1.11.4.custom.min.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/lib/rangy/rangy-core-1.2.3.js")"></script>
     <script type="text/javascript" src="@routes.Assets.at("javascripts/textannotation/main.js")"></script>
-    @if(allGdocTexts.size > 1) { 
-      @tags.js_text_menu() 
+    @if(allGdocTexts.size > 1) {
+      @tags.js_text_menu()
     }
     <script>
     $(document).ready(function() {
-      new recogito.TextAnnotationUI(document.getElementById('text'), 
+      new recogito.TextAnnotationUI(document.getElementById('text'),
         @gdocText.map(_.id).getOrElse("-1"), @gdoc.map(_.id).getOrElse("-1"), @gdocPart.map(_.id.get.toString).getOrElse("false") @Html(source.map(", \"" + _ + "\"").getOrElse("")) )
     })
     </script>
   </head>
-  
+
   <body>
     <div id="header">
       <div id="title">
@@ -40,7 +40,7 @@
         }
         <div id="home-button"><a href="@controllers.frontpage.routes.FrontPageController.index(None)" class="icon">&#xf015;</a></div>
       </div>
-      
+
       <div id="menu">
         @if(gdoc.isDefined) {
           <ul>
@@ -54,7 +54,7 @@
           </ul>
         }
       </div>
-      
+
       @if(allGdocTexts.size > 1) {
         <div id="dropdown-text-menu">
           <ul>
@@ -64,22 +64,22 @@
           </ul>
         </div>
       }
-      
+
       <div id="toolbar">
         <div class="tool selected normal-annotation" title="Toponym Annotation">
           <span class="icon">&#xf040;</span>
-        </div>   
-        
+        </div>
+
         <div class="tool rocket-annotation" title="Quick Toponym Annotation (No Confirmation Dialog)">
           <span class="icon">&#xf135;</span>
-        </div> 
-        
+        </div>
+
         @if(gdoc.isDefined) {
           <div class="tool download" title="Download Text as TEI">
             <a href="@controllers.tools.routes.TextAnnotationController.showTEI(gdoc.get.id.get)" class="icon">&#xf019;</a>
-          </div>     
+          </div>
         }
-        
+
         <div class="tool signoff">
           @if(signedOff) {
             <span class="icon signed" title="You signed off this text">&#xf164;</span>
@@ -90,14 +90,14 @@
           }
         </div>
       </div>
-    </div>   
-    
+    </div>
+
     <div id="content">
       <div id="text" class="@gdoc.map(_.language).getOrElse("")">
 @Html(textHTML)
       </div>
     </div>
-    
+
     <div id="footer">
       <div id="user">
         You are logged in as <span id="username">@username</span> <a href="@controllers.common.auth.routes.AuthController.logout" class="icon">&#xf011;</a>
