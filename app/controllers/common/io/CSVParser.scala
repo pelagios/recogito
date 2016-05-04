@@ -118,7 +118,7 @@ class CSVParser extends BaseParser {
     val idxUpdatedComment = idx(header, "updated_comment")
     
     data.map(_.split(SPLIT_REGEX, -1)).foldLeft(Seq.empty[EditEvent])((result, fields) => {
-      if (fields.size == 11) {
+      if (fields.size > 10) {
         val updatedToponym = parseOptCol(idxUpdatedToponym, fields)
         if (updatedToponym.isDefined && updatedToponym.get.size > 254) {
           Logger.warn("Invalid edit history event (toponym exceeds length) - discarding")
