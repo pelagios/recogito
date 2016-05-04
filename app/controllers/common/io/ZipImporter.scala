@@ -283,7 +283,7 @@ object ZipImporter {
       }
     } else {
       // Just the metadata, without the content
-      GeoDocumentImages.insert(GeoDocumentImage(None, gdocId, gdocPartId, ImageType.ZOOMIFY, 0, 0, ""))
+      GeoDocumentImages.insert(GeoDocumentImage(None, gdocId, gdocPartId, ImageType.ZOOMIFY, 0, 0, entryName))
     }
   }
   
