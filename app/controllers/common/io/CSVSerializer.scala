@@ -136,8 +136,8 @@ class CSVSerializer extends BaseSerializer {
       }
     }
 
+    val anchorJson = if (annotation.correctedAnchor.isDefined) annotation.correctedAnchor else annotation.anchor
     val imgCoord = {
-      val anchorJson = if (annotation.correctedAnchor.isDefined) annotation.correctedAnchor else annotation.anchor
       if (anchorJson.isDefined) {
         val anchor = new ImageAnchor(anchorJson.get)
         Some((anchor.x, anchor.y))
