@@ -57,7 +57,7 @@ class CSVSerializer extends BaseSerializer {
 
     val header =
       {
-        Seq("toponym", "gazetteer_uri", "gazetteer_label", "lat", "lng", "place_category", "document_part", "status", "tags", "source", "comment", "img_x", "img_y") ++ {
+        Seq("toponym", "gazetteer_uri", "gazetteer_label", "lat", "lng", "place_category", "document_part", "status", "tags", "source", "comment", "img_x", "img_y", "img_all") ++ {
          if (includeFulltext) {
            Seq("fulltext_prefix", "fulltext_suffix")
          } else {
@@ -180,6 +180,7 @@ class CSVSerializer extends BaseSerializer {
     annotation.comment.getOrElse("") + SEPARATOR +
     imgCoord.map(_._1).getOrElse("") + SEPARATOR +
     imgCoord.map(_._2).getOrElse("") + SEPARATOR +
+    anchorJson.getOrElse("") + SEPARATOR +
     { if (includeFulltext) fulltextPrefix.getOrElse("") + SEPARATOR else "" } +
     { if (includeFulltext) fulltextSuffix.getOrElse("") + SEPARATOR else "" } + "\n"
   }
