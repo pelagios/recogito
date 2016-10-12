@@ -8,6 +8,8 @@ import models.content.GeoDocumentTexts
 import models.stats.PlaceStats
 import play.api.db.slick._
 import java.text.SimpleDateFormat
+import play.api.libs.json.Json
+import java.util.UUID
 
 /** Utility object to serialize Annotation data to CSV.
   *
@@ -229,6 +231,67 @@ class CSVSerializer extends BaseSerializer {
       modified.map(e => DATE_FORMAT.format(e.timestamp)).getOrElse("") + SEPARATOR +
       "\n"
     })
+  }
+  
+  def serializeAnnotationsAsJSONLBackup(annotations: Seq[Annotation])(implicit s: Session): String = {
+    
+    def toR2StatusValue(s: AnnotationStatus.Value): String = s match {
+      case AnnotationStatus.NOT_VERIFIED => "UNVERIFIED"
+      case AnnotationStatus.VERIFIED => "VERIFIED"
+      case _ => "NOT_IDENTIFIABLE"
+    }
+    
+    annotations.foldLeft(""){ (jsonl, annotation) =>
+
+      val partName = annotation.gdocPartId.flatMap(getPart(_).map(_.title))
+
+      val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym 
+      val uri = if (annotation.correctedGazetteerURI.isDefined) annotation.correctedGazetteerURI else annotation.gazetteerURI
+        
+      val offset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset      
+      val anchor = // TODO image vs. text
+        offset.map("char-offset:" + _)
+        
+      val status = toR2StatusValue(annotation.status)
+
+      val modified = EditHistory.findByAnnotation(annotation.uuid, 1).headOption
+      val contributors = Seq(modified.map(_.username)).flatten
+      val lastModifiedBy = modified.map(_.username)
+      val lastModifiedAt = modified.map(e => DATE_FORMAT.format(e.timestamp))
+      
+      val json = Json.obj(
+        "annotation_id" -> annotation.uuid.toString,
+        "version_id" -> UUID.randomUUID.toString,
+        "annotates" -> Json.obj(
+          "filepart_name" -> partName,
+          "content_type" -> Seq("TEXT", "TEXT_PLAIN") // TODO image vs. text
+        ),
+        "contributors" -> contributors,
+        "anchor" -> anchor,
+        "last_modified_by" -> lastModifiedBy,
+        "last_modified_at" -> lastModifiedAt,
+        "bodies" -> Seq(
+          Json.obj(
+            "type" -> "QUOTE",
+            "last_modified_by" -> lastModifiedBy,
+            "last_modified_at" -> lastModifiedAt,
+            "value" -> toponym
+          ), Json.obj(
+            "type" -> "PLACE",
+            "last_modified_by" -> lastModifiedBy,
+            "last_modified_at" -> lastModifiedAt,
+            "uri" -> uri,
+            "status" -> Json.obj(
+              "value" -> status.toString,
+              "set_by" -> lastModifiedBy,
+              "set_at" -> lastModifiedAt
+            )
+          )
+        )
+      )
+      
+      jsonl + Json.stringify(json) + "\n"
+    }
   }
 
   /** Serializes the list of users for backup purposes.

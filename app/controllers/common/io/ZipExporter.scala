@@ -92,17 +92,17 @@ class ZipExporter {
     
     if (annotations.size > 0) {
       val filePrefix = if (consolidated) "annotations_c_" else "annotations_"
-      val annotationsFile = new TemporaryFile(new File(TMP_DIR, filePrefix + gdoc.id.get + ".csv"))
+      val annotationsFile = new TemporaryFile(new File(TMP_DIR, filePrefix + gdoc.id.get + ".jsonl"))
       val annotationsFileWriter = new PrintWriter(annotationsFile.file)
       
       if (consolidated)
         annotationsFileWriter.write(new CSVSerializer().serializeAnnotationsConsolidated(gdoc, annotations))
       else
-        annotationsFileWriter.write(new CSVSerializer().serializeAnnotationsAsDBBackup(annotations))
+        annotationsFileWriter.write(new CSVSerializer().serializeAnnotationsAsJSONLBackup(annotations))
         
       annotationsFileWriter.flush()
       annotationsFileWriter.close()
-      addToZip(annotationsFile.file, gdocNamePrefix + ".csv", zipStream)
+      addToZip(annotationsFile.file, gdocNamePrefix + ".jsonl", zipStream)
       annotationsFile.finalize()
     }
   }
@@ -130,7 +130,7 @@ class ZipExporter {
     val gdocText = texts.find(t => t.gdocId == gdoc.id.get && t.gdocPartId.isEmpty)
     val gdocImage = images.find(i => i.gdocId == gdoc.id.get && i.gdocPartId.isEmpty)
     val annotations =
-      if (Annotations.countForGeoDocument(gdoc.id.get) > 0) Some(gdocNamePrefix + ".csv") else None
+      if (Annotations.countForGeoDocument(gdoc.id.get) > 0) Some(gdocNamePrefix + ".jsonl") else None
       
     val jsonMeta = Json.obj(
       "title" -> gdoc.title,
