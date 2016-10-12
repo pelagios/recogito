@@ -7,6 +7,7 @@ import models._
 import models.content.GeoDocumentTexts
 import models.stats.PlaceStats
 import play.api.db.slick._
+import java.text.SimpleDateFormat
 
 /** Utility object to serialize Annotation data to CSV.
   *
@@ -17,6 +18,8 @@ class CSVSerializer extends BaseSerializer {
   private val SEPARATOR = ";"
 
   private val UTF8 = "UTF-8"
+  
+  private val DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZ")
 
   private def esc(field: String) =
     field.replace(SEPARATOR, "\\" + SEPARATOR).replace(System.lineSeparator(), "\\n")
@@ -57,7 +60,7 @@ class CSVSerializer extends BaseSerializer {
 
     val header =
       {
-        Seq("toponym", "gazetteer_uri", "gazetteer_label", "lat", "lng", "place_category", "document_part", "status", "tags", "source", "comment", "img_x", "img_y", "img_all") ++ {
+        Seq("toponym", "gazetteer_uri", "gazetteer_label", "lat", "lng", "place_category", "document_part", "status", "tags", "source", "comment", "img_x", "img_y", "img_all", "modified_by", "modified_at") ++ {
          if (includeFulltext) {
            Seq("fulltext_prefix", "fulltext_suffix")
          } else {
@@ -148,6 +151,8 @@ class CSVSerializer extends BaseSerializer {
 
     // Get the fulltext for this annotation...
     val fulltext = fulltexts.get(annotation.gdocPartId)
+    
+    val modified = EditHistory.findByAnnotation(annotation.uuid, 1).headOption
 
     // ...and clip the corresponding part
     val (fulltextPrefix, fulltextSuffix): (Option[String], Option[String]) =
@@ -181,6 +186,8 @@ class CSVSerializer extends BaseSerializer {
     imgCoord.map(_._1).getOrElse("") + SEPARATOR +
     imgCoord.map(_._2).getOrElse("") + SEPARATOR +
     anchorJson.getOrElse("") + SEPARATOR +
+    modified.map(_.username).getOrElse("") + SEPARATOR +
+    modified.map(e => DATE_FORMAT.format(e.timestamp)).getOrElse("") + SEPARATOR +
     { if (includeFulltext) fulltextPrefix.getOrElse("") + SEPARATOR else "" } +
     { if (includeFulltext) fulltextSuffix.getOrElse("") + SEPARATOR else "" } + "\n"
   }
