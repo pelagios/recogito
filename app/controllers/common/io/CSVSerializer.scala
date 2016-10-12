@@ -201,10 +201,14 @@ class CSVSerializer extends BaseSerializer {
     */
   def serializeAnnotationsAsDBBackup(annotations: Seq[Annotation])(implicit s: Session): String = {
     val header = Seq("uuid", "gdoc_part", "status", "toponym", "offset", "anchor", "gazetteer_uri", "toponym_corrected",
-                     "offset_corrected", "anchor_corrected", "gazetteer_uri_corrected", "tags", "comment", "source", "see_also")
+                     "offset_corrected", "anchor_corrected", "gazetteer_uri_corrected", "tags", "comment", "source", "see_also",
+                     "modified_by", "modified_at")
                      .mkString(SEPARATOR) + SEPARATOR + "\n"
 
     annotations.foldLeft(header)((csv, annotation) => {
+      
+      val modified = EditHistory.findByAnnotation(annotation.uuid, 1).headOption
+      
       csv +
       annotation.uuid + SEPARATOR +
       annotation.gdocPartId.map(getPart(_).map(_.title)).flatten.getOrElse("") + SEPARATOR +
@@ -221,6 +225,8 @@ class CSVSerializer extends BaseSerializer {
       esc(annotation.comment.getOrElse("")) + SEPARATOR +
       annotation.source.getOrElse("") + SEPARATOR +
       annotation.seeAlso.mkString(",") + SEPARATOR +
+      modified.map(_.username).getOrElse("") + SEPARATOR +
+      modified.map(e => DATE_FORMAT.format(e.timestamp)).getOrElse("") + SEPARATOR +
       "\n"
     })
   }
