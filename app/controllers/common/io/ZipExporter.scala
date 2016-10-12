@@ -50,32 +50,32 @@ class ZipExporter {
     
     // Get GeoDocument parts & texts from the DB
     val parts = GeoDocumentParts.findByGeoDocument(gdoc.id.get)
-    val texts = GeoDocumentTexts.findByGeoDocument(gdoc.id.get) 
+    val texts = GeoDocumentTexts.findByGeoDocument(gdoc.id.get).map(part => (part, UUID.randomUUID)) 
     val images = GeoDocumentImages.findByGeoDocument(gdoc.id.get)
       
     // Add JSON metadata file to ZIP
     val metadata = createMetaFile(gdoc, parts, texts, images)   
-    addToZip(metadata.file, gdocNamePrefix + ".json", zipStream)
+    addToZip(metadata.file, "metadata.json", zipStream)
     metadata.finalize();
     
     // Add texts to ZIP
-    texts.foreach(text => {
+    texts.foreach { case (text, id) => {
       val textFile = new TemporaryFile(new File(TMP_DIR, "text_" + text.id.get + ".txt"))
       val textFileWriter = new PrintWriter(textFile.file)
       textFileWriter.write(new String(text.text, UTF8))
       textFileWriter.flush()
       textFileWriter.close()
       
-      val textName = {
-          if (text.gdocPartId.isDefined) 
-            parts.find(_.id == text.gdocPartId).map(_.title)
-          else
-            Some(gdoc.title)
-        } map (escapeTitle(_))
+      // val textName = {
+      //     if (text.gdocPartId.isDefined) 
+      //      parts.find(_.id == text.gdocPartId).map(_.title)
+      //    else
+      //      Some(gdoc.title)
+      //  } map (escapeTitle(_))
             
-      addToZip(textFile.file, textName.map(n => gdocNamePrefix + File.separator + n + ".txt").get, zipStream)
+      addToZip(textFile.file, "parts" + File.separator + id + ".txt", zipStream)
       textFile.finalize()
-    })
+    }}
     
     // Add annotations
     val annotations = 
@@ -102,7 +102,7 @@ class ZipExporter {
         
       annotationsFileWriter.flush()
       annotationsFileWriter.close()
-      addToZip(annotationsFile.file, gdocNamePrefix + ".jsonl", zipStream)
+      addToZip(annotationsFile.file, "annotations.jsonl", zipStream)
       annotationsFile.finalize()
     }
   }
@@ -113,30 +113,31 @@ class ZipExporter {
     * @param parts the parts of the GeoDocument
     * @param texts the texts associated with the GeoDocument
     */
-  private def createMetaFile(gdoc: GeoDocument, parts: Seq[GeoDocumentPart], texts: Seq[GeoDocumentText], images: Seq[GeoDocumentImage])(implicit session: Session): TemporaryFile = {
+  private def createMetaFile(gdoc: GeoDocument, parts: Seq[GeoDocumentPart], texts: Seq[(GeoDocumentText, UUID)], images: Seq[GeoDocumentImage])(implicit session: Session): TemporaryFile = {
     val gdocNamePrefix = gdoc.author.map(escapeTitle(_) + "_").getOrElse("") + escapeTitle(gdoc.title) + gdoc.language.map("_" + _).getOrElse("")
     
     val jsonParts = parts.map(part => {
-      val text = texts.find(_.gdocPartId == part.id).map(_ => gdocNamePrefix + File.separator + escapeTitle(part.title) + ".txt")
+      val filename = texts.find(_._1.gdocPartId == part.id).map(t => t._2 + ".txt")
       val image = images.find(_.gdocPartId == part.id).map(_.path)
       Json.obj(
         "title" -> part.title,
         "source" -> part.source,
-        "text" -> text,
+        "content_type" -> "TEXT_PLAIN", // TODO what in case of images?
+        "filename" -> filename,
         "image" -> image
       )
     })
     
-    val gdocText = texts.find(t => t.gdocId == gdoc.id.get && t.gdocPartId.isEmpty)
+    val gdocText = texts.find(t => t._1.gdocId == gdoc.id.get && t._1.gdocPartId.isEmpty)
     val gdocImage = images.find(i => i.gdocId == gdoc.id.get && i.gdocPartId.isEmpty)
     val annotations =
-      if (Annotations.countForGeoDocument(gdoc.id.get) > 0) Some(gdocNamePrefix + ".jsonl") else None
+      if (Annotations.countForGeoDocument(gdoc.id.get) > 0) Some("annotations.jsonl") else None
       
     val jsonMeta = Json.obj(
       "title" -> gdoc.title,
       "author" -> gdoc.author,
       "date" -> gdoc.date,
-      "date_comment" -> gdoc.dateComment,
+      "date_freeform" -> gdoc.dateComment,
       "description" -> gdoc.description,
       "language" -> gdoc.language,
       "collections" -> CollectionMemberships.findForGeoDocument(gdoc.id.get),

@@ -263,7 +263,7 @@ class CSVSerializer extends BaseSerializer {
         "annotation_id" -> annotation.uuid.toString,
         "version_id" -> UUID.randomUUID.toString,
         "annotates" -> Json.obj(
-          "filepart_name" -> partName,
+          "filepart_title" -> partName,
           "content_type" -> Seq("TEXT", "TEXT_PLAIN") // TODO image vs. text
         ),
         "contributors" -> contributors,
