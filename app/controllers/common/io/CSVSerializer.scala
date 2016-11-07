@@ -10,6 +10,7 @@ import play.api.db.slick._
 import java.text.SimpleDateFormat
 import play.api.libs.json.Json
 import java.util.UUID
+import play.api.libs.json.JsNull
 
 /** Utility object to serialize Annotation data to CSV.
   *
@@ -282,7 +283,7 @@ class CSVSerializer extends BaseSerializer {
             "type" -> "PLACE",
             "last_modified_by" -> lastModifiedBy,
             "last_modified_at" -> lastModifiedAt,
-            "uri" -> { if (status == "NOT_IDENTIFIABLE") null else uri },
+            "uri" -> { if (status == "NOT_IDENTIFIABLE") JsNull else uri },
             "status" -> Json.obj(
               "value" -> status.toString,
               "set_by" -> lastModifiedBy,
