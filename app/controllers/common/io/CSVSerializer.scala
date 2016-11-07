@@ -241,7 +241,9 @@ class CSVSerializer extends BaseSerializer {
       case _ => "NOT_IDENTIFIABLE"
     }
     
-    annotations.foldLeft(""){ (jsonl, annotation) =>
+    annotations
+      .filter { a => a.status != AnnotationStatus.IGNORE && a.status != AnnotationStatus.FALSE_DETECTION }
+      .foldLeft("") { (jsonl, annotation) =>
 
       val partName = annotation.gdocPartId.flatMap(getPart(_).map(_.title))
 
@@ -280,7 +282,7 @@ class CSVSerializer extends BaseSerializer {
             "type" -> "PLACE",
             "last_modified_by" -> lastModifiedBy,
             "last_modified_at" -> lastModifiedAt,
-            "uri" -> uri,
+            "uri" -> { if (status == "NOT_IDENTIFIABLE") null else uri },
             "status" -> Json.obj(
               "value" -> status.toString,
               "set_by" -> lastModifiedBy,
