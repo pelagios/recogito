@@ -251,10 +251,18 @@ class CSVSerializer extends BaseSerializer {
       val toponym = if (annotation.correctedToponym.isDefined) annotation.correctedToponym else annotation.toponym 
       val uri = if (annotation.correctedGazetteerURI.isDefined) annotation.correctedGazetteerURI else annotation.gazetteerURI
         
-      val offset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset      
-      val anchor = // TODO image vs. text
-        offset.map("char-offset:" + _)
+      val anchor = {
+        val offset = if (annotation.correctedOffset.isDefined) annotation.correctedOffset else annotation.offset
+        val anchor = if (annotation.correctedAnchor.isDefined) annotation.correctedAnchor else annotation.anchor
         
+        if (anchor.isDefined) { // Treat as image annotation
+          val a = new ImageAnchor(anchor.get)
+          Some("tbox:x=" + a.x.toInt + ",y=" + a.y.toInt + ",a=" + a.a + ",l=" + a.l.toInt + ",h=" + a.h.toInt)          
+        } else { // Stick to offset field
+          offset.map("char-offset:" + _)
+        }
+      }
+
       val status = toR2StatusValue(annotation.status)
 
       val modified = EditHistory.findByAnnotation(annotation.uuid, 1).headOption
