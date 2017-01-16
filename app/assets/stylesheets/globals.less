@@ -54,7 +54,7 @@ button, .button {
   line-height:1;
   padding:6px 18px;
   text-align:center;
-  cursor:pointer; 
+  cursor:pointer;
   color:#555;
   -moz-box-shadow:inset 0px 1px 0px 0px #fff;
   -webkit-box-shadow:inset 0px 1px 0px 0px #fff;
@@ -63,25 +63,25 @@ button, .button {
   background-color:#ccc;
   border:1px solid #bbb;
   text-shadow:none;
-  text-decoration:none; 
-  
+  text-decoration:none;
+
   .icon {
     font-size:16px;
     position:relative;
   }
-  
+
 }
 
 button.disabled, .button.disabled {
   .gradient(#fefefe, #f0f0f0);
-  background-color:#ddd;  
+  background-color:#ddd;
   border-color:#ddd;
-  color:#ccc;  
-  
+  color:#ccc;
+
   .icon {
     color:#ccc !important;
   }
-  
+
 }
 
 button:hover, .button:hover {
@@ -91,9 +91,9 @@ button:hover, .button:hover {
 
 button.disabled:hover, .button.disabled:hover {
   .gradient(#fefefe, #f0f0f0);
-  background-color:#ddd;    
+  background-color:#ddd;
 }
-  
+
 button.dark, .button.dark {
   .gradient(#787878, #6e6e6e);
   -moz-box-shadow:inset 0px 1px 0px 0px #b1b1b1;
@@ -105,26 +105,26 @@ button.dark, .button.dark {
 
 button.dark:hover, .button.dark:hover {
   .gradient(#7f7f7f, #767676);
-  background-color:#767676;  
-} 
+  background-color:#767676;
+}
 
 button.big, .button.big {
   padding:12px 28px;
   font-size:20px;
   margin:0;
 }
-  
+
 button.small, .button.small {
   padding:4px 5px 3px 5px;
   margin:0;
   font-size:10px;
-    
+
   .icon {
     font-size:10px;
   }
-    
+
 }
-  
+
 button.blue, .button.blue {
   color:#fff;
   -moz-box-shadow:inset 0px 1px 0px 0px #54a3f7;
@@ -159,7 +159,7 @@ button.red:hover, .button.red:hover {
 
 /** Globals **/
 
-@font-face { 
+@font-face {
   font-family: "FontAwesome";
   src: url('/recogito/static/fonts/fontawesome-webfont.ttf') format('truetype'),
        url('/recogito/static/fonts/fontawesome-webfont.eot?#iefix&v=4.1.0') format('embedded-opentype');
@@ -173,9 +173,9 @@ button.red:hover, .button.red:hover {
        url('/recogito/static/fonts/icomoon.eot?#iefix&v=4.1.0') format('embedded-opentype');
 }
 
-@font-face { 
+@font-face {
   font-family: "Cinzel";
-  src: url("/recogito/static/fonts/Cinzel-Regular.ttf") format('truetype'); 
+  src: url("/recogito/static/fonts/Cinzel-Regular.ttf") format('truetype');
 }
 
 html, body {
@@ -205,7 +205,9 @@ html, body {
   bottom:0px;
   z-index:99;
   text-align:center;
-  padding:8px 0;
+  padding:20px 0;
+  font-size:17px;
+  line-height:150%;
   background-color:#ff9900;
   a { color:#fff; }
 }

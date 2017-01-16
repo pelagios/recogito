@@ -22,9 +22,17 @@
       }
     </script>
   </head>
-  
+
   <body>
-    @tags.browserWarning()
+    @* tags.browserWarning() *@
+    <!-- hacking this in as permanent deprecation warning -->
+
+    <div class="browser-warning">
+      <strong>This version of Recogito is deprecated!</strong><br/>
+      If you are interested in using the Recogito annotation tool for your own work, please visit
+      our new version at <a href="http://recogito.pelagios.org">recogito.pelagios.org</a>.
+    </div>
+
     <div id="header">
       <div id="header-top">
         <div id="title">
@@ -38,15 +46,15 @@
                 <a href="@controllers.unrestricted.routes.InfoPagesController.showDocumentation">Tutorial</a>
                 <a href="@controllers.unrestricted.routes.InfoPagesController.showAbout">About</a>
               </p>
-            </div> 
-            
-            <div id="logout"> 
+            </div>
+
+            <div id="logout">
               <a href="@controllers.common.auth.routes.AuthController.logout" title="Logout"><span class="icon">&#xf011;</span></a>
             </div>
           </div>
         </div>
       </div>
-      
+
       <div id="column-headings">
         <table>
           <thead>
@@ -54,14 +62,14 @@
               <th class="title">Document</th>
               <th class="center">Toponyms</th>
               <th class="center">Complete</th>
-              <th class="actions"></th>    
+              <th class="actions"></th>
             </tr>
           </thead>
         </table>
       </div>
     </div>
-    
-    <div id="container">    
+
+    <div id="container">
       <div id="sidebar">
         <h2>Collections</h2>
         <ul>
@@ -73,8 +81,8 @@
               </a>
             </li>
           }
-        </ul>  
-        
+        </ul>
+
         <h2>Top 5 Contributors</h2>
         <div id="highscores">
           <table>
@@ -96,19 +104,19 @@
           <a class="stats-link" href="@controllers.unrestricted.routes.StatsController.showGlobalStats()">See all</a>
         </div>
       </div>
-      
+
       @singleDoc(entry: frontpage.DocumentIndexRow, langGroup: Option[Int] = None) = {
         @if(langGroup.isDefined) { <tr class="lang-group lang-group-@langGroup.get"> } else { <tr> }
           <td class="title"> <!-- document title -->
             <div@if(entry.doc.description.isDefined) { title="@entry.doc.description" }> <!-- We need this DIV for the CSS ellipsis truncation to work! -->
               @entry.doc.author.map(_ + ", ").getOrElse("")
               <em>@entry.doc.title</em>@entry.doc.dateComment.map(", " + _).getOrElse("")
-            </div> 
+            </div>
           </td>
 
-          <!-- languages -->                
+          <!-- languages -->
           <td class="center">@tags.languageLabel(entry.doc.language)</td>
-                
+
           <!-- # of toponyms -->
           <td class="center">
             @if(entry.signOffRatio == 0) {
@@ -118,16 +126,16 @@
             } else {
               @entry.stats.total
             }}
-          </td>     
-               
-          <!-- completion ratio --> 
+          </td>
+
+          <!-- completion ratio -->
           <td class="stats" title="@{ "%.2f" format (entry.stats.percentComplete * 100) } % Complete">
             <div class="meter">
               <span class="yellow" style="width: @{(entry.stats.percentVerified + entry.stats.percentYellow) * 100}%"></span>
               <span class="green@if(entry.stats.percentYellow == 0) { full}" style="width: @{entry.stats.percentVerified * 100}%"></span>
             </div>
           </td>
-          
+
           <!-- shortcut icons -->
           <td>
             <!-- text shortcut -->
@@ -138,16 +146,16 @@
             } else {
               <span class="icon disabled">&#xf016;</span>
             }}
-            
+
             <!-- georesolution shortcut -->
             <a class="icon" href="@controllers.tools.routes.GeoResolutionController.showGeoResolutionUI(entry.doc.id.get)" title="Geo-Resolution">&#xf0ac;</a>
-            
+
             <!-- document stats shortcut -->
             <a href="@controllers.unrestricted.routes.DocumentController.showStats(entry.doc.id.get)" class="icon" title="Document Stats">&#xf080;</a>
-            
+
             <!-- CSV download shortcut -->
             <a class="icon" href="@controllers.unrestricted.routes.DownloadController.downloadAnnotationsCSV(entry.doc.id.get + ".csv")" title="Download CSV">&#xf0ce;</a>
-            
+
             <!-- Source link --->
             @if(entry.firstSource.isDefined) {
               <a class="icon" href="@entry.firstSource.get" title="Visit source" target="_blank">&#xf08e;</a>
@@ -155,9 +163,9 @@
               <a class="icon disabled" href="#" onclick="return false;" title="No source available">&#xf08e;</a>
 			}
           </td>
-        </tr>      	
+        </tr>
       }
-      
+
       @languageGroup(entries: Seq[frontpage.DocumentIndexRow]) = {
         <tr class="lang-group-header lang-group-@entries.head.doc.id.get" onclick="toggleVersions(@entries.head.doc.id.get); return false;">
           <td class="title"> <!-- document title -->
@@ -167,7 +175,7 @@
               <em>@entries.head.doc.title</em>@entries.head.doc.dateComment.map(", " + _).getOrElse("")
             </div>
           </td>
-          
+
           <!-- # of versions -->
           <td class="versions">@entries.size Versions</td>
 
@@ -175,24 +183,24 @@
           @defining((entries.map(_.stats.total).min, entries.map(_.stats.total).max)) { toponyms =>
             @defining(entries.map(_.signOffRatio).sum / entries.size) { signOffRatio =>
               <td class="center">
-                @if(signOffRatio == 0) { 
-                  <span class="red" title="This Document is not signed off"> 
+                @if(signOffRatio == 0) {
+                  <span class="red" title="This Document is not signed off">
                 } else { @if(signOffRatio < 1) {
-                  <span class="orange" title="Parts of this Document are not signed off"> 
-                } else { 
-                  <span> 
+                  <span class="orange" title="Parts of this Document are not signed off">
+                } else {
+                  <span>
                 } }
-                
+
                   @if(toponyms._1 == toponyms._2) {
-                    @toponyms._1	
+                    @toponyms._1
                   } else {
                     @toponyms._1 - @toponyms._2
                   }
                 </span>
               </td>
             }
-          }     
-          
+          }
+
           <!-- completion ratio -->
           @defining(entries.map(_.stats.percentComplete).foldLeft(0.0)(_ + _) / entries.size) { percentComplete =>
             @defining(entries.map(_.stats.percentVerified).foldLeft(0.0)(_ + _) / entries.size) { percentVerified =>
@@ -202,24 +210,24 @@
                   <span class="green@if(percentComplete == percentVerified) { full}" style="width: @{percentVerified * 100}%"></span>
                 </div>
               </td>
-            }         
+            }
           }
-          
+
           <!-- shortcut icons -->
           <td></td>
-        </tr>  
-        
+        </tr>
+
         <!-- individual language entries -->
         @for(entry <- entries) {
           @singleDoc(entry, entries.head.doc.id)
-        }         	
+        }
       }
-      
+
       <div id="document-list">
         <div id="total-progress">
           @defining(documents.flatMap(_._2).foldLeft((0, 0, 0))((stats, entry) =>
-          	(stats._1 + entry.stats.verified, stats._2 + entry.stats.yellow, stats._3 + entry.stats.total))) { s =>  
-          
+          	(stats._1 + entry.stats.verified, stats._2 + entry.stats.yellow, stats._3 + entry.stats.total))) { s =>
+
             <div class="label">
               @s._3 Toponyms Total
             </div>
@@ -231,11 +239,11 @@
                 </div>
               }
             }
-            
+
           }
         </div>
-        
-        <table class="index"> 
+
+        <table class="index">
           <tbody>
             @for((extWorkId, docs) <- documents) {
               @if(docs.size > 1) {
@@ -244,10 +252,10 @@
                 @singleDoc(docs.head)
               }
             }
-          </tbody> 
+          </tbody>
         </table>
       </div>
-      
+
     </div>
   </body>
 </html>
