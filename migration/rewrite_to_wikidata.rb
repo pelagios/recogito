@@ -10,7 +10,7 @@ class WikidataRewriter < BaseRewriter
 
   def initialize(outfile)
     super(outfile)
-    @concordances = WikidataToGeonames.new
+    @concordances = MaphistToWikidata.new
   end
 
   private def parseURI(uri)
@@ -48,9 +48,6 @@ class WikidataRewriter < BaseRewriter
   def rewrite_one(annotation)
     rewritten = false
 
-    puts "FOOOOOO"
-    puts @concordances
-
     bodies = annotation["bodies"]
     quote_body = getBody(bodies, "QUOTE")
     place_body = getBody(bodies, "PLACE")
@@ -72,7 +69,7 @@ class WikidataRewriter < BaseRewriter
       end
     end
 
-    open('out.jsonl', 'a') { |f| f.puts annotation.to_json }
+    open('out-wikidata.jsonl', 'a') { |f| f.puts annotation.to_json }
 
     rewritten
   end
