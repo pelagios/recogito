@@ -270,6 +270,42 @@ class CSVSerializer extends BaseSerializer {
       val lastModifiedBy = modified.map(_.username)
       val lastModifiedAt = modified.map(e => DATE_FORMAT.format(e.timestamp))
       
+      val tags = annotation.tags.map(_.split(',').toSeq).getOrElse(Seq.empty[String])
+      
+      val bodies = Seq(
+          Some(Json.obj(
+            "type" -> "QUOTE",
+            "last_modified_by" -> lastModifiedBy,
+            "last_modified_at" -> lastModifiedAt,
+            "value" -> toponym
+          )), Some(Json.obj(
+            "type" -> "PLACE",
+            "last_modified_by" -> lastModifiedBy,
+            "last_modified_at" -> lastModifiedAt,
+            "uri" -> { if (status == "NOT_IDENTIFIABLE") JsNull else uri },
+            "status" -> Json.obj(
+              "value" -> status.toString,
+              "set_by" -> lastModifiedBy,
+              "set_at" -> lastModifiedAt
+            )
+          )),
+          
+          annotation.comment.map { comment =>
+            Json.obj(
+              "type" -> "COMMENT",
+              "last_modified_by" -> lastModifiedBy,
+              "last_modified_at" -> lastModifiedAt,
+              "value" -> comment
+            )}
+        ).flatten ++ tags.map { tag =>
+          Json.obj(
+            "type" -> "TAG",
+            "last_modified_by" -> lastModifiedBy,
+            "last_modified_at" -> lastModifiedAt,
+            "value" -> tag    
+          )
+        }
+        
       val json = Json.obj(
         "annotation_id" -> annotation.uuid.toString,
         "version_id" -> UUID.randomUUID.toString,
@@ -281,24 +317,7 @@ class CSVSerializer extends BaseSerializer {
         "anchor" -> anchor,
         "last_modified_by" -> lastModifiedBy,
         "last_modified_at" -> lastModifiedAt,
-        "bodies" -> Seq(
-          Json.obj(
-            "type" -> "QUOTE",
-            "last_modified_by" -> lastModifiedBy,
-            "last_modified_at" -> lastModifiedAt,
-            "value" -> toponym
-          ), Json.obj(
-            "type" -> "PLACE",
-            "last_modified_by" -> lastModifiedBy,
-            "last_modified_at" -> lastModifiedAt,
-            "uri" -> { if (status == "NOT_IDENTIFIABLE") JsNull else uri },
-            "status" -> Json.obj(
-              "value" -> status.toString,
-              "set_by" -> lastModifiedBy,
-              "set_at" -> lastModifiedAt
-            )
-          )
-        )
+        "bodies" -> bodies
       )
       
       jsonl + Json.stringify(json) + "\n"
