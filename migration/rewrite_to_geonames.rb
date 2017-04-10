@@ -9,7 +9,7 @@ class GeoNamesRewriter < BaseRewriter
     @concordances = WikidataToGeonames.new
   end
 
-  def rewrite_wikidata(body, concordances)
+  def rewrite_wikidata(body)
     qid = body["uri"][WIKIDATA_PREFIX.length .. -1]
     match = @concordances.get(qid)
     if (match.nil?)
@@ -33,7 +33,7 @@ class GeoNamesRewriter < BaseRewriter
       uri = place_body["uri"]
       unless uri.nil?
         if uri.start_with?(WIKIDATA_PREFIX)
-          rewritten = rewrite_wikidata(place_body, concordances)
+          rewritten = rewrite_wikidata(place_body)
         end
       end
     end
